@@ -1,0 +1,48 @@
+*
+!.gitignore
+!.gitconfig
+!.latexmkrc
+!.ssh
+!.minttyrc
+!/.config/*
+!/.ssh/*
+
+
+ Volume in drive C is Windows
+ Volume Serial Number is B0E6-496F
+
+ Directory of C:\Users\wxyz
+
+05/09/2016  11:33 AM    <DIR>          .
+05/09/2016  11:33 AM    <DIR>          ..
+12/27/2015  09:06 PM               991 .bash_history
+02/04/2016  10:40 AM    <DIR>          .config
+05/02/2016  10:53 PM               941 .gitconfig
+12/28/2015  02:19 AM               128 .latexmkrc
+01/21/2016  02:40 PM                28 .lesshst
+12/26/2015  08:43 PM                45 .minttyrc
+03/10/2016  11:58 AM    <DIR>          .oracle_jre_usage
+02/24/2016  07:05 PM    <DIR>          .spyder2
+12/29/2015  11:36 PM    <DIR>          .ssh
+05/05/2016  10:57 AM    <DIR>          .thinkorswim
+05/05/2016  03:25 PM             7,639 .viminfo
+01/20/2016  11:40 PM    <DIR>          AppVerifierLogs
+03/03/2016  09:50 AM    <DIR>          Contacts
+04/28/2016  09:30 PM    <DIR>          Desktop
+05/05/2016  02:25 PM    <DIR>          Documents
+05/05/2016  11:11 AM    <DIR>          Downloads
+12/29/2015  11:33 PM    <DIR>          Dropbox
+01/19/2016  01:12 PM    <DIR>          dynamorio
+05/03/2016  08:24 AM    <DIR>          Favorites
+04/08/2016  11:21 AM    <DIR>          Fonts
+01/10/2016  05:17 PM    <DIR>          Google Drive
+12/29/2015  11:36 PM    <DIR>          latexmk
+03/03/2016  09:50 AM    <DIR>          Links
+03/03/2016  09:50 AM    <DIR>          Music
+01/31/2016  01:14 AM    <DIR>          OneDrive
+04/06/2016  09:02 AM    <DIR>          Pictures
+03/03/2016  09:50 AM    <DIR>          Saved Games
+03/03/2016  09:50 AM    <DIR>          Searches
+03/25/2016  08:55 PM    <DIR>          test
+12/29/2015  11:36 PM    <DIR>          Tracing
+04/20/2016  09:01 PM    <DIR>          Videos
