@@ -1,0 +1,8 @@
+*
+!.gitignore
+!.gitconfig
+!.latexmkrc
+!.xmaximarc
+!.ssh
+!.minttyrc
+!./.config/*

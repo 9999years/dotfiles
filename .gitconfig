@@ -1,0 +1,46 @@
+[filter "lfs"]
+	clean = git-lfs clean %f
+	smudge = git-lfs smudge %f
+	required = true
+[user]
+	name = Rebecca Turner
+[user]
+	email = 637275@gmail.com
+[core]
+	editor = vim
+	autocrlf = false
+[push]
+	default = simple
+[credential]
+	helper = wincred
+[alias]
+	last = log -1 HEAD
+	graph = log --format=\"%C(cyan)%H%Creset%n%C(red) %an %C(magenta reverse)%s%C(reset) %ar\" --graph
+	gr = log --format=\"%C(cyan)%H%Creset%n%C(red) %an %C(magenta reverse)%s%C(reset) %ar\" --graph
+	st = status --short --branch
+	a = add . --verbose
+	c = "commit --branch -m "
+
+	enchant = add
+	brew = commit
+	pray = commit
+	bless = init
+	spells = status
+	divine = diff
+	grimoire = log
+	necronomicon = log
+	obliterate = reset
+	sacrifice = reset --hard
+	banish = rm
+	excorcise = rm --cached
+	curse = checkout
+	mix = merge
+	conjure = pull
+	cast = push
+	smite = push --force
+	transcend = push
+	runes = show
+	teleport = mv
+	obtain = fetch
+	summon = clone
+	repent = checkout -
