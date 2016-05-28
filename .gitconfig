@@ -4,7 +4,6 @@
 	clean = git-lfs clean %f
 [user]
 	name = Rebecca Turner
-[user]
 	email = 637275@gmail.com
 [push]
 	default = simple
@@ -13,13 +12,19 @@
 [core]
 	editor = vim
 	autocrlf = false
+[merge]
+	conflictstyle = diff3
+[diff]
+	algorithm = minimal
+[rerere]
+	enabled = true
 [alias]
 	last = log -1 HEAD
-	graph = log --format=\"%C(cyan)%H%Creset%n%C(red) %an %C(magenta reverse)%s%C(reset) %ar\" --graph
-	gr = log --format=\"%C(cyan)%H%Creset%n%C(red) %an %C(magenta reverse)%s%C(reset) %ar\" --graph
+	graph = log --format=\"%C(cyan)%H%Creset%n%C(red) %an %C(reset)%s %ar\" --graph
 	st = status --short --branch
 	a = add . --verbose
 	c = "commit --branch -m "
+	changes = diff --cached
 
 	enchant = add
 	brew = commit
