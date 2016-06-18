@@ -51,7 +51,7 @@ set indexcirclecolor green
 set circlecolors {white blue gray blue blue}
 set linkfgcolor blue
 set circleoutlinecolor SystemWindowText
-set geometry(main) 2736x1660+49+49
+set geometry(main) 2736x1660+0+54
 set geometry(state) zoomed
 set geometry(topwidth) 2736
 set geometry(topheight) 1134
