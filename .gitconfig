@@ -12,6 +12,7 @@
 [core]
 	editor = vim
 	autocrlf = false
+	excludesfile = ~/.gitignore_global
 [merge]
 	conflictstyle = diff3
 [diff]
