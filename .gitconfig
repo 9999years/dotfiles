@@ -15,8 +15,10 @@
 	excludesfile = ~/.gitignore_global
 [merge]
 	conflictstyle = diff3
+	tool = vimdiff
 [diff]
 	algorithm = minimal
+	tool = vimdiff
 [rerere]
 	enabled = true
 [alias]
