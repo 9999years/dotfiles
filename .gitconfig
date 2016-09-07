@@ -15,8 +15,12 @@
 	excludesfile = ~/.gitignore_global
 [merge]
 	conflictstyle = diff3
+	tool = vimdiff
 [diff]
 	algorithm = minimal
+	tool = vimdiff
+[difftool]
+	prompt = false
 [rerere]
 	enabled = true
 [alias]
@@ -25,6 +29,7 @@
 	st = status --short --branch
 	a = add . --verbose
 	c = "commit --branch -m "
+	d = "difftool --extcmd='C:/WINDOWS/gvimdiff.bat'"
 	changes = diff --cached
 	abandon = checkout HEAD -- 
 
