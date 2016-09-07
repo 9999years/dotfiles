@@ -26,6 +26,7 @@
 	a = add . --verbose
 	c = "commit --branch -m "
 	changes = diff --cached
+	abandon = checkout HEAD -- 
 
 	enchant = add
 	brew = commit
