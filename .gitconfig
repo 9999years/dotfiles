@@ -31,6 +31,7 @@
 	c = "commit --branch -m "
 	d = "difftool --extcmd='C:/WINDOWS/gvimdiff.bat'"
 	changes = diff --cached
+	abandon = checkout HEAD -- 
 
 	enchant = add
 	brew = commit
