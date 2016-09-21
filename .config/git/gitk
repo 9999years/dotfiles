@@ -51,13 +51,6 @@ set indexcirclecolor green
 set circlecolors {white blue gray blue blue}
 set linkfgcolor blue
 set circleoutlinecolor SystemWindowText
-<<<<<<< HEAD
-set geometry(main) 1920x997+0+24
-||||||| merged common ancestors
-set geometry(main) 2736x1660+49+49
-=======
-set geometry(main) 2736x1660+0+54
->>>>>>> 7adec4bc978c7a740feb615802a8cf0f38206903
 set geometry(state) zoomed
 set geometry(topwidth) 1920
 set geometry(topheight) 552
