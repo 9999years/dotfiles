@@ -1,5 +1,5 @@
 #$pdflatex = 'xelatex %O %S';
-$pdflatex = 'xelatex -interaction=nonstopmode -synctex=1 -halt-on-error %O %S';
+$pdflatex = 'xelatex -interaction=nonstopmode -halt-on-error %O %S';
 $pdf_mode = 1;
 $postscript_mode =0;
 $dvi_mode = 0;
