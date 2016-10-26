@@ -3,6 +3,11 @@
 !.gitconfig
 !.latexmkrc
 !.xmaximarc
-!.minttyrc
+!.maximarc
 !.config
 gitk
+!.gitignore_global
+!.minttyrc
+!.viminfo
+!wxmaxima.ini
+!_curlrc

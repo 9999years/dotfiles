@@ -1,0 +1,3 @@
+decimal(input) := printf(false, "~f", input);
+log10(x) := log(x) / log(10);
+logn(x, n) := log(x) / log(n);
