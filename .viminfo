@@ -163,18 +163,26 @@
 	to 
 
 # File marks:
-'0  1  5  ~/Documents/LaTeX/.git/COMMIT_EDITMSG
-'1  3  0  ~/Documents/Vim/.git/COMMIT_EDITMSG
-'2  2  0  ~/Documents/LaTeX/.git/COMMIT_EDITMSG
-'3  2  0  ~/Documents/Vim/.git/COMMIT_EDITMSG
-'4  7  0  ~/Documents/c/i-c-the-light/.git/COMMIT_EDITMSG
-'5  4  12  ~/Documents/Vim/vimfiles/pack/kiss-boilerplate/start/kiss-boilerplate/.git/COMMIT_EDITMSG
-'6  17  28  ~/Documents/corpora/.git/COMMIT_EDITMSG
-'7  27  29  ~/Documents/corpora/.git/COMMIT_EDITMSG
-'8  4  21  ~/Documents/Vim/.git/COMMIT_EDITMSG
-'9  3  3  ~/Documents/LaTeX/.git/COMMIT_EDITMSG
+'0  1  9  ~/Documents/Vim/vimfiles/pack/kiss-boilerplate/start/kiss-boilerplate/boilerplate/.git/COMMIT_EDITMSG
+'1  3  3  ~/Documents/Vim/vimfiles/pack/kiss-boilerplate/start/kiss-boilerplate/.git/COMMIT_EDITMSG
+'2  1  0  ~/Documents/WindowsPowerShell/.git/COMMIT_EDITMSG
+'3  1  5  ~/Documents/LaTeX/.git/COMMIT_EDITMSG
+'4  3  0  ~/Documents/Vim/.git/COMMIT_EDITMSG
+'5  2  0  ~/Documents/LaTeX/.git/COMMIT_EDITMSG
+'6  2  0  ~/Documents/Vim/.git/COMMIT_EDITMSG
+'7  7  0  ~/Documents/c/i-c-the-light/.git/COMMIT_EDITMSG
+'8  7  12  ~/Documents/Vim/vimfiles/pack/kiss-boilerplate/start/kiss-boilerplate/.git/COMMIT_EDITMSG
+'9  17  28  ~/Documents/corpora/.git/COMMIT_EDITMSG
 
 # Jumplist (newest first):
+-'  1  9  ~/Documents/Vim/vimfiles/pack/kiss-boilerplate/start/kiss-boilerplate/boilerplate/.git/COMMIT_EDITMSG
+-'  2  0  ~/Documents/Vim/vimfiles/pack/kiss-boilerplate/start/kiss-boilerplate/boilerplate/.git/COMMIT_EDITMSG
+-'  3  3  ~/Documents/Vim/vimfiles/pack/kiss-boilerplate/start/kiss-boilerplate/.git/COMMIT_EDITMSG
+-'  24  0  ~/Documents/Vim/vimfiles/pack/kiss-boilerplate/start/kiss-boilerplate/.git/COMMIT_EDITMSG
+-'  45  2  ~/Documents/Vim/vimfiles/pack/kiss-boilerplate/start/kiss-boilerplate/.git/COMMIT_EDITMSG
+-'  4  0  ~/Documents/Vim/vimfiles/pack/kiss-boilerplate/start/kiss-boilerplate/.git/COMMIT_EDITMSG
+-'  1  0  ~/Documents/WindowsPowerShell/.git/COMMIT_EDITMSG
+-'  78  0  ~/Documents/WindowsPowerShell/.git/COMMIT_EDITMSG
 -'  1  5  ~/Documents/LaTeX/.git/COMMIT_EDITMSG
 -'  2  0  ~/Documents/LaTeX/.git/COMMIT_EDITMSG
 -'  3  0  ~/Documents/Vim/.git/COMMIT_EDITMSG
@@ -184,8 +192,8 @@
 -'  4  0  ~/Documents/Vim/.git/COMMIT_EDITMSG
 -'  7  0  ~/Documents/c/i-c-the-light/.git/COMMIT_EDITMSG
 -'  9  0  ~/Documents/c/i-c-the-light/.git/COMMIT_EDITMSG
--'  4  12  ~/Documents/Vim/vimfiles/pack/kiss-boilerplate/start/kiss-boilerplate/.git/COMMIT_EDITMSG
--'  5  0  ~/Documents/Vim/vimfiles/pack/kiss-boilerplate/start/kiss-boilerplate/.git/COMMIT_EDITMSG
+-'  7  12  ~/Documents/Vim/vimfiles/pack/kiss-boilerplate/start/kiss-boilerplate/.git/COMMIT_EDITMSG
+-'  8  0  ~/Documents/Vim/vimfiles/pack/kiss-boilerplate/start/kiss-boilerplate/.git/COMMIT_EDITMSG
 -'  17  28  ~/Documents/corpora/.git/COMMIT_EDITMSG
 -'  19  0  ~/Documents/corpora/.git/COMMIT_EDITMSG
 -'  27  29  ~/Documents/corpora/.git/COMMIT_EDITMSG
@@ -266,15 +274,24 @@
 -'  2  0  ~/Pictures/Art/projects/vector/.git/COMMIT_EDITMSG
 -'  1  0  ~/Pictures/Art/projects/vector/.git/COMMIT_EDITMSG
 -'  1  0  ~/ActualDocuments/LaTeX/.git/COMMIT_EDITMSG
--'  2  0  ~/ActualDocuments/LaTeX/.git/COMMIT_EDITMSG
--'  1  0  ~/ActualDocuments/LaTeX/.git/COMMIT_EDITMSG
--'  7  0  ~/Documents/c/i-c-the-light/.git/COMMIT_EDITMSG
--'  9  0  ~/Documents/c/i-c-the-light/.git/COMMIT_EDITMSG
--'  4  12  ~/Documents/Vim/vimfiles/pack/kiss-boilerplate/start/kiss-boilerplate/.git/COMMIT_EDITMSG
--'  5  0  ~/Documents/Vim/vimfiles/pack/kiss-boilerplate/start/kiss-boilerplate/.git/COMMIT_EDITMSG
--'  3  0  ~/Documents/Vim/.git/COMMIT_EDITMSG
 
 # History of marks within files (newest to oldest):
+
+> ~/Documents/Vim/vimfiles/pack/kiss-boilerplate/start/kiss-boilerplate/boilerplate/.git/COMMIT_EDITMSG
+	"	1	9
+	^	1	10
+	.	1	9
+	+	1	9
+
+> ~/Documents/Vim/vimfiles/pack/kiss-boilerplate/start/kiss-boilerplate/.git/COMMIT_EDITMSG
+	"	3	3
+	^	3	4
+	.	3	3
+	+	7	12
+	+	3	3
+
+> ~/Documents/WindowsPowerShell/.git/COMMIT_EDITMSG
+	"	1	0
 
 > ~/Documents/LaTeX/.git/COMMIT_EDITMSG
 	"	1	5
@@ -337,12 +354,6 @@
 	+	15	66
 	+	8	3
 	+	7	0
-
-> ~/Documents/Vim/vimfiles/pack/kiss-boilerplate/start/kiss-boilerplate/.git/COMMIT_EDITMSG
-	"	4	12
-	^	4	13
-	.	4	12
-	+	4	12
 
 > ~/Documents/corpora/.git/COMMIT_EDITMSG
 	"	17	28
