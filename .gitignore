@@ -8,6 +8,5 @@
 gitk
 !.gitignore_global
 !.minttyrc
-!.viminfo
 !wxmaxima.ini
 !_curlrc
