@@ -1,3 +1,6 @@
 decimal(input) := printf(false, "~f", input);
 log10(x) := log(x) / log(10);
 logn(x, n) := log(x) / log(n);
+rad2deg(rad) := rad * (180 / %pi);
+
+/* vim:set syn=maxima: */

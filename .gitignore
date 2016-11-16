@@ -1,12 +1,10 @@
-/*
+*
+!maxima/
+!maxima/**
 !.gitignore
 !.gitconfig
 !.latexmkrc
-!.xmaximarc
-!.maximarc
 !.config
-gitk
 !.gitignore_global
 !.minttyrc
-!wxmaxima.ini
 !_curlrc
