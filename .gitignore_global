@@ -10,6 +10,11 @@
 *.tar
 *.zip
 
+#===Executables===
+*.dll
+*.exe
+*.pyc
+
 #===Logs and databases===#
 *.log
 *.sql
