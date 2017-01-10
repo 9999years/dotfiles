@@ -1,0 +1,52 @@
+decimal(input) := printf(false, "~f", input);
+log10(x) := log(x) / log(10);
+logn(x, n) := log(x) / log(n);
+rad2deg(rad) := rad * (180 / %pi);
+deg2rad(deg) := (deg * %pi) / 180;
+
+trapezoidal(f, t, bottom, top, n) := block(
+	[f: f, t: t, bottom: bottom, top: top, n: n, delta],
+	/* Δt */
+	delta: (top - bottom) / n,
+	/* make f and t into f(t) (we use g(t) because f is taken) */
+	define(g(t), f),
+	/* function for getting the i-th slice */
+	x(i) := block([i: i], bottom + i * delta),
+	/* ½Δ × (f(x(0)) + 2(f(x(1)) + f(x(2)) + ... + f(x(n - 1))) + f(x(n)))
+	 * that didn't really clear things up.
+	 * google it if that confuses you
+	 */
+	ratsimp((delta/2)*(g(x(0)) + 2 * sum(g(x(i)), i, 1, n - 1) + g(x(n))))
+);
+
+midpoint(f, t, bottom, top, n) := block(
+	[f: f, t: t, bottom: bottom, top: top, n: n, delta],
+	delta: (top - bottom) / n,
+	define(g(t), f),
+	x(i) := block([i: i], bottom + ((2 * i - 1) / 2) * delta),
+	ratsimp(delta * sum(g(x(i)), i, 1, n))
+);
+
+leftendpoint(f, t, bottom, top, n) := block(
+	[f: f, t: t, bottom: bottom, top: top, n: n, delta],
+	delta: (top - bottom) / n,
+	define(g(t), f),
+	x(i) := block([i: i], bottom + i * delta),
+	ratsimp(delta * sum(g(x(i)), i, 0, n - 1))
+);
+
+rightendpoint(f, t, bottom, top, n) := block(
+	[f: f, t: t, bottom: bottom, top: top, n: n, delta],
+	delta: (top - bottom) / n,
+	define(g(t), f),
+	x(i) := block([i: i], bottom + i * delta),
+	ratsimp(delta * sum(g(x(i)), i, 1, n))
+);
+
+/* pairs well with package `units` */
+convert(amount, fromunit, tounit) := block(
+	[amount: amount, fromunit: fromunit, tounit: tounit, quantity],
+	map(rhs, solve(amount * fromunit = quantity * tounit, quantity))[1] * tounit
+);
+
+/* vim:set ft=maxima:syn=maxima: */
