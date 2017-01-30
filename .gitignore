@@ -1,6 +1,5 @@
 *
 !maxima/*
-maxima/maxima-init.mac
 !.gitignore
 !.gitconfig
 !.latexmkrc
