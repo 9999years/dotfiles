@@ -1,0 +1,54 @@
+decimal(input) := printf(false, "~f", input);
+log10(x) := log(x) / log(10);
+logn(x, n) := log(x) / log(n);
+rad2deg(rad) := rad * (180 / %pi);
+deg2rad(deg) := deg * (%pi / 180);
+
+trapezoidal(f, t, bottom, top, n) := block(
+	[f: f, t: t, bottom: bottom, top: top, n: n, dt],
+	/* delta */
+	dt: (top - bottom) / n,
+	/* make f and t into f(t) (we use g(t) because f is taken) */
+	define(g(t), f),
+	/* function for getting the i-th slice */
+	x(i) := block([i: i], bottom + i * dt),
+	/* sum 1/2 t * sum of all f(x(u)) from u = 0 to u = n
+	 * that didn't really clear things up.
+	 * google it if that confuses you
+	 */
+	ratsimp((dt/2)*(g(x(0)) + 2 * sum(g(x(i)), i, 1, n - 1) + g(x(n))))
+);
+
+midpoint(f, t, bottom, top, n) := block(
+	[f: f, t: t, bottom: bottom, top: top, n: n, dt],
+	dt: (top - bottom) / n,
+	define(g(t), f),
+	x(i) := block([i: i], bottom + ((2 * i - 1) / 2) * dt),
+	ratsimp(dt * sum(g(x(i)), i, 1, n))
+);
+
+leftendpoint(f, t, bottom, top, n) := block(
+	[f: f, t: t, bottom: bottom, top: top, n: n, dt],
+	dt: (top - bottom) / n,
+	define(g(t), f),
+	x(i) := block([i: i], bottom + i * dt),
+	ratsimp(dt * sum(g(x(i)), i, 0, n - 1))
+);
+
+rightendpoint(f, t, bottom, top, n) := block(
+	[f: f, t: t, bottom: bottom, top: top, n: n, dt],
+	dt: (top - bottom) / n,
+	define(g(t), f),
+	x(i) := block([i: i], bottom + i * dt),
+	ratsimp(dt * sum(g(x(i)), i, 1, n))
+);
+
+quad(a, b, c) := block(
+	discrim: sqrt(b^2 - 4 * a * c),
+	bottom: 2 * a,
+	[(-b + discrim) / bottom, (-b - discrim) / bottom]
+);
+
+load(antid);
+
+%G: 6.67408e-11;
