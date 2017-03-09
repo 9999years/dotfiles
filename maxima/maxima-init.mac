@@ -44,7 +44,7 @@ rightendpoint(f, t, bottom, top, n) := block(
 );
 
 quad(a, b, c) := block(
-	discrim: sqrt(b^2 - 4 * a * c),
+	discrim: sqrt(b^2 - 4 * a * c),
 	bottom: 2 * a,
 	[(-b + discrim) / bottom, (-b - discrim) / bottom]
 );
