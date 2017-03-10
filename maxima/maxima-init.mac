@@ -1,4 +1,3 @@
-decimal(input) := printf(false, "~f", input);
 log10(x) := log(x) / log(10);
 logn(x, n) := log(x) / log(n);
 rad2deg(rad) := rad * (180 / %pi);
@@ -54,5 +53,72 @@ quad(a, b, c) := block(
 
 load(antid);
 
-%G: 6.67408e-11;
-%K: 8.9875517873681764e9; /*N·m2/C2 (i.e. m/F)*/
+/* Given these variables:
+ *
+ *     a: 2*b$ b: 7*d+c+2$ c: d+2$ d: 31*%e$
+ *
+ * What's the symbolic representation of a? try "a, expand;".  You'll get
+ * 14d + 2c + 4. Evaluate it again and you'll get 2d + 434e + 8 -- oh no! One
+ * of the variables has been substituted for its numeric value, and it's no
+ * longer a value-independent *generic* equation.  You'll have to evaluate that
+ * another 3 times to get the decimal approximation (1356.268...), and you'll
+ * never get a generic equation for a in terms of the other variables.
+ *
+ * However, symb(a) immediately returns 16*d + 8 by recursively substituting
+ * any non-numeric variables until the expression stops changing
+ *
+ * numeric() returns a numeric representation which may include constants like
+ * e or pi, radicals, and fractions. numeric(a) is 496e + 8.
+ *
+ * dec() returns a plain decimal representation. dec(a) is 1356.268...
+ */
+
+numeric(expr) := ev(expr, infeval, expand)$
+
+dec(expr) := ev(expr, infeval, numer)$
+
+symb(expr, [talk]) := block(
+	[prev, var, i, simpler, thevars, subst_limit],
+	/* if true or "debug" is the second arg, print extra output */
+	speak: if length(talk) >= 1 then
+		if talk[1] = true or talk[1] = "debug" then
+			true
+		else
+			false,
+	prev: und, /* undefined */
+	subst_limit: 100,
+	expr,
+	/* while substituting variables changes the expression
+	 * (and we've done less than subst_limit rounds of substitutions)
+	 * substitute vars for values
+	 */
+	for i: 0 while prev # expr and i <= subst_limit do block(
+		i: i + 1,
+		/* get list of variables in expression */
+		thevars: listofvars(expr),
+		if speak then
+			printf(true, "~&loop, expr is ~a, vars are ~a",
+			expr, thevars),
+		/* roll values */
+		prev: expr,
+		for var in thevars do block(
+			/* get value of variable */
+			simpler: ev(var),
+			if speak then
+				printf(true,
+				"~&    ~a is ~a~&    ~a is scalar? ~a",
+				var, simpler, var, scalarp(simpler)),
+			/* substitute the var as long as it's
+			 * NOT a defined constant
+			 */
+			if not scalarp(simpler) then
+				expr: subst(simpler, var, expr)
+		)
+	),
+	expr
+)$
+
+%G: 6.67408e-11$
+declare(%G, constant)$
+%K: 8.9875517873681764e9$ /*N·m2/C2 (i.e. m/F)*/
+declare(%K, constant)$
