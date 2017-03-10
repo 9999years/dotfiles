@@ -43,12 +43,14 @@ rightendpoint(f, t, bottom, top, n) := block(
 );
 
 quad(a, b, c) := block(
+	discrim: sqrt(b^2 - 4 * a * c),
 	[a: a, b: b, c: c],
 	if (equal(a, 0)) then
 		error("ERROR: x^2 coefficient cannot be equal to 0!"),
 	discrim: sqrt(b^2 - 4 * a * c),
 	bottom: 2 * a,
-	[(-b + discrim) / bottom, (-b - discrim) / bottom]
+	[(-b + discrim) / bottom,
+	 (-b - discrim) / bottom]
 );
 
 load(antid);
