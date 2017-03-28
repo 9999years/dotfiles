@@ -79,6 +79,13 @@ numeric(expr) := ev(expr, infeval, expand)$
 
 dec(expr) := ev(expr, infeval, numer)$
 
+sci(expr) := block(
+	[deci, exponent],
+	deci: dec(expr),
+	exponent: floor(log10(dec(expr))),
+	printf(false, "~f * 10^~d", deci/10^exponent, exponent)
+)$
+
 symb(expr, [talk]) := block(
 	[prev, var, i, simpler, thevars, subst_limit],
 	/* if true or "debug" is the second arg, print extra output */
@@ -124,3 +131,24 @@ symb(expr, [talk]) := block(
 declare(%G, constant)$
 %K: 8.9875517873681764e9$ /*N·m2/C2 (i.e. m/F)*/
 declare(%K, constant)$
+%E_0: 8.854187817e-12$
+declare(%E_0, constant)$
+e: 1.6021766208e−19$ /* coulombs, fundamental charge val. */
+declare(e, constant)
+
+exa(n)   := n * 1e18  $
+peta(n)  := n * 1e15  $
+tera(n)  := n * 1e12  $
+giga(n)  := n * 1e9   $
+mega(n)  := n * 1e6   $
+kilo(n)  := n * 1e3   $
+hecto(n) := n * 1e2   $
+deca(n)  := n * 1e1   $
+deci(n)  := n * 1e−1  $
+centi(n) := n * 1e−2  $
+milli(n) := n * 1e−3  $
+micro(n) := n * 1e−6  $
+nano(n)  := n * 1e−9  $
+pico(n)  := n * 1e−12 $
+femto(n) := n * 1e−15 $
+atto(n)  := n * 1e−18 $
