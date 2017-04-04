@@ -59,12 +59,12 @@ load(antid);
  *
  *     a: 2*b$ b: 7*d+c+2$ c: d+2$ d: 31*%e$
  *
- * What's the symbolic representation of a? try "a, expand;".  You'll get
- * 14d + 2c + 4. Evaluate it again and you'll get 2d + 434e + 8 -- oh no! One
- * of the variables has been substituted for its numeric value, and it's no
- * longer a value-independent *generic* equation.  You'll have to evaluate that
- * another 3 times to get the decimal approximation (1356.268...), and you'll
- * never get a generic equation for a in terms of the other variables.
+ * What's the symbolic representation of a? try "a, expand;".  You'll get 14d
+ * + 2c + 4. Evaluate it again and you'll get 2d + 434e + 8 -- oh no! One of
+ * the variables has been substituted for its numeric value, and it's no
+ * longer a value-independent *generic* equation.  You'll have to evaluate
+ * that another 3 times to get the decimal approximation (1356.268...), and
+ * you'll never get a generic equation for a in terms of the other variables.
  *
  * However, symb(a) immediately returns 16*d + 8 by recursively substituting
  * any non-numeric variables until the expression stops changing
@@ -129,12 +129,12 @@ symb(expr, [talk]) := block(
 
 %G: 6.67408e-11$
 declare(%G, constant)$
-%K: 8.9875517873681764e9$ /*N·m2/C2 (i.e. m/F)*/
+%K: 8.9875517873681764e9$ /*N * m^2/C^2 (i.e. m/F)*/
 declare(%K, constant)$
 %E_0: 8.854187817e-12$
 declare(%E_0, constant)$
-e: 1.6021766208e−19$ /* coulombs, fundamental charge val. */
-declare(e, constant)
+e: 1.6021766208e-19$ /* coulombs, fundamental charge val. */
+declare(e, constant)$
 
 exa(n)   := n * 1e18  $
 peta(n)  := n * 1e15  $
@@ -144,11 +144,11 @@ mega(n)  := n * 1e6   $
 kilo(n)  := n * 1e3   $
 hecto(n) := n * 1e2   $
 deca(n)  := n * 1e1   $
-deci(n)  := n * 1e−1  $
-centi(n) := n * 1e−2  $
-milli(n) := n * 1e−3  $
-micro(n) := n * 1e−6  $
-nano(n)  := n * 1e−9  $
-pico(n)  := n * 1e−12 $
-femto(n) := n * 1e−15 $
-atto(n)  := n * 1e−18 $
+deci(n)  := n * 1e-1  $
+centi(n) := n * 1e-2  $
+milli(n) := n * 1e-3  $
+micro(n) := n * 1e-6  $
+nano(n)  := n * 1e-9  $
+pico(n)  := n * 1e-12 $
+femto(n) := n * 1e-15 $
+atto(n)  := n * 1e-18 $
