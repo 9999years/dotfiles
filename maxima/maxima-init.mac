@@ -1,7 +1,8 @@
-log10(x) := log(x) / log(10);
-logn(x, n) := log(x) / log(n);
-rad2deg(rad) := rad * (180 / %pi);
-deg2rad(deg) := deg * (%pi / 180);
+log10(x)     := log(x) / log(10)$
+logn(x, n)   := log(x) / log(n)$
+rad2deg(rad) := rad * (180 / %pi)$
+deg2rad(deg) := deg * (%pi / 180)$
+circ(r)      := %pi * r^2;
 
 trapezoidal(f, t, bottom, top, n) := block(
 	[f: f, t: t, bottom: bottom, top: top, n: n, dt],
@@ -13,10 +14,9 @@ trapezoidal(f, t, bottom, top, n) := block(
 	x(i) := block([i: i], bottom + i * dt),
 	/* sum 1/2 t * sum of all f(x(u)) from u = 0 to u = n
 	 * that didn't really clear things up.
-	 * google it if that confuses you
-	 */
+	 * google it if that confuses you */
 	ratsimp((dt/2)*(g(x(0)) + 2 * sum(g(x(i)), i, 1, n - 1) + g(x(n))))
-);
+)$
 
 midpoint(f, t, bottom, top, n) := block(
 	[f: f, t: t, bottom: bottom, top: top, n: n, dt],
@@ -24,7 +24,7 @@ midpoint(f, t, bottom, top, n) := block(
 	define(g(t), f),
 	x(i) := block([i: i], bottom + ((2 * i - 1) / 2) * dt),
 	ratsimp(dt * sum(g(x(i)), i, 1, n))
-);
+)$
 
 leftendpoint(f, t, bottom, top, n) := block(
 	[f: f, t: t, bottom: bottom, top: top, n: n, dt],
@@ -32,7 +32,7 @@ leftendpoint(f, t, bottom, top, n) := block(
 	define(g(t), f),
 	x(i) := block([i: i], bottom + i * dt),
 	ratsimp(dt * sum(g(x(i)), i, 0, n - 1))
-);
+)$
 
 rightendpoint(f, t, bottom, top, n) := block(
 	[f: f, t: t, bottom: bottom, top: top, n: n, dt],
@@ -40,7 +40,7 @@ rightendpoint(f, t, bottom, top, n) := block(
 	define(g(t), f),
 	x(i) := block([i: i], bottom + i * dt),
 	ratsimp(dt * sum(g(x(i)), i, 1, n))
-);
+)$
 
 quad(a, b, c) := block(
 	discrim: sqrt(b^2 - 4 * a * c),
@@ -51,9 +51,9 @@ quad(a, b, c) := block(
 	bottom: 2 * a,
 	[(-b + discrim) / bottom,
 	 (-b - discrim) / bottom]
-);
+)$
 
-load(antid);
+load(antid)$
 
 /* Given these variables:
  *
@@ -72,8 +72,7 @@ load(antid);
  * numeric() returns a numeric representation which may include constants like
  * e or pi, radicals, and fractions. numeric(a) is 496e + 8.
  *
- * dec() returns a plain decimal representation. dec(a) is 1356.268...
- */
+ * dec() returns a plain decimal representation. dec(a) is 1356.268... */
 
 numeric(expr) := ev(expr, infeval, expand)$
 
@@ -99,8 +98,7 @@ symb(expr, [talk]) := block(
 	expr,
 	/* while substituting variables changes the expression
 	 * (and we've done less than subst_limit rounds of substitutions)
-	 * substitute vars for values
-	 */
+	 * substitute vars for values */
 	for i: 0 while prev # expr and i <= subst_limit do block(
 		i: i + 1,
 		/* get list of variables in expression */
@@ -118,8 +116,7 @@ symb(expr, [talk]) := block(
 				"~&    ~a is ~a~&    ~a is scalar? ~a",
 				var, simpler, var, scalarp(simpler)),
 			/* substitute the var as long as it's
-			 * NOT a defined constant
-			 */
+			 * NOT a defined constant */
 			if not scalarp(simpler) then
 				expr: subst(simpler, var, expr)
 		)
@@ -129,12 +126,14 @@ symb(expr, [talk]) := block(
 
 %G: 6.67408e-11$
 declare(%G, constant)$
-%K: 8.9875517873681764e9$ /*N·m2/C2 (i.e. m/F)*/
+%K: 8.9875517873681764e9$ /* N m^2/C^2 = m/F */
 declare(%K, constant)$
-%E_0: 8.854187817e-12$
+%E_0: 8.854187817e-12$ /* vacuum permutivity */
 declare(%E_0, constant)$
-e: 1.6021766208e−19$ /* coulombs, fundamental charge val. */
-declare(e, constant)
+e: 1.6021766208e-19$ /* coulombs, fundamental charge val. */
+declare(e, constant)$
+e_mass: 9.10938356e-31$ /* kg */
+declare(e_mass, constant)$
 
 exa(n)   := n * 1e18  $
 peta(n)  := n * 1e15  $
@@ -144,11 +143,11 @@ mega(n)  := n * 1e6   $
 kilo(n)  := n * 1e3   $
 hecto(n) := n * 1e2   $
 deca(n)  := n * 1e1   $
-deci(n)  := n * 1e−1  $
-centi(n) := n * 1e−2  $
-milli(n) := n * 1e−3  $
-micro(n) := n * 1e−6  $
-nano(n)  := n * 1e−9  $
-pico(n)  := n * 1e−12 $
-femto(n) := n * 1e−15 $
-atto(n)  := n * 1e−18 $
+deci(n)  := n * 1e-1  $
+centi(n) := n * 1e-2  $
+milli(n) := n * 1e-3  $
+micro(n) := n * 1e-6  $
+nano(n)  := n * 1e-9  $
+pico(n)  := n * 1e-12 $
+femto(n) := n * 1e-15 $
+atto(n)  := n * 1e-18 $
