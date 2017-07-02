@@ -15,12 +15,16 @@
 	excludesfile = ~/.gitignore_global
 [merge]
 	conflictstyle = diff3
-	tool = vimdiff
+	tool = araxis
 [diff]
 	algorithm = minimal
-	tool = vimdiff
+	tool = araxis
 [difftool]
 	prompt = false
+[difftool "araxis"]
+	path = C:\\Program Files\\Araxis\\Araxis Merge\\compare.exe
+[mergetool "araxis"]
+	path = C:\\Program Files\\Araxis\\Araxis Merge\\compare.exe
 [rerere]
 	enabled = true
 [alias]
@@ -28,31 +32,6 @@
 	graph = log --format=\"%C(cyan)%H%Creset%n%C(red) %an %C(reset)%s %ar\" --graph
 	st = status --short --branch
 	a = add . --verbose
-	c = "commit --branch -m "
-	d = "difftool --extcmd='C:/WINDOWS/gvimdiff.bat'"
 	changes = diff --cached
+	ch = diff --cached
 	abandon = checkout HEAD -- 
-
-	enchant = add
-	brew = commit
-	pray = commit
-	bless = init
-	spells = status
-	divine = diff
-	grimoire = log
-	necronomicon = log
-	obliterate = reset
-	sacrifice = reset --hard
-	banish = rm
-	excorcise = rm --cached
-	curse = checkout
-	mix = merge
-	conjure = pull
-	cast = push
-	smite = push --force
-	transcend = push
-	runes = show
-	teleport = mv
-	obtain = fetch
-	summon = clone
-	repent = checkout -
