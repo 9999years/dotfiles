@@ -135,19 +135,26 @@ declare(e, constant)$
 e_mass: 9.10938356e-31$ /* kg */
 declare(e_mass, constant)$
 
+/* SI and "standard" prefix functions */
+/* e.g. millions(1) = 1,000,000 */
+
 exa(n)   := n * 1e18  $
-peta(n)  := n * 1e15  $
-tera(n)  := n * 1e12  $
-giga(n)  := n * 1e9   $
-mega(n)  := n * 1e6   $
-kilo(n)  := n * 1e3   $
-hecto(n) := n * 1e2   $
-deca(n)  := n * 1e1   $
-deci(n)  := n * 1e-1  $
-centi(n) := n * 1e-2  $
-milli(n) := n * 1e-3  $
-micro(n) := n * 1e-6  $
-nano(n)  := n * 1e-9  $
-pico(n)  := n * 1e-12 $
-femto(n) := n * 1e-15 $
+peta(n)  := n * 1e15  $ quadrillion(n)   := n * 1e15  $
+tera(n)  := n * 1e12  $ trillion(n)      := n * 1e12  $
+giga(n)  := n * 1e9   $ billion(n)       := n * 1e9   $
+mega(n)  := n * 1e6   $ million(n)       := n * 1e6   $
+kilo(n)  := n * 1e3   $ thousand(n)      := n * 1e3   $
+hecto(n) := n * 1e2   $ hundred(n)       := n * 1e2   $
+deca(n)  := n * 1e1   $ ten(n)           := n * 1e1   $
+deci(n)  := n * 1e-1  $ tenth(n)         := n * 1e-1  $
+centi(n) := n * 1e-2  $ hundredth(n)     := n * 1e-2  $
+milli(n) := n * 1e-3  $ thousandth(n)    := n * 1e-3  $
+micro(n) := n * 1e-6  $ millionth(n)     := n * 1e-6  $
+nano(n)  := n * 1e-9  $ billionth(n)     := n * 1e-9  $
+pico(n)  := n * 1e-12 $ trillionth(n)    := n * 1e-12 $
+femto(n) := n * 1e-15 $ quadrillionth(n) := n * 1e-15 $
 atto(n)  := n * 1e-18 $
+
+/* these don't line up w/ greek prefixes */
+decillion(n)  := n * 1e33  $ decillionth(n)  := n * 1e-33 $
+centillion(n) := n * 1e303 $ centillionth(n) := n * 1e303 $

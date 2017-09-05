@@ -35,3 +35,5 @@
 	changes = diff --cached
 	ch = diff --cached
 	abandon = checkout HEAD -- 
+[hub]
+	protocol = https
