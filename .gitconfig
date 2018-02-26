@@ -15,16 +15,10 @@
 	excludesfile = ~/.gitignore_global
 [merge]
 	conflictstyle = diff3
-	tool = araxis
 [diff]
 	algorithm = minimal
-	tool = araxis
 [difftool]
 	prompt = false
-[difftool "araxis"]
-	path = C:\\Program Files\\Araxis\\Araxis Merge\\compare.exe
-[mergetool "araxis"]
-	path = C:\\Program Files\\Araxis\\Araxis Merge\\compare.exe
 [rerere]
 	enabled = true
 [alias]
