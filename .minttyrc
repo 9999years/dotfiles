@@ -1,7 +1,4 @@
 BoldAsFont=no
-<<<<<<< HEAD
-=======
 Term=xterm
->>>>>>> refs/remotes/origin/master
 Font=PragmataPro
 FontHeight=10
