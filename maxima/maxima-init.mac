@@ -124,6 +124,13 @@ symb(expr, [talk]) := block(
 	expr
 )$
 
+graph(expr, [xtra]) := block(
+	[arguments, secondary],
+	secondary: push([x, -10, 10], xtra),
+	arguments: cons(expr, xtra),
+	apply(wxplot2d, arguments)
+)$
+
 %G: 6.67408e-11$
 declare(%G, constant)$
 %K: 8.9875517873681764e9$ /* N m^2/C^2 = m/F */
