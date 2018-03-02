@@ -9,6 +9,7 @@
 	default = simple
 [credential]
 	helper = manager
+	modalPrompt = true
 [core]
 	editor = vim
 	autocrlf = false
