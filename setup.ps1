@@ -9,7 +9,8 @@ function LinkFile {
 			ValueFromPipeline=$True
 		)]
 		[String] $Name,
-		[Switch] $Force
+		[Switch] $Force,
+		[Switch] $Ask
 	)
 
 	Process {
@@ -18,8 +19,15 @@ function LinkFile {
 		"Linking from $From to $To" | Write-Verbose
 
 		If(Test-Path $From) {
+			$resp = ""
+			If(!$Force -and $Ask) {
+				"$From already exists!"
+				While($resp -notmatch "[yn]") {
+					$resp = Read-Host "Write anyways? (y/n)"
+				}
+			}
 			# file already exists
-			If($Force) {
+			If($Force -or ($resp -match "y")) {
 				Remove-Item $From -Force
 			} Else {
 				# magic number means "file already exists"
@@ -30,7 +38,8 @@ function LinkFile {
 		}
 
 		#mklink
-		New-Item -Path $From -Value $To -ItemType SymbolicLink
+		New-Item -Path $From -Value $To -ItemType SymbolicLink | `
+		%{ $_.Name }
 	}
 }
 
@@ -39,4 +48,5 @@ function LinkFile {
 ".gitignore_global",
 ".latexmkrc",
 ".minttyrc",
-"_curlrc") | LinkFile
+"_curlrc",
+"AppData/Roaming/ConEmu.xml") | LinkFile -Ask
