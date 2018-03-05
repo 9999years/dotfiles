@@ -6,7 +6,7 @@
 	name = Rebecca Turner
 	email = 637275@gmail.com
 [push]
-	default = simple
+	default = current
 [credential]
 	helper = manager
 	modalPrompt = true
@@ -32,3 +32,6 @@
 	abandon = checkout HEAD -- 
 [hub]
 	protocol = https
+[branch]
+	autosetupmerge = always
+	autosetuprebase = always
