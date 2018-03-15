@@ -1,4 +1,5 @@
-$pdflatex = 'xelatex -interaction=nonstopmode -halt-on-error %O %S';
+$pdflatex = 'xelatex %O %S';
+$pdflatex_silent_switch = "-interaction=nonstopmode -halt-on-error -c-style-errors -quiet";
 $pdf_mode = 1;
 $postscript_mode =0;
 $dvi_mode = 0;
@@ -26,7 +27,7 @@ sub lint {
   # lint
   run_lacheck $fname;
   run_chktex $fname;
-  return system(@_);
+  system(@_);
 }
 
 $pdflatex = "internal lint %S $pdflatex";
