@@ -22,14 +22,14 @@ function LinkFile {
 			$resp = ""
 			If(!$Force -and $Ask) {
 				"$From already exists!"
-				While($resp -notmatch "[yn]") {
-					$resp = Read-Host "Write anyways? (y/n)"
+				While($resp -notmatch "[yqs]") {
+					$resp = Read-Host "Write anyways? ([y]es/[q]uit/[s]kip)"
 				}
 			}
 			# file already exists
 			If($Force -or ($resp -match "y")) {
 				Remove-Item $From -Force
-			} Else {
+			} ElseIf (!($resp -match "s")) {
 				# magic number means "file already exists"
 				Throw [System.IO.IOException]::new(
 					"$From already exists!",
@@ -45,6 +45,7 @@ function LinkFile {
 
 "Linking files"
 (".gitconfig",
+".gitignore_global",
 ".gitignore_global",
 ".latexmkrc",
 ".minttyrc",
