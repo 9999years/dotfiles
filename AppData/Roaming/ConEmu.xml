@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <key name="Software">
 	<key name="ConEmu">
-		<key name=".Vanilla" modified="2018-04-08 22:29:44" build="180318">
+		<key name=".Vanilla" modified="2018-03-10 15:55:05" build="180206">
 			<value name="StartType" type="hex" data="02"/>
 			<value name="CmdLine" type="string" data=""/>
 			<value name="StartTasksFile" type="string" data=""/>
@@ -56,10 +56,10 @@
 			<value name="Update.UseBuilds" type="hex" data="01"/>
 			<value name="FontUseDpi" type="hex" data="01"/>
 			<value name="FontUseUnits" type="hex" data="01"/>
-			<value name="FontSize" type="ulong" data="15"/>
+			<value name="FontSize" type="ulong" data="16"/>
 			<value name="StatusFontHeight" type="long" data="12"/>
 			<value name="TabFontHeight" type="long" data="13"/>
-			<key name="HotKeys" modified="2018-03-05 22:31:13" build="180206">
+			<key name="HotKeys" modified="2018-03-02 23:50:33" build="180206">
 				<value name="MinimizeRestore" type="dword" data="000011c0"/>
 				<value name="KeyMacroVersion" type="hex" data="02"/>
 				<value name="Multi.Modifier" type="dword" data="000000a2"/>
@@ -306,8 +306,7 @@
 			<value name="JumpListAutoUpdate" type="hex" data="01"/>
 			<value name="SaveCmdHistory" type="hex" data="01"/>
 			<value name="CmdLineHistory" type="multi">
-				<line data="{Shells::PowerShell (Admin)}"/>
-				<line data='"powershell.exe"'/>
+				<line data='"C:\Program Files\MiKTeX 2.9\miktex\bin\x64\latexmk.exe" -quiet "C:\Users\arvensis\Documents\LaTeX\physics\cheat.tex" '/>
 			</value>
 			<value name="ShowHelpTooltips" type="hex" data="01"/>
 			<value name="Multi" type="hex" data="01"/>
@@ -329,14 +328,14 @@
 			<value name="Multi.Iterate" type="hex" data="01"/>
 			<value name="Multi.SplitWidth" type="hex" data="04"/>
 			<value name="Multi.SplitHeight" type="hex" data="04"/>
-			<value name="FontName" type="string" data="PragmataPro"/>
+			<value name="FontName" type="string" data="PragmataPro Mono"/>
 			<value name="FontName2" type="string" data="Consolas"/>
 			<value name="FontAutoSize" type="hex" data="00"/>
 			<value name="FontSizeX" type="ulong" data="0"/>
 			<value name="FontSizeX2" type="ulong" data="0"/>
 			<value name="FontSizeX3" type="ulong" data="0"/>
 			<value name="FontCharSet" type="hex" data="01"/>
-			<value name="Anti-aliasing" type="ulong" data="3"/>
+			<value name="Anti-aliasing" type="ulong" data="6"/>
 			<value name="FontBold" type="hex" data="00"/>
 			<value name="FontItalic" type="hex" data="00"/>
 			<value name="Monospace" type="hex" data="01"/>
@@ -358,11 +357,11 @@
 			<value name="Cascaded" type="hex" data="01"/>
 			<value name="IntegralSize" type="hex" data="00"/>
 			<value name="WindowMode" type="dword" data="0000051f"/>
-			<value name="ConWnd X" type="long" data="208"/>
-			<value name="ConWnd Y" type="long" data="140"/>
-			<value name="LastMonitor" type="string" data="0,0,1920,1040"/>
-			<value name="ConWnd Width" type="dword" data="00000054"/>
-			<value name="ConWnd Height" type="dword" data="0000002d"/>
+			<value name="ConWnd X" type="long" data="289"/>
+			<value name="ConWnd Y" type="long" data="0"/>
+			<value name="LastMonitor" type="string" data="0,0,2736,1744"/>
+			<value name="ConWnd Width" type="dword" data="00000051"/>
+			<value name="ConWnd Height" type="dword" data="00000027"/>
 			<value name="16bit Height" type="ulong" data="0"/>
 			<value name="Restore2ActiveMon" type="hex" data="00"/>
 			<value name="QuakeAnimation" type="ulong" data="300"/>
@@ -408,8 +407,8 @@
 			<value name="CTS.RBtnAction" type="hex" data="03"/>
 			<value name="CTS.MBtnAction" type="hex" data="00"/>
 			<value name="CTS.ColorIndex" type="hex" data="E0"/>
-			<value name="ClipboardConfirmEnter" type="hex" data="01"/>
-			<value name="ClipboardConfirmLonger" type="ulong" data="200"/>
+			<value name="ClipboardConfirmEnter" type="hex" data="00"/>
+			<value name="ClipboardConfirmLonger" type="ulong" data="0"/>
 			<value name="FarGotoEditorOpt" type="hex" data="01"/>
 			<value name="FarGotoEditorPath" type="string" data='far.exe /e%1:%2 "%3"'/>
 			<value name="HighlightMouseRow" type="hex" data="00"/>
