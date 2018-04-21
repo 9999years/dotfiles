@@ -28,7 +28,7 @@ sub lint {
   # lint
   run_lacheck $fname;
   run_chktex $fname;
-  return system(@_);
+  system(@_);
 }
 
 $pdflatex = "internal lint %S $pdflatex";
