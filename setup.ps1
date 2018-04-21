@@ -43,10 +43,14 @@ function LinkFile {
 	}
 }
 
+"Linking files"
 (".gitconfig",
-".gitignore",
 ".gitignore_global",
 ".latexmkrc",
 ".minttyrc",
+"pip.conf",
 "_curlrc",
+"youtube-dl.conf",
 "AppData/Roaming/ConEmu.xml") | LinkFile -Ask
+
+"To restore local group policy run './gp/restore.ps1'; this will overwrite all current group policy! Use https://github.com/dlwyatt/PolicyFileEditor/blob/master/Commands.ps1 instead?"
