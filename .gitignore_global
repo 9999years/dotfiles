@@ -36,3 +36,4 @@ Thumbs.db
 *.sw[abcdefghijklmnop]
 
 .sass-cache
+.pytest_cache
