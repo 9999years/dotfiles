@@ -37,3 +37,5 @@
 [branch]
 	autosetupmerge = always
 	autosetuprebase = always
+[branch.master]
+	remote = origin

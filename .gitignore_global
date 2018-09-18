@@ -14,6 +14,7 @@
 *.dll
 *.exe
 *.pyc
+*.class
 
 #===Logs and databases===#
 *.log
@@ -35,5 +36,6 @@ Thumbs.db
 *.bak
 *.sw[abcdefghijklmnop]
 
+#===Cache files===
 .sass-cache
 .pytest_cache
