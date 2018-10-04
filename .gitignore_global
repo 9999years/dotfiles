@@ -39,3 +39,5 @@ Thumbs.db
 #===Cache files===
 .sass-cache
 .pytest_cache
+
+.idea/libraries/**
