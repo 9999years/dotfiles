@@ -1,6 +1,6 @@
-# vim:ft=perl
-
-$pdflatex = 'xelatex -interaction=nonstopmode -halt-on-error %O %S';
+# vim: ft=perl
+$pdflatex = 'xelatex %O %S';
+$pdflatex_silent_switch = "-interaction=nonstopmode -halt-on-error";
 $pdf_mode = 1;
 $postscript_mode =0;
 $dvi_mode = 0;

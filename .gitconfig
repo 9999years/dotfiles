@@ -6,7 +6,7 @@
 	name = Rebecca Turner
 	email = 637275@gmail.com
 [push]
-	default = current
+	default = simple
 	followTags = true
 [credential]
 	helper = manager
