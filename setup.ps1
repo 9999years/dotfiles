@@ -51,7 +51,7 @@ Begin {
 Process {
 	ForEach($Name in $Names) {
 		$From = Join-Path $env:USERPROFILE $Name
-		$To = Resolve-Path $Name
+		$To = Join-Path $PSScriptRoot $Name
 		"Linking from $From to $To" | Write-Verbose
 
 		$skip = $False
