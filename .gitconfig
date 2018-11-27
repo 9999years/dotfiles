@@ -37,6 +37,7 @@
 	protocol = https
 [branch]
 	autosetupmerge = always
-	autosetuprebase = always
 [branch.master]
 	remote = origin
+[gui]
+	encoding = utf-8
