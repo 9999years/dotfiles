@@ -22,7 +22,6 @@ Param(
 )
 
 Begin {
-	"Linking files"
 	if ($ConfirmPreference -eq 'Low') {
 		$YesToAll = $False
 	} else {
@@ -46,12 +45,13 @@ Process {
 			If($PSCmdlet.ShouldContinue("Overwrite $From with a link to $To?",
 					"Confirm overwrite", [ref]$YesToAll, [ref]$NoToAll)) {
 				Remove-Item $From -Confirm:$False
+				New-Item -Path $From -Value $To -ItemType SymbolicLink -Confirm:$False |
+					Out-Null
 			}
+		} Else {
+			New-Item -Path $From -Value $To -ItemType SymbolicLink -Confirm:$False |
+				Out-Null
 		}
-
-		#mklink
-		New-Item -Path $From -Value $To -ItemType SymbolicLink -Confirm:$False |
-			Out-Null
 		$Name
 	}
 }
