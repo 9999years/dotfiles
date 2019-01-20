@@ -20,7 +20,7 @@
 [merge]
 	conflictstyle = diff3
 [diff]
-	algorithm = minimal
+	algorithm = patience
 [difftool]
 	prompt = false
 [rerere]
