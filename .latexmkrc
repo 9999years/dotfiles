@@ -2,20 +2,19 @@
 $pdflatex = 'xelatex %O %S';
 $pdflatex_silent_switch = "-interaction=nonstopmode -halt-on-error";
 $pdf_mode = 1;
-$postscript_mode =0;
+$postscript_mode = 0;
 $dvi_mode = 0;
-$pdf_previewer = 'start "C:/Program Files/SumatraPDF/SumatraPDF.exe" %O %S';
+$pdf_previewer = '"C:/Program Files/SumatraPDF/SumatraPDF.exe" %O %S';
 $preview_continuous_mode = 1;
 $aux_dir = 'extra';
 
 sub run_chktex {
   my $name = shift;
+  my $chktex_opts = "";
   if ( $silent ) {
-    system "chktex -q -v0 $name";
+    $chktex_opts = "-q -v0";
   }
-  else {
-    system "chktex $name";
-  };
+  system "chktex $chktex_opts $name";
 }
 
 sub run_lacheck {
@@ -26,8 +25,8 @@ sub run_lacheck {
 sub lint {
   my $fname = shift;
   # lint
-  run_lacheck $fname;
-  run_chktex $fname;
+  run_lacheck($fname);
+  run_chktex($fname);
   system(@_);
 }
 
