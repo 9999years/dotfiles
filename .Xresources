@@ -1,0 +1,9 @@
+XTerm*renderFont: true
+XTerm*faceName: PragmataPro Mono Liga
+XTerm*faceSize: 12
+XTerm*termName: xterm-256color
+XTerm*background: #000854
+XTerm*foreground: #e8fff8
+XTerm*cursorColor: #00edad
+xterm*selectToClipboard: true
+xterm*disallowedWindowOps: 20,21,SetXProp
