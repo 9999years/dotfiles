@@ -1,0 +1,15 @@
+.bash_profile
+.bashrc
+.curlrc
+.fonts.conf
+.gitattributes_global
+.gitconfig
+.gitignore_global
+.latexmkrc
+.minttyrc
+.pip.conf
+.ptpython/config.py
+.pythonrc
+.tmux.conf
+.Xresources
+.youtube-dl.conf
