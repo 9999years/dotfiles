@@ -1,9 +1,17 @@
+#!/bin/bash
+
 # bash... not good...
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 while read file; do
-	REL="$(abs2rel "$SCRIPT_DIR/$file" "$HOME")"
 	DIR="$HOME/$(dirname "$file")"
-	echo "$DIR -> $REL"
-	ln -s "$REL" "$DIR"
+	REL="$(abs2rel "$SCRIPT_DIR/$file" "$DIR")"
+	DEST="$HOME/$file"
+	if [[ ! -w "$DEST" ]]
+	then
+		echo -e "\e[32m$DEST \t->\t $REL\e[0m"
+		ln -s "$REL" "$DIR"
+	else
+		echo -e "\e[34mSkipping existing file: $DEST\e[0m"
+	fi
 done < linux_dotfiles.txt
