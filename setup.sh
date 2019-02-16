@@ -14,4 +14,4 @@ while read file; do
 	else
 		echo -e "\e[34mSkipping existing file: $DEST\e[0m"
 	fi
-done < linux_dotfiles.txt
+done < "$SCRIPT_DIR/linux_dotfiles.txt"
