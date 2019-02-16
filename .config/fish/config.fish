@@ -1,6 +1,7 @@
 set -gx FISHRC "$HOME/.config/fish/config.fish"
 set -gx LS_OPTIONS "--color=auto"
 set -gx EDITOR vim
+set -gx GOPATH "$HOME/.go"
 
 set -gx PATH $HOME/.local/bin:$HOME/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin
 set -gx LD_LIBRARY_PATH "$HOME/.local/lib:$HOME/.local/lib64:/usr/local/lib:/usr/local/lib64:/lib64:/usr/lib64"
