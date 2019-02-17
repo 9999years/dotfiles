@@ -11,6 +11,7 @@
 [credential]
 	helper = manager
 	modalPrompt = true
+	canFallBackToInsecureStore = true
 [core]
 	editor = vim
 	autocrlf = false
