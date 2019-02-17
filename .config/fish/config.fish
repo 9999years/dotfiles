@@ -17,3 +17,4 @@ abbr xrdb_merge 'xrdb -merge -I$HOME ~/.Xresources'
 abbr build_local './configure --prefix="$HOME/.local"; and make; and make install'
 abbr diff colordiff
 abbr diadem 'ssh guru@diadem.cs.brandeis.edu'
+abbr x 'chmod +x'
