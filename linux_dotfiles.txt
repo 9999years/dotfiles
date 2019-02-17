@@ -11,6 +11,7 @@
 .ptpython/config.py
 .pythonrc
 .tmux.conf
+.tmux.conf.sh
 .Xresources
 .youtube-dl.conf
 .config/fish/config.fish
