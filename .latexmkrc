@@ -22,12 +22,17 @@ sub run_lacheck {
   system "lacheck $name";
 }
 
+sub mv_fls {
+  Run_subst("mv %B.fls $aux_dir");
+}
+
 sub lint {
   my $fname = shift;
   # lint
   run_lacheck($fname);
   run_chktex($fname);
   system(@_);
+  mv_fls();
 }
 
 $pdflatex = "internal lint %S $pdflatex";
