@@ -1,4 +1,4 @@
-# Defined in /tmp/fish.uQytku/gurussh.fish @ line 2
+# Defined in /tmp/fish.ZvdDJQ/gurussh.fish @ line 2
 function gurussh --argument server
 	if needs-help
 		echo "gurussh SERVER [SSH OPTIONS...]"
