@@ -4,7 +4,7 @@
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 while read file; do
-	DIR="$HOME/$(dirname "$file")"
+	DIR="$(dirname "$HOME/$file")"
 	REL="$(abs2rel "$SCRIPT_DIR/$file" "$DIR")"
 	DEST="$HOME/$file"
 	if [[ ! -w "$DEST" ]]

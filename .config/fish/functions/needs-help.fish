@@ -1,9 +1,10 @@
-# Defined in /tmp/fish.Bvh5KX/needs-help.fish @ line 6
+# Defined in /tmp/fish.2prPEp/needs-help.fish @ line 2
 function needs-help
 	for arg in $argv
 		switch $arg
 			case --help -h
-				return 1
+				return 0
 		end
 	end
+	return 1
 end
