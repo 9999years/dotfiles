@@ -1,7 +1,8 @@
 [filter "lfs"]
-	smudge = git-lfs smudge %f
+	smudge = git-lfs smudge -- %f
 	required = true
-	clean = git-lfs clean %f
+	clean = git-lfs clean -- %f
+	process = git-lfs filter-process
 [user]
 	name = Rebecca Turner
 	email = 637275@gmail.com
@@ -11,6 +12,7 @@
 [credential]
 	helper = manager
 	modalPrompt = true
+	canFallBackToInsecureStore = true
 [core]
 	editor = vim
 	autocrlf = false
