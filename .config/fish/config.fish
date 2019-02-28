@@ -3,6 +3,7 @@ set -gx LS_OPTIONS "--color=auto"
 set -gx EDITOR vim
 set -gx NODE_PATH "$HOME/.local/lib/node_modules"
 set -gx PYTHONSTARTUP "$HOME/.pythonrc"
+set -gx GOPATH "$HOME/.go"
 
 set -gx PATH $HOME/.local/bin $HOME/bin /usr/local/bin /usr/local/sbin /usr/bin /usr/sbin /bin /sbin
 set -gx --path LD_LIBRARY_PATH $HOME/.local/lib $HOME/.local/lib64 /usr/local/lib /usr/local/lib64 /lib64 /usr/lib64
@@ -21,3 +22,4 @@ abbr diadem 'ssh guru@diadem.cs.brandeis.edu'
 abbr funced 'funced --save'
 abbr req 'pip3 install --user -r ./requirements.txt'
 abbr pipi 'pip3 install --user'
+abbr x 'chmod +x'
