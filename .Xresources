@@ -5,5 +5,5 @@ XTerm*termName: xterm-256color
 XTerm*background: #000854
 XTerm*foreground: #e8fff8
 XTerm*cursorColor: #00edad
-xterm*selectToClipboard: true
-xterm*disallowedWindowOps: 20,21,SetXProp
+Xterm*selectToClipboard: true
+Xterm*disallowedWindowOps: 20,21,SetXProp

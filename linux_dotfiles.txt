@@ -14,3 +14,4 @@
 .Xresources
 .youtube-dl.conf
 .config/fish/config.fish
+.config/fish/functions
