@@ -1,5 +1,5 @@
-# Defined in /tmp/fish.JA31SJ/gurussh.fish @ line 1
-function gurussh -a server -w ssh
+# Defined in /tmp/fish.uQytku/gurussh.fish @ line 2
+function gurussh --argument server
 	if needs-help
 		echo "gurussh SERVER [SSH OPTIONS...]"
 		echo "Opens an SSH session for guru@SERVER.cs.brandeis.edu."
