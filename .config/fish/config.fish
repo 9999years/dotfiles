@@ -5,7 +5,7 @@ set -gx NODE_PATH "$HOME/.local/lib/node_modules"
 set -gx PYTHONSTARTUP "$HOME/.pythonrc"
 set -gx GOPATH "$HOME/.go"
 
-set -gx PATH $HOME/.local/bin $HOME/bin /usr/local/bin /usr/local/sbin /usr/bin /usr/sbin /bin /sbin
+set -gx PATH $HOME/.local/bin $HOME/.cabal/bin $HOME/bin /usr/local/bin /usr/local/sbin /usr/bin /usr/sbin /bin /sbin
 set -gx --path LD_LIBRARY_PATH $HOME/.local/lib $HOME/.local/lib64 /usr/local/lib /usr/local/lib64 /lib64 /usr/lib64
 set -gx --path LD_RUN_PATH $HOME/.local/lib $HOME/.local/lib64 /usr/local/lib /usr/local/lib64 /lib64 /usr/lib64
 set -gx --path MANPATH $HOME/.local/share/man $HOME/.local/man /usr/share/man

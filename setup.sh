@@ -3,7 +3,7 @@
 # bash... not good...
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-while read file; do
+while read -r file; do
 	DIR="$(dirname "$HOME/$file")"
 	REL="$(abs2rel "$SCRIPT_DIR/$file" "$DIR")"
 	DEST="$HOME/$file"
