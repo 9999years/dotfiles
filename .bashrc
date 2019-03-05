@@ -16,12 +16,20 @@ shopt -s histappend
 HISTSIZE=1000
 HISTFILESIZE=2000
 
-eval "$(dircolors)"
-export LS_OPTIONS="--color=auto"
-export EDITOR=vim
+if which dircolors
+then
+	eval "$(dircolors)"
+fi
 
-## Colorize the ls output ##
-alias ls='ls --color=auto'
+if [[ `uname` == "Darwin" ]]
+then
+	alias ls='ls -G'
+	LOCAL="$HOME/.local/.darwin"
+else
+	export LS_OPTIONS="--color=auto"
+	LOCAL="$HOME/.local"
+fi
+export EDITOR=vim
 
 ## Use a long listing format ##
 alias ll='ls -la'
@@ -31,9 +39,9 @@ alias l.='ls -A'
 
 alias xrdb_merge='xrdb -merge -I$HOME ~/.Xresources'
 
-export PATH=$HOME/.local/bin:$HOME/bin:/usr/local/bin:/usr/local/sbin:$PATH
-export LD_LIBRARY_PATH="$HOME/.local/lib"
-export LD_RUN_PATH="$HOME/.local/lib"
-export LDFLAGS="-L$HOME/.local/lib"
-export CFLAGS="-I$HOME/.local/include"
-export MANPATH="$HOME/.local/share/man:$HOME/.local/man:/usr/share/man"
+export PATH="$LOCAL/bin:$HOME/bin:/usr/local/bin:/usr/local/sbin:/opt/X11/bin:/usr/bin:/usr/sbin:/bin:/sbin"
+export LD_LIBRARY_PATH="$LOCAL/lib"
+export LD_RUN_PATH="$LOCAL/lib"
+export LDFLAGS="-L$LOCAL/lib"
+export CFLAGS="-I$LOCAL/include"
+export MANPATH="$LOCAL/share/man:$LOCAL/man:/usr/share/man"
