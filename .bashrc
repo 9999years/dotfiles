@@ -16,7 +16,7 @@ shopt -s histappend
 HISTSIZE=1000
 HISTFILESIZE=2000
 
-if which dircolors
+if which dircolors > /dev/null
 then
 	eval "$(dircolors)"
 fi
