@@ -14,6 +14,7 @@ set -gx EDITOR vim
 set -gx NODE_PATH "$LOCAL/lib/node_modules"
 set -gx PYTHONSTARTUP "$HOME/.pythonrc"
 set -gx GOPATH "$HOME/.go"
+set PYTHON_VERSION "3.7"
 
 set -gx PATH $LOCAL/bin $HOME/.cabal/bin $HOME/bin /usr/local/bin /usr/local/sbin /usr/bin /usr/sbin /bin /sbin
 set -gx --path LD_LIBRARY_PATH $LOCAL/lib /usr/local/lib
@@ -25,6 +26,8 @@ set -gx CFLAGS "-I$LOCAL/include -I/usr/local/include"
 
 if is_darwin
 	set -gx MANPATH "/Applications/Xcode.app/Contents/Developer/usr/share/man" $MANPATH
+	set -gx PATH $HOME/Library/Python/$PYTHON_VERSION/bin $PATH
+	#set -gx --path DYLD_LIBRARY_PATH  "$LD_LIBRARY_PATH"
 else
 	set -gx --path LD_LIBRARY_PATH $LOCAL/lib64 /usr/local/lib64 /lib64 /usr/lib64 $LD_LIBRARY_PATH
 	set -gx --path LD_RUN_PATH $LOCAL/lib64 /usr/local/lib64 /lib64 /usr/lib64
@@ -32,7 +35,6 @@ else
 end
 
 set -gx --path LIBRARY_PATH "$LD_LIBRARY_PATH"  # python build uses this
-set -gx --path DYLD_LIBRARY_PATH  "$LD_LIBRARY_PATH"
 set -gx CPPFLAGS  "$CFLAGS"
 
 abbr ll 'ls -la'
@@ -41,12 +43,15 @@ abbr l. 'ls -A'
 abbr xrdb_merge 'xrdb -merge -I$HOME ~/.Xresources'
 abbr build './configure --prefix="$LOCAL"; and make; and make install'
 abbr diff colordiff
-abbr diadem 'ssh guru@diadem.cs.brandeis.edu'
 abbr funced 'funced --save'
 abbr req 'pip3 install --user -r ./requirements.txt'
 abbr pipi 'pip3 install --user'
 abbr x 'chmod +x'
+abbr perm 'stat -f "%A %N"'
 
-if not which wget
+abbr diadem 'ssh diadem'
+abbr alia 'ssh alia'
+
+if not which wget > /dev/null
 	abbr wget 'curl -OL'
 end
