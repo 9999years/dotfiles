@@ -25,8 +25,10 @@ set -gx LDFLAGS "-L$LOCAL/lib -L/usr/local/lib"
 set -gx CFLAGS "-I$LOCAL/include -I/usr/local/include"
 
 if is_darwin
-	set -gx MANPATH "/Applications/Xcode.app/Contents/Developer/usr/share/man" $MANPATH
-	set -gx PATH $HOME/Library/Python/$PYTHON_VERSION/bin $PATH
+	set -gx MANPATH "/Applications/Xcode.app/Contents/Developer/usr/share/man" "/usr/local/share/man" $MANPATH
+	set -gx PATH $HOME/Library/Python/$PYTHON_VERSION/bin \
+		/usr/local/opt/python/bin \
+		$PATH
 	#set -gx --path DYLD_LIBRARY_PATH  "$LD_LIBRARY_PATH"
 else
 	set -gx --path LD_LIBRARY_PATH $LOCAL/lib64 /usr/local/lib64 /lib64 /usr/lib64 $LD_LIBRARY_PATH
