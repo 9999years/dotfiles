@@ -4,13 +4,16 @@ set -e
 # bash... not good...
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-if ! command -v abs2rel
+if ! command -v abs2rel > /dev/null
 then
-	echo "Downloading 'abs2rel' locally"
-	wget "https://raw.githubusercontent.com/9999years/abs2rel/master/abs2rel.py" \
-		-O ./abs2rel
-	chmod +x ./abs2rel
 	ABS2REL="$(pwd)/abs2rel"
+	if ! command -v ./abs2rel > /dev/null
+	then
+		echo "Downloading 'abs2rel' locally"
+		wget "https://raw.githubusercontent.com/9999years/abs2rel/master/abs2rel.py" \
+			-O ./abs2rel -nv
+		chmod +x ./abs2rel
+	fi
 else
 	ABS2REL="$(command -v abs2rel)"
 fi
