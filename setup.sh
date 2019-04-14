@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 # bash... not good...
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -9,11 +10,14 @@ then
 	wget "https://raw.githubusercontent.com/9999years/abs2rel/master/abs2rel.py" \
 		-O ./abs2rel
 	chmod +x ./abs2rel
+	ABS2REL="$(pwd)/abs2rel"
+else
+	ABS2REL="$(command -v abs2rel)"
 fi
 
 while read -r file; do
 	DIR="$(dirname "$HOME/$file")"
-	REL="$(abs2rel "$SCRIPT_DIR/$file" "$DIR")"
+	REL="$("$ABS2REL" "$SCRIPT_DIR/$file" "$DIR")"
 	DEST="$HOME/$file"
 	if [[ ! -w "$DEST" ]]
 	then
