@@ -1,3 +1,26 @@
+function _has_version -a expected_version
+	set actual (string split . -- $FISH_VERSION)
+	set expected (string split . -- $expected_version)
+	set components "major" "minor" "patch"
+	set err (echo -sn (set_color red) \
+			"Expected Fish to have a %s version of at least %s but only have %s.\n" \
+			"(Expected version $FISH_VERSION but have $expected_version)\n" \
+			(set_color normal))
+	for i in (seq 1 3)
+		if test $actual[$i] -lt $expected[$i]
+			printf "$err" $components[$i] $expected[$i] $actual[$i]
+			return 1
+		else if test $actual[$i] -gt $expected[$i]
+			# bigger components override smaller ones
+			return 0
+		end
+	end
+end
+
+if not _has_version 3.0.0
+	exit
+end
+
 function is_darwin
 	test (uname) = "Darwin"
 end
@@ -16,7 +39,7 @@ set -gx PYTHONSTARTUP "$HOME/.pythonrc"
 set -gx GOPATH "$HOME/.go"
 set PYTHON_VERSION "3.7"
 
-set -gx PATH $LOCAL/bin $HOME/.cabal/bin $HOME/bin /usr/local/bin /usr/local/sbin /usr/bin /usr/sbin /bin /sbin
+set -gx PATH $LOCAL/bin $HOME/bin /usr/local/bin /usr/local/sbin $HOME/.cabal/bin /usr/bin /usr/sbin /bin /sbin
 set -gx --path LD_LIBRARY_PATH $LOCAL/lib /usr/local/lib
 set -gx --path LD_RUN_PATH $LOCAL/lib /usr/local/lib
 set -gx --path MANPATH $LOCAL/share/man $LOCAL/man /usr/share/man
