@@ -39,7 +39,7 @@ set -gx PYTHONSTARTUP "$HOME/.pythonrc"
 set -gx GOPATH "$HOME/.go"
 set PYTHON_VERSION "3.7"
 
-set -gx PATH $LOCAL/bin $HOME/bin /usr/local/bin /usr/local/sbin $HOME/.cabal/bin /usr/bin /usr/sbin /bin /sbin
+set -gx PATH $LOCAL/bin $HOME/bin /usr/local/bin /usr/local/sbin /usr/bin /usr/sbin /bin /sbin
 set -gx --path LD_LIBRARY_PATH $LOCAL/lib /usr/local/lib
 set -gx --path LD_RUN_PATH $LOCAL/lib /usr/local/lib
 set -gx --path MANPATH $LOCAL/share/man $LOCAL/man /usr/share/man
@@ -48,15 +48,25 @@ set -gx LDFLAGS "-L$LOCAL/lib -L/usr/local/lib"
 set -gx CFLAGS "-I$LOCAL/include -I/usr/local/include"
 
 if is_darwin
+	set -gx RUBY_VERSION 2.3.0
 	set -gx MANPATH "/Applications/Xcode.app/Contents/Developer/usr/share/man" "/usr/local/share/man" $MANPATH
 	set -gx PATH $HOME/Library/Python/$PYTHON_VERSION/bin \
 		/usr/local/opt/python/bin \
+		/usr/local/opt/ruby/bin \
+		$HOME/.gem/ruby/$RUBY_VERSION/bin \
+		/usr/local/texlive/2018/bin/(uname -m)-darwin/ \
 		$PATH
 	#set -gx --path DYLD_LIBRARY_PATH  "$LD_LIBRARY_PATH"
+	set FFI_VERSION 3.2.1
+	set CAIRO_VERSION 1.16.0
+	set -gx --path PKG_CONFIG_PATH \
+		"/usr/local/Cellar/libffi/$FFI_VERSION/lib/pkgconfig/" \
+		"/usr/local/Cellar/cairo/$CAIRO_VERSION/lib/pkgconfig/"
 else
 	set -gx --path LD_LIBRARY_PATH $LOCAL/lib64 /usr/local/lib64 /lib64 /usr/lib64 $LD_LIBRARY_PATH
 	set -gx --path LD_RUN_PATH $LOCAL/lib64 /usr/local/lib64 /lib64 /usr/lib64
 	set -gx LDFLAGS "-L$LOCAL/lib64 -L/usr/local/lib64 -L/lib64 -L/usr/lib64 $LDFLAGS"
+	set -gx PATH $HOME/.cabal/bin $PATH
 end
 
 set -gx --path LIBRARY_PATH "$LD_LIBRARY_PATH"  # python build uses this
@@ -73,6 +83,8 @@ abbr req 'pip3 install --user -r ./requirements.txt'
 abbr pipi 'pip3 install --user'
 abbr x 'chmod +x'
 abbr perm 'stat -f "%A %N"'
+abbr root 'sudo -u root (which fish)'
+abbr pjq 'plist2json | jq'
 
 abbr diadem 'ssh diadem'
 abbr alia 'ssh alia'
