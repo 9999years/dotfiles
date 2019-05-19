@@ -1,13 +1,10 @@
 window:
-  dimensions:
-    columns: 0
-    lines: 0
   padding:
-    x: 2
-    y: 2
+    x: 5
+    y: 5
   dynamic_padding: false
   decorations: full
-  start_maximized: false
+  startup_mode: Windowed
 scrolling:
   history: 10000
   multiplier: 3
@@ -16,8 +13,8 @@ scrolling:
 tabspaces: 8
 font:
   normal:
-    family: PragmataPro Mono Liga
-  size: 14.0
+    family: PragmataPro
+  size: 11.0
   offset:
     x: 0
     y: 0
@@ -72,7 +69,7 @@ cursor:
   unfocused_hollow: true
 live_config_reload: true
 shell:
-  program: /usr/local/bin/fish
+  program: wsl
 enable_experimental_conpty_backend: false
 alt_send_esc: true
 key_bindings:
