@@ -4,7 +4,7 @@ function _has_version -a expected_version
 	set components "major" "minor" "patch"
 	set err (echo -sn (set_color red) \
 			"Expected Fish to have a %s version of at least %s but only have %s.\n" \
-			"(Expected version $FISH_VERSION but have $expected_version)\n" \
+			"(Expected version $expected_version but have $FISH_VERSION)\n" \
 			(set_color normal))
 	for i in (seq 1 3)
 		if test $actual[$i] -lt $expected[$i]
