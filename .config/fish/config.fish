@@ -25,6 +25,15 @@ function is_darwin
 	test (uname) = "Darwin"
 end
 
+set -g fisher_path "$HOME/.config/fisher_local"
+
+set fish_function_path $fish_function_path[1] $fisher_path/functions $fish_function_path[2..-1]
+set fish_complete_path $fish_complete_path[1] $fisher_path/completions $fish_complete_path[2..-1]
+
+for file in $fisher_path/conf.d/*.fish
+	builtin source $file 2> /dev/null
+end
+
 if is_darwin
 	set LOCAL "$HOME/.local/.darwin"
 else
@@ -48,6 +57,9 @@ set -gx --path MANPATH $LOCAL/share/man $LOCAL/man /usr/share/man
 set -gx --path C_INCLUDE_PATH $LOCAL/include /usr/local/include
 set -gx LDFLAGS "-L$LOCAL/lib -L/usr/local/lib"
 set -gx CFLAGS "-I$LOCAL/include -I/usr/local/include"
+
+set -g pure_symbol_prompt "⟩"
+set -g pure_symbol_reverse_prompt "⟨"
 
 if is_darwin
 	set -gx RUBY_VERSION 2.3.0

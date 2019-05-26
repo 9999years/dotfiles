@@ -8,6 +8,6 @@ function brew
 			env HOME="$BREW_HOME" PATH="$BREW_PATH" sudo -u homebrew /usr/local/bin/brew $argv
 			popd
 		case "*"
-			env brew $argv
+			command brew $argv
 	end
 end
