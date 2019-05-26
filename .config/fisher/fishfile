@@ -1,0 +1,21 @@
+# directory tracking
+jethrokuan/z
+
+# run bash utils in fish
+edc/bass
+
+# match delimiters
+laughedelic/pisces
+
+# notify after long processes exit
+franciscolourenco/done
+
+# fuzzy find keybindings
+jethrokuan/fzf
+
+# git bindings
+joseluisq/gitnow
+
+# prompt
+matchai/spacefish
+# rafaelrinaldi/pure
