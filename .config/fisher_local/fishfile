@@ -1,21 +1,16 @@
 # directory tracking
 jethrokuan/z
-
 # run bash utils in fish
 edc/bass
-
 # match delimiters
 laughedelic/pisces
-
 # notify after long processes exit
-franciscolourenco/done
-
+# this seems to be... impolite, on windows
+#franciscolourenco/done
 # fuzzy find keybindings
 jethrokuan/fzf
-
 # git bindings
 joseluisq/gitnow
-
 # prompt
-matchai/spacefish
-# rafaelrinaldi/pure
+#matchai/spacefish
+rafaelrinaldi/pure
