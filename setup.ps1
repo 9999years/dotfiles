@@ -12,12 +12,13 @@ Param(
 		".gitattributes_global",
 		".latexmkrc",
 		".minttyrc",
-		"pip.conf",
-		"_curlrc",
-		"youtube-dl.conf",
+		".pip.conf",
+		".curlrc",
+		".youtube-dl.conf",
 		".pythonrc",
 		".ptpython/config.py",
-		"AppData/Roaming/ConEmu.xml"),
+		"AppData/Roaming/ConEmu.xml",
+		".config/alacritty/alacritty.yml"),
 	[Switch]$Force
 )
 
