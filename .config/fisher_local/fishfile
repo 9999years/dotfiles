@@ -10,7 +10,16 @@ laughedelic/pisces
 # fuzzy find keybindings
 jethrokuan/fzf
 # git bindings
-joseluisq/gitnow
+#joseluisq/gitnow@2.1.0
 # prompt
 #matchai/spacefish
 rafaelrinaldi/pure
+oh-my-fish/plugin-sudope
+#oh-my-fish/weather
+laughedelic/fish_logo
+laughedelic/brew-completions
+decors/fish-colored-man
+joehillen/to-fish
+decors/fish-source-highlight
+#oh-my-fish/marlin
+oh-my-fish/plugin-technicolor
