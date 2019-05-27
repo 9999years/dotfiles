@@ -27,8 +27,19 @@ end
 
 set -g fisher_path "$HOME/.config/fisher_local"
 
-set fish_function_path $fish_function_path[1] $fisher_path/functions $fish_function_path[2..-1]
-set fish_complete_path $fish_complete_path[1] $fisher_path/completions $fish_complete_path[2..-1]
+if not contains $fisher_path/functions $fish_function_path
+	set fish_function_path \
+		$fish_function_path[1] \
+		$fisher_path/functions \
+		$fish_function_path[2..-1]
+end
+
+if not contains $fisher_path/completions $fish_complete_path
+	set fish_complete_path \
+		$fish_complete_path[1] \
+		$fisher_path/completions \
+		$fish_complete_path[2..-1]
+end
 
 for file in $fisher_path/conf.d/*.fish
 	builtin source $file 2> /dev/null
@@ -80,7 +91,13 @@ else
 	set -gx --path LD_LIBRARY_PATH $LOCAL/lib64 /usr/local/lib64 /lib64 /usr/lib64 $LD_LIBRARY_PATH
 	set -gx --path LD_RUN_PATH $LOCAL/lib64 /usr/local/lib64 /lib64 /usr/lib64
 	set -gx LDFLAGS "-L$LOCAL/lib64 -L/usr/local/lib64 -L/lib64 -L/usr/lib64 $LDFLAGS"
-	set -gx PATH $HOME/.cabal/bin $PATH
+	if not contains $HOME/.cabal/bin $PATH
+		set -gx PATH \
+			$HOME/.cabal/bin \
+			/home/linuxbrew/.linuxbrew/bin \
+			$PATH \
+			/mnt/c/Windows
+	end
 end
 
 set -gx --path LIBRARY_PATH "$LD_LIBRARY_PATH"  # python build uses this
