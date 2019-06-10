@@ -64,7 +64,7 @@ set PYTHON_VERSION "3.7"
 set -gx PATH $LOCAL/bin $HOME/.cargo/bin /usr/local/bin /usr/local/sbin /usr/bin /usr/sbin /bin /sbin
 set -gx --path LD_LIBRARY_PATH $LOCAL/lib /usr/local/lib
 set -gx --path LD_RUN_PATH $LOCAL/lib /usr/local/lib
-set -gx --path MANPATH $LOCAL/share/man $LOCAL/man /usr/share/man
+set -gx --path MANPATH $LOCAL/share/man $LOCAL/man /usr/local/share/man /usr/share/man
 set -gx --path C_INCLUDE_PATH $LOCAL/include /usr/local/include
 set -gx LDFLAGS "-L$LOCAL/lib -L/usr/local/lib"
 set -gx CFLAGS "-I$LOCAL/include -I/usr/local/include"
