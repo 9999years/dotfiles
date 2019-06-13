@@ -25,6 +25,10 @@ function is_darwin
 	test (uname) = "Darwin"
 end
 
+function is_wsl
+	test ! -z "$WSL_DISTRO_NAME"
+end
+
 set -g fisher_path "$HOME/.config/fisher_local"
 
 if not contains $fisher_path/functions $fish_function_path
@@ -60,6 +64,7 @@ set -gx NODE_PATH "$LOCAL/lib/node_modules"
 set -gx PYTHONSTARTUP "$HOME/.pythonrc"
 set -gx GOPATH "$HOME/.go"
 set PYTHON_VERSION "3.7"
+set -g set __done_min_cmd_duration 60000
 
 set -gx PATH $LOCAL/bin $HOME/.cargo/bin /usr/local/bin /usr/local/sbin /usr/bin /usr/sbin /bin /sbin
 set -gx --path LD_LIBRARY_PATH $LOCAL/lib /usr/local/lib
@@ -100,6 +105,10 @@ else
 	end
 end
 
+if is_wsl
+	abbr ii 'explorer.exe'
+end
+
 set -gx --path LIBRARY_PATH "$LD_LIBRARY_PATH"  # python build uses this
 set -gx CPPFLAGS  "$CFLAGS"
 
@@ -116,6 +125,14 @@ abbr x 'chmod +x'
 abbr perm 'stat -f "%A %N"'
 abbr root 'sudo -u root (which fish)'
 abbr pjq 'plist2json | jq'
+# git root
+abbr gr 'cd (git rev-parse --show-toplevel)'
+abbr c1 'cd ..'
+abbr c2 'cd ../..'
+abbr c3 'cd ../../..'
+abbr c4 'cd ../../../..'
+abbr c5 'cd ../../../../..'
+abbr c6 'cd ../../../../../..'
 
 abbr diadem 'ssh diadem'
 abbr alia 'ssh alia'
