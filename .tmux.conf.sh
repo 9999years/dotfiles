@@ -1,8 +1,9 @@
 #!/bin/bash
+set -e
 
-if which fish > /dev/null
+if command -v fish > /dev/null
 then
-	tmux set -g default-shell "$(which fish)"
+	tmux set -g default-shell "$(command -v fish)"
 fi
 
 uname="$(uname)"
