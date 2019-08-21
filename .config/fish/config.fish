@@ -49,6 +49,8 @@ for file in $fisher_path/conf.d/*.fish
 	builtin source $file 2> /dev/null
 end
 
+set -U pisces_only_insert_at_eol 1
+
 if is_darwin
 	set LOCAL "$HOME/.local/.darwin"
 else
@@ -133,6 +135,10 @@ abbr c3 'cd ../../..'
 abbr c4 'cd ../../../..'
 abbr c5 'cd ../../../../..'
 abbr c6 'cd ../../../../../..'
+
+# miktex stuff
+abbr mpm 'sudo mpm --admin --verbose'
+abbr initexmf 'sudo initexmf --admin --verbose'
 
 abbr diadem 'ssh diadem'
 abbr alia 'ssh alia'
