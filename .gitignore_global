@@ -41,6 +41,7 @@ Thumbs.db
 #===Cache files===
 .sass-cache
 .pytest_cache
+.mypy_cache
 
 .idea/libraries/**
 node_modules
