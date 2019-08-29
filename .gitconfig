@@ -5,7 +5,7 @@
 	process = git-lfs filter-process
 [user]
 	name = Rebecca Turner
-	email = 637275@gmail.com
+	email = rbt@sent.as
 [push]
 	default = simple
 	followTags = true
