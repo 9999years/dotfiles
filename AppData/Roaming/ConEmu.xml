@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <key name="Software">
 	<key name="ConEmu">
-		<key name=".Vanilla" modified="2019-03-27 09:45:39" build="190310">
+		<key name=".Vanilla" modified="2019-05-12 20:46:41" build="190331">
 			<value name="StartType" type="hex" data="02"/>
 			<value name="CmdLine" type="string" data=""/>
 			<value name="StartTasksFile" type="string" data=""/>
@@ -308,11 +308,6 @@
 			<value name="SaveCmdHistory" type="hex" data="01"/>
 			<value name="CmdLineHistory" type="multi">
 				<line data="{Shells::PowerShell (Admin)}"/>
-				<line data='"C:\WINDOWS\System32\WindowsPowerShell\v1.0\powershell.exe"'/>
-				<line data="{Shells::PowerShell}"/>
-				<line data="powershell.exe"/>
-				<line data="choco upgrade all"/>
-				<line data='"C:\Program Files\MiKTeX 2.9\miktex\bin\x64\latexmk.exe" -quiet "C:\Users\arvensis\Documents\LaTeX\physics\cheat.tex" '/>
 			</value>
 			<value name="ShowHelpTooltips" type="hex" data="01"/>
 			<value name="Multi" type="hex" data="01"/>

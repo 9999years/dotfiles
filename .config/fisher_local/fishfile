@@ -1,0 +1,27 @@
+# directory tracking
+jethrokuan/z
+# run bash utils in fish
+edc/bass
+# match delimiters
+laughedelic/pisces
+# notify after long processes exit
+# this seems to be... impolite, on windows
+#franciscolourenco/done
+# fuzzy find keybindings
+jethrokuan/fzf
+# git bindings
+#joseluisq/gitnow@2.1.0
+# prompt
+#matchai/spacefish
+#rafaelrinaldi/pure
+oh-my-fish/plugin-sudope
+#oh-my-fish/weather
+laughedelic/fish_logo
+laughedelic/brew-completions
+decors/fish-colored-man
+joehillen/to-fish
+decors/fish-source-highlight
+#oh-my-fish/marlin
+oh-my-fish/plugin-technicolor
+oh-my-fish/plugin-bang-bang
+franciscolourenco/done

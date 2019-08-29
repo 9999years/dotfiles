@@ -1,3 +1,4 @@
+#! /bin/bash
 # .bashrc is executed for interactive, login shells
 
 # Source global definitions
@@ -21,7 +22,7 @@ then
 	eval "$(dircolors)"
 fi
 
-if [[ `uname` == "Darwin" ]]
+if [[ $(uname) == "Darwin" ]]
 then
 	alias ls='ls -G'
 	LOCAL="$HOME/.local/.darwin"
