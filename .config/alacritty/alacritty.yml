@@ -1,9 +1,13 @@
 window:
+  dimensions:
+    columns: 0
+    lines: 0
   padding:
     x: 5
     y: 5
   dynamic_padding: false
   decorations: full
+  start_maximized: false
   startup_mode: Windowed
 scrolling:
   history: 10000
@@ -13,8 +17,8 @@ scrolling:
 tabspaces: 8
 font:
   normal:
-    family: PragmataPro
-  size: 11.0
+    family: PragmataPro Mono Liga
+  size: 14.0
   offset:
     x: 0
     y: 0
