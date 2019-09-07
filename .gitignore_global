@@ -46,3 +46,4 @@ Thumbs.db
 .idea/libraries/**
 node_modules
 package-lock.json
+*.fls
