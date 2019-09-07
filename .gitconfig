@@ -11,7 +11,7 @@
 	followTags = true
 [credential]
 	helper = manager
-	modalPrompt = true
+	modalPrompt = false ; consider flipping this if you're having trouble...
 	canFallBackToInsecureStore = true
 [core]
 	editor = vim
