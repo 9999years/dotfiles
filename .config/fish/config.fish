@@ -108,10 +108,6 @@ else
 	end
 end
 
-if is_wsl
-	abbr ii 'explorer.exe'
-end
-
 set -gx --path LIBRARY_PATH "$LD_LIBRARY_PATH"  # python build uses this
 set -gx CPPFLAGS  "$CFLAGS"
 
