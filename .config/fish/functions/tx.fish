@@ -1,7 +1,8 @@
-# Defined in /tmp/fish.4pPQDK/tx.fish @ line 2
+# Defined in /tmp/fish.EoWC6A/tx.fish @ line 2
 function tx --argument glob
-	set -l processed_glob ./*$glob*.tex
+	set -l processed_glob ""
     if test -z "$glob"
+        set glob "(files given by fzf)"
         # No glob given in arguments; use fzf
         set processed_glob (fd .tex | fzf)
     else
@@ -11,10 +12,12 @@ function tx --argument glob
                 set processed_glob ./*$glob
             case "./*"
                 set processed_glob $glob*.tex
+            case "*"
+                set processed_glob ./*$glob*.tex
         end
     end
 
-    if test -n "$glob"
+    if test -z "$glob"
         echo -e "\e[1m\e[31mSearch pattern cannot be empty.\e[0m"
         return 1
     else if test -z $processed_glob
