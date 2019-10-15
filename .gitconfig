@@ -10,8 +10,8 @@
 	default = simple
 	followTags = true
 [credential]
-	; helper = manager
-	modalPrompt = true
+	helper = manager
+	modalPrompt = false ; consider flipping this if you're having trouble...
 	canFallBackToInsecureStore = true
 [core]
 	editor = vim
