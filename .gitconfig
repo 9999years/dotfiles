@@ -10,7 +10,7 @@
 	default = simple
 	followTags = true
 [credential]
-	helper = manager
+	; helper = manager
 	modalPrompt = true
 	canFallBackToInsecureStore = true
 [core]
