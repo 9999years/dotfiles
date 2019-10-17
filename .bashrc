@@ -52,3 +52,15 @@ export CFLAGS="-I$LOCAL/include"
 export MANPATH="$LOCAL/share/man:$LOCAL/man:/usr/share/man"
 
 complete -C /usr/local/bin/vault vault
+
+function show_args() {
+    local i=1
+    local reset="$(echo -en "\e[0m")"
+    local gray="$(echo -en "\e[90m")"
+    local green="$(echo -en "\e[92m")"
+    for arg in "$@"
+    do
+        echo "$gray\$$i:$reset $green$arg$reset"
+        let i i++
+    done
+}
