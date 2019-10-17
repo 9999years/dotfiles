@@ -42,7 +42,7 @@ alias xrdb_merge='xrdb -merge -I$HOME ~/.Xresources'
 
 alias root='sudo -u root $(which fish)'
 
-alias alia_shell='sudo bash -c "source ~/ssh-agent-data && fish"'
+alias alia_shell='sudo bash -c "source ~/ssh-agent-data && $(which fish)"'
 
 export PATH="$LOCAL/bin:$HOME/.cargo/bin:$HOME/.rvm/bin:/home/linuxbrew/.linuxbrew/bin:/usr/local/bin:/usr/local/sbin:/opt/X11/bin:/usr/bin:/usr/sbin:/bin:/sbin"
 export LD_LIBRARY_PATH="$LOCAL/lib"
