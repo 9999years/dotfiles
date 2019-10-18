@@ -141,6 +141,10 @@ abbr initexmf 'sudo initexmf --admin --verbose'
 abbr diadem 'ssh diadem'
 abbr alia 'ssh alia'
 
+abbr gst 'git status'
+abbr gp 'git pull'
+abbr gpu 'git push'
+
 if not which wget > /dev/null
 	abbr wget 'curl -OL'
 end
