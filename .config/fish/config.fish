@@ -138,9 +138,6 @@ abbr c6 'cd ../../../../../..'
 abbr mpm 'sudo mpm --admin --verbose'
 abbr initexmf 'sudo initexmf --admin --verbose'
 
-abbr diadem 'ssh diadem'
-abbr alia 'ssh alia'
-
-if not which wget > /dev/null
+if not command -v wget > /dev/null
 	abbr wget 'curl -OL'
 end
