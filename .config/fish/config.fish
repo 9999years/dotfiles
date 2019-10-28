@@ -138,13 +138,10 @@ abbr c6 'cd ../../../../../..'
 abbr mpm 'sudo mpm --admin --verbose'
 abbr initexmf 'sudo initexmf --admin --verbose'
 
-abbr diadem 'ssh diadem'
-abbr alia 'ssh alia'
-
 abbr gst 'git status'
 abbr gp 'git pull'
 abbr gpu 'git push'
 
-if not which wget > /dev/null
+if not command -v wget > /dev/null
 	abbr wget 'curl -OL'
 end
