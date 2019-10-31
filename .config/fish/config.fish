@@ -76,6 +76,7 @@ set -gx --path MANPATH $LOCAL/share/man $LOCAL/man /usr/share/man
 set -gx --path C_INCLUDE_PATH $LOCAL/include /usr/local/include
 set -gx LDFLAGS "-L$LOCAL/lib -L/usr/local/lib"
 set -gx CFLAGS "-I$LOCAL/include -I/usr/local/include"
+set -gx TEXMFS $HOME/.miktex/texmfs/install/
 
 set -g pure_symbol_prompt "⟩"
 set -g pure_symbol_reverse_prompt "⟨"
