@@ -84,12 +84,17 @@ if is_darwin
 	set -gx RUBY_VERSION 2.3.0
 	set -gx MANPATH "/Applications/Xcode.app/Contents/Developer/usr/share/man" "/usr/local/share/man" $MANPATH
 	set -gx PATH $HOME/Library/Python/$PYTHON_VERSION/bin \
-		/usr/local/opt/python/bin \
 		/usr/local/opt/ruby/bin \
 		$HOME/.gem/ruby/$RUBY_VERSION/bin \
 		/usr/local/texlive/2018/bin/(uname -m)-darwin/ \
-		$PATH
+		$PATH \
+		/usr/local/opt/python/bin
 	#set -gx --path DYLD_LIBRARY_PATH  "$LD_LIBRARY_PATH"
+	set sdk (xcrun --show-sdk-path)
+	if test ! -z "$sdk"
+		set -gx --path C_INCLUDE_PATH $sdk/usr/include $C_INCLUDE_PATH
+		set -gx --path LD_LIBRARY_PATH $sdk/usr/lib $LD_LIBRARY_PATH
+	end
 	set FFI_VERSION 3.2.1
 	set CAIRO_VERSION 1.16.0
 	set -gx --path PKG_CONFIG_PATH \
