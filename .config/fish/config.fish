@@ -118,6 +118,8 @@ end
 set -gx --path LIBRARY_PATH "$LD_LIBRARY_PATH"  # python build uses this
 set -gx CPPFLAGS  "$CFLAGS"
 
+abbr ccrisp 'ssh -t rebeccaturner@helios.cs.brandeis.edu ssh -t cosmic-crisp tmux attach'
+
 abbr ll 'ls -la'
 abbr l. 'ls -A'
 
