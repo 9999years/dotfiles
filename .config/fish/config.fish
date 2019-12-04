@@ -69,7 +69,7 @@ set -gx GOPATH "$HOME/.go"
 set PYTHON_VERSION "3.7"
 set -g set __done_min_cmd_duration 60000
 
-set -gx PATH $LOCAL/bin $HOME/.cargo/bin $HOME/.rvm/bin /usr/local/bin /usr/local/sbin /usr/bin /usr/sbin /bin /sbin
+set -gx PATH $LOCAL/bin $HOME/.cargo/bin $HOME/.rvm/bin $GOPATH/bin /usr/local/bin /usr/local/sbin /usr/bin /usr/sbin /bin /sbin
 set -gx --path LD_LIBRARY_PATH $LOCAL/lib /usr/local/lib
 set -gx --path LD_RUN_PATH $LOCAL/lib /usr/local/lib
 set -gx --path MANPATH $LOCAL/share/man $LOCAL/man /usr/share/man
