@@ -1,0 +1,101 @@
+{
+    "definitions": {},
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://becca.ooo/dotfiles_schema.json#",
+    "type": "object",
+    "title": "JSON Schema for listing dotfiles to be linked",
+    "required": [
+        "dotfiles"
+    ],
+    "properties": {
+        "dotfiles": {
+            "$id": "#/properties/dotfiles",
+            "type": "array",
+            "title": "The dotfiles to be linked",
+            "items": {
+                "$id": "#/properties/dotfiles/items",
+                "title": "The Items Schema",
+                "oneOf": [
+                    {
+                        "title": "A filename, given as a plain string.",
+                        "type": "string",
+                        "$id": "#/properties/dotfiles/items/string"
+                    },
+                    {
+                        "type": "object",
+                        "title": "A filename and metadata.",
+                        "$id": "#/properties/dotfiles/items/object",
+                        "required": [
+                            "path"
+                        ],
+                        "properties": {
+                            "path": {
+                                "$id": "#/properties/dotfiles/items/object/path",
+                                "title": "The filename in the dotfiles repository, relative to the repository root",
+                                "type": "string"
+                            },
+                            "dest": {
+                                "$id": "#/properties/dotfiles/items/object/dest",
+                                "title": "The destination filename, relative to the user's home directory",
+                                "type": "string"
+                            },
+                            "when": {
+                                "$id": "#/properties/dotfiles/items/object/when",
+                                "title": "A set of conditions determining when to link the dotfile",
+                                "type": "object",
+                                "properties": {
+                                    "hostname": {
+                                        "$id": "#/properties/dotfiles/items/object/when/hostname",
+                                        "oneOf": [
+                                            {
+                                                "$ref": "#/$defs/hostname"
+                                            },
+                                            {
+                                                "title": "Link the file when the hostname glob-matches any of these strings",
+                                                "type": "array",
+                                                "items": {
+                                                    "$ref": "#/$defs/hostname"
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    "platform": {
+                                        "$id": "#/properties/dotfiles/items/object/when/platform",
+                                        "oneOf": [
+                                            {
+                                                "$ref": "#/$defs/platform"
+                                            },
+                                            {
+                                                "title": "Link the file when the platform name matches any of these strings",
+                                                "type": "array",
+                                                "items": {
+                                                    "$ref": "#/$defs/platform"
+                                                }
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "$defs": {
+        "hostname": {
+            "title": "Link the file when the hostname glob-matches this string",
+            "type": "string"
+        },
+        "platform": {
+            "title": "Link the file when the platform matches this string",
+            "type": "string",
+            "enum": [
+                "linux",
+                "win32",
+                "cygwin",
+                "darwin"
+            ]
+        }
+    }
+}

@@ -1,0 +1,29 @@
+{
+    "$schema": "./dotfiles_schema.json",
+    "dotfiles": [
+        ".bash_profile",
+        ".bashrc",
+        ".curlrc",
+        ".fonts.conf",
+        ".gitattributes_global",
+        ".gitconfig",
+        ".gitignore_global",
+        ".latexmkrc",
+        ".minttyrc",
+        ".pip.conf",
+        ".ptpython/config.py",
+        ".pythonrc",
+        ".tmux.conf",
+        ".tmux.conf.sh",
+        ".Xresources",
+        ".youtube-dl.conf",
+        ".config/fish",
+        ".config/alacritty/alacritty.yml",
+        {
+            "path": "AppData/Roaming/ConEmu.xml",
+            "when": {
+                "platform": "win32"
+            }
+        }
+    ]
+}
