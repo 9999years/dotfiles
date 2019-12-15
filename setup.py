@@ -1,4 +1,12 @@
 #! /usr/bin/env python
+"""
+Utility for reading dotfiles (see dotfiles.json) and creating symlinks from ~/
+to the dotfiles in this repository / referenced by dotfiles.json.
+
+Unfortunately, this script needs to run on the old Python distributions that
+many computers come with -- 2.7, probably, but it'll get even cruftier if I
+need to support older versions.
+"""
 
 from __future__ import print_function
 
@@ -6,27 +14,41 @@ import os
 import json
 import sys
 import socket
+import io
 
+# Python 2/3 compatability.
 try:
     from glob import fnmatch  # type: ignore
 except ImportError:
     import fnmatch  # type: ignore
 
-DOTFILES_FILENAME = "dotfiles.json"
-
+# Again, Python 2/3 compatability.
 IS_PY3 = sys.version_info[0] == 3
 if IS_PY3:
     Text = str
+    Bytes = bytes
 else:
     Text = unicode  # type: ignore
+    Bytes = str
+
+
+DOTFILES_FILENAME = "dotfiles.json"
 
 
 def load_dotfiles(filename):
-    with open(filename) as f:
-        return json.load(f).get("dotfiles", None)
+    """
+    Reads the file at the given filename, parses it as JSON, and returns the
+    "dotfiles" entry, or None if no such entry is found.
+    """
+    with io.open(filename, encoding="utf-8") as fh:
+        return json.load(fh).get("dotfiles", None)
 
 
 def dotfiles_filename(filename=None):
+    """
+    Gets the dotfiles filename, either the directory of this script joined with
+    DOTFILES_FILENAME or the given filename.
+    """
     if filename is not None:
         return filename
     else:
@@ -36,6 +58,9 @@ def dotfiles_filename(filename=None):
 
 
 def os_error_to_dict(err):
+    """
+    Converts an OsError to a dict, for easy JSON serialization.
+    """
     ret = {
         "errno": err.errno,
         "strerror": err.strerror,
@@ -49,27 +74,40 @@ def os_error_to_dict(err):
 
 
 class Dotfile:
+    """A dotfile to be symlinked.
+
+    Properties:
+        path (str): The dotfile's path, relative to this script.
+        dest (str): The dotfile's destination, relative to the user's home directory.
+        platforms (List[str]): The platforms the dotfile should be linked on,
+            or None if it should always be linked.
+        hostname_pats (List[str]): Hostname-globs that this file should be linked on,
+            or None if it should always be linked.
+    """
+
     def __init__(self, dotfile):
         """Creates a new Dotfile instance.
 
-        >>> Dotfile('xyz')
-        Dotfile({'path': 'xyz', 'dest': 'xyz', 'platform': None, 'hostname': None})
+        >>> Dotfile(u'xyz')
+        Dotfile({'path': u'xyz', 'dest': u'xyz', 'platform': None, 'hostname': None})
 
-        >>> Dotfile({'path': 'xyz', 'when': {'hostname': 'win32'}})
-        Dotfile({'path': 'xyz', 'dest': 'xyz', 'platform': None, 'hostname': ['win32']})
+        >>> Dotfile({'path': u'xyz', 'when': {'hostname': u'win32'}})
+        Dotfile({'path': u'xyz', 'dest': u'xyz', 'platform': None, 'hostname': [u'win32']})
 
-        >>> Dotfile({'path': 'xyz', 'when': {'hostname': ['win32', 'linux']}})
-        Dotfile({'path': 'xyz', 'dest': 'xyz', 'platform': None, 'hostname': ['win32', 'linux']})
+        >>> Dotfile({'path': u'xyz', 'when': {'hostname': [u'win32', u'linux']}})
+        Dotfile({'path': u'xyz', 'dest': u'xyz', 'platform': None, 'hostname': [u'win32', u'linux']})
 
-        >>> Dotfile({'path': 'xyz', 'dest': 'abc'})
-        Dotfile({'path': 'xyz', 'dest': 'abc', 'platform': None, 'hostname': None})
+        >>> Dotfile({'path': u'xyz', 'dest': u'abc'})
+        Dotfile({'path': u'xyz', 'dest': u'abc', 'platform': None, 'hostname': None})
         """
         if isinstance(dotfile, Text):
+            # A simple path; assume defaults.
             self.path = dotfile
             self.dest = dotfile
             self.platforms = None
             self.hostname_pats = None
         else:
+            # A dict, get data that's present and assume defaults for the rest.
             self.path = dotfile["path"]
             self.dest = dotfile.get("dest", self.path)
 
@@ -100,12 +138,6 @@ class Dotfile:
         )
 
 
-LINK_STATUS = {
-    "DOESNT_EXIST": "The link doesn't exist",
-    "EXISTS": "A different file exists where the link would be",
-    "OK": "The link exists and points to the correct destination",
-}
-
 DIR_STATUS = {
     "DOESNT_EXIST": "The directory doesn't exist",
     "EXISTS": "The directory exists",
@@ -114,6 +146,10 @@ DIR_STATUS = {
 
 
 def mkdir(dest):
+    """Creates the given directory, and any necessary leading components.
+
+    Returns: A status string, one of the values of DIR_STATUS.
+    """
     dirname = os.path.dirname(dest)
     if not os.path.exists(dirname):
         os.makedirs(dirname)
@@ -124,7 +160,40 @@ def mkdir(dest):
         return DIR_STATUS["FILE_EXISTS"]
 
 
+LINK_STATUS = {
+    "DOESNT_EXIST": "Link doesn't exist",
+    "EXISTS": "A different file exists where the link would be",
+    "OK": "The link exists and points to the correct destination",
+    "CREATED": "Link newly-created",
+}
+
+STATUSES = {
+    "ERRORED": "An OS error was encountered",
+    "LINK_OK": "OK",
+    "EXISTS": "Something else exists where the link would be; refusing to overwrite",
+    "SKIPPED": "Skipped",
+}
+
+
+def link_exists(path, dest):
+    """Checks if a symlink exists, pointing to `dest`.
+
+    Returns: A status string, one of the values of LINK_STATUS.
+    """
+    if os.path.exists(dest):
+        if os.path.realpath(dest) == os.path.realpath(path):
+            return LINK_STATUS["OK"]
+        else:
+            return LINK_STATUS["EXISTS"]
+    else:
+        return LINK_STATUS["DOESNT_EXIST"]
+
+
 class Dotfiles:
+    """Resolves and links dotfiles. Ingests dotfile configuration data, checks
+    the filesystem, and creates links.
+    """
+
     def __init__(self, dotfiles=None, hostname=None, platform=None):
         """Creates a new Dotfiles instance.
         """
@@ -155,6 +224,11 @@ class Dotfiles:
         self.home = os.path.expanduser("~")
 
     def files(self):
+        """Gets an iterator over this instane's dotfiles.
+
+        Returns (Iterator[Dotfile]): An iterator over each of the dotfiles held
+            by this instance.
+        """
         return map(Dotfile, self.dotfiles)
 
     def _should_link(self, dotfile):
@@ -162,28 +236,40 @@ class Dotfiles:
         Arguments:
             dotfile (Dotfile): The dotfile to inspect
 
-        >>> dotfiles = Dotfiles([], hostname='foo', platform='linux')
-        >>> dotfiles._should_link(Dotfile('foo'))
+        >>> dotfiles = Dotfiles([], hostname=u'foo', platform=u'linux')
+        >>> dotfiles._should_link(Dotfile(u'foo'))
         True
-        >>> dotfiles._should_link(Dotfile({'path': 'foo', 'when': {'platform': 'win32'}}))
+        >>> dotfiles._should_link(Dotfile({'path': u'foo', 'when': {'platform': u'win32'}}))
         False
-        >>> dotfiles._should_link(Dotfile({'path': 'foo', 'when': {'platform': ['win32', 'darwin']}}))
+        >>> dotfiles._should_link(Dotfile({
+        ...     'path': u'foo',
+        ...     'when': {'platform': [u'win32', u'darwin']}
+        ... }))
         False
-        >>> dotfiles._should_link(Dotfile({'path': 'foo', 'when': {'platform': ['win32', 'darwin', 'linux']}}))
+        >>> dotfiles._should_link(Dotfile({
+        ...     'path': u'foo',
+        ...     'when': {'platform': [u'win32', u'darwin', u'linux']}
+        ... }))
         True
-        >>> dotfiles._should_link(Dotfile({'path': 'foo', 'when': {'platform': 'linux'}}))
+        >>> dotfiles._should_link(Dotfile({'path': u'foo', 'when': {'platform': u'linux'}}))
         True
-        >>> dotfiles._should_link(Dotfile({'path': 'foo', 'when': {'hostname': '*.baz.edu'}}))
+        >>> dotfiles._should_link(Dotfile({'path': u'foo', 'when': {'hostname': u'*.baz.edu'}}))
         False
-        >>> dotfiles._should_link(Dotfile({'path': 'foo', 'when': {'hostname': ['*.baz.edu', 'bux']}}))
+        >>> dotfiles._should_link(Dotfile({
+        ...     'path': u'foo',
+        ...     'when': {'hostname': [u'*.baz.edu', u'bux']}
+        ... }))
         False
-        >>> dotfiles._should_link(Dotfile({'path': 'foo', 'when': {'hostname': ['*.baz.edu', '*f*']}}))
+        >>> dotfiles._should_link(Dotfile({
+        ...     'path': u'foo',
+        ...     'when': {'hostname': [u'*.baz.edu', u'*f*']}
+        ... }))
         True
-        >>> dotfiles._should_link(Dotfile({'path': 'foo', 'when': {'hostname': '*fo*'}}))
+        >>> dotfiles._should_link(Dotfile({'path': u'foo', 'when': {'hostname': u'*fo*'}}))
         True
-        >>> dotfiles._should_link(Dotfile({'path': 'foo', 'when': {'hostname': 'foo'}}))
+        >>> dotfiles._should_link(Dotfile({'path': u'foo', 'when': {'hostname': u'foo'}}))
         True
-        >>> dotfiles._should_link(Dotfile({'path': 'foo', 'when': {'hostname': 'baz*'}}))
+        >>> dotfiles._should_link(Dotfile({'path': u'foo', 'when': {'hostname': u'baz*'}}))
         False
         """
         if dotfile.platforms and self.platform not in dotfile.platforms:
@@ -197,22 +283,17 @@ class Dotfiles:
 
         return True
 
-    def _link_exists(self, path, dest):
-        if os.path.exists(dest):
-            if os.path.realpath(dest) == os.path.realpath(path):
-                return LINK_STATUS["OK"]
-            else:
-                return LINK_STATUS["EXISTS"]
-        else:
-            return LINK_STATUS["DOESNT_EXIST"]
-
     def link_all(self):
+        """Creates links for all dotfiles represented by this instance.
+
+        Returns: A JSON report describing the changes made.
+        """
         ret = {"changed": False, "failed": False}
         report = []
 
         def link(path, dest):
             report.append(
-                {"path": path, "dest": dest, "status": "linked",}
+                {"path": path, "dest": dest, "status": LINK_STATUS["CREATED"]}
             )
             try:
                 kwargs = {}
@@ -220,33 +301,31 @@ class Dotfiles:
                     kwargs["target_is_directory"] = os.path.isdir(dest)
                 os.symlink(path, dest, **kwargs)
                 ret["changed"] = True
-            except OSError as e:
-                report[-1]["status"] = "errored"
-                report[-1]["error"] = os_error_to_dict(e)
+            except OSError as err:
+                report[-1]["status"] = STATUSES["ERRORED"]
+                report[-1]["error"] = os_error_to_dict(err)
                 ret["failed"] = True
 
         for dotfile in self.files():
             resolved_path = os.path.join(self.basename, dotfile.path)
             if self._should_link(dotfile):
                 resolved_dest = os.path.join(self.home, dotfile.dest)
-                report.append({"path": resolved_path, "status": "link created"})
+                report.append({"path": resolved_path, "status": LINK_STATUS["CREATED"]})
                 dir_exists = mkdir(resolved_dest)
                 if dir_exists == DIR_STATUS["FILE_EXISTS"]:
                     report[-1]["status"] = dir_exists
                     continue
-                exists = self._link_exists(resolved_path, resolved_dest)
+                exists = link_exists(resolved_path, resolved_dest)
                 if exists == LINK_STATUS["OK"]:
-                    report[-1]["status"] = "link already exists"
+                    report[-1]["status"] = STATUSES["LINK_OK"]
                 elif exists == LINK_STATUS["EXISTS"]:
-                    report[-1][
-                        "status"
-                    ] = "something else exists; refusing to overwrite"
+                    report[-1]["status"] = STATUSES["EXISTS"]
                     ret["failed"] = True
                 elif exists == LINK_STATUS["DOESNT_EXIST"]:
                     # Attempt to link.
                     link(resolved_path, resolved_dest)
             else:
-                report.append({"path": resolved_path, "status": "skipped"})
+                report.append({"path": resolved_path, "status": STATUSES["SKIPPED"]})
         ret["files"] = report
         return ret
 
