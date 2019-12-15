@@ -1,5 +1,6 @@
 #! /usr/bin/env python
-"""
+"""Reads and creates symlinks to dotfiles.
+
 Utility for reading dotfiles (see dotfiles.json) and creating symlinks from ~/
 to the dotfiles in this repository / referenced by dotfiles.json.
 
@@ -28,8 +29,8 @@ if IS_PY3:
     Text = str
     Bytes = bytes
 else:
-    Text = unicode  # type: ignore
-    Bytes = str
+    Text = unicode  # type: ignore  # noqa
+    Bytes = str  # type: ignore
 
 
 DOTFILES_FILENAME = "dotfiles.json"
