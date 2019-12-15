@@ -149,6 +149,7 @@ abbr initexmf 'sudo initexmf --admin --verbose'
 abbr gst 'git status'
 abbr gp 'git pull'
 abbr gpu 'git push'
+abbr gd 'git diff HEAD'
 
 if not command -v wget > /dev/null
 	abbr wget 'curl -OL'
