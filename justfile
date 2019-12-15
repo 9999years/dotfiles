@@ -1,3 +1,7 @@
+link:
+	which jq && ./setup.py | jq \
+		|| ./setup.py
+
 test:
 	python2 -m doctest ./setup.py
 	python3 -m doctest ./setup.py
