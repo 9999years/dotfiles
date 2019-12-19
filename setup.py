@@ -9,7 +9,7 @@ many computers come with -- 2.7, probably, but it'll get even cruftier if I
 need to support older versions.
 """
 
-from __future__ import print_function
+from __future__ import print_function, unicode_literals
 
 import os
 import json
@@ -29,9 +29,8 @@ if IS_PY3:
     Text = str
     Bytes = bytes
 else:
-    Text = unicode  # type: ignore  # noqa
+    Text = unicode  # type: ignore  # noqa  # pylint: disable=E0602
     Bytes = str  # type: ignore
-
 
 DOTFILES_FILENAME = "dotfiles.json"
 
@@ -40,6 +39,11 @@ def load_dotfiles(filename):
     """
     Reads the file at the given filename, parses it as JSON, and returns the
     "dotfiles" entry, or None if no such entry is found.
+
+    >>> # Returns nothing; no 'dotfiles' entry.
+    >>> load_dotfiles("dotfiles_schema.json")
+    >>> ".bash_profile" in load_dotfiles("dotfiles.json")
+    True
     """
     with io.open(filename, encoding="utf-8") as fh:
         return json.load(fh).get("dotfiles", None)
@@ -49,6 +53,11 @@ def dotfiles_filename(filename=None):
     """
     Gets the dotfiles filename, either the directory of this script joined with
     DOTFILES_FILENAME or the given filename.
+
+    >>> dotfiles_filename('aslkdgjalskjdg')
+    'aslkdgjalskjdg'
+    >>> dotfiles_filename().split('/')[-1]
+    'dotfiles.json'
     """
     if filename is not None:
         return filename
@@ -89,17 +98,17 @@ class Dotfile:
     def __init__(self, dotfile):
         """Creates a new Dotfile instance.
 
-        >>> Dotfile(u'xyz')
-        Dotfile({'path': u'xyz', 'dest': u'xyz', 'platform': None, 'hostname': None})
+        >>> Dotfile('xyz')
+        Dotfile({'path': 'xyz', 'dest': 'xyz', 'platform': None, 'hostname': None})
 
-        >>> Dotfile({'path': u'xyz', 'when': {'hostname': u'win32'}})
-        Dotfile({'path': u'xyz', 'dest': u'xyz', 'platform': None, 'hostname': [u'win32']})
+        >>> Dotfile({'path': 'xyz', 'when': {'hostname': 'win32'}})
+        Dotfile({'path': 'xyz', 'dest': 'xyz', 'platform': None, 'hostname': ['win32']})
 
-        >>> Dotfile({'path': u'xyz', 'when': {'hostname': [u'win32', u'linux']}})
-        Dotfile({'path': u'xyz', 'dest': u'xyz', 'platform': None, 'hostname': [u'win32', u'linux']})
+        >>> Dotfile({'path': 'xyz', 'when': {'hostname': ['win32', 'linux']}})
+        Dotfile({'path': 'xyz', 'dest': 'xyz', 'platform': None, 'hostname': ['win32', 'linux']})
 
-        >>> Dotfile({'path': u'xyz', 'dest': u'abc'})
-        Dotfile({'path': u'xyz', 'dest': u'abc', 'platform': None, 'hostname': None})
+        >>> Dotfile({'path': 'xyz', 'dest': 'abc'})
+        Dotfile({'path': 'xyz', 'dest': 'abc', 'platform': None, 'hostname': None})
         """
         if isinstance(dotfile, Text):
             # A simple path; assume defaults.
@@ -120,15 +129,6 @@ class Dotfile:
             self.hostname_pats = when.get("hostname", None)
             if isinstance(self.hostname_pats, Text):
                 self.hostname_pats = [self.hostname_pats]
-
-    def __eq__(self, other):
-        return (
-            isinstance(other, Dotfile)
-            and self.path == other.path
-            and self.dest == other.dest
-            and self.platforms == other.platforms
-            and self.hostname_pats == other.hostname_pats
-        )
 
     def __repr__(self):
         return "Dotfile({{'path': {}, 'dest': {}, 'platform': {}, 'hostname': {}}})".format(
@@ -237,40 +237,40 @@ class Dotfiles:
         Arguments:
             dotfile (Dotfile): The dotfile to inspect
 
-        >>> dotfiles = Dotfiles([], hostname=u'foo', platform=u'linux')
-        >>> dotfiles._should_link(Dotfile(u'foo'))
+        >>> dotfiles = Dotfiles([], hostname='foo', platform='linux')
+        >>> dotfiles._should_link(Dotfile('foo'))
         True
-        >>> dotfiles._should_link(Dotfile({'path': u'foo', 'when': {'platform': u'win32'}}))
+        >>> dotfiles._should_link(Dotfile({'path': 'foo', 'when': {'platform': 'win32'}}))
         False
         >>> dotfiles._should_link(Dotfile({
-        ...     'path': u'foo',
-        ...     'when': {'platform': [u'win32', u'darwin']}
+        ...     'path': 'foo',
+        ...     'when': {'platform': ['win32', 'darwin']}
         ... }))
         False
         >>> dotfiles._should_link(Dotfile({
-        ...     'path': u'foo',
-        ...     'when': {'platform': [u'win32', u'darwin', u'linux']}
+        ...     'path': 'foo',
+        ...     'when': {'platform': ['win32', 'darwin', 'linux']}
         ... }))
         True
-        >>> dotfiles._should_link(Dotfile({'path': u'foo', 'when': {'platform': u'linux'}}))
+        >>> dotfiles._should_link(Dotfile({'path': 'foo', 'when': {'platform': 'linux'}}))
         True
-        >>> dotfiles._should_link(Dotfile({'path': u'foo', 'when': {'hostname': u'*.baz.edu'}}))
+        >>> dotfiles._should_link(Dotfile({'path': 'foo', 'when': {'hostname': '*.baz.ed'}}))
         False
         >>> dotfiles._should_link(Dotfile({
-        ...     'path': u'foo',
-        ...     'when': {'hostname': [u'*.baz.edu', u'bux']}
+        ...     'path': 'foo',
+        ...     'when': {'hostname': ['*.baz.edu', 'bux']}
         ... }))
         False
         >>> dotfiles._should_link(Dotfile({
-        ...     'path': u'foo',
-        ...     'when': {'hostname': [u'*.baz.edu', u'*f*']}
+        ...     'path': 'foo',
+        ...     'when': {'hostname': ['*.baz.edu', '*f*']}
         ... }))
         True
-        >>> dotfiles._should_link(Dotfile({'path': u'foo', 'when': {'hostname': u'*fo*'}}))
+        >>> dotfiles._should_link(Dotfile({'path': 'foo', 'when': {'hostname': '*fo*'}}))
         True
-        >>> dotfiles._should_link(Dotfile({'path': u'foo', 'when': {'hostname': u'foo'}}))
+        >>> dotfiles._should_link(Dotfile({'path': 'foo', 'when': {'hostname': 'foo'}}))
         True
-        >>> dotfiles._should_link(Dotfile({'path': u'foo', 'when': {'hostname': u'baz*'}}))
+        >>> dotfiles._should_link(Dotfile({'path': 'foo', 'when': {'hostname': 'baz*'}}))
         False
         """
         if dotfile.platforms and self.platform not in dotfile.platforms:
