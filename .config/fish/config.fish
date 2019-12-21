@@ -115,6 +115,10 @@ else
 	end
 end
 
+if type -q bass && test -d $HOME/.nix-profile
+    bass . $HOME/.nix-profile/etc/profile.d/nix.sh
+end
+
 set -gx --path LIBRARY_PATH "$LD_LIBRARY_PATH"  # python build uses this
 set -gx CPPFLAGS  "$CFLAGS"
 
