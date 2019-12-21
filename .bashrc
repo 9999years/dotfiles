@@ -1,8 +1,14 @@
 #! /bin/bash
 # .bashrc is executed for interactive, login shells
 
+if [[ "$SHELL" != *fish && -x "$HOME/.nix-profile/bin/fish" ]]
+then
+    exec "$HOME/.nix-profile/bin/fish"
+fi
+
 # Source global definitions
-if [ -f /etc/bashrc ]; then
+if [ -f /etc/bashrc ]
+then
 	. /etc/bashrc
 fi
 
