@@ -21,8 +21,8 @@
         ".config/fish",
         ".config/fisher_local/fishfile",
         {
-            "path": ".config/fish/fishfile",
-            "dest": ".config/fisher_local/fishfile"
+            "path": ".config/fisher_local/fishfile",
+            "dest": ".config/fish/fishfile"
         },
         ".config/alacritty/alacritty.yml",
         {
