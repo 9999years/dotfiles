@@ -102,6 +102,7 @@ if is_darwin
 		"/usr/local/Cellar/libffi/$FFI_VERSION/lib/pkgconfig/" \
 		"/usr/local/Cellar/cairo/$CAIRO_VERSION/lib/pkgconfig/"
 else
+	set fish_complete_path /home/linuxbrew/.linuxbrew/share/fish/vendor_completions.d $fish_complete_path
 	set -gx --path MANPATH /home/linuxbrew/.linuxbrew/share/man/ $MANPATH
 	set -gx --path LD_LIBRARY_PATH $LOCAL/lib64 /usr/local/lib64 /lib64 /usr/lib64 $LD_LIBRARY_PATH
 	set -gx --path LD_RUN_PATH $LOCAL/lib64 /usr/local/lib64 /lib64 /usr/lib64

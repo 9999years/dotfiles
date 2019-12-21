@@ -17,6 +17,7 @@
         ".tmux.conf.sh",
         ".Xresources",
         ".youtube-dl.conf",
+        ".config/topgrade.toml",
         ".config/fish",
         ".config/fisher_local/fishfile",
         {
