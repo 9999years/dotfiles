@@ -19,6 +19,10 @@
         ".youtube-dl.conf",
         ".config/fish",
         ".config/fisher_local/fishfile",
+        {
+            "path": ".config/fish/fishfile",
+            "dest": ".config/fisher_local/fishfile"
+        },
         ".config/alacritty/alacritty.yml",
         {
             "path": "AppData/Roaming/ConEmu.xml",
