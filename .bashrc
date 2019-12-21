@@ -1,8 +1,14 @@
 #! /bin/bash
 # .bashrc is executed for interactive, login shells
 
+if [[ "$SHELL" != *fish && -x "$HOME/.nix-profile/bin/fish" ]]
+then
+    exec "$HOME/.nix-profile/bin/fish"
+fi
+
 # Source global definitions
-if [ -f /etc/bashrc ]; then
+if [ -f /etc/bashrc ]
+then
 	. /etc/bashrc
 fi
 
@@ -70,3 +76,7 @@ function show_args() {
 }
 
 [[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
+if [ -e "$HOME/.nix-profile/etc/profile.d/nix.sh" ]
+then
+    . "$HOME/.nix-profile/etc/profile.d/nix.sh"
+fi
