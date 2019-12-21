@@ -106,6 +106,9 @@ else
 	set -gx --path LD_LIBRARY_PATH $LOCAL/lib64 /usr/local/lib64 /lib64 /usr/lib64 $LD_LIBRARY_PATH
 	set -gx --path LD_RUN_PATH $LOCAL/lib64 /usr/local/lib64 /lib64 /usr/lib64
 	set -gx LDFLAGS "-L$LOCAL/lib64 -L/usr/local/lib64 -L/lib64 -L/usr/lib64 $LDFLAGS"
+	set -gx --path PKG_CONFIG_PATH /home/linuxbrew/.linuxbrew/lib/pkgconfig \
+		/home/linuxbrew/.linuxbrew/opt/openssl@1.1/lib/pkgconfig/ \
+		$PKG_CONFIG_PATH
 	if not contains $HOME/.cabal/bin $PATH
 		set -gx PATH \
 			$HOME/.cabal/bin \
