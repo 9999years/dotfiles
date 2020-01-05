@@ -17,7 +17,10 @@
         ".tmux.conf.sh",
         ".Xresources",
         ".youtube-dl.conf",
+        ".spacemacs",
+        ".config/i3",
         ".config/topgrade.toml",
+        ".config/mimeapps.list",
         ".config/fish",
         ".config/fisher_local/fishfile",
         {

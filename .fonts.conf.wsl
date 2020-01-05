@@ -22,5 +22,6 @@
     </edit>
   </match>
 
-  <dir>/home/becca/Fonts/Not by foundry/Pragmata Pro/PragmataPro0.828/</dir>
+  <dir>/mnt/c/Windows/fonts</dir>
+  <dir>/mnt/c/Users/cervina/AppData/Local/Microsoft/Windows/Fonts</dir>
 </fontconfig>

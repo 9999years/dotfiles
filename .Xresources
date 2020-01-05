@@ -7,3 +7,13 @@ XTerm*foreground: #e8fff8
 XTerm*cursorColor: #00edad
 Xterm*selectToClipboard: true
 Xterm*disallowedWindowOps: 20,21,SetXProp
+
+UXTerm*renderFont: true
+UXTerm*faceName: PragmataPro Mono Liga
+UXTerm*faceSize: 10
+UXTerm*termName: xterm-256color
+UXTerm*background: #000854
+UXTerm*foreground: #e8fff8
+UXTerm*cursorColor: #00edad
+UXterm*selectToClipboard: true
+UXterm*disallowedWindowOps: 20,21,SetXProp

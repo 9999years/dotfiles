@@ -10,7 +10,7 @@
 	default = simple
 	followTags = true
 [credential]
-	helper = manager
+	helper = libsecret
 	modalPrompt = false ; consider flipping this if you're having trouble...
 	canFallBackToInsecureStore = true
 [core]

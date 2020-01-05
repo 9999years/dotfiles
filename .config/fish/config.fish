@@ -25,6 +25,14 @@ function is_darwin
 	test (uname) = "Darwin"
 end
 
+function is_nixos
+  switch (uname -v)
+      case "*NixOS*":
+          true
+  end
+  false
+end
+
 function is_wsl
 	test ! -z "$WSL_DISTRO_NAME"
 end
@@ -69,13 +77,32 @@ set -gx GOPATH "$HOME/.go"
 set PYTHON_VERSION "3.7"
 set -g set __done_min_cmd_duration 60000
 
-set -gx PATH $LOCAL/bin $HOME/.cargo/bin $HOME/.rvm/bin $GOPATH/bin /usr/local/bin /usr/local/sbin /usr/bin /usr/sbin /bin /sbin
-set -gx --path LD_LIBRARY_PATH $LOCAL/lib /usr/local/lib
-set -gx --path LD_RUN_PATH $LOCAL/lib /usr/local/lib
-set -gx --path MANPATH $LOCAL/share/man $LOCAL/man /usr/share/man
-set -gx --path C_INCLUDE_PATH $LOCAL/include /usr/local/include
-set -gx LDFLAGS "-L$LOCAL/lib -L/usr/local/lib"
-set -gx CFLAGS "-I$LOCAL/include -I/usr/local/include"
+function __preserve_orig -a var
+    if test -z (eval "echo -n \"\$__orig_$var\"")
+        set -g __orig_$var (eval "echo -n \"\$$var\"")
+    end
+end
+
+function __preserve_origs
+    for var in $argv
+        __preserve_orig "$var"
+    end
+end
+
+__preserve_origs PATH LD_LIBRARY_PATH LD_RUN_PATH LDFLAGS CFLAGS
+
+if is_darwin || is_wsl
+  set -gx PATH $LOCAL/bin $HOME/.cargo/bin $HOME/.rvm/bin $GOPATH/bin \
+    /usr/local/bin /usr/local/sbin /usr/bin /usr/sbin /bin /sbin \
+    $__orig_path
+  set -gx --path LD_LIBRARY_PATH $LOCAL/lib /usr/local/lib
+  set -gx --path LD_RUN_PATH $LOCAL/lib /usr/local/lib
+  set -gx --path MANPATH $LOCAL/share/man $LOCAL/man /usr/share/man
+  set -gx --path C_INCLUDE_PATH $LOCAL/include /usr/local/include
+  set -gx LDFLAGS "-L$LOCAL/lib -L/usr/local/lib"
+  set -gx CFLAGS "-I$LOCAL/include -I/usr/local/include"
+end
+
 set -gx TEXMFS $HOME/.miktex/texmfs/install/
 
 set -g pure_symbol_prompt "⟩"
@@ -101,7 +128,9 @@ if is_darwin
 	set -gx --path PKG_CONFIG_PATH \
 		"/usr/local/Cellar/libffi/$FFI_VERSION/lib/pkgconfig/" \
 		"/usr/local/Cellar/cairo/$CAIRO_VERSION/lib/pkgconfig/"
-else
+else if is_nixos
+    true
+else if is_wsl
 	set fish_complete_path /home/linuxbrew/.linuxbrew/share/fish/vendor_completions.d $fish_complete_path
 	set -gx --path MANPATH /home/linuxbrew/.linuxbrew/share/man/ $MANPATH
 	set -gx --path LD_LIBRARY_PATH $LOCAL/lib64 /usr/local/lib64 /lib64 /usr/lib64 $LD_LIBRARY_PATH
@@ -141,6 +170,7 @@ abbr x 'chmod +x'
 abbr perm 'stat -f "%A %N"'
 abbr root 'sudo -u root (which fish)'
 abbr pjq 'plist2json | jq'
+abbr logout 'xfce4-session-logout --logout --fast'
 # git root
 abbr gr 'cd (git rev-parse --show-toplevel)'
 abbr c1 'cd ..'

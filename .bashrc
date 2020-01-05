@@ -4,6 +4,9 @@
 if [[ "$SHELL" != *fish && -x "$HOME/.nix-profile/bin/fish" ]]
 then
     exec "$HOME/.nix-profile/bin/fish"
+elif [[ "$SHELL" != *fish ]] && command -v fish > /dev/null
+then
+    exec fish
 fi
 
 # Source global definitions
@@ -21,7 +24,11 @@ else
 	LOCAL="$HOME/.local"
 fi
 
-export PATH="$LOCAL/bin:$HOME/.cargo/bin:$HOME/.rvm/bin:/home/linuxbrew/.linuxbrew/bin:/usr/local/bin:/usr/local/sbin:/opt/X11/bin:/usr/bin:/usr/sbin:/bin:/sbin"
+if [[ -z "$__orig_path" ]]
+then
+	__orig_path="$PATH"
+fi
+export PATH="$LOCAL/bin:$HOME/.cargo/bin:$HOME/.rvm/bin:/home/linuxbrew/.linuxbrew/bin:/usr/local/bin:/usr/local/sbin:/opt/X11/bin:/usr/bin:/usr/sbin:/bin:/sbin:$__orig_path"
 
 . "$HOME/.dotfiles/.bashrc-brandeis.sh"
 
