@@ -14,7 +14,7 @@
 	modalPrompt = false ; consider flipping this if you're having trouble...
 	canFallBackToInsecureStore = true
 [core]
-	editor = vim
+	editor = nvim
 	autocrlf = false
 	excludesfile = ~/.gitignore_global
 	attributesfile = ~/.gitattributes_global
