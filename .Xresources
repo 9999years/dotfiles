@@ -17,3 +17,5 @@ UXTerm*foreground: #e8fff8
 UXTerm*cursorColor: #00edad
 UXterm*selectToClipboard: true
 UXterm*disallowedWindowOps: 20,21,SetXProp
+
+Xcursor.size: 32

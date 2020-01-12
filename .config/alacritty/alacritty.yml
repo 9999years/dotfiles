@@ -7,7 +7,6 @@ window:
     y: 5
   dynamic_padding: false
   decorations: full
-  start_maximized: false
   startup_mode: Windowed
 scrolling:
   history: 10000
@@ -16,9 +15,9 @@ scrolling:
   auto_scroll: false
 tabspaces: 8
 font:
+  size: 14.0
   normal:
     family: PragmataPro Mono Liga
-  size: 14.0
   offset:
     x: 0
     y: 0
@@ -26,8 +25,6 @@ font:
     x: 0
     y: 0
   use_thin_strokes: true
-render_timer: false
-persistent_logging: false
 draw_bold_text_with_bright_colors: true
 colors:
   primary:
@@ -72,8 +69,8 @@ cursor:
   style: Block
   unfocused_hollow: true
 live_config_reload: true
-shell:
-  program: wsl
+# shell:
+#   program: sh
 enable_experimental_conpty_backend: false
 alt_send_esc: true
 key_bindings:

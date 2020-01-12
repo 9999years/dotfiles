@@ -19,6 +19,7 @@
         ".youtube-dl.conf",
         ".spacemacs",
         ".config/i3",
+        ".config/i3status",
         ".config/topgrade.toml",
         ".config/mimeapps.list",
         ".config/fish",
