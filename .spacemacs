@@ -29,6 +29,8 @@ values."
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
    '(
+     racket
+     python
      javascript
      yaml
      shell-scripts
@@ -46,12 +48,13 @@ values."
      syntax-checking
      version-control
      nixos
+     latex
      )
    ;; List of additional packages that will be installed without being
    ;; wrapped in a layer. If you need some configuration for these
    ;; packages, then consider creating a layer. You can also put the
    ;; configuration in `dotspacemacs/user-config'.
-   dotspacemacs-additional-packages '()
+   dotspacemacs-additional-packages '(filladapt)
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
    ;; A list of packages that will not be installed and loaded.
@@ -129,8 +132,8 @@ values."
    dotspacemacs-colorize-cursor-according-to-state t
    ;; Default font, or prioritized list of fonts. `powerline-scale' allows to
    ;; quickly tweak the mode-line size to make separators look not too crappy.
-   dotspacemacs-default-font '("PragmataPro"
-                               :size 32
+   dotspacemacs-default-font '("PragmataPro Liga"
+                               :size 24
                                :weight normal
                                :width normal
                                :powerline-scale 1.1)
@@ -307,6 +310,7 @@ This is the place where most of your configurations should be done. Unless it is
 explicitly specified that a variable should be set before a package is loaded,
 you should place your code here."
   (server-start)
+  (spacemacs/set-leader-keys "gc" 'magit-commit)
   )
 
 ;; Do not write anything past this comment. This is where Emacs will
