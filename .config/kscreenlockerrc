@@ -1,0 +1,8 @@
+[$Version]
+update_info=kscreenlocker.upd:0.1-autolock
+
+[Greeter]
+Theme=org.kde.breezedark.desktop
+
+[Greeter][Wallpaper][org.kde.image][General]
+Image=file:///nix/store/b64rll37smw4fb28zsyk15ly2hdccw2w-rbt-background-image/share/artwork/backgrounds/night-stars.jpg

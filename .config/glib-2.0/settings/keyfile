@@ -1,0 +1,6 @@
+[org/gnome/desktop/interface]
+gtk-theme='Breeze'
+icon-theme='breeze-dark'
+cursor-theme='breeze_cursors'
+font-name='Sans Serif  10'
+toolbar-style='icons'
