@@ -319,6 +319,7 @@ explicitly specified that a variable should be set before a package is loaded,
 you should place your code here."
   (server-start)
   (spacemacs/set-leader-keys "gc" 'magit-commit)
+  (setq vc-follow-symlinks t)
   )
 
 ;; Do not write anything past this comment. This is where Emacs will
