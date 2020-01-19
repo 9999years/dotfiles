@@ -12,7 +12,7 @@ set $mod Mod4
 
 # This font is widely installed, provides lots of unicode glyphs, right-to-left
 # text rendering and scalability on retina/hidpi displays (thanks to pango).
-font pango:DejaVu Sans 12
+font pango:DejaVu Sans 10
 
 # The combination of xss-lock, nm-applet and pactl is a popular choice, so
 # they are included here as an example. Modify as you see fit.
@@ -180,5 +180,5 @@ new_float normal 0
 hide_edge_borders both
 focus_follows_mouse no
 
-gaps inner 0
+gaps inner 10
 gaps outer 0

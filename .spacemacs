@@ -32,7 +32,6 @@ values."
      rust
      html
      csv
-     cmake
      racket
      python
      javascript
@@ -43,7 +42,6 @@ values."
      better-defaults
      emacs-lisp
      git
-     patch
      markdown
      org
      (shell :variables
@@ -63,6 +61,7 @@ values."
    '(
      filladapt
      toml
+     cmake-mode
      )
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()

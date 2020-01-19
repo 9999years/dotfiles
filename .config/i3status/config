@@ -6,7 +6,6 @@ general {
 
 order += "wireless _first_"
 order += "ethernet _first_"
-order += "battery 0"
 order += "tztime local"
 order += "tztime berlin"
 
@@ -32,5 +31,5 @@ battery 0 {
 }
 
 tztime local {
-        format = "%Y-%m-%d %I:%M:%S %p %Z"
+        format = "%Y-%m-%d %I:%M %p %Z"
 }

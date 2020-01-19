@@ -56,16 +56,16 @@ fi
 
 export EDITOR=vim
 
+alias ls=exa
+alias cat=bat
+
 ## Use a long listing format ##
 alias ll='ls -la'
 
 ## Show hidden files ##
 alias l.='ls -A'
-
 alias xrdb_merge='xrdb -merge -I$HOME ~/.Xresources'
-
 alias root='sudo -u root $(which fish)'
-
 alias alia_shell='sudo bash -c "source ~/ssh-agent-data && $(which fish)"'
 
 complete -C /usr/local/bin/vault vault

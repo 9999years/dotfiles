@@ -83,7 +83,7 @@ tabspaces: 8
 font:
   size: 14.0
   normal:
-    family: PragmataPro Mono Liga
+    family: PragmataPro Liga
 
   # Offset is the extra space around each character. `offset.y` can be thought of
   # as modifying the line spacing, and `offset.x` as modifying the letter spacing.
