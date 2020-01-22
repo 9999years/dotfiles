@@ -5,4 +5,3 @@ $postscript_mode = 0;
 $dvi_mode = 0;
 $pdf_previewer = '"/mnt/c/Program Files/SumatraPDF/SumatraPDF.exe" %O %S';
 $preview_continuous_mode = 1;
-$aux_dir = 'extra';
