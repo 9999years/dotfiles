@@ -33,6 +33,7 @@
         ".config/kscreenlockerrc",
         ".config/breezerc",
         ".config/kdeglobals",
+        ".config/kglobalshortcutsrc",
 
         ".config/topgrade.toml",
         ".config/mimeapps.list",
