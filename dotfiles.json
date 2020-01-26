@@ -19,6 +19,7 @@
         ".youtube-dl.conf",
         ".spacemacs",
         ".nix-channels",
+        ".config/nix/nix.conf",
         ".config/i3/config",
         ".config/i3status/config",
 

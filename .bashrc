@@ -18,25 +18,9 @@ fi
 if [[ $(uname) == "Darwin" ]]
 then
 	alias ls='ls -G'
-	LOCAL="$HOME/.local/.darwin"
 else
 	export LS_OPTIONS="--color=auto"
-	LOCAL="$HOME/.local"
 fi
-
-if [[ -z "$__orig_path" ]]
-then
-	__orig_path="$PATH"
-fi
-export PATH="$LOCAL/bin:$HOME/.cargo/bin:$HOME/.rvm/bin:/home/linuxbrew/.linuxbrew/bin:/usr/local/bin:/usr/local/sbin:/opt/X11/bin:/usr/bin:/usr/sbin:/bin:/sbin:$__orig_path"
-
-. "$HOME/.dotfiles/.bashrc-brandeis.sh"
-
-export LD_LIBRARY_PATH="$LOCAL/lib"
-export LD_RUN_PATH="$LOCAL/lib"
-export LDFLAGS="-L$LOCAL/lib"
-export CFLAGS="-I$LOCAL/include"
-export MANPATH="$LOCAL/share/man:$LOCAL/man:/usr/share/man"
 
 # don't put duplicate lines or lines starting with space in the history.
 # See bash(1) for more options
@@ -54,7 +38,7 @@ then
 	eval "$(dircolors)"
 fi
 
-export EDITOR=vim
+export EDITOR=nvim
 
 alias ls=exa
 alias cat=bat
