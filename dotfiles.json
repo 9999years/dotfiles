@@ -18,6 +18,7 @@
         ".Xresources",
         ".youtube-dl.conf",
         ".spacemacs",
+        ".spacemacs.d",
         ".nix-channels",
         ".config/nix/nix.conf",
         ".config/i3/config",
@@ -35,6 +36,7 @@
         ".config/breezerc",
         ".config/kdeglobals",
         ".config/kglobalshortcutsrc",
+        ".config/khotkeysrc",
 
         ".config/topgrade.toml",
         ".config/mimeapps.list",
