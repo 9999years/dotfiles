@@ -157,8 +157,8 @@ set -gx CPPFLAGS  "$CFLAGS"
 
 abbr ccrisp 'ssh -t rebeccaturner@helios.cs.brandeis.edu ssh -t cosmic-crisp tmux attach'
 
-abbr ll 'ls -la'
-abbr l. 'ls -A'
+abbr ll 'exa -la'
+abbr l. 'exa -A'
 
 abbr xrdb_merge 'xrdb -merge -I$HOME ~/.Xresources'
 abbr build './configure --prefix="$LOCAL"; and make; and make install'
