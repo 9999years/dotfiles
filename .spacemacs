@@ -39,6 +39,8 @@ values."
      javascript
      yaml
      shell-scripts
+     (lsp :variables
+          lsp-ui-remap-xref-keybindings t)
      helm
      (auto-completion :variables
                       auto-completion-enable-snippets-in-popup t
@@ -263,6 +265,7 @@ values."
    dotspacemacs-show-transient-state-color-guide t
    ;; If non nil unicode symbols are displayed in the mode line. (default t)
    dotspacemacs-mode-line-unicode-symbols t
+   dotspacemacs-mode-line-theme 'spacemacs
    ;; If non nil smooth scrolling (native-scrolling) is enabled. Smooth
    ;; scrolling overrides the default behavior of Emacs which recenters point
    ;; when it reaches the top or bottom of the screen. (default t)
@@ -333,6 +336,7 @@ you should place your code here."
   (server-start)
   (spacemacs/set-leader-keys "gc" 'magit-commit)
   (setq vc-follow-symlinks t)
+  (add-hook 'python-mode-hook 'lsp)
   )
 
 ;; Do not write anything past this comment. This is where Emacs will
