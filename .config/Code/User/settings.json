@@ -1,0 +1,16 @@
+{
+    "editor.fontFamily": "\"PragmataPro Liga\", monospace",
+    "editor.fontSize": 16,
+    "editor.fontLigatures": true,
+    "editor.minimap.enabled": false,
+    "editor.wordWrap": "on",
+    "editor.formatOnPaste": true,
+    "debug.console.fontSize": 16,
+    "files.exclude": {
+        "**/.classpath": true,
+        "**/.project": true,
+        "**/.settings": true,
+        "**/.factorypath": true
+    },
+    "workbench.iconTheme": "vscode-icons"
+}

@@ -24,6 +24,9 @@
         ".config/i3/config",
         ".config/i3status/config",
 
+        ".config/Code/User/settings.json",
+        ".config/Code/User/snippets",
+
         ".config/glib-2.0/settings/keyfile",
         ".config/plasma-localerc",
         ".config/user-dirs.dirs",
