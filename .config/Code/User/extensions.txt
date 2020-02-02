@@ -1,4 +1,7 @@
+arrterian.nix-env-selector
 bbenoist.Nix
+brettm12345.nixfmt-vscode
+bungcip.better-toml
 dbaeumer.vscode-eslint
 eamodio.gitlens
 ecmel.vscode-html-css
@@ -17,7 +20,10 @@ redhat.java
 redhat.vscode-yaml
 RomanPeshkov.vscode-text-tables
 rust-lang.rust
+sjhuangx.vscode-scheme
+skellock.just
 skyapps.fish-vscode
+timonwong.shellcheck
 Vans.haskero
 vscjava.vscode-java-debug
 vscjava.vscode-java-test

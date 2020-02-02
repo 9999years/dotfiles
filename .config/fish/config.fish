@@ -162,7 +162,7 @@ abbr l. 'exa -A'
 
 abbr xrdb_merge 'xrdb -merge -I$HOME ~/.Xresources'
 abbr build './configure --prefix="$LOCAL"; and make; and make install'
-abbr diff colordiff
+abbr diff 'diff --color'
 abbr funced 'funced --save'
 abbr req 'pip3 install --user -r ./requirements.txt'
 abbr pipi 'pip3 install --user'
