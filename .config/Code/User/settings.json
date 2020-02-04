@@ -3,7 +3,7 @@
     "editor.fontSize": 16,
     "editor.fontLigatures": true,
     "editor.minimap.enabled": false,
-    "editor.wordWrap": "on",
+    "editor.wordWrap": "wordWrapColumn",
     "editor.formatOnPaste": true,
     "debug.console.fontSize": 16,
     "files.exclude": {
@@ -12,5 +12,39 @@
         "**/.settings": true,
         "**/.factorypath": true
     },
-    "workbench.iconTheme": "vscode-icons"
+    "workbench.iconTheme": "vscode-icons",
+    "latex-workshop.hover.preview.newcommand.newcommandFile": "/home/becca/texmf/tex/latex/mathnotes/mathnotes.sty",
+    "latex-workshop.intellisense.package.enabled": true,
+    "latex-workshop.intellisense.unimathsymbols.enabled": true,
+    "python.formatting.provider": "black",
+    "python.autoComplete.addBrackets": true,
+    "python.linting.mypyEnabled": true,
+    "python.linting.pylintEnabled": true,
+    "rust.clippy_preference": "on",
+    "rust.rustflags": "-A dead_code -A unused_imports",
+    "[rust]": {
+        "editor.formatOnSave": true
+    },
+    "[json]": {
+        "editor.formatOnSave": true
+    },
+    "[python]": {
+        "editor.formatOnSave": true
+    },
+    "[javascript]": {
+        "editor.formatOnSave": true
+    },
+    "[cpp]": {
+        "editor.formatOnSave": true
+    },
+    "[nix]": {
+        "editor.formatOnSave": true
+    },
+    "vim.cursorStylePerMode.insert": "line",
+    "vim.cursorStylePerMode.normal": "block",
+    "vim.cursorStylePerMode.replace": "underline",
+    "vim.cursorStylePerMode.visual": "block-outline",
+    "vim.hlsearch": true,
+    "files.trimTrailingWhitespace": true,
+    "terminal.integrated.rendererType": "experimentalWebgl"
 }

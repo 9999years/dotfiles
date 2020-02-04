@@ -50,3 +50,4 @@ package-lock.json
 *.fls
 .clangd
 auto
+.vscode
