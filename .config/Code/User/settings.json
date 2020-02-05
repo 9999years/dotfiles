@@ -46,5 +46,8 @@
     "vim.cursorStylePerMode.visual": "block-outline",
     "vim.hlsearch": true,
     "files.trimTrailingWhitespace": true,
-    "terminal.integrated.rendererType": "experimentalWebgl"
+    "terminal.integrated.rendererType": "experimentalWebgl",
+    "update.mode": "none",
+    "latex-workshop.latex.autoBuild.run": "never",
+    "latex.lint.onSave": false
 }
