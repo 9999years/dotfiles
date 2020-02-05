@@ -21,6 +21,9 @@ function rebuild --description 'Rebuilds the current NixOS configuration.'
                 return
         end
     end
+    # Log curent commit
+    echo "/etc/nixos is now at commit:"
+    git log HEAD^1..HEAD --oneline
     sudo sh -c "nixos-rebuild switch $argv"
     popd
 end
