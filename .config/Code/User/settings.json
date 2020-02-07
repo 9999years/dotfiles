@@ -26,10 +26,12 @@
         "editor.formatOnSave": true
     },
     "[json]": {
-        "editor.formatOnSave": true
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "vscode.json-language-features"
     },
     "[python]": {
-        "editor.formatOnSave": true
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "ms-python.python"
     },
     "[javascript]": {
         "editor.formatOnSave": true
@@ -49,5 +51,14 @@
     "terminal.integrated.rendererType": "experimentalWebgl",
     "update.mode": "none",
     "latex-workshop.latex.autoBuild.run": "never",
-    "latex.lint.onSave": false
+    "latex.lint.onSave": false,
+    "python.linting.pydocstyleEnabled": true,
+    "python.linting.pylintArgs": [
+        "--disable=no-member,invalid-name,missing-function-docstring,missing-module-docstring,missing-class-docstring,trailing-newlines,bad-continuation"
+    ],
+    "python.linting.pydocstyleArgs": [
+        "--convention=pep257",
+        "--add-ignore=D105,D200"
+    ],
+    "workbench.editor.showTabs": false
 }
