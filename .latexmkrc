@@ -6,6 +6,6 @@ $dvi_mode = 0;
 if($OSNAME =~ "MSWin32") {
   $pdf_previewer = '"/mnt/c/Program Files/SumatraPDF/SumatraPDF.exe" %O %S';
 } else {
-  $pdf_previewer = '"evince" %O %S';
+  $pdf_previewer = 'qpdfview --unique %O %S';
 }
 $preview_continuous_mode = 1;
