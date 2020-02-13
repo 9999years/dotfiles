@@ -60,5 +60,5 @@
         "--convention=pep257",
         "--add-ignore=D105,D200"
     ],
-    "workbench.editor.showTabs": false
+    "workbench.editor.showTabs": true
 }

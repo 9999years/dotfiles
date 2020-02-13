@@ -1,7 +1,11 @@
-# Defined in /tmp/fish.CVp8Ic/ii.fish @ line 1
+# Defined in - @ line 2
 function ii --argument path
 	if test -z "$path"
-        set -l path .
+        set -l path "$PWD"
     end
-    explorer.exe (wslpath -w "$path")
+    if command -v explorer.exe >/dev/null
+        explorer.exe (wslpath -w "$path")
+    else if command -v xdg-open >/dev/null
+        xdg-open "$path"
+    end
 end
