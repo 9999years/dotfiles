@@ -19,6 +19,7 @@
 	excludesfile = ~/.gitignore_global
 	attributesfile = ~/.gitattributes_global
 	eol = lf
+	pager = diff-so-fancy | less --tabs=4 -RFX
 [merge]
 	conflictstyle = diff3
 [diff]
