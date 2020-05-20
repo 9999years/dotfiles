@@ -5,9 +5,11 @@ bungcip.better-toml
 DataByne.theme-monokai-hc
 DavidAnson.vscode-markdownlint
 dbaeumer.vscode-eslint
+dracula-theme.theme-dracula
 eamodio.gitlens
 ecmel.vscode-html-css
 Edka.haskutil
+efoerster.texlab
 Equinusocio.vsc-community-material-theme
 Equinusocio.vsc-material-theme
 equinusocio.vsc-material-theme-icons
@@ -15,6 +17,7 @@ esbenp.prettier-vscode
 Ikuyadeu.r
 James-Yu.latex-workshop
 jcanero.hoogle-vscode
+jolaleye.horizon-theme-vscode
 jroesch.lean
 justusadam.language-haskell
 lunaryorn.fish-ide
@@ -23,9 +26,11 @@ ms-python.python
 ms-vscode.cpptools
 ms-vscode.Go
 ms-vscode.vscode-typescript-tslint-plugin
+nedy.lights-out
 PKief.material-icon-theme
 redhat.java
 redhat.vscode-yaml
+RobbOwen.synthwave-vscode
 RomanPeshkov.vscode-text-tables
 rust-lang.rust
 sjhuangx.vscode-scheme
@@ -35,8 +40,12 @@ ssmi.after-dark
 teabyii.ayu
 timonwong.shellcheck
 Vans.haskero
+VisualStudioExptTeam.vscodeintellicode
 vscjava.vscode-java-debug
+vscjava.vscode-java-dependency
+vscjava.vscode-java-pack
 vscjava.vscode-java-test
+vscjava.vscode-maven
 vscode-icons-team.vscode-icons
 vscodevim.vim
 whizkydee.material-palenight-theme
