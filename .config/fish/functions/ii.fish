@@ -1,4 +1,4 @@
-# Defined in - @ line 2
+# Defined in /tmp/fish.s9LFla/ii.fish @ line 2
 function ii --argument path
 	if test -z "$path"
         set -l path "$PWD"

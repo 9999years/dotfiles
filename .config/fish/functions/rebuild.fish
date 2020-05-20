@@ -1,4 +1,4 @@
-# Defined in - @ line 2
+# Defined in /tmp/fish.j9Bn8N/rebuild.fish @ line 2
 function rebuild --description 'Rebuilds the current NixOS configuration.'
 	pushd /etc/nixos
     if not sudo sh -c "git pull --no-edit"

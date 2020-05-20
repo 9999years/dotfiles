@@ -69,7 +69,7 @@ umask 022
 
 set -gx FISHRC "$HOME/.config/fish/config.fish"
 set -gx WINHOME "/mnt/c/Users/$USER"
-set -gx LS_OPTIONS "--color=auto"
+# set -gx LS_OPTIONS "--color=auto"
 set -gx EDITOR vim
 set -gx NODE_PATH "$LOCAL/lib/node_modules"
 set -gx PYTHONSTARTUP "$HOME/.pythonrc"

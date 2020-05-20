@@ -22,6 +22,8 @@
     "python.linting.pylintEnabled": true,
     "rust.clippy_preference": "on",
     "rust.rustflags": "-A dead_code -A unused_imports",
+    "rust-analyzer.displayInlayHints": true,
+    "rust-analyzer.trace.server": "verbose",
     "[rust]": {
         "editor.formatOnSave": true
     },
@@ -65,5 +67,12 @@
     "[html]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode"
     },
-    "editor.rulers": [80, 120]
+    "editor.rulers": [
+        80,
+        120
+    ],
+    "rust-client.updateOnStartup": true,
+    "workbench.colorTheme": "Lights Out",
+    "editor.suggestSelection": "first",
+    "vsintellicode.modify.editor.suggestSelection": "automaticallyOverrodeDefaultValue"
 }

@@ -28,10 +28,8 @@ _k_friendly_name=KDE Daemon
 display=Display\tMeta+P,Display\tMeta+P,Switch Display
 
 [khotkeys]
-_k_friendly_name=System Settings
+_k_friendly_name=KDE Daemon
 {45772291-d407-4627-aeac-27cfe6057f0d}=Print,none,Screenshot and copy
-{93f393d2-4058-46ad-90bb-c2d02338bad3}=Ctrl+Alt+T,none,Launch Konsole
-{d03619b6-9b3c-48cc-9d9c-a2aadb485550}=,none,Search
 
 [kmix]
 _k_friendly_name=Audio Volume

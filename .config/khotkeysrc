@@ -1,5 +1,5 @@
 [Data]
-DataCount=1
+DataCount=2
 
 [Data_1]
 Comment=Starts spectacle, triggers a region-screenshot, copies to the clipboard on completion, and exits.
@@ -27,7 +27,31 @@ Key=Print
 Type=SHORTCUT
 Uuid={45772291-d407-4627-aeac-27cfe6057f0d}
 
+[Data_2]
+Comment=KMenuEdit Global Shortcuts
+DataCount=0
+Enabled=true
+Name=KMenuEdit
+SystemGroup=1
+Type=ACTION_DATA_GROUP
+
+[Data_2Conditions]
+Comment=
+ConditionsCount=0
+
+[Gestures]
+Disabled=true
+MouseButton=2
+Timeout=300
+
+[GesturesExclude]
+Comment=
+WindowsCount=0
+
 [Main]
 AlreadyImported=kde32b1,defaults,konqueror_gestures_kde321,konsole
 Disabled=false
 Version=2
+
+[Voice]
+Shortcut=

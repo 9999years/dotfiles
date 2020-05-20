@@ -81,7 +81,7 @@ tabspaces: 8
 
 # Font configuration (changes require restart)
 font:
-  size: 10.0
+  size: 12.0
   normal:
     family: PragmataPro Liga
 
