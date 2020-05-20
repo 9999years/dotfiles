@@ -7,63 +7,33 @@
     "editor.formatOnPaste": true,
     "debug.console.fontSize": 16,
     "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/CVS": true,
+        "**/.DS_Store": true,
         "**/.classpath": true,
         "**/.project": true,
         "**/.settings": true,
-        "**/.factorypath": true
+        "**/.factorypath": true,
+        "**/*.olean": true
     },
-    "workbench.iconTheme": "vscode-icons",
-    "latex-workshop.hover.preview.newcommand.newcommandFile": "/home/becca/texmf/tex/latex/mathnotes/mathnotes.sty",
-    "latex-workshop.intellisense.package.enabled": true,
-    "latex-workshop.intellisense.unimathsymbols.enabled": true,
-    "python.formatting.provider": "black",
-    "python.autoComplete.addBrackets": true,
-    "python.linting.mypyEnabled": true,
-    "python.linting.pylintEnabled": true,
-    "rust.clippy_preference": "on",
-    "rust.rustflags": "-A dead_code -A unused_imports",
-    "[rust]": {
-        "editor.formatOnSave": true
-    },
-    "[json]": {
-        "editor.formatOnSave": true,
-        "editor.defaultFormatter": "vscode.json-language-features"
-    },
+    "workbench.iconTheme": "eq-material-theme-icons",
+    "vsicons.dontShowNewVersionMessage": true,
+    "update.mode": "none",
+    "python.linting.pylintArgs": [
+        "--disable=unsubscriptable-object,not-an-iterable,no-member,bad-continuation"
+    ],
     "[python]": {
         "editor.formatOnSave": true,
-        "editor.defaultFormatter": "ms-python.python"
+        "editor.formatOnPaste": false
     },
-    "[javascript]": {
-        "editor.formatOnSave": true
-    },
-    "[cpp]": {
-        "editor.formatOnSave": true
-    },
-    "[nix]": {
-        "editor.formatOnSave": true
-    },
-    "vim.cursorStylePerMode.insert": "line",
-    "vim.cursorStylePerMode.normal": "block",
-    "vim.cursorStylePerMode.replace": "underline",
-    "vim.cursorStylePerMode.visual": "block-outline",
-    "vim.hlsearch": true,
-    "files.trimTrailingWhitespace": true,
-    "terminal.integrated.rendererType": "experimentalWebgl",
-    "update.mode": "none",
+    "latex-workshop.intellisense.package.enabled": true,
+    "latex-workshop.intellisense.unimathsymbols.enabled": true,
+    "latex-workshop.latex.autoBuild.cleanAndRetry.enabled": false,
     "latex-workshop.latex.autoBuild.run": "never",
-    "latex.lint.onSave": false,
-    "python.linting.pydocstyleEnabled": true,
-    "python.linting.pylintArgs": [
-        "--disable=no-member,invalid-name,missing-function-docstring,missing-module-docstring,missing-class-docstring,trailing-newlines,bad-continuation,unsubscriptable-object,not-an-iterable"
-    ],
-    "python.linting.pydocstyleArgs": [
-        "--convention=pep257",
-        "--add-ignore=D105,D200"
-    ],
-    "workbench.editor.showTabs": true,
-    "vsicons.dontShowNewVersionMessage": true,
-    "[html]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode"
-    },
-    "editor.rulers": [80, 120]
+    "rust-analyzer.highlightingOn": true,
+    "rust.racer_completion": false,
+    "window.zoomLevel": 1,
+    "workbench.colorTheme": "Monokai High Contrast"
 }
