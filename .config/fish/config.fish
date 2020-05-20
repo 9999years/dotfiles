@@ -160,6 +160,7 @@ abbr ccrisp 'ssh -t rebeccaturner@helios.cs.brandeis.edu ssh -t cosmic-crisp tmu
 abbr ll 'exa -la'
 abbr l. 'exa -A'
 
+abbr df 'df -h'
 abbr xrdb_merge 'xrdb -merge -I$HOME ~/.Xresources'
 abbr build './configure --prefix="$LOCAL"; and make; and make install'
 abbr diff 'diff --color'

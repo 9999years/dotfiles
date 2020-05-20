@@ -4,6 +4,8 @@
 *.7z
 *.dmg
 *.gz
+*.xz
+*.bz2
 *.iso
 *.jar
 *.rar
@@ -43,6 +45,7 @@ Thumbs.db
 .sass-cache
 .pytest_cache
 .mypy_cache
+__pycache__
 
 .idea/libraries/**
 node_modules
