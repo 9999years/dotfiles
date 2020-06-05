@@ -118,7 +118,7 @@ class Dotfile:
             self.hostname_pats = None
         else:
             # A dict, get data that's present and assume defaults for the rest.
-            self.path = dotfile["path"]
+            self.path = dotfile["repo"]
             self.dest = dotfile.get("dest", self.path)
 
             when = dotfile.get("when", {})
