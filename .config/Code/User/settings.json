@@ -8,7 +8,6 @@
     "editor.suggestSelection": "first",
     "workbench.editor.showTabs": true,
     "workbench.iconTheme": "eq-material-theme-icons",
-    "workbench.colorTheme": "Monokai High Contrast",
     "debug.console.fontSize": 16,
     "files.exclude": {
         "**/.git": true,
@@ -48,7 +47,8 @@
     "rust.racer_completion": false,
     "rust-client.updateOnStartup": true,
     "[rust]": {
-        "editor.formatOnSave": true
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "matklad.rust-analyzer"
     },
     "[json]": {
         "editor.formatOnSave": true,
@@ -77,6 +77,17 @@
     "terminal.integrated.rendererType": "experimentalWebgl",
     "update.mode": "none",
     "vsicons.dontShowNewVersionMessage": true,
-    "window.zoomLevel": 1,
-    "vsintellicode.modify.editor.suggestSelection": "automaticallyOverrodeDefaultValue"
+    "window.zoomLevel": 0,
+    "vsintellicode.modify.editor.suggestSelection": "automaticallyOverrodeDefaultValue",
+    "material-icon-theme.hidesExplorerArrows": false,
+    "material-icon-theme.folders.color": "#90a4ae",
+    "vsicons.presets.foldersAllDefaultIcon": true,
+    "explorer.confirmDelete": false,
+    "workbench.colorTheme": "Noctis High Contrast",
+    "rust-analyzer.inlayHints.chainingHints": false,
+    "rust-analyzer.inlayHints.typeHints": false,
+    "[html]": {
+        "editor.defaultFormatter": "vscode.html-language-features"
+    },
+    "explorer.confirmDragAndDrop": false
 }

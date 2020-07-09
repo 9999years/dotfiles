@@ -180,6 +180,7 @@ abbr c3 'cd ../../..'
 abbr c4 'cd ../../../..'
 abbr c5 'cd ../../../../..'
 abbr c6 'cd ../../../../../..'
+abbr cloc tokei
 
 # miktex stuff
 abbr mpm 'sudo mpm --admin --verbose'
