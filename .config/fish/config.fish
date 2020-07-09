@@ -27,7 +27,7 @@ end
 
 function is_nixos
   switch (uname -v)
-      case "*NixOS*":
+      case "*NixOS*"
           true
   end
   false
@@ -77,6 +77,11 @@ set -gx GOPATH "$HOME/.go"
 set PYTHON_VERSION "3.7"
 set -g set __done_min_cmd_duration 60000
 
+if test -e $HOME/.nix-profile/etc/profile.d/nix.sh \
+        && type bass 2&>/dev/null
+    bass . $HOME/.nix-profile/etc/profile.d/nix.sh
+end
+
 function __preserve_orig -a var
     if test -z (eval "echo -n \"\$__orig_$var\"")
         set -g __orig_$var (eval "echo -n \"\$$var\"")
@@ -92,7 +97,7 @@ end
 __preserve_origs PATH LD_LIBRARY_PATH LD_RUN_PATH LDFLAGS CFLAGS
 
 if is_darwin || is_wsl
-  set -gx PATH $LOCAL/bin $HOME/.cargo/bin $HOME/.rvm/bin $GOPATH/bin \
+  set -gx PATH $HOME/.nix-profile/bin $LOCAL/bin $HOME/.cargo/bin $HOME/.rvm/bin $GOPATH/bin \
     /usr/local/bin /usr/local/sbin /usr/bin /usr/sbin /bin /sbin \
     $__orig_path
   set -gx --path LD_LIBRARY_PATH $LOCAL/lib /usr/local/lib
@@ -103,20 +108,15 @@ if is_darwin || is_wsl
   set -gx CFLAGS "-I$LOCAL/include -I/usr/local/include"
 end
 
+if is_linkedin
+    set -gx PATH /usr/local/linkedin/bin $PATH
+end
+
 set -gx TEXMFS $HOME/.miktex/texmfs/install/
 
-set -g pure_symbol_prompt "⟩"
-set -g pure_symbol_reverse_prompt "⟨"
-
 if is_darwin
-	set -gx RUBY_VERSION 2.3.0
+	set -gx RUBY_VERSION 2.6.0
 	set -gx MANPATH "/Applications/Xcode.app/Contents/Developer/usr/share/man" "/usr/local/share/man" $MANPATH
-	set -gx PATH $HOME/Library/Python/$PYTHON_VERSION/bin \
-		/usr/local/opt/ruby/bin \
-		$HOME/.gem/ruby/$RUBY_VERSION/bin \
-		/usr/local/texlive/2018/bin/(uname -m)-darwin/ \
-		$PATH \
-		/usr/local/opt/python/bin
 	#set -gx --path DYLD_LIBRARY_PATH  "$LD_LIBRARY_PATH"
 	set sdk (xcrun --show-sdk-path)
 	if test ! -z "$sdk"
@@ -158,7 +158,6 @@ set -gx CPPFLAGS  "$CFLAGS"
 abbr ccrisp 'ssh -t rebeccaturner@helios.cs.brandeis.edu ssh -t cosmic-crisp tmux attach'
 
 abbr ll 'exa -la'
-abbr l. 'exa -A'
 
 abbr df 'df -h'
 abbr xrdb_merge 'xrdb -merge -I$HOME ~/.Xresources'
