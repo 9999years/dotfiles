@@ -3,7 +3,6 @@ jethrokuan/z
 # run bash utils in fish
 edc/bass
 # match delimiters
-laughedelic/pisces
 # notify after long processes exit
 # this seems to be... impolite, on windows
 #franciscolourenco/done

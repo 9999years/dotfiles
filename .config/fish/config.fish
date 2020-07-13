@@ -128,6 +128,8 @@ if is_darwin
 	set -gx --path PKG_CONFIG_PATH \
 		"/usr/local/Cellar/libffi/$FFI_VERSION/lib/pkgconfig/" \
 		"/usr/local/Cellar/cairo/$CAIRO_VERSION/lib/pkgconfig/"
+    # Interferes with left-right word bindings
+    bind --erase \e\e
 else if is_nixos
     true
 else if is_wsl
@@ -157,12 +159,10 @@ set -gx CPPFLAGS  "$CFLAGS"
 
 abbr ccrisp 'ssh -t rebeccaturner@helios.cs.brandeis.edu ssh -t cosmic-crisp tmux attach'
 
-abbr ll 'exa -la'
-
 abbr df 'df -h'
+abbr mdv mdcat
 abbr xrdb_merge 'xrdb -merge -I$HOME ~/.Xresources'
 abbr build './configure --prefix="$LOCAL"; and make; and make install'
-abbr diff 'diff --color'
 abbr funced 'funced --save'
 abbr req 'pip3 install --user -r ./requirements.txt'
 abbr pipi 'pip3 install --user'

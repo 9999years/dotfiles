@@ -38,6 +38,7 @@ then
 	eval "$(dircolors)"
 fi
 
+export LC_CTYPE=en_US.UTF-8
 export EDITOR=nvim
 
 alias ls=exa

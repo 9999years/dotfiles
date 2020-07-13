@@ -44,3 +44,5 @@
 	remote = origin
 [gui]
 	encoding = utf-8
+[pull]
+	rebase = false
