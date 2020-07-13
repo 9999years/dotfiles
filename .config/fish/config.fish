@@ -78,7 +78,7 @@ set PYTHON_VERSION "3.7"
 set -g set __done_min_cmd_duration 60000
 
 if test -e $HOME/.nix-profile/etc/profile.d/nix.sh \
-        && type bass 2&>/dev/null
+        && type bass >/dev/null 2>&1
     bass . $HOME/.nix-profile/etc/profile.d/nix.sh
 end
 
@@ -179,6 +179,7 @@ abbr c3 'cd ../../..'
 abbr c4 'cd ../../../..'
 abbr c5 'cd ../../../../..'
 abbr c6 'cd ../../../../../..'
+abbr cloc tokei
 
 # miktex stuff
 abbr mpm 'sudo mpm --admin --verbose'
