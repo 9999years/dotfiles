@@ -7,7 +7,7 @@
     "editor.formatOnPaste": true,
     "editor.suggestSelection": "first",
     "workbench.editor.showTabs": true,
-    "workbench.iconTheme": "eq-material-theme-icons",
+    "workbench.iconTheme": "material-icon-theme",
     "debug.console.fontSize": 16,
     "files.exclude": {
         "**/.git": true,
@@ -89,5 +89,11 @@
     "[html]": {
         "editor.defaultFormatter": "vscode.html-language-features"
     },
-    "explorer.confirmDragAndDrop": false
+    "explorer.confirmDragAndDrop": false,
+    "java.semanticHighlighting.enabled": true,
+    "debug.onTaskErrors": "abort",
+    "java.requirements.JDK11Warning": false,
+    "[jsonc]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
+    }
 }
