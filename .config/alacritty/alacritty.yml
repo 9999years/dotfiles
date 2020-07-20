@@ -60,7 +60,7 @@ scrolling:
 
 # Font configuration (changes require restart)
 font:
-  size: 16.0
+  size: 13.0
   normal:
     family: PragmataPro Liga
 

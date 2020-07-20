@@ -1,8 +1,12 @@
 [$Version]
 update_info=kscreenlocker.upd:0.1-autolock
 
+[Daemon]
+LockGrace=15
+Timeout=15
+
 [Greeter]
 Theme=org.kde.breezedark.desktop
 
 [Greeter][Wallpaper][org.kde.image][General]
-Image=file:///nix/store/mmiadzk5l9z3w6hhgjijzh2avjnzl7nv-rbt-background-image/share/wallpapers/night-stars.jpg
+Image=file:///nix/store/kd5kcax2qnpjpa02f70m9yysys983hfc-breeze-qt5-5.17.5-bin/share/wallpapers/Next/contents/images/3840x2160.png

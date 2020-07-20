@@ -1,5 +1,5 @@
 # Defined in /var/folders/dm/2kd_hgp51qx5v41_4ct5c8tw001d24/T//fish.VUUeyk/is_linkedin.fish @ line 2
-function is_linkedin
+function is_linkedin --description 'true if the current system belongs to LinkedIn'
     switch (hostname)
         case "*.linkedin.biz"
             true
