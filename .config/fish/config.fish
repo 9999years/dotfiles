@@ -94,22 +94,24 @@ function __preserve_origs
     end
 end
 
+
 __preserve_origs PATH LD_LIBRARY_PATH LD_RUN_PATH LDFLAGS CFLAGS
 
 if is_darwin || is_wsl
-  set -gx PATH $HOME/.nix-profile/bin $LOCAL/bin $HOME/.cargo/bin $HOME/.rvm/bin $GOPATH/bin \
+  set -gx PATH $LOCAL/bin $HOME/.cargo/bin $HOME/.rvm/bin $HOME/.volta/bin $GOPATH/bin \
     /usr/local/bin /usr/local/sbin /usr/bin /usr/sbin /bin /sbin \
     $__orig_path
   set -gx --path LD_LIBRARY_PATH $LOCAL/lib /usr/local/lib
   set -gx --path LD_RUN_PATH $LOCAL/lib /usr/local/lib
-  set -gx --path MANPATH $LOCAL/share/man $LOCAL/man /usr/share/man
+  set -gx --path MANPATH /usr/local/share/man /usr/share/man
   set -gx --path C_INCLUDE_PATH $LOCAL/include /usr/local/include
   set -gx LDFLAGS "-L$LOCAL/lib -L/usr/local/lib"
   set -gx CFLAGS "-I$LOCAL/include -I/usr/local/include"
 end
 
 if is_linkedin
-    set -gx PATH /usr/local/linkedin/bin $PATH
+    set -gx PATH /usr/local/linkedin/bin /export/content/linkedin/bin $PATH
+    set fish_complete_path $fish_complete_path /usr/local/linkedin/etc/fish
 end
 
 set -gx TEXMFS $HOME/.miktex/texmfs/install/
@@ -117,6 +119,7 @@ set -gx TEXMFS $HOME/.miktex/texmfs/install/
 if is_darwin
 	set -gx RUBY_VERSION 2.6.0
 	set -gx MANPATH "/Applications/Xcode.app/Contents/Developer/usr/share/man" "/usr/local/share/man" $MANPATH
+	set fish_complete_path $fish_complete_path $HOME/.config/fish/completions/
 	#set -gx --path DYLD_LIBRARY_PATH  "$LD_LIBRARY_PATH"
 	set sdk (xcrun --show-sdk-path)
 	if test ! -z "$sdk"

@@ -29,13 +29,14 @@
 [rerere]
 	enabled = true
 [alias]
+	c = commit
+	co = commit
+	p = pull
+	pu = push
 	last = log -1 HEAD
-	graph = log --format=\"%C(cyan)%H%Creset%n%C(red) %an %C(reset)%s %ar\" --graph
+	graph = log --all --decorate --oneline --graph
 	st = status --short --branch
-	a = add . --verbose
-	changes = diff --cached
-	ch = diff --cached
-	abandon = checkout HEAD -- 
+	a = add --verbose
 [hub]
 	protocol = https
 [branch]
