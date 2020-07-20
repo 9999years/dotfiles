@@ -5,20 +5,16 @@ set -g pisces_only_insert_at_eol 1
 set -g __done_min_cmd_duration 30000
 
 set -gx GOPATH ~/.go
+set -gx VOLTA_HOME ~/.volta
 
 __add_to_path_if_exists PATH \
     ~/.cargo/bin \
+    $VOLTA_HOME/bin \
     ~/.rvm/bin \
     $GOPATH/bin \
     ~/.cabal/bin
 
 if not is_nixos
-    if is_darwin
-        set LOCAL ~/.local/.darwin
-    else
-        set LOCAL ~/.local
-    end
-
     # Do we have a local Nix profile?
     set nix_profile ~/.nix-profile/etc/profile.d/nix.sh
     if test -e $nix_profile && type -q bass
@@ -27,8 +23,8 @@ if not is_nixos
 
     __add_to_path_if_exists PATH \
         /usr/local/linkedin/bin \
+        /export/content/linkedin/bin \
         ~/.nix-profile/bin \
-        $LOCAL/bin \
         (if is_wsl; echo ~linuxbrew/.linuxbrew/bin; end) \
         /usr/local/bin \
         /usr/local/sbin \
@@ -39,8 +35,6 @@ if not is_nixos
 
     for lib_path in LD_LIBRARY_PATH LD_RUN_PATH
         __add_to_path_if_exists $lib_path \
-            $LOCAL/lib \
-            $LOCAL/lib64 \
             /usr/local/lib64 \
             /usr/local/lib \
             /usr/lib64 \
@@ -48,11 +42,9 @@ if not is_nixos
     end
 
     __add_to_path_if_exists C_INCLUDE_PATH \
-        $LOCAL/include \
         /usr/local/include
 
     __add_to_path_if_exists MANPATH \
-        $LOCAL/share/man \
         (if is_darwin; echo /Applications/Xcode.app/Contents/Developer/usr/share/man; end) \
         (if is_wsl; echo ~linuxbrew/.linuxbrew/share/man; end) \
         /usr/local/share/man \
@@ -62,9 +54,13 @@ if not is_nixos
         ~linuxbrew/.linuxbrew/lib/pkgconfig \
         ~linuxbrew/.linuxbrew/opt/openssl@1.1/lib/pkgconfig
 
+    if is_linkedin
+        set fish_complete_path $fish_complete_path /usr/local/linkedin/fish
+    end
+
     if is_darwin || is_wsl
-        set -gx LDFLAGS "-L$LOCAL/lib -L/usr/local/lib $__orig_LDFLAGS"
-        set -gx CFLAGS "-I$LOCAL/include -I/usr/local/include $__orig_CFLAGS"
+        set -gx LDFLAGS "-L/usr/local/lib $__orig_LDFLAGS"
+        set -gx CFLAGS "-I/usr/local/include $__orig_CFLAGS"
     end
 
     if is_darwin
@@ -87,12 +83,10 @@ if not is_nixos
     else if is_wsl
         umask 022
         set fish_complete_path /home/linuxbrew/.linuxbrew/share/fish/vendor_completions.d $fish_complete_path
-        set -gx LDFLAGS "-L$LOCAL/lib64 -L/usr/local/lib64 -L/lib64 -L/usr/lib64 $LDFLAGS"
+        set -gx LDFLAGS "-L/usr/local/lib64 -L/lib64 -L/usr/lib64 $LDFLAGS"
         set -gx TEXMFS $HOME/.miktex/texmfs/install/
         set -gx WINHOME "/mnt/c/Users/$USER"
     end
-
-    set -gx NODE_PATH "$LOCAL/lib/node_modules"
 end
 
 if command -v nvim >/dev/null
