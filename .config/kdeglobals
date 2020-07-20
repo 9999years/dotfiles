@@ -112,7 +112,7 @@ TerminalApplication[$e]=alacritty
 XftAntialias=true
 XftHintStyle=
 XftSubPixel=
-dbfile=/home/becca/.mozilla/firefox/iz6bbyit.default/places.sqlite
+dbfile=/home/becca/.mozilla/firefox/cpg2cdui.default/places.sqlite
 fixed=PragmataPro Mono Liga,10,-1,5,50,0,0,0,0,0
 font=Sans Serif,10,-1,5,50,0,0,0,0,0
 menuFont=Sans Serif,10,-1,5,50,0,0,0,0,0
@@ -127,6 +127,7 @@ Theme=breeze-dark
 LookAndFeelPackage=org.kde.breezedark.desktop
 ShowIconsInMenuItems=true
 ShowIconsOnPushButtons=true
+SingleClick=false
 contrast=4
 widgetStyle=Breeze
 
@@ -150,8 +151,8 @@ Speedbar Width=174
 View Style=DetailTree
 
 [KScreen]
-ScaleFactor=1.4
-ScreenScaleFactors=DP-0=1.4;DP-1=1.4;HDMI-0=1.4;DP-2=1.4;DP-3=1.4;DP-4=1.4;DP-5=1.4;USB-C-0=1.4;
+ScaleFactor=2.5
+ScreenScaleFactors=eDP-1=2.5;DP-1=2.5;DP-2=2.5;DP-3=2.5;
 
 [Toolbar style]
 ToolButtonStyle=TextBesideIcon

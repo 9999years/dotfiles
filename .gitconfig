@@ -30,7 +30,7 @@
 	enabled = true
 [alias]
 	last = log -1 HEAD
-	graph = log --format=\"%C(cyan)%H%Creset%n%C(red) %an %C(reset)%s %ar\" --graph
+	graph = log --graph --oneline --decorate --all
 	st = status --short --branch
 	a = add . --verbose
 	changes = diff --cached
