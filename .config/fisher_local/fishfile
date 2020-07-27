@@ -4,8 +4,8 @@ jethrokuan/z
 edc/bass
 # match delimiters
 # notify after long processes exit
-# this seems to be... impolite, on windows
-#franciscolourenco/done
+fishpkg/fish-humanize-duration
+franciscolourenco/done
 # fuzzy find keybindings
 jethrokuan/fzf
 # git bindings
@@ -22,4 +22,3 @@ joehillen/to-fish
 #oh-my-fish/marlin
 oh-my-fish/plugin-technicolor
 oh-my-fish/plugin-bang-bang
-franciscolourenco/done

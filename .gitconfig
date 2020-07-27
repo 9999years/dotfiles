@@ -47,3 +47,5 @@
 	encoding = utf-8
 [pull]
 	rebase = false
+[init]
+	defaultBranch = main
