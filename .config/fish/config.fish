@@ -22,9 +22,9 @@ if not is_nixos
     end
 
     __add_to_path_if_exists PATH \
+        ~/.nix-profile/bin \
         /usr/local/linkedin/bin \
         /export/content/linkedin/bin \
-        ~/.nix-profile/bin \
         (if is_wsl; echo ~linuxbrew/.linuxbrew/bin; end) \
         /usr/local/bin \
         /usr/local/sbin \
