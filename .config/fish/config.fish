@@ -137,6 +137,8 @@ abbr c6 'cd ../../../../../..'
 abbr mpm 'sudo mpm --admin --verbose'
 abbr initexmf 'sudo initexmf --admin --verbose'
 
+abbr c cargo
+
 abbr gr 'cd (git rev-parse --show-toplevel)' # git root
 abbr gst 'git status'
 abbr gp 'git pull'
