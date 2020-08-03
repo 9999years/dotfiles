@@ -17,8 +17,12 @@ __add_to_path_if_exists PATH \
 if not is_nixos
     # Do we have a local Nix profile?
     set nix_profile ~/.nix-profile/etc/profile.d/nix.sh
-    if test -e $nix_profile && type -q bass
-        bass . $nix_profile
+    if test -e $nix_profile 
+        if type -q bass
+            bass . $nix_profile
+        else
+            echo -s (set_color --bold brred) "bass function not found; make sure to run fisher to make Nix functions available (or source $nix_profile in a parent shell...)" (set_color normal)
+        end
     end
 
     __add_to_path_if_exists PATH \
