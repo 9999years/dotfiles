@@ -56,6 +56,7 @@ if not is_nixos
 
     if is_linkedin
         set fish_complete_path $fish_complete_path /usr/local/linkedin/fish
+        set -gx JAVA_HOME /Library/Java/JavaVirtualMachines/jdk1.8.0_172-zulu.jdk/Contents/Home/
     end
 
     if is_darwin || is_wsl
@@ -115,36 +116,37 @@ function ll --description 'list files' --wraps exa
     ls -la $argv
 end
 
-abbr lt 'll -snew'  # exa sorted by date; newest last
-abbr df 'df -h'
-abbr mdv mdcat
-abbr cloc tokei
-abbr xrdb_merge 'xrdb -merge -I$HOME ~/.Xresources'
-abbr funced 'funced --save'
-abbr x 'chmod +x'
-abbr perm 'stat -f "%A %N"'
-abbr root 'sudo -u root (which fish)'
-abbr c 'cd ..'
-abbr c. 'cd ..'
-abbr c1 'cd ..'
-abbr c2 'cd ../..'
-abbr c3 'cd ../../..'
-abbr c4 'cd ../../../..'
-abbr c5 'cd ../../../../..'
-abbr c6 'cd ../../../../../..'
+abbr -g lt 'll -snew'  # exa sorted by date; newest last
+abbr -g df 'df -h'
+abbr -g mdv mdcat
+abbr -g cloc tokei
+abbr -g xrdb_merge 'xrdb -merge -I$HOME ~/.Xresources'
+abbr -g funced 'funced --save'
+abbr -g x 'chmod +x'
+abbr -g perm 'stat -f "%A %N"'
+abbr -g root 'sudo -u root (which fish)'
+abbr -g c 'cd ..'
+abbr -g c. 'cd ..'
+abbr -g c1 'cd ..'
+abbr -g c2 'cd ../..'
+abbr -g c3 'cd ../../..'
+abbr -g c4 'cd ../../../..'
+abbr -g c5 'cd ../../../../..'
+abbr -g c6 'cd ../../../../../..'
 
 # miktex stuff
-abbr mpm 'sudo mpm --admin --verbose'
-abbr initexmf 'sudo initexmf --admin --verbose'
+abbr -g mpm 'sudo mpm --admin --verbose'
+abbr -g initexmf 'sudo initexmf --admin --verbose'
 
-abbr c cargo
+abbr -g c cargo
 
-abbr gr 'cd (git rev-parse --show-toplevel)' # git root
-abbr gst 'git status'
-abbr gp 'git pull'
-abbr gpu 'git push'
-abbr gd 'git diff HEAD'
-abbr gco 'git checkout'
-abbr gc 'git commit'
-abbr gg 'git graph'
-abbr gl 'git log --stat --graph'
+abbr -g gr 'cd (git-repo-root)' # git root
+abbr -g gst 'git status'
+abbr -g gp 'git pull'
+abbr -g gpu 'git push'
+abbr -g gd 'git diff HEAD'
+abbr -g gdt 'git diff (git-tracking-branch) HEAD'
+abbr -g gco 'git checkout'
+abbr -g gc 'git commit'
+abbr -g gg 'git graph'
+abbr -g gl 'git log --stat --graph'
