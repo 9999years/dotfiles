@@ -17,7 +17,7 @@ __add_to_path_if_exists PATH \
 if not is_nixos
     # Do we have a local Nix profile?
     set nix_profile ~/.nix-profile/etc/profile.d/nix.sh
-    if test -e $nix_profile 
+    if test -e $nix_profile
         if type -q bass
             bass . $nix_profile
         else
@@ -119,6 +119,7 @@ function ll --description 'list files' --wraps exa
     ls -la $argv
 end
 
+abbr s 'sudo systemctl restart'
 abbr lt 'll -snew'  # exa sorted by date; newest last
 abbr df 'df -h'
 abbr mdv mdcat
