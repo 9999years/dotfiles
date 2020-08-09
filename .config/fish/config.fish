@@ -119,38 +119,43 @@ function ll --description 'list files' --wraps exa
     ls -la $argv
 end
 
-abbr cl clear
-abbr lt 'll -snew'  # exa sorted by date; newest last
-abbr df 'df -h'
+# Programs I forget:
 abbr mdv mdcat
 abbr cloc tokei
-abbr xrdb_merge 'xrdb -merge -I$HOME ~/.Xresources'
-abbr funced 'funced --save'
-abbr x 'chmod +x'
-abbr perm 'stat -f "%A %N"'
-abbr root 'sudo -u root (which fish)'
-abbr c 'cd ..'
-abbr c. 'cd ..'
+
+# Abbreviations
+abbr c cargo
+abbr cl clear
 abbr c1 'cd ..'
 abbr c2 'cd ../..'
 abbr c3 'cd ../../..'
 abbr c4 'cd ../../../..'
 abbr c5 'cd ../../../../..'
 abbr c6 'cd ../../../../../..'
+abbr c 'cd ..'
+abbr c. 'cd ..'
+
+# Adding arguments
+abbr df 'df -h'
+abbr funced 'funced --save'
+abbr lt 'll -snew'  # exa sorted by date; newest last
+abbr perm 'stat -f "%A %N"'
+abbr root 'sudo -u root (which fish)'
+abbr x 'chmod +x'
+abbr xrdb_merge 'xrdb -merge -I$HOME ~/.Xresources'
 
 # miktex stuff
 abbr mpm 'sudo mpm --admin --verbose'
 abbr initexmf 'sudo initexmf --admin --verbose'
 
-abbr c cargo
-
-abbr gr 'cd (git rev-parse --show-toplevel)' # git root
-abbr gst 'git status'
-abbr gp 'git pull'
-abbr gpu 'git push'
-abbr gd 'git diff HEAD'
-abbr gco 'git checkout'
-abbr gcl 'git clone'
+# git
 abbr gc 'git commit'
+abbr gcl 'git clone'
+abbr gco 'git checkout'
+abbr gd 'git diff HEAD'
 abbr gg 'git graph'
 abbr gl 'git log --stat --graph'
+abbr gp 'git pull'
+abbr gpu 'git push'
+abbr gr 'cd (git rev-parse --show-toplevel)' # git root
+abbr gst 'git status'
