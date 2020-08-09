@@ -20,6 +20,8 @@
 	attributesfile = ~/.gitattributes_global
 	eol = lf
 	pager = delta --line-numbers
+[interactive]
+	diffFilter = delta --color-only
 [merge]
 	conflictstyle = diff3
 [diff]

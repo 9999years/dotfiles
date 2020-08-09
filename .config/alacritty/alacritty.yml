@@ -11,6 +11,9 @@ window:
     columns: 0
     lines: 0
 
+  # Allow terminal applications to change Alacritty's window title.
+  dynamic_title: true
+
   # Window padding (changes require restart)
   #
   # Blank space added around the window in pixels. This padding is scaled
@@ -214,7 +217,7 @@ colors: *challenger_deep
 #   - Linear
 #
 # Specifying a `duration` of `0` will disable the visual bell.
-visual_bell:
+bell:
   animation: EaseOutExpo
   duration: 0
   color: '0xffffff'
@@ -282,9 +285,6 @@ selection:
 
   # When set to `true`, selected text will be copied to the primary clipboard.
   save_to_clipboard: false
-
-# Allow terminal applications to change Alacritty's window title.
-dynamic_title: true
 
 cursor:
   # Cursor style
