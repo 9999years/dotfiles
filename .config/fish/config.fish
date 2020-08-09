@@ -115,6 +115,7 @@ function ll --description 'list files' --wraps exa
     ls -la $argv
 end
 
+abbr cl clear
 abbr lt 'll -snew'  # exa sorted by date; newest last
 abbr df 'df -h'
 abbr mdv mdcat
@@ -143,6 +144,7 @@ abbr gp 'git pull'
 abbr gpu 'git push'
 abbr gd 'git diff HEAD'
 abbr gco 'git checkout'
+abbr gcl 'git clone'
 abbr gc 'git commit'
 abbr gg 'git graph'
 abbr gl 'git log --stat --graph'
