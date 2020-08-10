@@ -125,8 +125,10 @@ abbr -g mdv mdcat
 abbr -g cloc tokei
 
 # Abbreviations
-abbr -g c cargo
 abbr -g cl clear
+abbr -g ca cargo
+
+# cd
 abbr -g c1 'cd ..'
 abbr -g c2 'cd ../..'
 abbr -g c3 'cd ../../..'
@@ -135,7 +137,6 @@ abbr -g c5 'cd ../../../../..'
 abbr -g c6 'cd ../../../../../..'
 abbr -g c 'cd ..'
 abbr -g c. 'cd ..'
-abbr -g c cargo
 
 # Adding arguments
 abbr -g df 'df -h'
