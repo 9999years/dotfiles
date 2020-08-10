@@ -17,8 +17,12 @@ __add_to_path_if_exists PATH \
 if not is_nixos
     # Do we have a local Nix profile?
     set nix_profile ~/.nix-profile/etc/profile.d/nix.sh
-    if test -e $nix_profile && type -q bass
-        bass . $nix_profile
+    if test -e $nix_profile
+        if type -q bass
+            bass . $nix_profile
+        else
+            echo -s (set_color --bold brred) "bass function not found; make sure to run fisher to make Nix functions available (or source $nix_profile in a parent shell...)" (set_color normal)
+        end
     end
 
     __add_to_path_if_exists PATH \
@@ -116,30 +120,38 @@ function ll --description 'list files' --wraps exa
     ls -la $argv
 end
 
-abbr -g lt 'll -snew'  # exa sorted by date; newest last
-abbr -g df 'df -h'
+# Programs I forget:
 abbr -g mdv mdcat
 abbr -g cloc tokei
-abbr -g xrdb_merge 'xrdb -merge -I$HOME ~/.Xresources'
-abbr -g funced 'funced --save'
-abbr -g x 'chmod +x'
-abbr -g perm 'stat -f "%A %N"'
-abbr -g root 'sudo -u root (which fish)'
-abbr -g c 'cd ..'
-abbr -g c. 'cd ..'
+
+# Abbreviations
+abbr -g c cargo
+abbr -g cl clear
 abbr -g c1 'cd ..'
 abbr -g c2 'cd ../..'
 abbr -g c3 'cd ../../..'
 abbr -g c4 'cd ../../../..'
 abbr -g c5 'cd ../../../../..'
 abbr -g c6 'cd ../../../../../..'
+abbr -g c 'cd ..'
+abbr -g c. 'cd ..'
+abbr -g c cargo
+
+# Adding arguments
+abbr -g df 'df -h'
+abbr -g funced 'funced --save'
+abbr -g lt 'll -snew'  # exa sorted by date; newest last
+abbr -g perm 'stat -f "%A %N"'
+abbr -g root 'sudo -u root (which fish)'
+abbr -g s 'sudo systemctl restart'
+abbr -g x 'chmod +x'
+abbr -g xrdb_merge 'xrdb -merge -I$HOME ~/.Xresources'
 
 # miktex stuff
 abbr -g mpm 'sudo mpm --admin --verbose'
 abbr -g initexmf 'sudo initexmf --admin --verbose'
 
-abbr -g c cargo
-
+# Git
 abbr -g gr 'cd (git-repo-root)' # git root
 abbr -g gst 'git status'
 abbr -g gp 'git pull'
