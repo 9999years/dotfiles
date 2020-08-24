@@ -1,9 +1,9 @@
-# Defined in /tmp/fish.ThoeDu/fish_greeting.fish @ line 2
+# Defined in /tmp/fish.w25efJ/fish_greeting.fish @ line 2
 function fish_greeting
-	set_color --bold blue
-    and echo -n "    Hello miss! "
-    and set_color normal
-    and set_color green
-    and uptime
-    and set_color normal
+    if test -z "$IN_NIX_SHELL"
+        echo -s (set_color --bold blue) "    Hello miss! " (set_color normal) \
+                   (set_color green) (uptime) (set_color normal)
+    else
+        echo -s -n (set_color --bold blue) "🐟  " (set_color normal)
+    end
 end

@@ -14,6 +14,14 @@ __add_to_path_if_exists PATH \
     $GOPATH/bin \
     ~/.cabal/bin
 
+if test -n "$IN_NIX_SHELL"
+    if test -z "$NIX_SHELL_DEPTH"
+        set -gx NIX_SHELL_DEPTH 1
+    else
+        set -gx NIX_SHELL_DEPTH (math "$NIX_SHELL_DEPTH + 1")
+    end
+end
+
 if not is_nixos
     # Do we have a local Nix profile?
     set nix_profile ~/.nix-profile/etc/profile.d/nix.sh
