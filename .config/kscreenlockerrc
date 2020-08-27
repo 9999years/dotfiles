@@ -9,4 +9,4 @@ Timeout=15
 Theme=org.kde.breezedark.desktop
 
 [Greeter][Wallpaper][org.kde.image][General]
-Image=file:///nix/store/kd5kcax2qnpjpa02f70m9yysys983hfc-breeze-qt5-5.17.5-bin/share/wallpapers/Next/contents/images/3840x2160.png
+Image=file:///nix/store/cwrwpc0xbw8ip17h4zqz1285q2zzrgsc-breeze-qt5-5.17.5-bin/share/wallpapers/Next/contents/images/3840x2160.png

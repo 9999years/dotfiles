@@ -30,8 +30,9 @@ _k_friendly_name=KDE Daemon
 display=Display\tMeta+P,Display\tMeta+P,Switch Display
 
 [khotkeys]
-_k_friendly_name=KDE Daemon
-{45772291-d407-4627-aeac-27cfe6057f0d}=,none,Screenshot and copy
+_k_friendly_name=System Settings
+{45772291-d407-4627-aeac-27cfe6057f0d}=Meta+Shift+S,none,Screenshot and copy
+{edaf48a2-9113-4bf8-8c80-940466939dd1}=,none,Spectacle screenshot
 
 [kmix]
 _k_friendly_name=Audio Volume
@@ -223,12 +224,12 @@ _k_friendly_name=Dolphin
 _launch=Meta+E,Meta+E,Dolphin
 
 [org.kde.spectacle.desktop]
-ActiveWindowScreenShot=Meta+Print,Meta+Print,Capture Active Window
+ActiveWindowScreenShot=none,Meta+Print,Capture Active Window
 CurrentMonitorScreenShot=,none,Capture Current Monitor
-FullScreenScreenShot=Shift+Print,Shift+Print,Capture Entire Desktop
-RectangularRegionScreenShot=Meta+Shift+Print,Meta+Shift+Print,Capture Rectangular Region
+FullScreenScreenShot=none,Shift+Print,Capture Entire Desktop
+RectangularRegionScreenShot=none,Meta+Shift+Print,Capture Rectangular Region
 _k_friendly_name=Spectacle
-_launch=Print,Print,Spectacle
+_launch=none,Print,Launch Spectacle
 
 [org_kde_powerdevil]
 Decrease Keyboard Brightness=Keyboard Brightness Down,Keyboard Brightness Down,Decrease Keyboard Brightness
@@ -255,7 +256,7 @@ activate task manager entry 7=Meta+7,Meta+7,Activate Task Manager Entry 7
 activate task manager entry 8=Meta+8,Meta+8,Activate Task Manager Entry 8
 activate task manager entry 9=Meta+9,Meta+9,Activate Task Manager Entry 9
 activate widget 22=Alt+F1,none,Activate Application Launcher Widget
-activate widget 3=,none,Activate Application Launcher Widget
+activate widget 3=none,none,Activate Application Launcher Widget
 activate widget 38=none,none,Activate Icons-only Task Manager Widget
 clear-history=none,none,Clear Clipboard History
 clipboard_action=Ctrl+Alt+X,Ctrl+Alt+X,Enable Clipboard Actions

@@ -1,0 +1,5 @@
+[$Version]
+update_info=spectacle_newConfig.upd:spectacle-new-config
+
+[General]
+useReleaseToCapture=true
