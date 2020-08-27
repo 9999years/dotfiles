@@ -118,9 +118,9 @@ set -gx CPPFLAGS  "$CFLAGS"
 # so we keep them here.
 function ls --description 'list files' --wraps exa
     if command -v exa >/dev/null
-        command exa -la $argv
+        command exa -l $argv
     else
-        command ls -la $argv
+        command ls -l $argv
     end
 end
 

@@ -1,9 +1,9 @@
-# Defined in /tmp/fish.WEP4kk/fish_prompt.fish @ line 2
+# Defined in /tmp/fish.GQN5s7/fish_prompt.fish @ line 2
 function fish_prompt --description 'Write out the prompt'
     set -l last_status "$status"
     set -l status_display (
         if test "$last_status" != 0
-            echo -n (set_color --bold red)"[$last_status] "(set_color normal)
+            echo -n (set_color yellow)"[$last_status] "(set_color normal)
         end
     )
 
