@@ -72,3 +72,7 @@ if [ -e "$HOME/.nix-profile/etc/profile.d/nix.sh" ]
 then
     . "$HOME/.nix-profile/etc/profile.d/nix.sh"
 fi
+
+if [[ -e ~/.config/broot/launcher/bash/br ]]; then
+    source ~/.config/broot/launcher/bash/br
+fi

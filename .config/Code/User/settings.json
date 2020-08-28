@@ -77,7 +77,7 @@
     "terminal.integrated.rendererType": "experimentalWebgl",
     "update.mode": "none",
     "vsicons.dontShowNewVersionMessage": true,
-    "window.zoomLevel": 0,
+    "window.zoomLevel": 2,
     "vsintellicode.modify.editor.suggestSelection": "automaticallyOverrodeDefaultValue",
     "material-icon-theme.hidesExplorerArrows": false,
     "material-icon-theme.folders.color": "#90a4ae",
