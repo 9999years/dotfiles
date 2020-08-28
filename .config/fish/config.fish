@@ -131,6 +131,7 @@ end
 # Programs I forget:
 abbr -g mdv mdcat
 abbr -g cloc tokei
+abbr -g top htop  # or ytop!
 
 # Abbreviations
 abbr -g cl clear
