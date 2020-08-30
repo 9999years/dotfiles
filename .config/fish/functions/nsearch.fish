@@ -1,10 +1,17 @@
-# Defined in /tmp/fish.pdvYG5/nsearch.fish @ line 2
+# Defined in /tmp/fish.GKbIVg/nsearch.fish @ line 2
 function nsearch --wraps='nix search'
+    set -l green ""
+    set -l normal ""
+    set -l gray ""
+    if isatty stdout
+        set green (set_color --bold green)
+        set normal (set_color normal)
+        set gray (set_color --dim white)
+    end
     nix search --json $argv \
         | jq -r "to_entries \
             | .[] \
-            | \""(set_color --bold green)"\(.key)"(set_color normal)" \" \
-                + \""(set_color --dim white)"\" \
-                + \"(\(.value.pkgName)-\(.value.version))\" \
-                + \""(set_color normal)": \(.value.description)\""
+            | \"$green\(.key)$normal \" \
+                + \"$gray(\(.value.pkgName)-\(.value.version))$normal: \(.value.description)\" \
+        "
 end
