@@ -132,6 +132,7 @@ end
 abbr -g mdv mdcat
 abbr -g cloc tokei
 abbr -g top htop  # or ytop!
+abbr -g xxd hexd
 
 # Abbreviations
 abbr -g cl clear
