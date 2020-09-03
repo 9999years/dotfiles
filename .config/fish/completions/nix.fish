@@ -1,3 +1,15 @@
+function __nix_pkg_attr_names -d 'caches and returns a list of nix package names'
+    if not test -e ~/.cache/nixpkgs-fish-completions/pkgs.txt
+        mkdir -p ~/.cache/nixpkgs-fish-completions
+        touch ~/.cache/nixpkgs-fish-completions/pkgs.txt
+        # # names only:
+        # nix-env --query --available --no-name --attr-path |  sed 's/^[^.]*\.//' > ~/.cache/nixpkgs-fish-completions/pkgs.txt
+        # attrs and descriptions:
+        nix-env --query --available --no-name --attr-path --description |  sed 's/  \+/\t/' > ~/.cache/nixpkgs-fish-completions/pkgs.txt
+    end
+    command cat ~/.cache/nixpkgs-fish-completions/pkgs.txt
+end
+
 set -l nix_commands \
     add-to-store build cat-nar cat-store copy copy-sigs doctor dump-path edit \
     eval hash-file hash-path log ls-nar ls-store optimise-store path-info \
@@ -132,3 +144,5 @@ complete -c nix -f -n "not __fish_seen_subcommand_from $nix_commands" -a why-dep
 
 complete -c nix -f -n "__fish_seen_subcommand_from add-to-store" -l dry-run -d "show what this command would do without doing it"
 complete -c nix -f -n "__fish_seen_subcommand_from add-to-store" -s n -l name -r -d "name component of the store path"
+
+complete -c nix -f -n "__fish_seen_subcommand_from run" -a "(__nix_pkg_attr_names)"
