@@ -30,9 +30,8 @@ _k_friendly_name=KDE Daemon
 display=Display\tMeta+P,Display\tMeta+P,Switch Display
 
 [khotkeys]
-_k_friendly_name=System Settings
+_k_friendly_name=KDE Daemon
 {45772291-d407-4627-aeac-27cfe6057f0d}=Meta+Shift+S,none,Screenshot and copy
-{edaf48a2-9113-4bf8-8c80-940466939dd1}=,none,Spectacle screenshot
 
 [kmix]
 _k_friendly_name=Audio Volume
@@ -256,7 +255,7 @@ activate task manager entry 7=Meta+7,Meta+7,Activate Task Manager Entry 7
 activate task manager entry 8=Meta+8,Meta+8,Activate Task Manager Entry 8
 activate task manager entry 9=Meta+9,Meta+9,Activate Task Manager Entry 9
 activate widget 22=Alt+F1,none,Activate Application Launcher Widget
-activate widget 3=none,none,Activate Application Launcher Widget
+activate widget 3=,none,Activate Application Launcher Widget
 activate widget 38=none,none,Activate Icons-only Task Manager Widget
 clear-history=none,none,Clear Clipboard History
 clipboard_action=Ctrl+Alt+X,Ctrl+Alt+X,Enable Clipboard Actions
