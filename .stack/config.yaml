@@ -10,7 +10,7 @@ templates:
   params:
    author-name: Rebecca Turner
    author-email: rbt@sent.as
-   copyright: © 2019 Rebecca Turner
+   copyright: © 2020 Rebecca Turner
    github-username: 9999years
 
 # The following parameter specifies stack's output styles; STYLES is a
