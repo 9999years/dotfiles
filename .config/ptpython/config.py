@@ -8,9 +8,7 @@ from pygments.token import Token
 
 from ptpython.layout import CompletionVisualisation
 
-__all__ = (
-    'configure',
-)
+__all__ = ("configure",)
 
 
 def configure(repl):
@@ -57,6 +55,8 @@ def configure(repl):
     # Complete while typing. (Don't require tab before the
     # completion menu is shown.)
     repl.complete_while_typing = True
+    if hasattr(repl, "enable_fuzzy_completion"):
+        repl.enable_fuzzy_completion = True
 
     # Vi mode.
     repl.vi_mode = False
@@ -65,7 +65,7 @@ def configure(repl):
     repl.paste_mode = False
 
     # Use the classic prompt. (Display '>>>' instead of 'In [1]'.)
-    repl.prompt_style = 'classic'  # 'classic' or 'ipython'
+    repl.prompt_style = "classic"  # 'classic' or 'ipython'
 
     # Don't insert a blank line after the output.
     repl.insert_blank_line_after_output = False
@@ -80,7 +80,7 @@ def configure(repl):
 
     # Enable auto suggestions. (Pressing right arrow will complete the input,
     # based on the history.)
-    repl.enable_auto_suggest = False
+    repl.enable_auto_suggest = True
 
     # Enable open-in-editor. Pressing C-X C-E in emacs mode or 'v' in
     # Vi navigation mode will open the input in the current editor.
@@ -98,20 +98,16 @@ def configure(repl):
     repl.enable_input_validation = True
 
     # Use this colorscheme for the code.
-    repl.use_code_colorscheme('rainbow_dash')
+    repl.use_code_colorscheme("monokai")
 
     # Set color depth (keep in mind that not all terminals support true color).
 
-    #repl.color_depth = 'DEPTH_1_BIT'  # Monochrome.
-    #repl.color_depth = 'DEPTH_4_BIT'  # ANSI colors only.
-    repl.color_depth = 'DEPTH_8_BIT'  # The default, 256 colors.
-    #repl.color_depth = 'DEPTH_24_BIT'  # True color.
+    # 'DEPTH_{1,4,8,24}_BIT'
+    repl.color_depth = "DEPTH_24_BIT"
 
     # Syntax.
     repl.enable_syntax_highlighting = True
 
     # Install custom colorscheme named 'my-colorscheme' and use it.
-    """
-    repl.install_ui_colorscheme('my-colorscheme', _custom_ui_colorscheme)
-    repl.use_ui_colorscheme('my-colorscheme')
-    """
+    #  repl.install_ui_colorscheme('my-colorscheme', _custom_ui_colorscheme)
+    #  repl.use_ui_colorscheme('my-colorscheme')
