@@ -97,6 +97,10 @@ set -l nix_options (echo \
   user-agent-suffix                           String appended to the user agent in HTTP requests."
 )
 
+function __nix_complete_env
+  set -x | sed 's/ /\t/'
+end
+
 complete -c nix       -l debug                  -d "[common] enable debug output"
 complete -c nix       -l help                   -d "[common] show usage information"
 complete -c nix       -l help-config            -d "[common] show configuration options"
@@ -146,3 +150,10 @@ complete -c nix -f -n "__fish_seen_subcommand_from add-to-store" -l dry-run -d "
 complete -c nix -f -n "__fish_seen_subcommand_from add-to-store" -s n -l name -r -d "name component of the store path"
 
 complete -c nix -f -n "__fish_seen_subcommand_from run" -a "(__nix_pkg_attr_names)"
+complete -c nix -f -n "__fish_seen_subcommand_from run" -l arg -d "argument to be passed to Nix functions"
+complete -c nix -f -n "__fish_seen_subcommand_from run" -l argstr -d "string-valued argument to be passed to Nix functions"
+complete -c nix -f -n "__fish_seen_subcommand_from run" -s c -l command -d "command and arguments to be executed; defaults to 'bash'"
+complete -c nix -f -n "__fish_seen_subcommand_from run" -s f -l file -r -d "evaluate FILE rather than the default"
+complete -c nix -f -n "__fish_seen_subcommand_from run" -s i -l ignore-environment -d "clear the entire environment (except those specified with --keep)"
+complete -c nix -f -n "__fish_seen_subcommand_from run" -s k -l keep -r -a "(__nix_complete_env)" -d "keep specified environment variable"
+complete -c nix -f -n "__fish_seen_subcommand_from run" -s u -l unset -r -a "(__nix_complete_env)" -d "unset specified environment variable"
