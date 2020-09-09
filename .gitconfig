@@ -48,6 +48,6 @@
 [gui]
 	encoding = utf-8
 [pull]
-	rebase = false
+	rebase = true
 [init]
 	defaultBranch = main
