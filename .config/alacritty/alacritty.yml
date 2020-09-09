@@ -65,7 +65,7 @@ scrolling:
 font:
   size: 13.0
   normal:
-    family: PragmataPro Liga
+    family: alacritty-monospace
 
   # Offset is the extra space around each character. `offset.y` can be thought of
   # as modifying the line spacing, and `offset.x` as modifying the letter spacing.
