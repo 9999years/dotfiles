@@ -36,8 +36,7 @@ function fish_greeting
             case '*' # nominally 7am-noon
                 echo -sn (set_color --bold cyan) (d R29vZCBtb3JuaW5nLCAK)(n)(d ISDwn4yEIEkgbG92ZSB5b3UhIPCfkpUgCg==)
         end
-        echo -s (set_color normal)(set_color green)"It's "(date '+%l:%M %P')". " \
-                (uptime | tail -c +12)(set_color normal)
+        echo -s (set_color normal)
         if command -vq puppy
             set_color magenta
             and puppy
