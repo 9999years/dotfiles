@@ -1,12 +1,12 @@
-# Defined in /tmp/fish.t7hyLB/nwhich.fish @ line 2
+# Defined in /tmp/fish.Wxc62M/nwhich.fish @ line 2
 function nwhich --description 'Shows the store paths for Nix binaries.'
     if ! set -l cmd_path (command -v $argv)
         echo "Couldn't locate $argv" 1>&2
-        exit 1
+        return 1
     else if test -h $cmd_path
         readlink $cmd_path
     else
         echo "$cmd_path isn't a symbolic link" 1>&2
-        exit 2
+        return 2
     end
 end
