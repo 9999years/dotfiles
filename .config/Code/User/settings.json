@@ -46,6 +46,8 @@
     "rust-analyzer.highlightingOn": true,
     "rust.racer_completion": false,
     "rust-client.updateOnStartup": true,
+    "rust-analyzer.inlayHints.chainingHints": false,
+    "rust-analyzer.inlayHints.typeHints": false,
     "[rust]": {
         "editor.formatOnSave": true,
         "editor.defaultFormatter": "matklad.rust-analyzer"
@@ -84,8 +86,6 @@
     "vsicons.presets.foldersAllDefaultIcon": true,
     "explorer.confirmDelete": false,
     "workbench.colorTheme": "Noctis High Contrast",
-    "rust-analyzer.inlayHints.chainingHints": false,
-    "rust-analyzer.inlayHints.typeHints": false,
     "[html]": {
         "editor.defaultFormatter": "vscode.html-language-features"
     },

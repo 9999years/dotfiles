@@ -1,4 +1,4 @@
-# Defined in /tmp/fish.GQN5s7/fish_prompt.fish @ line 2
+# Defined in /tmp/fish.lZVQAP/fish_prompt.fish @ line 2
 function fish_prompt --description 'Write out the prompt'
     set -l last_status "$status"
     set -l status_display (
@@ -32,5 +32,10 @@ function fish_prompt --description 'Write out the prompt'
             set suffix ';'
     end
 
-    echo -n -s "$nix_shell_info" "$status_display" (set_color $color_cwd) (prompt_pwd) (set_color normal) " $suffix "
+    echo -sn "$nix_shell_info" "$status_display" (set_color $color_cwd) \
+        (if test "$__prompt_last_dir" != (pwd)
+            set -g __prompt_last_dir (pwd)
+            prompt_pwd
+            echo -n " "
+        end) (set_color normal) "$suffix "
 end

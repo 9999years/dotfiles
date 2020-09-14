@@ -1,4 +1,4 @@
-# Defined in /tmp/fish.mYhPSB/fish_greeting.fish @ line 2
+# Defined in /tmp/fish.beI0md/fish_greeting.fish @ line 2
 function fish_greeting
     if test -z "$IN_NIX_SHELL"
         switch (date +%H)
