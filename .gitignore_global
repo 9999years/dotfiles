@@ -40,6 +40,7 @@ Thumbs.db
 *.bak
 *.sw[abcdefghijklmnop]
 .#*
+*.backup
 
 #===Cache files===
 .sass-cache

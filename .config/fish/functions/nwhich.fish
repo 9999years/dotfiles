@@ -1,5 +1,5 @@
-# Defined in /tmp/fish.mVbuXG/nwhich.fish @ line 2
-function nwhich --description 'Shows the store paths for Nix binaries.'
+# Defined in /tmp/fish.SWbf6b/nwhich.fish @ line 2
+function nwhich --wraps=which --description 'Shows the store paths for Nix binaries.'
     if ! set -l cmd_path (command -v $argv)
         echo "Couldn't locate $argv" 1>&2
         return 1
