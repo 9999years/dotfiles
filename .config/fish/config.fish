@@ -14,6 +14,10 @@ __add_to_path_if_exists PATH \
     $GOPATH/bin \
     ~/.cabal/bin
 
+if command -q any-nix-shell
+    any-nix-shell fish --info-right | source
+end
+
 if test -n "$IN_NIX_SHELL"
     if test -z "$NIX_SHELL_DEPTH"
         set -gx NIX_SHELL_DEPTH 1
