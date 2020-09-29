@@ -18,7 +18,7 @@ function rebuild --description 'Rebuilds the current NixOS configuration.'
             switch "$shouldReset"
                 case y Y
                     echo -s (set_color --bold --underline) "Resetting." (set_color normal)
-                    sudo sh -c "git reset --hard origin/master"
+                    sudo sh -c "git reset --hard origin/main"
                 case n N
                     echo -s (set_color --bold --underline) "OK, exiting." (set_color normal)
                     false
