@@ -1,4 +1,4 @@
-# Defined in /tmp/fish.beI0md/fish_greeting.fish @ line 2
+# Defined in /tmp/fish.iOu0oh/fish_greeting.fish @ line 2
 function fish_greeting
     if test -z "$IN_NIX_SHELL"
         switch (date +%H)
@@ -24,7 +24,5 @@ function fish_greeting
             and puppy
             and set_color normal
         end
-    else
-        echo -s -n (set_color --bold blue) "🐟  " (set_color normal)
     end
 end
