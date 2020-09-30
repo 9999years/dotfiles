@@ -1,0 +1,4 @@
+[MESSAGES CONTROL]
+# Disable "can't import..." message
+# Disable "else after if/return"
+disable = E0401, R1705

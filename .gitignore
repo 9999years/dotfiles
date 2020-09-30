@@ -1,3 +1,5 @@
 /.config/fish/fish_variables
 /.config/fish/fishfile
 /.spacemacs.d/.spacemacs.env
+/.vim/coc-settings.json
+/.vim/.ropeproject
