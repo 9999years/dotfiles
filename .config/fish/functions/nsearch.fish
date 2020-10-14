@@ -1,4 +1,4 @@
-# Defined in /tmp/fish.GKbIVg/nsearch.fish @ line 2
+# Defined in /tmp/fish.fFgYiw/nsearch.fish @ line 2
 function nsearch --wraps='nix search'
     set -l green ""
     set -l normal ""
@@ -8,7 +8,7 @@ function nsearch --wraps='nix search'
         set normal (set_color normal)
         set gray (set_color --dim white)
     end
-    nix search --json $argv \
+    nix search --json '^nixos' $argv \
         | jq -r "to_entries \
             | .[] \
             | \"$green\(.key)$normal \" \
