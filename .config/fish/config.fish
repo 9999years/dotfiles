@@ -137,6 +137,7 @@ abbr -g mdv mdcat
 abbr -g cloc tokei
 abbr -g top htop  # or ytop!
 abbr -g xxd hexd
+abbr -g tz timedatectl
 
 # Abbreviations
 abbr -g cl clear
