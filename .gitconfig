@@ -19,7 +19,7 @@
 	excludesfile = ~/.gitignore_global
 	attributesfile = ~/.gitattributes_global
 	eol = lf
-	pager = delta --line-numbers
+	pager = delta --features main-theme
 [interactive]
 	diffFilter = delta --color-only
 [merge]
@@ -51,3 +51,6 @@
 	rebase = true
 [init]
 	defaultBranch = main
+[delta "main-theme"]
+	line-numbers = true
+	syntax-theme = Dracula

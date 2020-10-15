@@ -15,15 +15,11 @@ function tmux_bind_copy {
 }
 
 function is_wsl {
-	[[ ! -z "$WSL_DISTRO_NAME" ]]
+	[[ -n "$WSL_DISTRO_NAME" ]]
 }
 
-if [[ "$uname" == "Darwin" ]]
-then
+if [[ "$uname" == "Darwin" ]]; then
 	tmux_bind_copy pbcopy
-fi
-
-if is_wsl
-then
+elif is_wsl; then
 	tmux_bind_copy /mnt/c/Windows/System32/clip.exe
 fi
