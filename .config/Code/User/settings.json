@@ -41,11 +41,11 @@
     ],
     "rust.clippy_preference": "on",
     "rust.rustflags": "-A dead_code -A unused_imports",
+    "rust.racer_completion": false,
+    "rust-client.updateOnStartup": true,
     "rust-analyzer.displayInlayHints": true,
     "rust-analyzer.trace.server": "verbose",
     "rust-analyzer.highlightingOn": true,
-    "rust.racer_completion": false,
-    "rust-client.updateOnStartup": true,
     "rust-analyzer.inlayHints.chainingHints": false,
     "rust-analyzer.inlayHints.typeHints": false,
     "[rust]": {
