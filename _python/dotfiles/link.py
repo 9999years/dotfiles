@@ -9,14 +9,14 @@ from . import log
 from . import color as co
 from . import actions
 from . import prompt
-from .actions import ActionResult
+from .actions import ActionResult, mklink
 from .util import Unreachable
 
 
 class Status(enum.Enum):
     # The link already exists and points to the correct file.
     OK = enum.auto()
-    # The link exists but points somewhere else.
+    # The link exists but points somewhere else; such a link may be broken.
     DIFF_DEST = enum.auto()
     # The path doesn't exist at all.
     MISSING = enum.auto()
@@ -41,11 +41,14 @@ class Linker:
     dry_run: bool = False
 
     def status(self, resolved: ResolvedDotfile) -> Status:
-        if not path.exists(resolved.installed_abs):
-            # The path doesn't exist at all.
-            return Status.MISSING
-        elif path.islink(resolved.installed_abs):
-            # The path is a link; get the link destination as an absolute path.
+        exists = path.exists(resolved.installed_abs)
+
+        if path.islink(resolved.installed_abs):
+            if not exists:
+                # Broken symlink.
+                return Status.DIFF_DEST
+
+            # Get the link destination as an absolute path.
             dest = path.join(
                 path.dirname(resolved.installed_abs),
                 os.readlink(resolved.installed_abs),
@@ -56,9 +59,14 @@ class Linker:
             else:
                 # The link points somewhere else.
                 return Status.DIFF_DEST
+
         else:
-            # The path isn't a link.
-            return Status.NOT_LINK
+            if exists:
+                # A regular file.
+                return Status.NOT_LINK
+            else:
+                # Missing.
+                return Status.MISSING
 
     def resolve(self, dotfile: Dotfile) -> ResolvedDotfile:
         installed = path.join(self.link_root, dotfile.installed)
@@ -90,26 +98,17 @@ class Linker:
                 co.DIM + co.GREEN + log.OK, link_str + co.RESET,
             )
 
+        elif status is Status.MISSING:
+            # create unless dry run
+            print(co.BRGREEN + log.OK, link_str + co.RESET)
+            mklink(resolved.installed_abs, resolved.link_dest)
+
         elif status is Status.DIFF_DEST:
             # a link, but with a different destination
             print(
                 co.RED + log.NOT_OK, link_str + co.RESET,
             )
-            # check for same content!
-            # show stat diff summary
-            while True:
-                choice = prompt.ask(prompt.DIFF_DEST_CHOICES)
-                if choice.invoke(resolved) != ActionResult.ASK_AGAIN:
-                    break
-            print("Actual destination:", os.readlink(resolved.installed_abs))
-
-        elif status is Status.MISSING:
-            # create unless dry run
-            #  print(
-            #  co.RED + log.NOT_OK, link_str, "(missing)" + co.RESET,
-            #  )
-            #  os.link(
-            print(co.BRGREEN + log.OK, link_str + co.RESET)
+            self.fix(resolved, status)
 
         elif status is Status.NOT_LINK:
             print(
@@ -118,22 +117,14 @@ class Linker:
                 "is not a link" + co.RESET
                 #  co.RED + log.NOT_OK, link_str, "(not a link)" + co.RESET,
             )
-            # check for same content!
-            # show stat diff summary
-            print(
-                actions.files_summary(
-                    PrettyPath.from_path(resolved.installed_abs),
-                    PrettyPath.from_path(resolved.repo_abs),
-                )
-            )
-            while True:
-                choice = prompt.ask(prompt.NOT_LINK_CHOICES)
-                if choice.invoke(resolved) != ActionResult.ASK_AGAIN:
-                    break
+            self.fix(resolved, status)
 
     def fix(self, resolved: ResolvedDotfile, status: Status):
         if status is not Status.NOT_LINK and status is not Status.DIFF_DEST:
             raise Unreachable
+
+        if not path.exists(resolved.repo_abs):
+            log.fatal(f"{resolved.repo_abs} doesn't exist!")
 
         if filecmp.cmp(resolved.installed_abs, resolved.repo_abs, shallow=False):
             # The files are the same! Just fix them up.

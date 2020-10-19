@@ -19,6 +19,7 @@ from .schema import Path, PrettyPath, ResolvedDotfile
 from . import log
 from . import color as co
 from .util import has_cmd
+from .table import Align, Table
 
 
 class ActionResult(Enum):
@@ -57,18 +58,16 @@ def diff(dotfile: ResolvedDotfile) -> ActionResult:
     return ActionResult.ASK_AGAIN
 
 
+SAME_MARKER = co.GRAY + co.DIM + "[same]" + co.RESET
+
+
+def _pretty_iso(dt: datetime) -> str:
+    return dt.date().isoformat() + " " + co.GRAY + co.DIM + dt.strftime("%T") + co.RESET
+
+
 def files_summary(actual: PrettyPath, repo: PrettyPath) -> str:
-    #  """Summarize basic differences between files.
-    #  """
-    columns, _lines = shutil.get_terminal_size()
-    ret = []
-
-    _wrapper = textwrap.TextWrapper(
-        width=columns, break_long_words=False, break_on_hyphens=False
-    )
-
-    def append(text: str):
-        ret.append(_wrapper.fill(text))
+    """Summarize basic differences between files.
+    """
 
     actual_stat = os.stat(actual.path)
     repo_stat = os.stat(repo.path)
@@ -76,45 +75,70 @@ def files_summary(actual: PrettyPath, repo: PrettyPath) -> str:
     repo_path = log.path(repo.display)
     actual_path = log.path(actual.display)
 
-    #  if filecmp.cmp(repo.path, actual.path):
-    #  append(co.BOLD + f"Both files have the same content." + co.RESET)
+    table = Table([Align.RIGHT, Align.LEFT, Align.LEFT,])
+    data = [["", actual_path, repo_path]]
 
     if actual_stat.st_size == repo_stat.st_size:
-        append("Both are {}".format(fmt_bytes(actual_stat.st_size)))
+        data.append(["size", fmt_bytes(actual_stat.st_size), SAME_MARKER])
     else:
-        append(
-            f"{repo_path} is {fmt_bytes(repo_stat.st_size)}, "
-            + f"but {actual_path} is {fmt_bytes(actual_stat.st_size)}."
+        actual_bigger = actual_stat.st_size > repo_stat.st_size
+        data.append(
+            [
+                "size",
+                (co.GREEN if actual_bigger else "")
+                + fmt_bytes(actual_stat.st_size)
+                + (co.RESET if actual_bigger else ""),
+                (co.GREEN if not actual_bigger else "")
+                + fmt_bytes(repo_stat.st_size)
+                + (co.RESET if not actual_bigger else ""),
+            ]
         )
 
     if actual_stat.st_mtime == repo_stat.st_mtime:
         mtime = datetime.fromtimestamp(actual_stat.st_mtime)
-        append(f"Both were last modified {fmt_dt(mtime)}.")
+        data.append(
+            ["last modified", mtime.isoformat(), SAME_MARKER,]
+        )
     else:
         repo_dt = datetime.fromtimestamp(repo_stat.st_mtime)
         actual_dt = datetime.fromtimestamp(actual_stat.st_mtime)
 
-        if repo_dt > actual_dt:
-            append(f"{repo_path} was last modified most recently.")
-        else:
-            append(f"{actual_path} was last modified most recently.")
+        actual_newer = actual_dt > repo_dt
 
         repo_date = repo_dt.date()
         actual_date = actual_dt.date()
         if repo_date == actual_date:
-            append(
-                f"{repo_path} and {actual_path} "
-                + f"were both last modified on {repo_date.isoformat()}, "
-                + f"but {repo_path} was modified at {repo_dt.time().isoformat()}, "
-                + f"while {actual_path} was modified {actual_dt.time().isoformat()}."
+            # Same date, different times
+            data.append(
+                [
+                    "last modified",
+                    (co.GREEN if actual_newer else "")
+                    + actual_date.isoformat()
+                    + " "
+                    + actual_dt.strftime("%T")
+                    + (co.RESET if actual_newer else ""),
+                    SAME_MARKER
+                    + " "
+                    + (co.GREEN if not actual_newer else "")
+                    + repo_dt.strftime("%T")
+                    + (co.RESET if not actual_newer else ""),
+                ]
             )
         else:
-            append(
-                f"{repo_path} was last modified {repo_date.isoformat()}, "
-                + f"but {actual_path} was last modified {actual_date.isoformat()}."
+            # Different dates and times
+            data.append(
+                [
+                    "last modified",
+                    (co.GREEN if actual_newer else "")
+                    + _pretty_iso(actual_dt)
+                    + (co.RESET if actual_newer else ""),
+                    (co.GREEN if not actual_newer else "")
+                    + _pretty_iso(repo_dt)
+                    + (co.RESET if not actual_newer else ""),
+                ]
             )
 
-    return "\n".join(ret)
+    return table.render(data)
 
 
 def mklink(from_path: Path, to_path: Path):
@@ -124,7 +148,7 @@ def mklink(from_path: Path, to_path: Path):
 def fix(dotfile: ResolvedDotfile) -> ActionResult:
     os.remove(dotfile.installed_abs)
     # TODO: abs links...?
-    mklink(dotfile.installed_abs, dotfile.repo_rel)
+    mklink(dotfile.installed_abs, dotfile.link_dest)
     return ActionResult.OK
 
 
@@ -144,6 +168,7 @@ def edit(dotfile: ResolvedDotfile) -> ActionResult:
     #        ^
     #     repo file
     # TODO: fill this in lol
+    # We need to be really careful with failure modes here.
     # mktemp ...
     installed_backup = backup_path(dotfile.installed_abs)
     os.rename(dotfile.installed_abs, installed_backup)

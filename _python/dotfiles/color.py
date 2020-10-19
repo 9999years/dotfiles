@@ -1,4 +1,9 @@
-#!/usr/bin/env python3
+"""Coloring primitives and variables.
+"""
+
+import re
+
+_ANSI_ESCAPE_RE = re.compile(r"\x1b\[\d+m")
 
 RESET = "\x1b[0m"
 BOLD = "\x1b[1m"
@@ -26,4 +31,12 @@ RESET_FG = "\x1b[39m"
 
 
 def ul(s: str) -> str:
+    """Underlines a string.
+    """
     return UNDERLINED + s + RESET_UNDERLINED
+
+
+def display_len(s: str) -> int:
+    """Gives a string's display-length, accounting for color codes.
+    """
+    return len(_ANSI_ESCAPE_RE.sub("", s))
