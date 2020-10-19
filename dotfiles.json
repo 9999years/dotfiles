@@ -47,12 +47,6 @@
       "repo": ".config/fisher_local/fishfile",
       "installed": ".config/fish/fishfile"
     },
-    ".config/alacritty/alacritty.yml",
-    {
-      "repo": "AppData/Roaming/ConEmu.xml",
-      "when": {
-        "platform": "win32"
-      }
-    }
+    ".config/alacritty/alacritty.yml"
   ]
 }
