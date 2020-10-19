@@ -27,11 +27,9 @@ class Dotfile:
 
 @dataclass
 class ResolvedDotfile:
-    repo_rel: Path
-    repo_abs: Path
+    repo: PrettyPath
+    installed: PrettyPath
     link_dest: Path
-    installed_rel: Path
-    installed_abs: Path
     when: Optional[str] = None
 
 
@@ -52,19 +50,20 @@ class PrettyPath:
     """A Path with an alternate display form
     """
 
-    path: Path
-    display: str
+    rel: Path
+    abs: Path
+    disp: str
 
     def __str__(self) -> str:
-        return self.display
+        return self.disp
 
     @classmethod
-    def from_path(cls, orig_path: Path) -> PrettyPath:
+    def from_path(cls, rel: Path, abs: Path) -> PrettyPath:  # pylint: disable=W0622
         """Create from a plain path.
         """
         home = path.expanduser("~")
-        if orig_path.startswith(home):
-            display = orig_path.replace(home, "~", 1)
+        if abs.startswith(home):
+            disp = abs.replace(home, "~", 1)
         else:
-            display = orig_path
-        return cls(display=display, path=orig_path)
+            disp = abs
+        return cls(rel=rel, abs=abs, disp=disp)

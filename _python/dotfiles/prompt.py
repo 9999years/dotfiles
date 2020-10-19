@@ -2,11 +2,13 @@
 """
 
 from dataclasses import dataclass
-from typing import List, Iterable, Optional, Callable, cast
+from typing import List, Iterable, Optional, cast
 import subprocess
 
 from . import color as co
 from . import actions
+from . import log
+from .util import Unreachable
 from .actions import has_cmd, Action, ActionResult
 from .schema import ResolvedDotfile
 
@@ -20,6 +22,7 @@ class PromptChoice:
     mnemonic: str
     description: str
     action: Action
+    announcement: str
 
     def invoke(self, dotfile: ResolvedDotfile) -> ActionResult:
         """Calls self.action.
@@ -31,30 +34,52 @@ class PromptChoice:
 PromptChoices = List[PromptChoice]
 
 
-DIFF = PromptChoice("d", "[d]iff", "diff the two files", actions.diff)
+DIFF = PromptChoice("d", "[d]iff", "diff the two files", actions.diff, "Diffing!")
 FIX = PromptChoice(
-    "f", "[f]ix", "update the link to point to the new destination", actions.fix
+    "f",
+    "[f]ix",
+    "update (replace) the link to point to the new destination",
+    actions.fix,
+    "Fixing!",
 )
 FIX_DELETE = PromptChoice(
     "F",
     "[F]ix and delete",
-    "update the link and delete the old destination",
+    "update (replace) the link and delete the old destination",
     actions.fix_delete,
+    "Fixing and deleting the old destination!",
 )
-SKIP = PromptChoice("s", "[s]kip", "skip this link", actions.skip)
-QUIT = PromptChoice("q", "[q]uit", "quit the entire program", actions.quit_)
-EDIT = PromptChoice("e", "[e]dit", "open editor to merge changes", actions.edit)
-REPLACE = PromptChoice(
+SKIP = PromptChoice("s", "[s]kip", "skip this link", actions.skip, "Skipping!")
+QUIT = PromptChoice(
+    "q", "[q]uit", "quit the entire program", actions.quit_, "Quitting!"
+)
+EDIT = PromptChoice(
+    "e",
+    "[e]dit",
+    "open editor to merge changes",
+    actions.edit,
+    "Opening an editor to merge changes!",
+)
+REPLACE_FROM_REPO = PromptChoice(
     "r",
     "[r]eplace",
     "replace the file with a link to the new destination",
-    actions.replace,
+    actions.replace_from_repo,
+    "Replacing the old file with a link!",
+)
+OVERWRITE_IN_REPO = PromptChoice(
+    "o",
+    "[o]verwrite repository",
+    "replace the file with a link to the new destination",
+    actions.overwrite_in_repo,
+    "Copying installed file over repository version and then creating a link!",
 )
 BACKUP = PromptChoice(
     "b",
     "[b]ackup",
     "backup the old file and create a link to the new destination",
     actions.backup,
+    "Backing up the old file and then creating a link!",
 )
 
 
@@ -69,7 +94,8 @@ DIFF_DEST_CHOICES: List[PromptChoice] = [
 NOT_LINK_CHOICES = [
     DIFF,
     EDIT,
-    REPLACE,
+    REPLACE_FROM_REPO,
+    OVERWRITE_IN_REPO,
     BACKUP,
     SKIP,
     QUIT,
@@ -114,16 +140,19 @@ def _ask_fzf(choices: PromptChoices) -> PromptChoice:
     )
 
     if proc.returncode != 0:
-        # maybe a ctrl-c!
-        print(co.RED + "fzf failed" + co.RESET)
-        raise ValueError
+        log.fatal("fzf exited abnormally")
 
     abbr, *_ = proc.stdout.decode("utf-8").split(maxsplit=1)
     for choice in choices:
         if choice.abbr == abbr:
             return choice
-    # TODO: ??? couldn't find choice from fzf ???
-    raise ValueError
+
+    log.fatal(
+        "fzf wrote "
+        + repr(proc.stdout)
+        + " to stdout, which didn't match an expected choice"
+    )
+    raise Unreachable
 
 
 def _ask_builtin(choices: PromptChoices) -> PromptChoice:
@@ -137,11 +166,8 @@ def _ask_builtin(choices: PromptChoices) -> PromptChoice:
         if prompt_choice is not None:
             return prompt_choice
         else:
-            print(
-                co.YELLOW
-                + "Invalid input; please choose one of the valid choices "
-                + "/".join(valid_choices.keys())
-                + co.RESET
+            log.warn(
+                "Invalid input; please enter one of " + "/".join(valid_choices.keys())
             )
 
 
@@ -152,6 +178,9 @@ def ask(choices: PromptChoices) -> PromptChoice:
     """
 
     if has_cmd("fzf"):
-        return _ask_fzf(choices)
+        ret = _ask_fzf(choices)
     else:
-        return _ask_builtin(choices)
+        ret = _ask_builtin(choices)
+
+    print(co.BOLD + co.CYAN + ret.announcement + co.RESET)
+    return ret

@@ -5,10 +5,10 @@ from datetime import datetime
 import sys
 
 from . import color as co
+from .schema import ResolvedDotfile
 
 OK = "🗹 "
 NOT_OK = "🗷 "
-PROG_NAME = "dotfiles"
 
 
 def path(path_str: str) -> str:
@@ -23,12 +23,33 @@ def ln(from_path: str, to_path: str) -> str:
     return f"{co.ul(from_path)} →  {co.ul(to_path)}"
 
 
+def ok_link(dotfile: ResolvedDotfile) -> str:
+    """An output line for an already-OK dotfile.
+    """
+    return (
+        co.DIM
+        + co.GREEN
+        + OK
+        + " "
+        + ln(dotfile.installed.disp, dotfile.link_dest)
+        + co.RESET
+    )
+
+
+def created_link(dotfile: ResolvedDotfile) -> str:
+    """An output line for a newly-created link.
+    """
+    return (
+        co.BRGREEN + OK + " " + ln(dotfile.installed.disp, dotfile.link_dest) + co.RESET
+    )
+
+
 def _now() -> str:
     return datetime.now().strftime("%FT%T")
 
 
 def _log(color: str, label: str, message: str):
-    print(color + label + " " + PROG_NAME + f" [{_now()}]: " + message + co.RESET)
+    print(color + label + " " + message + co.RESET)
 
 
 def dbg(message: str):
@@ -40,7 +61,7 @@ def dbg(message: str):
 def info(message: str):
     """Prints an info-level log message.
     """
-    _log(co.BRGREEN, "[info] ", message)
+    _log(co.CYAN, "", message)
 
 
 def warn(message: str):

@@ -4,18 +4,17 @@
 import shlex
 import shutil
 import subprocess
-from typing import Optional, Dict, cast, Callable
+from typing import Callable
+from enum import Enum
 import os
 from os import path
 from datetime import datetime
-import textwrap
-import filecmp
 import sys
-from enum import Enum
+import tempfile
 
-from humanize import naturalsize as fmt_bytes, naturaltime as fmt_dt
+from humanize import naturalsize as fmt_bytes
 
-from .schema import Path, PrettyPath, ResolvedDotfile
+from .schema import Path, ResolvedDotfile
 from . import log
 from . import color as co
 from .util import has_cmd
@@ -42,14 +41,23 @@ def diff(dotfile: ResolvedDotfile) -> ActionResult:
     """
 
     # TODO: Check for `dotfile.installed_abs` is a symlink
-    files = [shlex.quote(name) for name in [dotfile.installed_abs, dotfile.repo_abs]]
     if has_cmd("delta"):
+        files = [
+            shlex.quote(name) for name in [dotfile.installed.abs, dotfile.repo.abs]
+        ]
         proc = subprocess.run(
             f"diff --unified {' '.join(files)} | delta", shell=True, check=False,
         )
     else:
         proc = subprocess.run(
-            ["diff", "--unified", "--color=always"] + files, check=False,
+            [
+                "diff",
+                "--unified",
+                "--color=always",
+                dotfile.installed.abs,
+                dotfile.repo.abs,
+            ],
+            check=False,
         )
 
     if proc.returncode not in [0, 1]:
@@ -65,63 +73,60 @@ def _pretty_iso(dt: datetime) -> str:
     return dt.date().isoformat() + " " + co.GRAY + co.DIM + dt.strftime("%T") + co.RESET
 
 
-def files_summary(actual: PrettyPath, repo: PrettyPath) -> str:
+def files_summary(dotfile: ResolvedDotfile) -> str:
     """Summarize basic differences between files.
     """
 
-    actual_stat = os.stat(actual.path)
-    repo_stat = os.stat(repo.path)
-
-    repo_path = log.path(repo.display)
-    actual_path = log.path(actual.display)
+    installed_stat = os.stat(dotfile.installed.abs)
+    repo_stat = os.stat(dotfile.repo.abs)
 
     table = Table([Align.RIGHT, Align.LEFT, Align.LEFT,])
-    data = [["", actual_path, repo_path]]
+    data = [["", dotfile.installed.disp, dotfile.repo.disp]]
 
-    if actual_stat.st_size == repo_stat.st_size:
-        data.append(["size", fmt_bytes(actual_stat.st_size), SAME_MARKER])
+    if installed_stat.st_size == repo_stat.st_size:
+        data.append(["size", fmt_bytes(installed_stat.st_size), SAME_MARKER])
     else:
-        actual_bigger = actual_stat.st_size > repo_stat.st_size
+        installed_bigger = installed_stat.st_size > repo_stat.st_size
         data.append(
             [
                 "size",
-                (co.GREEN if actual_bigger else "")
-                + fmt_bytes(actual_stat.st_size)
-                + (co.RESET if actual_bigger else ""),
-                (co.GREEN if not actual_bigger else "")
+                (co.GREEN if installed_bigger else "")
+                + fmt_bytes(installed_stat.st_size)
+                + (co.RESET if installed_bigger else ""),
+                (co.GREEN if not installed_bigger else "")
                 + fmt_bytes(repo_stat.st_size)
-                + (co.RESET if not actual_bigger else ""),
+                + (co.RESET if not installed_bigger else ""),
             ]
         )
 
-    if actual_stat.st_mtime == repo_stat.st_mtime:
-        mtime = datetime.fromtimestamp(actual_stat.st_mtime)
+    if installed_stat.st_mtime == repo_stat.st_mtime:
+        mtime = datetime.fromtimestamp(installed_stat.st_mtime)
         data.append(
             ["last modified", mtime.isoformat(), SAME_MARKER,]
         )
     else:
         repo_dt = datetime.fromtimestamp(repo_stat.st_mtime)
-        actual_dt = datetime.fromtimestamp(actual_stat.st_mtime)
+        installed_dt = datetime.fromtimestamp(installed_stat.st_mtime)
 
-        actual_newer = actual_dt > repo_dt
+        installed_newer = installed_dt > repo_dt
 
         repo_date = repo_dt.date()
-        actual_date = actual_dt.date()
-        if repo_date == actual_date:
+        installed_date = installed_dt.date()
+        if repo_date == installed_date:
             # Same date, different times
             data.append(
                 [
                     "last modified",
-                    (co.GREEN if actual_newer else "")
-                    + actual_date.isoformat()
+                    (co.GREEN if installed_newer else "")
+                    + installed_date.isoformat()
                     + " "
-                    + actual_dt.strftime("%T")
-                    + (co.RESET if actual_newer else ""),
+                    + installed_dt.strftime("%T")
+                    + (co.RESET if installed_newer else ""),
                     SAME_MARKER
                     + " "
-                    + (co.GREEN if not actual_newer else "")
+                    + (co.GREEN if not installed_newer else "")
                     + repo_dt.strftime("%T")
-                    + (co.RESET if not actual_newer else ""),
+                    + (co.RESET if not installed_newer else ""),
                 ]
             )
         else:
@@ -129,59 +134,120 @@ def files_summary(actual: PrettyPath, repo: PrettyPath) -> str:
             data.append(
                 [
                     "last modified",
-                    (co.GREEN if actual_newer else "")
-                    + _pretty_iso(actual_dt)
-                    + (co.RESET if actual_newer else ""),
-                    (co.GREEN if not actual_newer else "")
+                    (co.GREEN if installed_newer else "")
+                    + _pretty_iso(installed_dt)
+                    + (co.RESET if installed_newer else ""),
+                    (co.GREEN if not installed_newer else "")
                     + _pretty_iso(repo_dt)
-                    + (co.RESET if not actual_newer else ""),
+                    + (co.RESET if not installed_newer else ""),
                 ]
             )
 
     return table.render(data)
 
 
+def edit(dotfile: ResolvedDotfile) -> ActionResult:
+    nl = r"%c'\012'"
+    changed_group_fmt = (
+        f"<<<<<<< {dotfile.repo.disp}{nl}"
+        + "%<"  # lines from left
+        + f"======={nl}"
+        + "%>"  # lines from right
+        + ">>>>>>> {dotfile.installed.disp}{nl}"
+    )
+
+    installed_backup = get_backup_path(dotfile.installed.abs)
+    os.rename(dotfile.installed.abs, installed_backup)
+    installed_basename = path.basename(dotfile.installed.abs)
+    repo_basename = path.basename(dotfile.repo.abs)
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        os.mkdir(path.join(tmpdir, "installed"))
+
+        installed_tmp = path.join(tmpdir, "installed", installed_basename)
+        shutil.copyfile(dotfile.installed.abs, installed_tmp)
+
+        os.mkdir(path.join(tmpdir, "repository"))
+        repo_tmp = path.join(tmpdir, "repository", repo_basename)
+        shutil.copyfile(dotfile.repo.abs, repo_tmp)
+
+        os.mkdir(path.join(tmpdir, "merged"))
+        merged_tmp = path.join(tmpdir, "merged", repo_basename)
+        proc = subprocess.run(
+            [
+                "diff",
+                f"--changed-group-format={changed_group_fmt}",
+                dotfile.repo.abs,
+                dotfile.installed.abs,
+            ],
+            capture_output=True,
+            check=False,
+        )
+
+        if proc.returncode not in [0, 1]:
+            proc.check_returncode()
+
+        old_merged_tmp = proc.stdout
+
+        with open(merged_tmp, "wb") as f:
+            f.write(proc.stdout)
+
+        subprocess.run(["nvim", "-d", installed_tmp, merged_tmp, repo_tmp], check=False)
+
+        with open(merged_tmp, "rb") as f:
+            new_merged_tmp = f.read()
+
+    if old_merged_tmp == new_merged_tmp:
+        log.warn("Merged file unchanged")
+        return ActionResult.ASK_AGAIN
+
+    print(f"Writing changes to {log.path(dotfile.repo.disp)}")
+
+    with open(dotfile.repo.abs, "wb") as f:
+        f.write(new_merged_tmp)
+
+    return fix(dotfile)
+
+
 def mklink(from_path: Path, to_path: Path):
+    from_dir = path.dirname(from_path)
+    if not path.exists(from_dir):
+        os.makedirs(path.abspath(from_dir))
     os.symlink(to_path, from_path)
 
 
 def fix(dotfile: ResolvedDotfile) -> ActionResult:
-    os.remove(dotfile.installed_abs)
-    # TODO: abs links...?
-    mklink(dotfile.installed_abs, dotfile.link_dest)
+    if path.lexists(dotfile.installed.abs):
+        os.remove(dotfile.installed.abs)
+    mklink(dotfile.installed.abs, dotfile.link_dest)
+    print(log.created_link(dotfile))
     return ActionResult.OK
 
 
 def fix_delete(dotfile: ResolvedDotfile) -> ActionResult:
     old_dest = path.join(
-        path.dirname(dotfile.installed_abs), os.readlink(dotfile.installed_abs)
+        path.dirname(dotfile.installed.abs), os.readlink(dotfile.installed.abs)
     )
     os.remove(old_dest)
     return fix(dotfile)
 
 
-def edit(dotfile: ResolvedDotfile) -> ActionResult:
-    # We want to do a 3-way merge;
-    #     old file
-    #        v
-    #     new result
-    #        ^
-    #     repo file
-    # TODO: fill this in lol
-    # We need to be really careful with failure modes here.
-    # mktemp ...
-    installed_backup = backup_path(dotfile.installed_abs)
-    os.rename(dotfile.installed_abs, installed_backup)
-    #  ["nvim", "-d"]
-    return ActionResult.OK
-
-
-def replace(dotfile: ResolvedDotfile) -> ActionResult:
+def replace_from_repo(dotfile: ResolvedDotfile) -> ActionResult:
+    """Replace installed dotfile with link to repo.
+    """
     fix(dotfile)
     return ActionResult.OK
 
 
-def backup_path(p: str):
+def overwrite_in_repo(dotfile: ResolvedDotfile) -> ActionResult:
+    """Replace dotfile in repo with file on disk, then make link.
+    """
+    shutil.copyfile(dotfile.installed.abs, dotfile.repo.abs)
+    fix(dotfile)
+    return ActionResult.OK
+
+
+def get_backup_path(p: str):
     basename = path.basename(p)
     # e.g. "2020-10-17T18_21_41"
     # Colons aren't allowed in Windows paths, so we can't quite use ISO 8601.
@@ -195,9 +261,9 @@ def backup_path(p: str):
 
 
 def backup(dotfile: ResolvedDotfile) -> ActionResult:
-    installed_backup = backup_path(dotfile.installed_abs)
-    os.rename(dotfile.installed_abs, installed_backup)
-    mklink(dotfile.installed_abs, dotfile.repo_rel)
+    installed_backup = get_backup_path(dotfile.installed.abs)
+    os.rename(dotfile.installed.abs, installed_backup)
+    mklink(dotfile.installed.abs, dotfile.link_dest)
     return ActionResult.OK
 
 
