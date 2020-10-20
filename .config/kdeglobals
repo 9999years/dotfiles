@@ -1,5 +1,5 @@
 [$Version]
-update_info=filepicker.upd:filepicker-remove-old-previews-entry,fonts_global.upd:Fonts_Global,fonts_global_toolbar.upd:Fonts_Global_Toolbar
+update_info=filepicker.upd:filepicker-remove-old-previews-entry,fonts_global.upd:Fonts_Global,fonts_global_toolbar.upd:Fonts_Global_Toolbar,kwin.upd:animation-speed,icons_remove_effects.upd:IconsRemoveEffects
 
 [ColorEffects:Disabled]
 Color=56,56,56
@@ -105,27 +105,29 @@ ForegroundNormal=239,240,241
 ForegroundPositive=39,174,96
 ForegroundVisited=127,140,141
 
+[DirSelect Dialog]
+DirSelectDialog Size=941,629
+
 [General]
 ColorScheme=BreezeDark
 Name=Breeze Dark
-TerminalApplication[$e]=alacritty
+TerminalApplication=alacritty
 XftHintStyle=hintslight
 XftSubPixel=rgb
-dbfile=/home/becca/.mozilla/firefox/cpg2cdui.default/places.sqlite
-fixed=PragmataPro Mono Liga,10,-1,5,50,0,0,0,0,0,Regular
-font=Sans Serif,10,-1,5,50,0,0,0,0,0
-menuFont=Sans Serif,10,-1,5,50,0,0,0,0,0
+dbfile=/home/becca/.mozilla/firefox/7blozvzr.default/places.sqlite
+fixed=PragmataPro Liga,16,-1,5,50,0,0,0,0,0
+font=Noto Sans [MONO],14,-1,5,50,0,0,0,0,0
+menuFont=Noto Sans [MONO],14,-1,5,50,0,0,0,0,0
 shadeSortColumn=true
-smallestReadableFont=Sans Serif,8,-1,5,50,0,0,0,0,0
-toolBarFont=Sans Serif,10,-1,5,50,0,0,0,0,0
+smallestReadableFont=Noto Sans [MONO],14,-1,5,50,0,0,0,0,0
+toolBarFont=Noto Sans [MONO],14,-1,5,50,0,0,0,0,0
 
 [Icons]
 Theme=breeze-dark
 
 [KDE]
+AnimationDurationFactor=1.000000
 LookAndFeelPackage=org.kde.breezedark.desktop
-ShowIconsInMenuItems=true
-ShowIconsOnPushButtons=true
 SingleClick=false
 contrast=4
 widgetStyle=Breeze
@@ -146,21 +148,20 @@ Show hidden files=false
 Sort by=Name
 Sort directories first=true
 Sort reversed=false
-Speedbar Width=174
+Speedbar Width=232
 View Style=DetailTree
 
 [KScreen]
-ScaleFactor=2
-ScreenScaleFactors=eDP-1=2;DP-1=2;DP-2=2;DP-3=2;
+ScaleFactor=1
+ScreenScaleFactors=DP-0=1;DP-1=1;HDMI-0=1;DP-2=1;DP-3=1;DP-4=1;DP-5=1;USB-C-0=1;
 
-[Toolbar style]
-ToolButtonStyle=TextBesideIcon
-ToolButtonStyleOtherToolbars=TextBesideIcon
+[SmallIcons]
+Size=22
 
 [WM]
 activeBackground=49,54,59
 activeBlend=255,255,255
-activeFont=Noto Sans [GOOG],10,-1,5,75,0,0,0,0,0,Bold
+activeFont=Noto Sans [MONO],14,-1,5,50,0,0,0,0,0
 activeForeground=239,240,241
 inactiveBackground=49,54,59
 inactiveBlend=75,71,67
