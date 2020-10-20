@@ -40,7 +40,20 @@ def created_link(dotfile: ResolvedDotfile) -> str:
     """An output line for a newly-created link.
     """
     return (
-        co.BRGREEN + OK + " " + ln(dotfile.installed.disp, dotfile.link_dest) + co.RESET
+        co.BOLD
+        + co.BRGREEN
+        + OK
+        + " "
+        + ln(dotfile.installed.disp, dotfile.link_dest)
+        + co.RESET
+    )
+
+
+def links_already_ok(resolved: ResolvedDotfile, num_ok: int) -> str:
+    return (
+        ok_link(resolved)
+        if num_ok == 1
+        else (co.DIM + co.GREEN + OK + f" [{num_ok} links already OK]" + co.RESET)
     )
 
 

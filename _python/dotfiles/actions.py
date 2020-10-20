@@ -4,7 +4,8 @@
 import shlex
 import shutil
 import subprocess
-from typing import Callable
+from typing import Callable, Optional
+import enum
 from enum import Enum
 import os
 from os import path
@@ -27,8 +28,14 @@ class ActionResult(Enum):
     E.g. after diffing, we might want to ask again.
     """
 
-    OK = "OK"
-    ASK_AGAIN = "ASK_AGAIN"
+    # We fixed the dotfile. It's good now, and we did work.
+    FIXED = enum.auto()
+    # We skipped this dotfile, or otherwise didn't do work. It'll probably
+    # still need attention in the future, unless manually fixed.
+    SKIPPED = enum.auto()
+    # Ask the user what to do again, after an informative action like diffing
+    # the installed and repository files.
+    ASK_AGAIN = enum.auto()
 
 
 Action = Callable[[ResolvedDotfile], ActionResult]
@@ -40,7 +47,6 @@ def diff(dotfile: ResolvedDotfile) -> ActionResult:
     :raises CalledProcessException: if problems calling diff
     """
 
-    # TODO: Check for `dotfile.installed_abs` is a symlink
     if has_cmd("delta"):
         files = [
             shlex.quote(name) for name in [dotfile.installed.abs, dotfile.repo.abs]
@@ -61,7 +67,10 @@ def diff(dotfile: ResolvedDotfile) -> ActionResult:
         )
 
     if proc.returncode not in [0, 1]:
-        proc.check_returncode()
+        if has_cmd("delta"):
+            log.error(f"diff or delta exited with code {proc.returncode}")
+        else:
+            log.error(f"diff exited with code {proc.returncode}")
 
     return ActionResult.ASK_AGAIN
 
@@ -147,7 +156,9 @@ def files_summary(dotfile: ResolvedDotfile) -> str:
 
 
 def edit(dotfile: ResolvedDotfile) -> ActionResult:
+    # TODO: Clean this up...
     nl = r"%c'\012'"
+    # diff3-like output
     changed_group_fmt = (
         f"<<<<<<< {dotfile.repo.disp}{nl}"
         + "%<"  # lines from left
@@ -157,6 +168,9 @@ def edit(dotfile: ResolvedDotfile) -> ActionResult:
     )
 
     installed_backup = get_backup_path(dotfile.installed.abs)
+    if installed_backup is None:
+        return ActionResult.ASK_AGAIN
+
     os.rename(dotfile.installed.abs, installed_backup)
     installed_basename = path.basename(dotfile.installed.abs)
     repo_basename = path.basename(dotfile.repo.abs)
@@ -185,20 +199,34 @@ def edit(dotfile: ResolvedDotfile) -> ActionResult:
         )
 
         if proc.returncode not in [0, 1]:
-            proc.check_returncode()
+            log.error(
+                "While preparing files for merging, `diff` exited abnormally: "
+                + proc.stderr.decode("utf-8")
+            )
+            log.error("stdout: " + proc.stdout.decode("utf-8"))
+            return ActionResult.ASK_AGAIN
 
         old_merged_tmp = proc.stdout
 
         with open(merged_tmp, "wb") as f:
             f.write(proc.stdout)
 
-        subprocess.run(["nvim", "-d", installed_tmp, merged_tmp, repo_tmp], check=False)
+        subprocess.run(
+            [
+                "nvim" if has_cmd("nvim") else "vim",
+                "-d",
+                installed_tmp,
+                merged_tmp,
+                repo_tmp,
+            ],
+            check=False,
+        )
 
         with open(merged_tmp, "rb") as f:
             new_merged_tmp = f.read()
 
     if old_merged_tmp == new_merged_tmp:
-        log.warn("Merged file unchanged")
+        log.warn("Merged file wasn't changed; not copying into repo.")
         return ActionResult.ASK_AGAIN
 
     print(f"Writing changes to {log.path(dotfile.repo.disp)}")
@@ -221,7 +249,7 @@ def fix(dotfile: ResolvedDotfile) -> ActionResult:
         os.remove(dotfile.installed.abs)
     mklink(dotfile.installed.abs, dotfile.link_dest)
     print(log.created_link(dotfile))
-    return ActionResult.OK
+    return ActionResult.FIXED
 
 
 def fix_delete(dotfile: ResolvedDotfile) -> ActionResult:
@@ -235,19 +263,17 @@ def fix_delete(dotfile: ResolvedDotfile) -> ActionResult:
 def replace_from_repo(dotfile: ResolvedDotfile) -> ActionResult:
     """Replace installed dotfile with link to repo.
     """
-    fix(dotfile)
-    return ActionResult.OK
+    return fix(dotfile)
 
 
 def overwrite_in_repo(dotfile: ResolvedDotfile) -> ActionResult:
     """Replace dotfile in repo with file on disk, then make link.
     """
     shutil.copyfile(dotfile.installed.abs, dotfile.repo.abs)
-    fix(dotfile)
-    return ActionResult.OK
+    return fix(dotfile)
 
 
-def get_backup_path(p: str):
+def get_backup_path(p: str) -> Optional[str]:
     basename = path.basename(p)
     # e.g. "2020-10-17T18_21_41"
     # Colons aren't allowed in Windows paths, so we can't quite use ISO 8601.
@@ -255,20 +281,29 @@ def get_backup_path(p: str):
     backup_path = path.join(path.dirname(p), basename + now)
     if path.exists(backup_path):
         # Improbable, but possible!
-        # TODO: Handle 'backup path exists' case better.
-        raise ValueError("Backup path " + backup_path + " already exists")
+        log.error(
+            "While creating backup path for "
+            + log.path(p)
+            + ", we tried "
+            + log.path(backup_path)
+            + ", but that path already exists"
+        )
+        return None
     return p
 
 
 def backup(dotfile: ResolvedDotfile) -> ActionResult:
     installed_backup = get_backup_path(dotfile.installed.abs)
+    if installed_backup is None:
+        return ActionResult.ASK_AGAIN
+
     os.rename(dotfile.installed.abs, installed_backup)
     mklink(dotfile.installed.abs, dotfile.link_dest)
-    return ActionResult.OK
+    return ActionResult.FIXED
 
 
 def skip(_dotfile: ResolvedDotfile) -> ActionResult:
-    return ActionResult.OK
+    return ActionResult.SKIPPED
 
 
 def quit_(_dotfile: ResolvedDotfile) -> ActionResult:

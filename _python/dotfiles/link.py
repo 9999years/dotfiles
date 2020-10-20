@@ -2,10 +2,13 @@
 """
 
 import enum
+from enum import Enum
 from dataclasses import dataclass
 import os
 from os import path
 import filecmp
+from typing import List
+import sys
 
 from .schema import Dotfile, ResolvedDotfile, Path, PrettyPath
 from . import log
@@ -16,7 +19,7 @@ from .actions import ActionResult, mklink
 from .util import Unreachable
 
 
-class Status(enum.Enum):
+class Status(Enum):
     """The status of an installed dotfile.
     """
 
@@ -28,6 +31,18 @@ class Status(enum.Enum):
     MISSING = enum.auto()
     # The path exists and is a regular file/dir, not a link.
     NOT_LINK = enum.auto()
+
+
+class LinkStatus(Enum):
+    """The result of linking a dotfile. In short, did any work happen?
+    """
+
+    # Link was already OK
+    OK = enum.auto()
+    # Link was newly-created or fixed
+    FIXED = enum.auto()
+    # This dotfile was skipped or another error occured.
+    ERROR = enum.auto()
 
 
 @dataclass
@@ -48,6 +63,101 @@ class Linker:
 
     # If True, don't actually link anything.
     dry_run: bool = False
+
+    # Should we collapse multiple ok links in output to one line?
+    verbose: bool = False
+
+    def link_all(self, dotfiles: List[Dotfile]):
+        # Count of already ok links, collapsed in output to one line
+        num_ok = 0
+
+        for dotfile in dotfiles:
+            resolved = self.resolve(dotfile)
+            is_ok = self.link(resolved) is LinkStatus.OK
+            if self.verbose:
+                if is_ok:
+                    print(log.ok_link(resolved))
+
+            else:
+                if is_ok:
+                    if num_ok != 0:
+                        print(co.move_cursor_up_beginning(1) + co.CLEAR_LINE, end="")
+                    num_ok += 1
+                    print(log.links_already_ok(resolved, num_ok))
+                else:
+                    num_ok = 0
+
+    def link(self, resolved: ResolvedDotfile) -> LinkStatus:
+        """Link a dotfile from configuration.
+        """
+        status = self.status(resolved)
+        link_str = log.ln(str(resolved.installed.disp), str(resolved.link_dest))
+        if status is Status.OK:
+            # no action needed
+            return LinkStatus.OK
+
+        elif status is Status.MISSING:
+            # create unless dry run
+            mklink(resolved.installed.abs, resolved.link_dest)
+            print(log.created_link(resolved))
+            return LinkStatus.FIXED
+
+        elif status is Status.DIFF_DEST:
+            # a link, but with a different destination
+            print(
+                co.RED + log.NOT_OK, link_str + co.RESET,
+            )
+            return self._fix(resolved, status)
+
+        elif status is Status.NOT_LINK:
+            print(
+                co.RED + log.NOT_OK, resolved.installed.disp, "is not a link" + co.RESET
+            )
+            return self._fix(resolved, status)
+
+    def _fix(self, resolved: ResolvedDotfile, status: Status) -> LinkStatus:
+        if status is not Status.NOT_LINK and status is not Status.DIFF_DEST:
+            raise Unreachable
+
+        if not path.exists(resolved.repo.abs):
+            log.fatal(f"{resolved.repo.abs} doesn't exist!")
+
+        if filecmp.cmp(resolved.installed.abs, resolved.repo.abs, shallow=False):
+            # The files are the same! Just fix them up.
+            if status is Status.DIFF_DEST:
+                # TODO: oh my g-d test this
+                installed_dest = path.join(
+                    path.dirname(resolved.installed.abs),
+                    os.readlink(resolved.installed.abs),
+                )
+                os.remove(installed_dest)
+
+            res = actions.fix(resolved)
+            if res is not ActionResult.FIXED:
+                log.error(
+                    f"Unexpected result {res} while fixing {log.path(resolved.installed.disp)}"
+                )
+                return LinkStatus.ERROR
+
+            return LinkStatus.FIXED
+        else:
+            # show stat-diff summary, etc
+            print(actions.files_summary(resolved))
+            choices = (
+                prompt.NOT_LINK_CHOICES
+                if status is Status.NOT_LINK
+                else prompt.DIFF_DEST_CHOICES
+            )
+            while True:
+                choice = prompt.ask(choices)
+                res = choice.invoke(resolved)
+                if res is ActionResult.FIXED:
+                    return LinkStatus.FIXED
+                elif res is ActionResult.SKIPPED:
+                    return LinkStatus.ERROR
+                else:
+                    # ask again
+                    pass
 
     def status(self, resolved: ResolvedDotfile) -> Status:
         """Get the status of a given dotfile.
@@ -95,62 +205,3 @@ class Linker:
             link_dest=Path(link_dest),
             when=dotfile.when,
         )
-
-    def link(self, dotfile: Dotfile):
-        """Link a dotfile from configuration.
-        """
-        resolved = self.resolve(dotfile)
-        status = self.status(resolved)
-        link_str = log.ln(str(resolved.installed.disp), str(resolved.link_dest))
-        if status is Status.OK:
-            # no action needed
-            print(log.ok_link(resolved))
-
-        elif status is Status.MISSING:
-            # create unless dry run
-            mklink(resolved.installed.abs, resolved.link_dest)
-            print(log.created_link(resolved))
-
-        elif status is Status.DIFF_DEST:
-            # a link, but with a different destination
-            print(
-                co.RED + log.NOT_OK, link_str + co.RESET,
-            )
-            self._fix(resolved, status)
-
-        elif status is Status.NOT_LINK:
-            print(
-                co.RED + log.NOT_OK, resolved.installed.disp, "is not a link" + co.RESET
-            )
-            self._fix(resolved, status)
-
-    def _fix(self, resolved: ResolvedDotfile, status: Status):
-        if status is not Status.NOT_LINK and status is not Status.DIFF_DEST:
-            raise Unreachable
-
-        if not path.exists(resolved.repo.abs):
-            log.fatal(f"{resolved.repo.abs} doesn't exist!")
-
-        if filecmp.cmp(resolved.installed.abs, resolved.repo.abs, shallow=False):
-            # The files are the same! Just fix them up.
-            if status is Status.DIFF_DEST:
-                # TODO: oh my g-d test this
-                installed_dest = path.join(
-                    path.dirname(resolved.installed.abs),
-                    os.readlink(resolved.installed.abs),
-                )
-                os.remove(installed_dest)
-
-            actions.fix(resolved)  # TODO: handle result...?
-        else:
-            # show stat-diff summary, etc
-            print(actions.files_summary(resolved))
-            choices = (
-                prompt.NOT_LINK_CHOICES
-                if status is Status.NOT_LINK
-                else prompt.DIFF_DEST_CHOICES
-            )
-            while True:
-                choice = prompt.ask(choices)
-                if choice.invoke(resolved) != ActionResult.ASK_AGAIN:
-                    break

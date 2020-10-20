@@ -2,6 +2,10 @@
 """
 
 import re
+import sys
+from typing import Tuple
+
+from . import log
 
 _ANSI_ESCAPE_RE = re.compile(r"\x1b\[\d+m")
 
@@ -28,6 +32,16 @@ BRCYAN = "\x1b[96m"
 GRAY = "\x1b[37m"
 BRGRAY = "\x1b[97m"
 RESET_FG = "\x1b[39m"
+
+CLEAR_LINE = "\x1b[K"
+
+
+def move_cursor_up_beginning(nlines: int) -> str:
+    return f"\x1b[{nlines}F"
+
+
+def move_cursor_down_beginning(nlines: int) -> str:
+    return f"\x1b[{nlines}E"
 
 
 def ul(s: str) -> str:

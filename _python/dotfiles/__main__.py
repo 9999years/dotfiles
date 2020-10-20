@@ -18,6 +18,9 @@ def _argparser() -> argparse.ArgumentParser:
         type=argparse.FileType("r"),
         help="The dotfiles.json file to load",
     )
+    parser.add_argument(
+        "-v", "--verbose", action="store_true", help="Make output more verbose",
+    )
     return parser
 
 
@@ -57,9 +60,8 @@ def main():
     dotfiles = schema.load_dotfiles(dotfiles_path)
     #  link_root = tempfile.mkdtemp()
     link_root = path.expanduser("~")
-    linker = Linker(repo_root=repo_root, link_root=link_root)
-    for dotfile in dotfiles:
-        linker.link(dotfile)
+    linker = Linker(repo_root=repo_root, link_root=link_root, verbose=args.verbose)
+    linker.link_all(dotfiles)
 
 
 if __name__ == "__main__":
