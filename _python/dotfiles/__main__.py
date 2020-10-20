@@ -18,6 +18,9 @@ def _argparser() -> argparse.ArgumentParser:
         type=argparse.FileType("r"),
         help="The dotfiles.json file to load",
     )
+    #  parser.add_argument(
+    #  "-s", "--scan", action="store_true", help="Scan for untracked dotfiles",
+    #  )
     parser.add_argument(
         "-v", "--verbose", action="store_true", help="Make output more verbose",
     )
@@ -57,11 +60,11 @@ def main():
     else:
         dotfiles_path = args.dotfiles
 
-    dotfiles = schema.load_dotfiles(dotfiles_path)
+    dotfiles = schema.DotfilesJson.load_from_file(dotfiles_path)
     #  link_root = tempfile.mkdtemp()
     link_root = path.expanduser("~")
     linker = Linker(repo_root=repo_root, link_root=link_root, verbose=args.verbose)
-    linker.link_all(dotfiles)
+    linker.link_all(dotfiles.dotfiles)
 
 
 if __name__ == "__main__":

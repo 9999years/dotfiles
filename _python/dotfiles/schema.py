@@ -33,16 +33,27 @@ class ResolvedDotfile:
     when: Optional[str] = None
 
 
-def load_dotfiles(fh: io.TextIOBase) -> List[Dotfile]:
-    """
-    Reads the file at the given filename, parses it as JSON, and returns the
-    "dotfiles" entry, or None if no such entry is found.
+@dataclass
+class DotfilesJson:
+    dotfiles: List[Dotfile]
+    ignored: List[str]
 
-    >>> ".bash_profile" in load_dotfiles("dotfiles.json")
-    True
-    """
-    raw_dotfiles = json.load(fh)["dotfiles"]
-    return [Dotfile.from_json(dotfile) for dotfile in raw_dotfiles]
+    @classmethod
+    def load_from_file(cls, fh: io.TextIOBase) -> DotfilesJson:
+        """
+        Reads the file at the given filename, parses it as JSON, and returns the
+        "dotfiles" entry, or None if no such entry is found.
+
+        >>> ".bash_profile" in load_dotfiles("dotfiles.json")
+        True
+        """
+        raw_dotfiles = json.load(fh)
+        return cls(
+            dotfiles=[
+                Dotfile.from_json(dotfile) for dotfile in raw_dotfiles["dotfiles"]
+            ],
+            ignored=raw_dotfiles.get("ignored", []),
+        )
 
 
 @dataclass
