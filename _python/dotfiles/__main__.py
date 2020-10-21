@@ -1,12 +1,13 @@
+"""Entry point for linking dotfiles.
+"""
+
 import argparse
-import os
 import subprocess
 import sys
-import tempfile
 from os import path
 
-from . import color as co
 from . import schema
+from . import log
 from .link import Linker
 
 
@@ -37,21 +38,21 @@ def _get_repo_root():
             check=False,
         )
     except FileNotFoundError:
-        print(
-            co.RED
-            + "Couldn't run `git` to determine repo root; pass --dotfiles explicitly."
-            + co.RESET
+        log.fatal(
+            "Couldn't run `git` to determine repo root; pass --dotfiles explicitly."
         )
         sys.exit(1)
 
     if proc.returncode != 0:
-        print(co.RED, "Couldn't get repo root from git; pass --dotfiles explicitly.")
+        log.fatal("Couldn't get repo root from git; pass --dotfiles explicitly.")
         sys.exit(1)
 
     return proc.stdout.strip()
 
 
 def main():
+    """Entry point.
+    """
     args = _argparser().parse_args()
 
     repo_root = _get_repo_root()
@@ -61,7 +62,6 @@ def main():
         dotfiles_path = args.dotfiles
 
     dotfiles = schema.DotfilesJson.load_from_file(dotfiles_path)
-    #  link_root = tempfile.mkdtemp()
     link_root = path.expanduser("~")
     linker = Linker(repo_root=repo_root, link_root=link_root, verbose=args.verbose)
     linker.link_all(dotfiles.dotfiles)

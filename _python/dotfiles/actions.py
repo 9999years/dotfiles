@@ -12,6 +12,8 @@ from os import path
 from datetime import datetime
 import sys
 import tempfile
+from dataclasses import dataclass
+import contextlib
 
 from humanize import naturalsize as fmt_bytes
 
@@ -155,7 +157,17 @@ def files_summary(dotfile: ResolvedDotfile) -> str:
     return table.render(data)
 
 
+@dataclass
+class EditAction(contextlib.AbstractContextManager):
+    """Action which merges installed and repo dotfiles together.
+    """
+
+    dotfile: ResolvedDotfile
+
+
 def edit(dotfile: ResolvedDotfile) -> ActionResult:
+    """Action which merges installed and repo dotfiles together.
+    """
     # TODO: Clean this up...
     nl = r"%c'\012'"
     # diff3-like output
@@ -164,7 +176,7 @@ def edit(dotfile: ResolvedDotfile) -> ActionResult:
         + "%<"  # lines from left
         + f"======={nl}"
         + "%>"  # lines from right
-        + ">>>>>>> {dotfile.installed.disp}{nl}"
+        + f">>>>>>> {dotfile.installed.disp}{nl}"
     )
 
     installed_backup = get_backup_path(dotfile.installed.abs)
