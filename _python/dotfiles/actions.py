@@ -1,27 +1,27 @@
 """Actions taken while linking files.
 """
 
+import contextlib
+import enum
+import os
 import shlex
 import shutil
 import subprocess
-from typing import Callable, Optional
-import enum
-from enum import Enum
-import os
-from os import path
-from datetime import datetime
 import sys
 import tempfile
 from dataclasses import dataclass
-import contextlib
+from datetime import datetime
+from enum import Enum
+from os import path
+from typing import Callable, Optional
 
 from humanize import naturalsize as fmt_bytes
 
-from .schema import Path, ResolvedDotfile
-from . import log
 from . import color as co
-from .util import has_cmd
+from . import log
+from .schema import Path, ResolvedDotfile
 from .table import Align, Table
+from .util import has_cmd
 
 
 class ActionResult(Enum):

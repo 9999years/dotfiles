@@ -1,6 +1,9 @@
+"""Terminal-output table formatting.
+"""
+
 from dataclasses import dataclass
 from enum import Enum
-from typing import List, cast, Optional, Sequence
+from typing import List, Optional, Sequence, cast
 
 from . import color as co
 
@@ -30,6 +33,7 @@ class Table:
     col_sep: str = "  "
 
     def render(self, data: Sequence[Sequence[object]]) -> str:
+        # TODO: Clean this up omg
         if (not data) or (not data[0]):
             return ""
 

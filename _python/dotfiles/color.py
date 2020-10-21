@@ -2,10 +2,6 @@
 """
 
 import re
-import sys
-from typing import Tuple
-
-from . import log
 
 _ANSI_ESCAPE_RE = re.compile(r"\x1b\[\d+m")
 

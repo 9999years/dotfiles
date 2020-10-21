@@ -1,9 +1,9 @@
 """Scanning home directories for untracked dotfiles.
 """
 
-from pathlib import Path
 from dataclasses import dataclass
-from typing import List, NewType, Iterator
+from pathlib import Path
+from typing import Iterator, List, NewType
 
 # A glob pattern
 GlobPat = NewType("GlobPat", str)

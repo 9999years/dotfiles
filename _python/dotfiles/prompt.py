@@ -1,16 +1,16 @@
 """Tools for prompting for choices/options.
 """
 
-from dataclasses import dataclass
-from typing import List, Iterable, Optional, cast
 import subprocess
+from dataclasses import dataclass
+from typing import Iterable, List, Optional, cast
 
-from . import color as co
 from . import actions
+from . import color as co
 from . import log
-from .util import Unreachable
-from .actions import has_cmd, Action, ActionResult
+from .actions import Action, ActionResult, has_cmd
 from .schema import ResolvedDotfile
+from .util import Unreachable
 
 
 @dataclass

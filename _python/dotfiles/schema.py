@@ -1,10 +1,13 @@
+"""Basic dotfile classes and JSON loading.
+"""
+
 from __future__ import annotations
 
-from dataclasses import dataclass
-from typing import NewType, Optional, List, Union, Dict
 import io
 import json
+from dataclasses import dataclass
 from os import path
+from typing import Dict, List, NewType, Optional, Union
 
 Path = NewType("Path", str)
 

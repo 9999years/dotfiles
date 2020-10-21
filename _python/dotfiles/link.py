@@ -2,20 +2,18 @@
 """
 
 import enum
-from enum import Enum
-from dataclasses import dataclass
-import os
-from os import path
 import filecmp
+import os
+from dataclasses import dataclass
+from enum import Enum
+from os import path
 from typing import List
-import sys
 
-from .schema import Dotfile, ResolvedDotfile, Path, PrettyPath
-from . import log
-from . import color as co
 from . import actions
-from . import prompt
+from . import color as co
+from . import log, prompt
 from .actions import ActionResult, mklink
+from .schema import Dotfile, Path, PrettyPath, ResolvedDotfile
 from .util import Unreachable
 
 
