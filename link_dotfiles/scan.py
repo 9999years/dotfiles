@@ -5,7 +5,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterator, List, NewType
 
-# A glob pattern
+from .resolver import Resolver
+from .schema import Dotfile
+
 GlobPat = NewType("GlobPat", str)
 
 
@@ -18,9 +20,9 @@ class Scanner:
     ignore: List[GlobPat]
 
     def should_ignore(self, path: Path) -> bool:
-        """Is a given path ignored by the patterns in ``self.ignore``?
+        """Is a given path ignored by any of the patterns in ``self.ignore``?
         """
-        return False
+        return any(map(path.match, self.ignore))
 
     def find_dotfiles(self) -> Iterator[Path]:
         """Iterate over dotfiles in ``self.home``, excluding ignored ones.

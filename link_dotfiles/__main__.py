@@ -6,9 +6,10 @@ import subprocess
 import sys
 from os import path
 
-from . import schema
-from . import log
+from . import log, schema
+from .schema import Path
 from .link import Linker
+from .resolver import Resolver
 
 
 def _argparser() -> argparse.ArgumentParser:
@@ -19,6 +20,9 @@ def _argparser() -> argparse.ArgumentParser:
         type=argparse.FileType("r"),
         help="The dotfiles.json file to load",
     )
+    parser.add_argument(
+        "-r", "--relative", action="store_true", help="Create relative links"
+    )
     #  parser.add_argument(
     #  "-s", "--scan", action="store_true", help="Scan for untracked dotfiles",
     #  )
@@ -28,7 +32,7 @@ def _argparser() -> argparse.ArgumentParser:
     return parser
 
 
-def _get_repo_root():
+def _get_repo_root() -> Path:
     try:
         proc = subprocess.run(
             ["git", "rev-parse", "--show-toplevel"],
@@ -47,10 +51,10 @@ def _get_repo_root():
         log.fatal("Couldn't get repo root from git; pass --dotfiles explicitly.")
         sys.exit(1)
 
-    return proc.stdout.strip()
+    return Path(proc.stdout.strip())
 
 
-def main():
+def main() -> None:
     """Entry point.
     """
     args = _argparser().parse_args()
@@ -62,8 +66,13 @@ def main():
         dotfiles_path = args.dotfiles
 
     dotfiles = schema.DotfilesJson.load_from_file(dotfiles_path)
-    link_root = path.expanduser("~")
-    linker = Linker(repo_root=repo_root, link_root=link_root, verbose=args.verbose)
+    link_root = Path(path.expanduser("~"))
+    linker = Linker(
+        resolver=Resolver(
+            repo_root=repo_root, link_root=link_root, relative=args.relative
+        ),
+        verbose=args.verbose,
+    )
     linker.link_all(dotfiles.dotfiles)
 
 

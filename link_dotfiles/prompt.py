@@ -8,9 +8,9 @@ from typing import Iterable, List, Optional, cast
 from . import actions
 from . import color as co
 from . import log
-from .actions import Action, ActionResult, has_cmd
+from .actions import Action, ActionResult
 from .schema import ResolvedDotfile
-from .util import Unreachable
+from .util import Unreachable, has_cmd
 
 
 @dataclass

@@ -1,6 +1,8 @@
 """Actions taken while linking files.
 """
 
+from __future__ import annotations
+
 import contextlib
 import enum
 import os
@@ -249,7 +251,9 @@ def edit(dotfile: ResolvedDotfile) -> ActionResult:
     return fix(dotfile)
 
 
-def mklink(from_path: Path, to_path: Path):
+def mklink(from_path: Path, to_path: Path) -> None:
+    """Create a symlink at ``from_path`` pointing to ``to_path``.
+    """
     from_dir = path.dirname(from_path)
     if not path.exists(from_dir):
         os.makedirs(path.abspath(from_dir))
@@ -257,6 +261,8 @@ def mklink(from_path: Path, to_path: Path):
 
 
 def fix(dotfile: ResolvedDotfile) -> ActionResult:
+    """Action: fix an incorrect dotfile link.
+    """
     if path.lexists(dotfile.installed.abs):
         os.remove(dotfile.installed.abs)
     mklink(dotfile.installed.abs, dotfile.link_dest)
@@ -265,6 +271,8 @@ def fix(dotfile: ResolvedDotfile) -> ActionResult:
 
 
 def fix_delete(dotfile: ResolvedDotfile) -> ActionResult:
+    """Action: Delete the old link destination, then ``fix``.
+    """
     old_dest = path.join(
         path.dirname(dotfile.installed.abs), os.readlink(dotfile.installed.abs)
     )
@@ -273,19 +281,24 @@ def fix_delete(dotfile: ResolvedDotfile) -> ActionResult:
 
 
 def replace_from_repo(dotfile: ResolvedDotfile) -> ActionResult:
-    """Replace installed dotfile with link to repo.
+    """Action: Replace installed dotfile with link to repo.
     """
     return fix(dotfile)
 
 
 def overwrite_in_repo(dotfile: ResolvedDotfile) -> ActionResult:
-    """Replace dotfile in repo with file on disk, then make link.
+    """Action: Replace dotfile in repo with file on disk, then make link.
     """
     shutil.copyfile(dotfile.installed.abs, dotfile.repo.abs)
     return fix(dotfile)
 
 
 def get_backup_path(p: str) -> Optional[str]:
+    """Gets the backup path for a given path.
+
+    If the path we come up with already exists (highly unlikely), returns
+    ``None``.
+    """
     basename = path.basename(p)
     # e.g. "2020-10-17T18_21_41"
     # Colons aren't allowed in Windows paths, so we can't quite use ISO 8601.
@@ -305,6 +318,8 @@ def get_backup_path(p: str) -> Optional[str]:
 
 
 def backup(dotfile: ResolvedDotfile) -> ActionResult:
+    """Action: Backup the current destination, then link.
+    """
     installed_backup = get_backup_path(dotfile.installed.abs)
     if installed_backup is None:
         return ActionResult.ASK_AGAIN
@@ -315,8 +330,12 @@ def backup(dotfile: ResolvedDotfile) -> ActionResult:
 
 
 def skip(_dotfile: ResolvedDotfile) -> ActionResult:
+    """No-op action.
+    """
     return ActionResult.SKIPPED
 
 
 def quit_(_dotfile: ResolvedDotfile) -> ActionResult:
+    """Action: Quit the entire program.
+    """
     sys.exit(1)

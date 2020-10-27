@@ -3,11 +3,15 @@
 
 from __future__ import annotations
 
+import enum
 import io
 import json
+import os
 from dataclasses import dataclass
+from enum import Enum
+from functools import cached_property
 from os import path
-from typing import Dict, List, NewType, Optional, Union
+from typing import Dict, List, NewType, Optional, TextIO, Union
 
 Path = NewType("Path", str)
 
@@ -28,6 +32,20 @@ class Dotfile:
             return cls(repo=Path(repo), installed=installed)
 
 
+class Status(Enum):
+    """The status of an installed dotfile.
+    """
+
+    # The link already exists and points to the correct file.
+    OK = enum.auto()
+    # The link exists but points somewhere else; such a link may be broken.
+    DIFF_DEST = enum.auto()
+    # The path doesn't exist at all.
+    MISSING = enum.auto()
+    # The path exists and is a regular file/dir, not a link.
+    NOT_LINK = enum.auto()
+
+
 @dataclass
 class ResolvedDotfile:
     repo: PrettyPath
@@ -35,14 +53,47 @@ class ResolvedDotfile:
     link_dest: Path
     when: Optional[str] = None
 
+    @cached_property
+    def status(self) -> Status:
+        """Get the status of a given dotfile.
+        """
+        exists = path.exists(self.installed.abs)
+
+        if path.islink(self.installed.abs):
+            if not exists:
+                # Broken symlink.
+                return Status.DIFF_DEST
+
+            # Get the link destination as an absolute path.
+            dest = path.join(
+                path.dirname(self.installed.abs), os.readlink(self.installed.abs),
+            )
+            if path.samefile(dest, self.repo.abs):
+                # The link points to the correct file.
+                return Status.OK
+            else:
+                # The link points somewhere else.
+                return Status.DIFF_DEST
+
+        else:
+            if exists:
+                # A regular file.
+                return Status.NOT_LINK
+            else:
+                # Missing.
+                return Status.MISSING
+
 
 @dataclass
 class DotfilesJson:
+    """``dotfiles.json`` schema.
+    """
+
     dotfiles: List[Dotfile]
     ignored: List[str]
 
     @classmethod
-    def load_from_file(cls, fh: io.TextIOBase) -> DotfilesJson:
+    def load_from_file(cls, fh: TextIO) -> DotfilesJson:
         """
         Reads the file at the given filename, parses it as JSON, and returns the
         "dotfiles" entry, or None if no such entry is found.
