@@ -20,6 +20,8 @@
     ".spacemacs",
     ".spacemacs.d",
     ".nix-channels",
+    ".lesskey",
+    ".less",
     ".config/ptpython/config.py",
     ".config/nix/nix.conf",
     ".config/i3/config",

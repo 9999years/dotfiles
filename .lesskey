@@ -1,0 +1,22 @@
+# Make sure to run `lesskey` to compile changes to `~/.less`.
+
+#command
+h left-scroll
+l right-scroll
+
+#line-edit
+^A home
+^E end
+^\kl word-left
+^\kr word-right
+^W word-backspace
+\e[1;5D word-left
+\e[1;5C word-right
+
+# Ugh, we can't disable ESC entirely because of ANSI escapes and other stuff (I
+# think less uses escapes internally for some commands / bindings...?), but we
+# can at least let repeated escapes get us out of a line entry prompt:
+\e\e abort
+
+#env
+LESS = --jump-target=.3 --mouse --wheel-lines=5 --RAW-CONTROL-CHARS
