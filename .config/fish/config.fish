@@ -112,6 +112,27 @@ else
     set -gx EDITOR vim
 end
 
+# These variables are used by the builtin `man` function (see `type man`).
+# We also use them to define the LESS_TERMCAP_* variables, for convenience / consistency.
+# blink: bold bright red
+set -g man_blink --bold brred
+# bold: bold light blue
+set -g man_bold --bold 5fafd7
+# standout: black on light yellow
+# Used for search highlights, etc.
+set -g man_standout --reverse --bold ffdb4d
+# underline: underlined light green
+set -g man_underline --underline 9eff96
+
+set -l end (printf "\e[0m")
+set -gx LESS_TERMCAP_mb (set_color $man_blink)
+set -gx LESS_TERMCAP_md (set_color $man_bold)
+set -gx LESS_TERMCAP_me $end
+set -gx LESS_TERMCAP_so (set_color $man_standout)
+set -gx LESS_TERMCAP_se $end
+set -gx LESS_TERMCAP_us (set_color $man_underline)
+set -gx LESS_TERMCAP_ue $end
+
 set -gx FISHRC "$HOME/.config/fish/config.fish"
 set -gx PYTHONSTARTUP "$HOME/.pythonrc"
 set PYTHON_VERSION "3.7"
