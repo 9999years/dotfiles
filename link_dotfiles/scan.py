@@ -3,12 +3,9 @@
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterator, List, NewType
+from typing import Iterator, List
 
-from .resolver import Resolver
-from .schema import Dotfile
-
-GlobPat = NewType("GlobPat", str)
+from .schema import GlobPat, ResolvedDotfile
 
 
 @dataclass
@@ -18,11 +15,14 @@ class Scanner:
 
     home: Path
     ignore: List[GlobPat]
+    dotfiles: List[ResolvedDotfile]
 
     def should_ignore(self, path: Path) -> bool:
         """Is a given path ignored by any of the patterns in ``self.ignore``?
         """
-        return any(map(path.match, self.ignore))
+        return any(map(path.match, self.ignore)) or any(
+            path == df.installed.abs for df in self.dotfiles
+        )
 
     def find_dotfiles(self) -> Iterator[Path]:
         """Iterate over dotfiles in ``self.home``, excluding ignored ones.

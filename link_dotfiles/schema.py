@@ -12,8 +12,9 @@ from enum import Enum
 from functools import cached_property
 from os import path
 from typing import Dict, List, NewType, Optional, TextIO, Union
+from pathlib import Path
 
-Path = NewType("Path", str)
+GlobPat = NewType("GlobPat", str)
 
 
 @dataclass
@@ -90,7 +91,7 @@ class DotfilesJson:
     """
 
     dotfiles: List[Dotfile]
-    ignored: List[str]
+    ignored: List[GlobPat]
 
     @classmethod
     def load_from_file(cls, fh: TextIO) -> DotfilesJson:
@@ -106,8 +107,17 @@ class DotfilesJson:
             dotfiles=[
                 Dotfile.from_json(dotfile) for dotfile in raw_dotfiles["dotfiles"]
             ],
-            ignored=raw_dotfiles.get("ignored", []),
+            ignored=[GlobPat(pat) for pat in raw_dotfiles.get("ignored", [])],
         )
+
+
+@dataclass
+class ResolvedDotfilesJson:
+    """``dotfiles.json`` schema with resolved dotfiles.
+    """
+
+    dotfiles: List[ResolvedDotfile]
+    ignored: List[GlobPat]
 
 
 @dataclass
@@ -123,12 +133,16 @@ class PrettyPath:
         return self.disp
 
     @classmethod
-    def from_path(cls, rel: Path, abs: Path) -> PrettyPath:  # pylint: disable=W0622
+    def from_path(
+        cls, rel: Path, abs: Optional[Path] = None  # pylint: disable=W0622
+    ) -> PrettyPath:
         """Create from a plain path.
         """
-        home = path.expanduser("~")
-        if abs.startswith(home):
-            disp = abs.replace(home, "~", 1)
+        if abs is None:
+            abs = rel.absolute()
+        home = Path.home()
+        if str(abs).startswith(str(home)):
+            disp = str(abs).replace(str(home), "~", 1)
         else:
-            disp = abs
+            disp = str(abs)
         return cls(rel=rel, abs=abs, disp=disp)

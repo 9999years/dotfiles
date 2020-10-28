@@ -14,14 +14,14 @@ import tempfile
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from os import path
+from pathlib import Path
 from typing import Callable, Optional
 
 from humanize import naturalsize as fmt_bytes
 
 from . import color as co
 from . import log
-from .schema import Path, ResolvedDotfile
+from .schema import ResolvedDotfile
 from .table import Align, Table
 from .util import has_cmd
 
@@ -53,7 +53,7 @@ def diff(dotfile: ResolvedDotfile) -> ActionResult:
 
     if has_cmd("delta"):
         files = [
-            shlex.quote(name) for name in [dotfile.installed.abs, dotfile.repo.abs]
+            shlex.quote(str(name)) for name in [dotfile.installed.abs, dotfile.repo.abs]
         ]
         proc = subprocess.run(
             f"diff --unified {' '.join(files)} | delta", shell=True, check=False,
@@ -186,21 +186,21 @@ def edit(dotfile: ResolvedDotfile) -> ActionResult:
         return ActionResult.ASK_AGAIN
 
     os.rename(dotfile.installed.abs, installed_backup)
-    installed_basename = path.basename(dotfile.installed.abs)
-    repo_basename = path.basename(dotfile.repo.abs)
+    installed_basename = os.path.basename(dotfile.installed.abs)
+    repo_basename = os.path.basename(dotfile.repo.abs)
 
     with tempfile.TemporaryDirectory() as tmpdir:
-        os.mkdir(path.join(tmpdir, "installed"))
+        os.mkdir(os.path.join(tmpdir, "installed"))
 
-        installed_tmp = path.join(tmpdir, "installed", installed_basename)
+        installed_tmp = os.path.join(tmpdir, "installed", installed_basename)
         shutil.copyfile(dotfile.installed.abs, installed_tmp)
 
-        os.mkdir(path.join(tmpdir, "repository"))
-        repo_tmp = path.join(tmpdir, "repository", repo_basename)
+        os.mkdir(os.path.join(tmpdir, "repository"))
+        repo_tmp = os.path.join(tmpdir, "repository", repo_basename)
         shutil.copyfile(dotfile.repo.abs, repo_tmp)
 
-        os.mkdir(path.join(tmpdir, "merged"))
-        merged_tmp = path.join(tmpdir, "merged", repo_basename)
+        os.mkdir(os.path.join(tmpdir, "merged"))
+        merged_tmp = os.path.join(tmpdir, "merged", repo_basename)
         proc = subprocess.run(
             [
                 "diff",
@@ -254,16 +254,16 @@ def edit(dotfile: ResolvedDotfile) -> ActionResult:
 def mklink(from_path: Path, to_path: Path) -> None:
     """Create a symlink at ``from_path`` pointing to ``to_path``.
     """
-    from_dir = path.dirname(from_path)
-    if not path.exists(from_dir):
-        os.makedirs(path.abspath(from_dir))
+    from_dir = os.path.dirname(from_path)
+    if not os.path.exists(from_dir):
+        os.makedirs(os.path.abspath(from_dir))
     os.symlink(to_path, from_path)
 
 
 def fix(dotfile: ResolvedDotfile) -> ActionResult:
     """Action: fix an incorrect dotfile link.
     """
-    if path.lexists(dotfile.installed.abs):
+    if os.path.lexists(dotfile.installed.abs):
         os.remove(dotfile.installed.abs)
     mklink(dotfile.installed.abs, dotfile.link_dest)
     print(log.created_link(dotfile))
@@ -273,8 +273,8 @@ def fix(dotfile: ResolvedDotfile) -> ActionResult:
 def fix_delete(dotfile: ResolvedDotfile) -> ActionResult:
     """Action: Delete the old link destination, then ``fix``.
     """
-    old_dest = path.join(
-        path.dirname(dotfile.installed.abs), os.readlink(dotfile.installed.abs)
+    old_dest = os.path.join(
+        os.path.dirname(dotfile.installed.abs), os.readlink(dotfile.installed.abs)
     )
     os.remove(old_dest)
     return fix(dotfile)
@@ -293,18 +293,18 @@ def overwrite_in_repo(dotfile: ResolvedDotfile) -> ActionResult:
     return fix(dotfile)
 
 
-def get_backup_path(p: str) -> Optional[str]:
+def get_backup_path(p: Path) -> Optional[Path]:
     """Gets the backup path for a given path.
 
     If the path we come up with already exists (highly unlikely), returns
     ``None``.
     """
-    basename = path.basename(p)
+    basename = p.name
     # e.g. "2020-10-17T18_21_41"
     # Colons aren't allowed in Windows paths, so we can't quite use ISO 8601.
     now = datetime.now().strftime("%FT%H_%M_%S")
-    backup_path = path.join(path.dirname(p), basename + now)
-    if path.exists(backup_path):
+    backup_path = p.parent / (basename + now)
+    if os.path.exists(backup_path):
         # Improbable, but possible!
         log.error(
             "While creating backup path for "

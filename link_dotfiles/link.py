@@ -6,15 +6,13 @@ import filecmp
 import os
 from dataclasses import dataclass
 from enum import Enum
-from os import path
 from typing import List
 
 from . import actions
 from . import color as co
 from . import log, prompt
 from .actions import ActionResult, mklink
-from .resolver import Resolver
-from .schema import Dotfile, ResolvedDotfile, Status
+from .schema import ResolvedDotfile, Status
 from .util import Unreachable
 
 
@@ -35,23 +33,19 @@ class Linker:
     """Manages the context around linking a set of dotfiles.
     """
 
-    # Resolving dotfiles from relative paths
-    resolver: Resolver
-
     # If True, don't actually link anything.
     dry_run: bool = False
 
     # Should we collapse multiple ok links in output to one line?
     verbose: bool = False
 
-    def link_all(self, dotfiles: List[Dotfile]) -> None:
+    def link_all(self, dotfiles: List[ResolvedDotfile]) -> None:
         """Link a list of dotfiles from configuration.
         """
         # Count of already ok links, collapsed in output to one line
         num_ok = 0
 
-        for dotfile in dotfiles:
-            resolved = self.resolver(dotfile)
+        for resolved in dotfiles:
             is_ok = _link_dotfile(resolved) is LinkStatus.OK
             if self.verbose:
                 if is_ok:
@@ -101,16 +95,21 @@ def _fix_link(resolved: ResolvedDotfile, status: Status) -> LinkStatus:
     if status is not Status.NOT_LINK and status is not Status.DIFF_DEST:
         raise Unreachable
 
-    if not path.exists(resolved.repo.abs):
+    if not resolved.repo.abs.exists():
         log.fatal(f"{resolved.repo.abs} doesn't exist!")
 
     if filecmp.cmp(resolved.installed.abs, resolved.repo.abs, shallow=False):
+        log.info(
+            log.path(resolved.installed.disp)
+            + " and "
+            + log.path(resolved.repo.disp)
+            + " have the same contents; replacing with a link"
+        )
         # The files are the same! Just fix them up.
         if status is Status.DIFF_DEST:
             # TODO: oh my g-d test this
-            installed_dest = path.join(
-                path.dirname(resolved.installed.abs),
-                os.readlink(resolved.installed.abs),
+            installed_dest = resolved.installed.abs.parent / os.readlink(
+                resolved.installed.abs
             )
             os.remove(installed_dest)
 

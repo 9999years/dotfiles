@@ -3,6 +3,8 @@
 
 import sys
 from datetime import datetime
+from pathlib import Path
+from typing import Union
 
 from . import color as co
 from .schema import ResolvedDotfile
@@ -10,17 +12,19 @@ from .schema import ResolvedDotfile
 OK = "🗹 "
 NOT_OK = "🗷 "
 
+PathLike = Union[str, Path]
 
-def path(path_str: str) -> str:
+
+def path(path_: PathLike) -> str:
     """A string describing a path.
     """
-    return co.ul(path_str)
+    return co.ul(str(path_))
 
 
-def ln(from_path: str, to_path: str) -> str:
+def ln(from_path: PathLike, to_path: PathLike) -> str:
     """A message for a link from ``from_path`` pointing to ``to_path``.
     """
-    return f"{co.ul(from_path)} →  {co.ul(to_path)}"
+    return f"{co.ul(str(from_path))} →  {co.ul(str(to_path))}"
 
 
 def ok_link(dotfile: ResolvedDotfile) -> str:
@@ -70,29 +74,29 @@ def _log(color: str, label: str, message: str) -> None:
 def dbg(message: str) -> None:
     """Prints a debug-level log message.
     """
-    _log(co.GRAY, "[debug]", message)
+    _log(co.GRAY, "🖝 ", message)
 
 
 def info(message: str) -> None:
     """Prints an info-level log message.
     """
-    _log(co.CYAN, "", message)
+    _log(co.CYAN, "🛈 ", message)
 
 
 def warn(message: str) -> None:
     """Prints a warning-level log message.
     """
-    _log(co.BRYELLOW, "[warn] ", message)
+    _log(co.BRYELLOW, "⚠ ", message)
 
 
 def error(message: str) -> None:
     """Prints an error-level log message.
     """
-    _log(co.BRRED, "[error]", message)
+    _log(co.BRRED, "⛔", message)
 
 
 def fatal(message: str) -> None:
     """Prints a fatal-level log message and exits the entire program.
     """
-    _log(co.BOLD + co.BRRED, "[FATAL]", message)
+    _log(co.BOLD + co.BRRED, "⛔ [FATAL]", message)
     sys.exit(1)

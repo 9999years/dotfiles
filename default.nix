@@ -1,6 +1,6 @@
 { pkgs ? import <nixpkgs> { } }:
 let
-  inherit (pkgs) stdenv lib ctags jq;
+  inherit (pkgs) stdenv lib ctags jq pipenv;
   inherit (pkgs.gitAndTools) git;
   py = pkgs.python38.withPackages (pypkgs:
     with pypkgs; [
@@ -21,9 +21,12 @@ let
       hypothesis
       rope
       ptpython
+      poetry
+      conda
       # --- actual deps
       humanize
     ]);
+
 in stdenv.mkDerivation {
   pname = "dotfiles";
   version = "0.0.0";
@@ -31,9 +34,9 @@ in stdenv.mkDerivation {
     name = "dotfiles";
     path = ./.;
   };
-  buildInputs = [ py ctags ];
+  buildInputs = [ py ];
 
-  nativeBuildInputs = [ jq git ];
+  nativeBuildInputs = [ ctags pipenv ];
 
   shellHook = let pbin = name: builtins.toJSON "${py}/bin/${name}";
   in ''
@@ -61,11 +64,14 @@ in stdenv.mkDerivation {
       "python.linting.pydocstylePath": ${pbin "pydocstyle"},
       "python.linting.pylamaPath": ${pbin "pylama"},
       "python.linting.pylintPath": ${pbin "pylint"},
-      "python.pythonPath": ${pbin "python"},
+      "python.poetryPath": ${pbin "poetry"},
+      "python.condaPath": ${pbin "conda"},
+      "python.pipenvPath": ${builtins.toJSON "${pipenv}/bin/pipenv"},
       "python.sortImports.path": ${pbin "isort"},
       "python.workspaceSymbols.ctagsPath": ${
         builtins.toJSON "${ctags}/bin/ctags"
-      }
+      },
+      "python.pythonPath": ${pbin "python"}
     }
     EOF
 

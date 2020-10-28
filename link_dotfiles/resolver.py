@@ -3,8 +3,10 @@
 
 import os
 from dataclasses import dataclass
+from pathlib import Path
 
-from .schema import Dotfile, Path, PrettyPath, ResolvedDotfile
+from .schema import (Dotfile, DotfilesJson, PrettyPath, ResolvedDotfile,
+                     ResolvedDotfilesJson)
 
 
 @dataclass
@@ -26,16 +28,24 @@ class Resolver:
     def __call__(self, dotfile: Dotfile) -> ResolvedDotfile:
         """Resolve a dotfile from configuration.
         """
-        installed = os.path.join(self.link_root, dotfile.installed)
-        repo = os.path.join(self.repo_root, dotfile.repo)
+        installed = self.link_root / dotfile.installed
+        repo = self.repo_root / dotfile.repo
         link_dest = repo
         if self.relative:
             prefix = os.path.commonpath([installed, link_dest])
             if prefix != os.sep:
-                link_dest = os.path.relpath(link_dest, os.path.dirname(installed))
+                link_dest = link_dest.relative_to(installed.parent)
         return ResolvedDotfile(
-            repo=PrettyPath.from_path(rel=dotfile.repo, abs=Path(repo),),
-            installed=PrettyPath.from_path(rel=dotfile.installed, abs=Path(installed),),
-            link_dest=Path(link_dest),
+            repo=PrettyPath.from_path(rel=dotfile.repo, abs=repo),
+            installed=PrettyPath.from_path(rel=dotfile.installed, abs=installed),
+            link_dest=link_dest,
             when=dotfile.when,
+        )
+
+    def resolve_all(self, dotfiles: DotfilesJson) -> ResolvedDotfilesJson:
+        """Resolve all dotfiles in a ``DotfilesJson`` object.
+        """
+        return ResolvedDotfilesJson(
+            dotfiles=[self(dotfile) for dotfile in dotfiles.dotfiles],
+            ignored=dotfiles.ignored,
         )
