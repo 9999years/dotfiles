@@ -27,7 +27,7 @@ let
       conda
     ])
     # --- actual deps
-      ++ [ humanize ]));
+      ++ [ humanize pip ]));
 
 in stdenv.mkDerivation {
   pname = "dotfiles";
