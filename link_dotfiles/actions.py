@@ -21,7 +21,7 @@ from humanize import naturalsize as fmt_bytes
 
 from . import color as co
 from . import log
-from .schema import ResolvedDotfile
+from .schema import ResolvedDotfile, PrettyPath
 from .table import Align, Table
 from .util import has_cmd
 
@@ -324,6 +324,8 @@ def backup(dotfile: ResolvedDotfile) -> ActionResult:
     if installed_backup is None:
         return ActionResult.ASK_AGAIN
 
+    installed_backup_pretty = PrettyPath.from_path(installed_backup).disp
+    log.info(f"Moving {log.path(dotfile.installed.disp)} to {installed_backup_pretty}")
     os.rename(dotfile.installed.abs, installed_backup)
     mklink(dotfile.installed.abs, dotfile.link_dest)
     return ActionResult.FIXED
