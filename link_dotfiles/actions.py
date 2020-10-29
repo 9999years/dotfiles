@@ -314,7 +314,7 @@ def get_backup_path(p: Path) -> Optional[Path]:
             + ", but that path already exists"
         )
         return None
-    return p
+    return backup_path
 
 
 def backup(dotfile: ResolvedDotfile) -> ActionResult:
