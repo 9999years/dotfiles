@@ -1,6 +1,6 @@
 # Link dotfiles
 link:
-	nix-shell --command "python -m link_dotfiles"
+	nix-shell --arg dev false --command "python -m link_dotfiles"
 
 # Install vscode extensions
 vscode:

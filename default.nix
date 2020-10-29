@@ -1,9 +1,11 @@
-{ pkgs ? import <nixpkgs> { } }:
+{ pkgs ? import <nixpkgs> { }, dev ? true }:
 let
   inherit (pkgs) stdenv lib ctags jq pipenv;
   inherit (pkgs.gitAndTools) git;
+  inherit (lib) inNixShell;
   py = pkgs.python38.withPackages (pypkgs:
-    with pypkgs; [
+    with pypkgs;
+    ((lib.optional (inNixShell && dev) [
       black
       autopep8
       yapf
@@ -23,9 +25,9 @@ let
       ptpython
       poetry
       conda
-      # --- actual deps
-      humanize
-    ]);
+    ])
+    # --- actual deps
+      ++ [ humanize ]));
 
 in stdenv.mkDerivation {
   pname = "dotfiles";
@@ -36,10 +38,10 @@ in stdenv.mkDerivation {
   };
   buildInputs = [ py ];
 
-  nativeBuildInputs = [ ctags pipenv ];
+  nativeBuildInputs = lib.optional (dev && inNixShell) [ ctags pipenv ];
 
   shellHook = let pbin = name: builtins.toJSON "${py}/bin/${name}";
-  in ''
+  in lib.optionalString (dev && inNixShell) ''
     gitRoot=$(git rev-parse --show-toplevel)
     if [[ -z "$gitRoot" ]]; then
       echo "Couldn't find Git repo root"
@@ -82,9 +84,5 @@ in stdenv.mkDerivation {
       > "$newSettings"
     mv "$newSettings" "$gitRoot/.vim/coc-settings.json"
     unset tmp
-  '';
-
-  buildPhase = ''
-    pytest
   '';
 }
