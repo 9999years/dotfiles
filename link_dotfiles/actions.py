@@ -303,7 +303,7 @@ def get_backup_path(p: Path) -> Optional[Path]:
     # e.g. "2020-10-17T18_21_41"
     # Colons aren't allowed in Windows paths, so we can't quite use ISO 8601.
     now = datetime.now().strftime("%FT%H_%M_%S")
-    backup_path = p.parent / (basename + now)
+    backup_path = p.parent / f"{basename}-{now}"
     if os.path.exists(backup_path):
         # Improbable, but possible!
         log.error(
