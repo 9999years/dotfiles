@@ -10,5 +10,5 @@ home-page = "https://github.com/9999years/dotfiles"
 classifiers = ["License :: OSI Approved :: MIT License"]
 
 [tool.flit.scripts]
-link_dotfiles = "link_dotfiles"
+link_dotfiles = "link_dotfiles:__main__.main"
 

@@ -3,3 +3,4 @@
 /.spacemacs.d/.spacemacs.env
 /.vim/coc-settings.json
 /.vim/.ropeproject
+/.link_dotfiles_built

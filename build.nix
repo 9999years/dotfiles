@@ -1,4 +1,4 @@
-{ lib, python38, ctags, pipenv, init_coc_python ? null }:
+{ lib, python38, ctags, pipenv, doCheck ? true, init_coc_python ? null }:
 let
   inherit (lib) inNixShell optionalString;
   pypkgs = python38.pkgs;
@@ -10,6 +10,7 @@ in pypkgs.buildPythonApplication {
   unpackCmd = ''
     cp --recursive "$curSrc" "$(stripHash "$curSrc")"
   '';
+  sourceRoot = ".";
 
   format = "flit";
 
@@ -35,7 +36,7 @@ in pypkgs.buildPythonApplication {
     conda
   ]);
 
-  doCheck = true;
+  inherit doCheck;
 
   propagatedBuildInputs = with pypkgs; [ humanize setuptools ];
 

@@ -31,10 +31,12 @@ class Resolver:
         installed = self.link_root / dotfile.installed
         repo = self.repo_root / dotfile.repo
         link_dest = repo
+
         if self.relative:
             prefix = os.path.commonpath([installed, link_dest])
             if prefix != os.sep:
-                link_dest = link_dest.relative_to(installed.parent)
+                link_dest = Path(os.path.relpath(link_dest, installed.parent))
+
         return ResolvedDotfile(
             repo=PrettyPath.from_path(rel=dotfile.repo, abs=repo),
             installed=PrettyPath.from_path(rel=dotfile.installed, abs=installed),
