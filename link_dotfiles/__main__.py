@@ -46,11 +46,19 @@ def main() -> None:
         for p in scanner.find_dotfiles():
             # TODO: Fill in scanner processing.
             # Actions:
+            # - skip
+            # - quit
             # - ignore the path
             # - move it to dotfiles
+            # - if it's a directory, recurse
+            # - if it's a file, cat it / display its stat
             #
             # Should also note if it's a directory or file.
-            log.info(str(PrettyPath.from_path(p).disp))
+            p_disp = str(PrettyPath.from_path(p).disp)
+            if p.is_dir():
+                log.info("📁 " + p_disp)
+            else:
+                log.info(p_disp)
 
     else:
         linker = Linker(verbose=args.verbose,)
