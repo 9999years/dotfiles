@@ -2,7 +2,7 @@
 update_info=spectacle_shortcuts.upd:spectacle-migrate-shortcuts
 
 [Data]
-DataCount=1
+DataCount=2
 
 [Data_1]
 Comment=Spectacle actions
@@ -41,6 +41,18 @@ TriggersCount=1
 Key=Meta+Shift+S
 Type=SHORTCUT
 Uuid={39868355-df00-4374-8efd-1fab39cd9ab2}
+
+[Data_2]
+Comment=KMenuEdit Global Shortcuts
+DataCount=0
+Enabled=true
+Name=KMenuEdit
+SystemGroup=1
+Type=ACTION_DATA_GROUP
+
+[Data_2Conditions]
+Comment=
+ConditionsCount=0
 
 [Gestures]
 Disabled=true
