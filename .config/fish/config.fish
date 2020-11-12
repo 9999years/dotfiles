@@ -184,6 +184,7 @@ abbr -g s 'sudo systemctl restart'
 abbr -g x 'chmod +x'
 abbr -g xrdb_merge 'xrdb -merge -I$HOME ~/.Xresources'
 abbr -g xclip 'xclip -selection clipboard'
+abbr -g info 'info --vi-keys'
 
 # miktex stuff
 abbr -g mpm 'sudo mpm --admin --verbose'
