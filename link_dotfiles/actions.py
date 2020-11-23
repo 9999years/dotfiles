@@ -21,7 +21,7 @@ from humanize import naturalsize as fmt_bytes
 
 from . import color as co
 from . import log
-from .schema import ResolvedDotfile, PrettyPath
+from .schema import PrettyPath, ResolvedDotfile
 from .table import Align, Table
 from .util import has_cmd
 
@@ -167,20 +167,24 @@ class EditAction(contextlib.AbstractContextManager):
     dotfile: ResolvedDotfile
 
 
+def _changed_group_format(left: str, right: str) -> str:
+    """Get a ``--changed-group-format`` diff(1) option.
+
+    Style mimics diff3(1) output.
+    """
+    newline = r"%c'\012'"
+    return (
+        f"<<<<<<< {left}{newline}"
+        + "%<"  # lines from left
+        + f"======={newline}"
+        + "%>"  # lines from right
+        + f">>>>>>> {right}{newline}"
+    )
+
+
 def edit(dotfile: ResolvedDotfile) -> ActionResult:
     """Action which merges installed and repo dotfiles together.
     """
-    # TODO: Clean this up...
-    nl = r"%c'\012'"
-    # diff3-like output
-    changed_group_fmt = (
-        f"<<<<<<< {dotfile.repo.disp}{nl}"
-        + "%<"  # lines from left
-        + f"======={nl}"
-        + "%>"  # lines from right
-        + f">>>>>>> {dotfile.installed.disp}{nl}"
-    )
-
     installed_backup = get_backup_path(dotfile.installed.abs)
     if installed_backup is None:
         return ActionResult.ASK_AGAIN
@@ -204,7 +208,8 @@ def edit(dotfile: ResolvedDotfile) -> ActionResult:
         proc = subprocess.run(
             [
                 "diff",
-                f"--changed-group-format={changed_group_fmt}",
+                "--changed-group-format="
+                + _changed_group_format(dotfile.repo.disp, dotfile.installed.disp),
                 dotfile.repo.abs,
                 dotfile.installed.abs,
             ],

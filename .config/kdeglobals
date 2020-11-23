@@ -2,11 +2,13 @@
 update_info=filepicker.upd:filepicker-remove-old-previews-entry,fonts_global.upd:Fonts_Global,fonts_global_toolbar.upd:Fonts_Global_Toolbar,kwin.upd:animation-speed,icons_remove_effects.upd:IconsRemoveEffects
 
 [ColorEffects:Disabled]
+ChangeSelectionColor=
 Color=56,56,56
 ColorAmount=0
 ColorEffect=0
 ContrastAmount=0.65
 ContrastEffect=1
+Enable=
 IntensityAmount=0.1
 IntensityEffect=2
 
@@ -23,98 +25,98 @@ IntensityEffect=0
 
 [Colors:Button]
 BackgroundAlternate=77,77,77
-BackgroundNormal=49,54,59
-DecorationFocus=61,174,233
-DecorationHover=61,174,233
+BackgroundNormal=101,101,101
+DecorationFocus=49,91,239
+DecorationHover=49,91,239
 ForegroundActive=61,174,233
 ForegroundInactive=189,195,199
 ForegroundLink=41,128,185
 ForegroundNegative=218,68,83
 ForegroundNeutral=246,116,0
-ForegroundNormal=239,240,241
+ForegroundNormal=222,222,222
 ForegroundPositive=39,174,96
 ForegroundVisited=127,140,141
 
 [Colors:Complementary]
-BackgroundAlternate=59,64,69
-BackgroundNormal=49,54,59
-DecorationFocus=30,146,255
-DecorationHover=61,174,230
+BackgroundAlternate=66,66,66
+BackgroundNormal=51,51,51
+DecorationFocus=49,91,239
+DecorationHover=49,91,239
 ForegroundActive=246,116,0
-ForegroundInactive=175,176,179
-ForegroundLink=61,174,230
+ForegroundInactive=136,136,136
+ForegroundLink=49,91,239
 ForegroundNegative=237,21,21
 ForegroundNeutral=201,206,59
-ForegroundNormal=239,240,241
+ForegroundNormal=222,222,222
 ForegroundPositive=17,209,22
-ForegroundVisited=61,174,230
+ForegroundVisited=49,91,239
 
 [Colors:Selection]
-BackgroundAlternate=29,153,243
-BackgroundNormal=61,174,233
-DecorationFocus=61,174,233
-DecorationHover=61,174,233
+BackgroundAlternate=79,127,239
+BackgroundNormal=49,91,239
+DecorationFocus=255,255,255
+DecorationHover=255,255,255
 ForegroundActive=252,252,252
-ForegroundInactive=239,240,241
+ForegroundInactive=130,156,239
 ForegroundLink=253,188,75
 ForegroundNegative=218,68,83
 ForegroundNeutral=246,116,0
-ForegroundNormal=239,240,241
+ForegroundNormal=255,255,255
 ForegroundPositive=39,174,96
-ForegroundVisited=189,195,199
+ForegroundVisited=128,152,239
 
 [Colors:Tooltip]
 BackgroundAlternate=77,77,77
-BackgroundNormal=49,54,59
-DecorationFocus=61,174,233
-DecorationHover=61,174,233
-ForegroundActive=61,174,233
+BackgroundNormal=51,51,51
+DecorationFocus=49,91,239
+DecorationHover=49,91,239
+ForegroundActive=49,91,239
 ForegroundInactive=189,195,199
-ForegroundLink=41,128,185
+ForegroundLink=49,91,239
 ForegroundNegative=218,68,83
 ForegroundNeutral=246,116,0
-ForegroundNormal=239,240,241
+ForegroundNormal=222,222,222
 ForegroundPositive=39,174,96
 ForegroundVisited=127,140,141
 
 [Colors:View]
-BackgroundAlternate=49,54,59
-BackgroundNormal=35,38,41
-DecorationFocus=61,174,233
-DecorationHover=61,174,233
-ForegroundActive=61,174,233
-ForegroundInactive=189,195,199
-ForegroundLink=41,128,185
+BackgroundAlternate=48,48,48
+BackgroundNormal=13,13,13
+DecorationFocus=49,91,239
+DecorationHover=49,91,239
+ForegroundActive=49,91,239
+ForegroundInactive=136,136,136
+ForegroundLink=49,91,239
 ForegroundNegative=218,68,83
 ForegroundNeutral=246,116,0
-ForegroundNormal=239,240,241
+ForegroundNormal=222,222,222
 ForegroundPositive=39,174,96
-ForegroundVisited=127,140,141
+ForegroundVisited=120,120,120
 
 [Colors:Window]
-BackgroundAlternate=77,77,77
-BackgroundNormal=49,54,59
-DecorationFocus=61,174,233
-DecorationHover=61,174,233
-ForegroundActive=61,174,233
-ForegroundInactive=189,195,199
-ForegroundLink=41,128,185
+BackgroundAlternate=66,66,66
+BackgroundNormal=0,0,0
+DecorationFocus=49,91,239
+DecorationHover=49,91,239
+ForegroundActive=49,91,239
+ForegroundInactive=136,136,136
+ForegroundLink=49,91,239
 ForegroundNegative=218,68,83
 ForegroundNeutral=246,116,0
-ForegroundNormal=239,240,241
+ForegroundNormal=222,222,222
 ForegroundPositive=39,174,96
-ForegroundVisited=127,140,141
+ForegroundVisited=120,120,120
 
 [DirSelect Dialog]
 DirSelectDialog Size=941,629
 
 [General]
-ColorScheme=BreezeDark
+ColorScheme=WhiteSurDark
 Name=Breeze Dark
 TerminalApplication=alacritty
 XftHintStyle=hintslight
 XftSubPixel=rgb
-dbfile=/home/becca/.mozilla/firefox/7blozvzr.default/places.sqlite
+dbfile=/home/becca/.mozilla/firefox/cpg2cdui.default/places.sqlite
 fixed=PragmataPro Liga,16,-1,5,50,0,0,0,0,0
 font=Noto Sans [MONO],14,-1,5,50,0,0,0,0,0
 menuFont=Noto Sans [MONO],14,-1,5,50,0,0,0,0,0
@@ -159,10 +161,10 @@ ScreenScaleFactors=DP-0=1;DP-1=1;HDMI-0=1;DP-2=1;DP-3=1;DP-4=1;DP-5=1;USB-C-0=1;
 Size=22
 
 [WM]
-activeBackground=49,54,59
-activeBlend=255,255,255
+activeBackground=51,51,51
+activeBlend=171,171,171
 activeFont=Noto Sans [MONO],14,-1,5,50,0,0,0,0,0
-activeForeground=239,240,241
-inactiveBackground=49,54,59
-inactiveBlend=75,71,67
-inactiveForeground=127,140,141
+activeForeground=222,222,222
+inactiveBackground=66,66,66
+inactiveBlend=85,85,85
+inactiveForeground=120,120,120
