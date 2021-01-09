@@ -15,13 +15,13 @@ from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import Callable, Optional
+from typing import Callable, Optional, Union
 
 from humanize import naturalsize as fmt_bytes
 
 from . import color as co
 from . import log
-from .schema import PrettyPath, ResolvedDotfile
+from .schema import PrettyPath, ResolvedDotfile, ResolvedDotfilesJson
 from .table import Align, Table
 from .util import has_cmd
 
@@ -33,7 +33,7 @@ class ActionResult(Enum):
     """
 
     # We fixed the dotfile. It's good now, and we did work.
-    FIXED = enum.auto()
+    OK = enum.auto()
     # We skipped this dotfile, or otherwise didn't do work. It'll probably
     # still need attention in the future, unless manually fixed.
     SKIPPED = enum.auto()
@@ -42,7 +42,11 @@ class ActionResult(Enum):
     ASK_AGAIN = enum.auto()
 
 
+# A dotfile-fixing action.
 Action = Callable[[ResolvedDotfile], ActionResult]
+
+# An action for scanning for new dotfiles.
+ScanAction = Callable[[PrettyPath, ResolvedDotfilesJson], ActionResult]
 
 
 def diff(dotfile: ResolvedDotfile) -> ActionResult:
@@ -272,7 +276,7 @@ def fix(dotfile: ResolvedDotfile) -> ActionResult:
         os.remove(dotfile.installed.abs)
     mklink(dotfile.installed.abs, dotfile.link_dest)
     print(log.created_link(dotfile))
-    return ActionResult.FIXED
+    return ActionResult.OK
 
 
 def fix_delete(dotfile: ResolvedDotfile) -> ActionResult:
@@ -333,10 +337,13 @@ def backup(dotfile: ResolvedDotfile) -> ActionResult:
     log.info(f"Moving {log.path(dotfile.installed.disp)} to {installed_backup_pretty}")
     os.rename(dotfile.installed.abs, installed_backup)
     mklink(dotfile.installed.abs, dotfile.link_dest)
-    return ActionResult.FIXED
+    return ActionResult.OK
 
 
-def skip(_dotfile: ResolvedDotfile) -> ActionResult:
+def skip(
+    _dotfile: Union[ResolvedDotfile, PrettyPath],
+    _resolved: Optional[ResolvedDotfilesJson] = None,
+) -> ActionResult:
     """No-op action.
     """
     return ActionResult.SKIPPED
@@ -346,3 +353,23 @@ def quit_(_dotfile: ResolvedDotfile) -> ActionResult:
     """Action: Quit the entire program.
     """
     sys.exit(1)
+
+
+def scan_ignore(path: PrettyPath, resolved: ResolvedDotfilesJson) -> ActionResult:
+    """Scan action: Ignore this dotfile.
+    """
+
+
+def scan_add(path: PrettyPath, resolved: ResolvedDotfilesJson) -> ActionResult:
+    """Scan action: Add this dotfile to the repo.
+    """
+
+
+def scan_recurse(path: PrettyPath, _resolved: ResolvedDotfilesJson) -> ActionResult:
+    """Scan action: Recurse into this directory for more dotfiles.
+    """
+
+
+def scan_cat(path: PrettyPath, _resolved: ResolvedDotfilesJson) -> ActionResult:
+    """Scan action: Cat this file.
+    """

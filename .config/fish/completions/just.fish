@@ -20,4 +20,4 @@ complete -c just -n "__fish_use_subcommand" -s l -l list -d 'List available reci
 complete -c just -n "__fish_use_subcommand" -l summary -d 'List names of available recipes'
 complete -c just -n "__fish_use_subcommand" -s h -l help -d 'Print help information'
 complete -c just -n "__fish_use_subcommand" -s V -l version -d 'Print version information'
-complete -c just -n "just --summary 2>&1 > /dev/null" -f -a "(just --summary | tr ' ' '\n')"
+complete -c just -n "just --summary 2>&1 > /dev/null" -a "(just --summary | tr ' ' '\n')"

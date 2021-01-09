@@ -114,7 +114,7 @@ def _fix_link(resolved: ResolvedDotfile, status: Status) -> LinkStatus:
             os.remove(installed_dest)
 
         res = actions.fix(resolved)
-        if res is not ActionResult.FIXED:
+        if res is not ActionResult.OK:
             log.error(
                 f"Unexpected result {res} while fixing {log.path(resolved.installed.disp)}"
             )
@@ -132,7 +132,7 @@ def _fix_link(resolved: ResolvedDotfile, status: Status) -> LinkStatus:
         while True:
             choice = prompt.ask(choices)
             res = choice.invoke(resolved)
-            if res is ActionResult.FIXED:
+            if res is ActionResult.OK:
                 return LinkStatus.FIXED
             elif res is ActionResult.SKIPPED:
                 return LinkStatus.ERROR

@@ -59,6 +59,7 @@ def main() -> None:
                 log.info("📁 " + p_disp)
             else:
                 log.info(p_disp)
+        # TODO: Offer to commit new files...?
 
     else:
         linker = Linker(verbose=args.verbose,)

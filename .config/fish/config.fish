@@ -139,7 +139,7 @@ set PYTHON_VERSION "3.7"
 set -gx --path LIBRARY_PATH "$LD_LIBRARY_PATH"  # python build uses this
 set -gx CPPFLAGS  "$CFLAGS"
 
-# Fish seems to overwrite these if the'yre regular functions in `./functions`,
+# Fish seems to overwrite these if they're regular functions in `./functions`,
 # so we keep them here.
 function ls --description 'list files' --wraps exa
     if command -v exa >/dev/null
