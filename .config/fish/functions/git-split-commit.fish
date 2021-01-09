@@ -1,5 +1,5 @@
-# Defined in /tmp/fish.tYqcCO/git-split-commit.fish @ line 2
-function git-split-commit
+# Defined in /tmp/fish.tfnpQT/git-split-commit.fish @ line 2
+function git-split-commit --argument commit
   set -l cmd (set_color --bold cyan)
   set -l num (set_color --dim white)
   set -l re (set_color normal)
