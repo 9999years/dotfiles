@@ -10,6 +10,7 @@
     ".gitignore_global",
     ".latexmkrc",
     ".minttyrc",
+    ".pinforc",
     ".pip.conf",
     ".pythonrc",
     ".tmux.conf",
