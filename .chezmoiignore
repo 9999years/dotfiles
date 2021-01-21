@@ -13,10 +13,13 @@ scripts/**
 
 .bashrc_brandeis.sh
 .fonts.conf.wsl
+.maxima/**
 
 # https://www.jetbrains.com/help/idea/tuning-the-ide.html#config-directory
 .config/JetBrains/*/*
 !.config/JetBrains/*/{codestyles,colors,fileTemplates,filetypes,inspection,keymaps,options,scratches,templates,tools,shelf}
+
+.config/Code/User/{*.sh,extensions.txt}
 
 # Non-configuration dotfiles and directories.
 .android/**
