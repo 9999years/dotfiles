@@ -1,0 +1,48 @@
+# The docs are misleading here; we need 2 patterns to ignore a directory *and*
+# its contents. Likely due to an implementation error in the `doublestar`
+# library chezmoi uses.
+# See: https://www.chezmoi.io/docs/reference/#chezmoiignore
+# See: https://pkg.go.dev/github.com/bmatcuk/doublestar#Match
+# See: https://github.com/bmatcuk/doublestar/blob/v1.3.4/doublestar.go
+
+README.md
+**/README.md
+LICENSE.txt
+justfile
+**/justfile
+scripts/
+scripts/**
+
+# Non-configuration dotfiles and directories.
+.android/**
+.bash_history
+.cache/**
+.cargo/.crates.toml
+.cargo/.crates2.json
+.cargo/.package-cache
+.cargo/bin/**
+.compose-cache/**
+.dbus/**
+.ghc/ghci_history
+.gnupg/**
+.gradle/**
+.java/**
+# .kde # Unsure.
+.lesshst
+# .local/share # Unsure.
+.m2/**
+.mozilla/** # Do I want to try to "preserve" profiles...?
+.nix-defexpr/**
+.npm/**
+.pki/**
+.pylint.d/**
+.rustup/**
+.ssh/**
+.tmux/**
+.vscode/**
+.wget-hsts
+.Wolfram/Logs/**
+.Xauthority
+.xorg.log{.old,}
+.yarn/**
+.yarnrc

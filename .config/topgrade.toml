@@ -1,2 +1,0 @@
-[commands]
-"Link dotfiles" = "just -f ~/.dotfiles/justfile link"

@@ -1,3 +1,6 @@
+# Plugins for fisher.
+# See: https://github.com/jorgebucaran/fisher#using-your-fish_plugins-file
+
 # directory tracking
 jethrokuan/z
 # run bash utils in fish
