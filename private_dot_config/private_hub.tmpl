@@ -1,0 +1,4 @@
+github.com:
+- user: 9999years
+  oauth_token: {{ trim (index (lastpass "github.com-hub") 0).note.token }}
+  protocol: https
