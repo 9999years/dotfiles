@@ -163,6 +163,7 @@ abbr -g tz timedatectl
 # Abbreviations
 abbr -g cl clear
 abbr -g ca cargo
+abbr -g cm chezmoi
 
 # cd
 abbr -g c1 'cd ..'
