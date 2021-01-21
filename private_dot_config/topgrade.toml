@@ -1,2 +1,2 @@
 [commands]
-"Link dotfiles" = "chezmoi apply -v"
+"Link dotfiles" = "just -f ~/.dotfiles/justfile link"
