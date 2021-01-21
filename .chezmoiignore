@@ -1,6 +1,4 @@
-# The docs are misleading here; we need 2 patterns to ignore a directory *and*
-# its contents. Likely due to an implementation error in the `doublestar`
-# library chezmoi uses.
+# Note: we need 2 patterns to ignore a directory *and* its contents.
 # See: https://www.chezmoi.io/docs/reference/#chezmoiignore
 # See: https://pkg.go.dev/github.com/bmatcuk/doublestar#Match
 # See: https://github.com/bmatcuk/doublestar/blob/v1.3.4/doublestar.go
@@ -12,6 +10,13 @@ justfile
 **/justfile
 scripts/
 scripts/**
+
+.bashrc_brandeis.sh
+.fonts.conf.wsl
+
+# https://www.jetbrains.com/help/idea/tuning-the-ide.html#config-directory
+.config/JetBrains/*/*
+!.config/JetBrains/*/{codestyles,colors,fileTemplates,filetypes,inspection,keymaps,options,scratches,templates,tools,shelf}
 
 # Non-configuration dotfiles and directories.
 .android/**
