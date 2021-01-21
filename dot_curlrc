@@ -1,6 +1,5 @@
-#follow redirects automatically
-#prevents silly http -> https stuff
+# Follow redirects automatically.
 location
 
-#no ridiculous progress bars
+# Disable the progress meter completely.
 silent
