@@ -4,8 +4,8 @@
 	clean = git-lfs clean -- %f
 	process = git-lfs filter-process
 [user]
-	name = {{ data.name }}
-	email = {{ data.email }}
+	name = {{ .name }}
+	email = {{ .email }}
 [push]
 	default = simple
 	followTags = true
