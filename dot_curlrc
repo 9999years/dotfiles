@@ -1,0 +1,5 @@
+# Follow redirects automatically.
+location
+
+# Disable the progress meter completely.
+silent
