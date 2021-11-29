@@ -1,8 +1,3 @@
-[filter "lfs"]
-	smudge = git-lfs smudge -- %f
-	required = true
-	clean = git-lfs clean -- %f
-	process = git-lfs filter-process
 [user]
 	name = {{ .name }}
 	email = {{ .email }}
@@ -33,14 +28,8 @@
 [blame]
 	ignoreRevsFile = .git-blame-ignore-revs
 [alias]
-	c = commit
-	co = commit
-	p = pull
-	pu = push
 	last = log -1 HEAD
-	graph = log --all --decorate --oneline --graph
-	st = status --short --branch
-	a = add --verbose
+	graph = log --decorate --oneline --graph
 [hub]
 	protocol = https
 [branch]
@@ -56,3 +45,8 @@
 [delta "main-theme"]
 	line-numbers = true
 	syntax-theme = Dracula
+[filter "lfs"]
+	smudge = git-lfs smudge -- %f
+	required = true
+	clean = git-lfs clean -- %f
+	process = git-lfs filter-process
