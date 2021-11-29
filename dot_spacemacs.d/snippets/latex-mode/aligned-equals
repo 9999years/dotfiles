@@ -1,5 +1,0 @@
-# -*- mode: snippet -*-
-# name: aligned-equals
-# key: =
-# --
-&= $1 \\\\$0
