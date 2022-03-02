@@ -1,2 +1,8 @@
 # vim: ft=sh
 EXCLUDES=README.md
+SYMLINK_DIRS="\
+    config/fish \
+    config/nvim \
+    config/Code/User \
+    tmux/plugins/tpm \
+"
