@@ -40,6 +40,8 @@
 	encoding = utf-8
 [pull]
 	rebase = true
+[rebase]
+	autosquash = true
 [init]
 	defaultBranch = main
 [delta "main-theme"]
@@ -50,3 +52,5 @@
 	required = true
 	clean = git-lfs clean -- %f
 	process = git-lfs filter-process
+[include]
+	path = ~/.gitconfig_local
