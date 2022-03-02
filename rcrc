@@ -6,3 +6,11 @@ SYMLINK_DIRS="\
     config/Code/User \
     tmux/plugins/tpm \
 "
+DOTFILES_DIRS="\
+    ~/.dotfiles \
+    ~/.dotfiles-corp \
+"
+
+if [ -e ~/.dotfiles-corp/rcrc ]; then
+    . ~/.dotfiles-corp/rcrc
+fi
