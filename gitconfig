@@ -1,6 +1,6 @@
 [user]
-	name = {{ .name }}
-	email = {{ .email }}
+	name = Rebecca Turner
+	email = rbt@sent.as
 [push]
 	default = simple
 	followTags = true
