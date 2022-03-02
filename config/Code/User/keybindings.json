@@ -1,0 +1,11 @@
+// Place your key bindings in this file to override the defaultsauto[]
+[
+        {
+                "key": "ctrl+k a",
+                "command": "workbench.action.addRootFolder"
+        },
+        {
+                "key": "ctrl+meta+w",
+                "command": "-workbench.action.toggleTabsVisibility"
+        }
+]
