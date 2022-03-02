@@ -1,27 +1,14 @@
 # Plugins for fisher.
 # See: https://github.com/jorgebucaran/fisher#using-your-fish_plugins-file
 
-# directory tracking
-jethrokuan/z
-# run bash utils in fish
-edc/bass
-# match delimiters
-# notify after long processes exit
-fishpkg/fish-humanize-duration
+# Send a notification when long-running commands exit.
 franciscolourenco/done
-# fuzzy find keybindings
+
+# Find files efficiently.
 jethrokuan/fzf
-# git bindings
-#joseluisq/gitnow@2.1.0
-# prompt
-#matchai/spacefish
-#rafaelrinaldi/pure
+
+# Source bash files in fish.
+edc/bass
+
+# Alt+s to add sudo to a command.
 oh-my-fish/plugin-sudope
-#oh-my-fish/weather
-laughedelic/fish_logo
-laughedelic/brew-completions
-decors/fish-colored-man
-joehillen/to-fish
-#oh-my-fish/marlin
-oh-my-fish/plugin-technicolor
-oh-my-fish/plugin-bang-bang
