@@ -1,3 +1,13 @@
+-- Bootstrap packer: https://github.com/wbthomason/packer.nvim#bootstrapping
+local packer_install_path = vim.fn.stdpath('data')..'/site/pack/packer/start/packer.nvim'
+if vim.fn.empty(vim.fn.glob(packer_install_path)) > 0 then
+  packer_bootstrap = vim.fn.system({
+		'git', 'clone', '--depth', '1',
+		'https://github.com/wbthomason/packer.nvim',
+		packer_install_path
+	})
+end
+
 require('packer').startup(function(use)
   use 'wbthomason/packer.nvim'
 
@@ -7,7 +17,7 @@ require('packer').startup(function(use)
 	-- Comment toggling.
 	use {
 		"scrooloose/nerdcommenter",
-		run = function() vim.g.NERDSpaceDelims = 1 end,
+		setup = function() vim.g.NERDSpaceDelims = 1 end,
 	}
 
 	-- Text table alignment
@@ -37,7 +47,7 @@ require('packer').startup(function(use)
 	-- Fuzzy finder
 	use {
 		"nvim-telescope/telescope.nvim",
-		run = function()
+		config = function()
 			vim.cmd [[
 				nnoremap <leader>t :<C-u>Telescope<CR>
 				nnoremap <leader>f :<C-u>Telescope find_files<CR>
@@ -122,18 +132,21 @@ require('packer').startup(function(use)
 	use "lukas-reineke/indent-blankline.nvim" -- Indentation guides
 	use "tpope/vim-fugitive"                  -- Git wrapper
 	use "lewis6991/gitsigns.nvim"             -- Git gutter
+
 	-- Color scheme
 	use {
 		"Shatur/neovim-ayu",
-		run = ":colorscheme ayu",
+		config = function() vim.cmd("colorscheme ayu") end,
 	}
 
 	-- Show a lightbulb to indicate code actions
 	use {
 		"kosayoda/nvim-lightbulb",
-		run = [[
-			:autocmd CursorHold,CursorHoldI * lua require'nvim-lightbulb'.update_lightbulb()
-		]],
+		config = function()
+			vim.cmd [[
+				autocmd CursorHold,CursorHoldI * lua require('nvim-lightbulb').update_lightbulb()
+			]]
+		end,
 	}
 
 	-- Language-specific plugins
@@ -146,12 +159,11 @@ require('packer').startup(function(use)
 	--   - dag/vim-fish
 	--   - idris-hackers/idris-vim
 	--   - pangloss/vim-javascript
-	use {
-		"sheerun/vim-polyglot",
-	  run = function()
-			vim.g.polyglot_disabled = { "rust", "latex", "java" }
-		end,
-	}
+	
+	-- g:polyglot_disabled must be set before polyglot is loaded
+	vim.g.polyglot_disabled = { "rust", "latex", "java" }
+	use "sheerun/vim-polyglot"
+
 	use "rust-lang/rust.vim"
 	use {
 		"simrat39/rust-tools.nvim",
@@ -166,6 +178,12 @@ require('packer').startup(function(use)
 			}
 		end
 	}
+
+	-- Automatically set up your configuration after cloning packer.nvim
+  -- Put this at the end after all plugins
+  if packer_bootstrap then
+    require('packer').sync()
+  end
 end)
 
 vim.opt.number = true
