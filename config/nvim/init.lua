@@ -1,0 +1,204 @@
+require('packer').startup(function(use)
+  use 'wbthomason/packer.nvim'
+
+	-- Better repeated mappings with plugins.
+	use "tpope/vim-repeat"
+
+	-- Comment toggling.
+	use {
+		"scrooloose/nerdcommenter",
+		run = function() vim.g.NERDSpaceDelims = 1 end,
+	}
+
+	-- Text table alignment
+	use "godlygeek/tabular"
+
+	-- Pairs of mappings
+	use "tpope/vim-unimpaired"
+
+	use {
+		"nvim-treesitter/nvim-treesitter",
+	  run = ":TSUpdate",
+		requires = { "nvim-treesitter/playground" },
+		config = function()
+			-- See: https://github.com/nvim-treesitter/nvim-treesitter#available-modules
+			require("nvim-treesitter.configs").setup {
+				highlight = {
+					enable = true,
+					additional_vim_regex_highlighting = false,
+				},
+				indent = {
+					enable = true,
+				},
+			}
+		end,
+	}
+
+	-- Fuzzy finder
+	use {
+		"nvim-telescope/telescope.nvim",
+		run = function()
+			vim.cmd [[
+				nnoremap <leader>t :<C-u>Telescope<CR>
+				nnoremap <leader>f :<C-u>Telescope find_files<CR>
+				nnoremap <leader>b :<C-u>Telescope buffers<CR>
+				nnoremap <leader>g :<C-u>Telescope live_grep<CR>
+			]]
+		end,
+		requires = { "nvim-lua/popup.nvim", "nvim-lua/plenary.nvim" },
+	}
+
+	-- LSP configuration
+	use {
+		"neovim/nvim-lspconfig",
+		config = function()
+			-- See: https://github.com/neovim/nvim-lspconfig/blob/master/CONFIG.md#pyright
+			require("lspconfig").pyright.setup {}
+
+			-- Use an on_attach function to only map the following keys
+			-- after the language server attaches to the current buffer
+			local on_attach = function(client, bufnr)
+				local function buf_set_keymap(...) vim.api.nvim_buf_set_keymap(bufnr, ...) end
+				local function buf_set_option(...) vim.api.nvim_buf_set_option(bufnr, ...) end
+
+				--Enable completion triggered by <c-x><c-o>
+				buf_set_option("omnifunc", "v:lua.vim.lsp.omnifunc")
+
+				-- Mappings.
+				local opts = { noremap = true, silent = true }
+
+				-- See `:help vim.lsp.*` for documentation on any of the below functions
+				buf_set_keymap("n", "gD",        "<cmd>lua vim.lsp.buf.declaration()<CR>", opts)
+				buf_set_keymap("n", "gd",        "<cmd>lua vim.lsp.buf.definition()<CR>", opts)
+				buf_set_keymap("n", "K",         "<cmd>lua vim.lsp.buf.hover()<CR>", opts)
+				buf_set_keymap("n", "gi",        "<cmd>lua vim.lsp.buf.implementation()<CR>", opts)
+				buf_set_keymap("n", "<C-k>",     "<cmd>lua vim.lsp.buf.signature_help()<CR>", opts)
+				buf_set_keymap("n", "<space>wa", "<cmd>lua vim.lsp.buf.add_workspace_folder()<CR>", opts)
+				buf_set_keymap("n", "<space>wr", "<cmd>lua vim.lsp.buf.remove_workspace_folder()<CR>", opts)
+				buf_set_keymap("n", "<space>wl", "<cmd>lua print(vim.inspect(vim.lsp.buf.list_workspace_folders()))<CR>", opts)
+				buf_set_keymap("n", "<space>D",  "<cmd>lua vim.lsp.buf.type_definition()<CR>", opts)
+				buf_set_keymap("n", "<space>rn", "<cmd>lua vim.lsp.buf.rename()<CR>", opts)
+				buf_set_keymap("n", "<space>ca", "<cmd>lua vim.lsp.buf.code_action()<CR>", opts)
+				buf_set_keymap("n", "gr",        "<cmd>lua vim.lsp.buf.references()<CR>", opts)
+				buf_set_keymap("n", "<space>e",  "<cmd>lua vim.lsp.diagnostic.show_line_diagnostics()<CR>", opts)
+				buf_set_keymap("n", "[d",        "<cmd>lua vim.lsp.diagnostic.goto_prev()<CR>", opts)
+				buf_set_keymap("n", "]d",        "<cmd>lua vim.lsp.diagnostic.goto_next()<CR>", opts)
+				buf_set_keymap("n", "<space>q",  "<cmd>lua vim.lsp.diagnostic.set_loclist()<CR>", opts)
+				buf_set_keymap("n", "<space>f",  "<cmd>lua vim.lsp.buf.formatting()<CR>", opts)
+
+			end
+
+			-- Gross!!!!!
+			-- See: https://github.com/neovim/nvim-lspconfig#keybindings-and-completion
+			local nvim_lsp = require "lspconfig"
+
+			local servers = { "pyright", "rust_analyzer", "tsserver" }
+			for _, lsp in ipairs(servers) do
+				nvim_lsp[lsp].setup {
+					on_attach = on_attach,
+					flags = {
+						debounce_text_changes = 150,
+					}
+				}
+			end
+		end
+	}
+
+	-- Autocomplete
+	use {
+		"hrsh7th/nvim-compe",
+		config = function()
+			-- See: :h compe-quickstart
+			require("compe").setup {
+				enabled = true,
+				source = {
+					path = true,
+					buffer = true,
+					nvim_lsp = true,
+				},
+			}
+		end
+	}
+	use "lukas-reineke/indent-blankline.nvim" -- Indentation guides
+	use "tpope/vim-fugitive"                  -- Git wrapper
+	use "lewis6991/gitsigns.nvim"             -- Git gutter
+	-- Color scheme
+	use {
+		"Shatur/neovim-ayu",
+		run = ":colorscheme ayu",
+	}
+
+	-- Show a lightbulb to indicate code actions
+	use {
+		"kosayoda/nvim-lightbulb",
+		run = [[
+			:autocmd CursorHold,CursorHoldI * lua require'nvim-lightbulb'.update_lightbulb()
+		]],
+	}
+
+	-- Language-specific plugins
+	-- vim-polyglot includes (among many others):
+	--   - rust-lang/rust.vim
+	--   - cespare/vim-toml
+	--   - wavded/vim-stylus
+	--   - typescript
+	--   - isobit/vim-caddyfile
+	--   - dag/vim-fish
+	--   - idris-hackers/idris-vim
+	--   - pangloss/vim-javascript
+	use {
+		"sheerun/vim-polyglot",
+	  run = function()
+			vim.g.polyglot_disabled = { "rust", "latex", "java" }
+		end,
+	}
+	use "rust-lang/rust.vim"
+	use {
+		"simrat39/rust-tools.nvim",
+		config = function()
+			require("rust-tools").setup {
+				tools = {
+					inlay_hints = {
+						parameter_hints_prefix = "← ",
+						other_hints_prefix = "⇒ ",
+					},
+				},
+			}
+		end
+	}
+end)
+
+vim.opt.number = true
+vim.opt.hidden = true
+vim.opt.scrolloff = 1
+vim.opt.linebreak = true
+vim.opt.splitright = true
+vim.opt.confirm = true
+vim.opt.joinspaces = false
+vim.opt.conceallevel = 2  -- Concealed text is hidden unless it has a :syn-cchar
+vim.opt.list = true       -- Display tabs and trailing spaces; see listchars
+vim.opt.listchars = { tab = "│\\ ", trail = "·", extends = "…", nbsp = "␣" }
+vim.opt.ignorecase = true
+vim.opt.smartcase = true
+vim.opt.breakindent = true
+vim.opt.breakindentopt = { min = 30, shift = -1 }
+vim.opt.showbreak = "↪"  -- Show a cool arrow to indicate continued lines
+vim.opt.diffopt:append { "vertical", "iwhiteall" }
+vim.opt.shortmess = "aoOsWAfil"  -- Help avoid hit-enter prompts
+if vim.fn["has"] "mouse" then
+	vim.opt.mouse = "nvichar"
+end
+if vim.fn["has"] "termguicolors" then
+	vim.opt.termguicolors = true
+end
+
+-- Make j and k operate on screen lines.
+-- Text selection still operates on file lines; these are normal-mode mappings
+-- only.
+vim.cmd [[
+	nnoremap j gj
+	nnoremap k gk
+	nnoremap gj j
+	nnoremap gk k
+]]
+
