@@ -8,6 +8,7 @@ if vim.fn.empty(vim.fn.glob(packer_install_path)) > 0 then
 	})
 end
 
+-- Package manager & plugin configuration.
 require('packer').startup(function(use)
   use 'wbthomason/packer.nvim'
 
@@ -219,4 +220,3 @@ vim.cmd [[
 	nnoremap gj j
 	nnoremap gk k
 ]]
-
