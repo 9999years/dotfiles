@@ -1,6 +1,9 @@
 # Plugins for fisher.
 # See: https://github.com/jorgebucaran/fisher#using-your-fish_plugins-file
 
+# Fisher itself.
+jorgebucaran/fisher
+
 # Send a notification when long-running commands exit.
 franciscolourenco/done
 
