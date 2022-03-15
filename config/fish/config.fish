@@ -45,3 +45,13 @@ abbr --add --global x 'chmod +x'
 abbr --add --global xclip wl-copy
 
 abbr --add --global penv 'source (poetry env info --path)/bin/activate.fish'
+
+# Nix support.
+set -l nix_daemon /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
+if test -e $nix_daemon
+  if type -q bass
+    bass . $nix_daemon
+  else
+    echo '`nix-daemon.sh` found but `bass` not installed; nix will not be available in this shell.'
+  end
+end

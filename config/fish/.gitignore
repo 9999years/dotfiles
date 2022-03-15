@@ -1,0 +1,8 @@
+/fish_variables
+/conf.d
+
+# Fisher plugins
+/functions/__*.fish
+/functions/bass.fish
+/functions/__bass.py
+/functions/sudope.fish
