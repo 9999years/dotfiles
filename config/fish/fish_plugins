@@ -13,5 +13,11 @@ jethrokuan/fzf
 # Source bash files in fish.
 edc/bass
 
-# Alt+s to add sudo to a command.
+# C-s to add sudo to a command.
 oh-my-fish/plugin-sudope
+
+# Prompt.
+IlanCosman/tide@v5
+
+# Directory jumping.
+jethrokuan/z

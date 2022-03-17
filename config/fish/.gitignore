@@ -3,6 +3,15 @@
 
 # Fisher plugins
 /functions/__*.fish
+/functions/_*.fish
+
 /functions/bass.fish
 /functions/__bass.py
+
 /functions/sudope.fish
+
+/functions/tide
+/functions/tide.fish
+/functions/fish_mode_prompt.fish
+/functions/fish_prompt.fish
+/completions/tide.fish
