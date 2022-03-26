@@ -220,3 +220,12 @@ vim.cmd [[
 	nnoremap gj j
 	nnoremap gk k
 ]]
+
+vim.cmd("command! -range=% -nargs=0 StripWhitespace"
+	.. " call misc#StripWhitespace(<line1>, <line2>)")
+vim.cmd("command! -nargs=? -complete=filetype EditFtplugin"
+	.. " call misc#EditFtplugin(<f-args>)")
+vim.cmd("command! -nargs=? -complete=filetype EditAfterFtplugin"
+	.. " call misc#EditAfterFtplugin(<f-args>)")
+vim.cmd("command! -nargs=? -complete=filetype EditUltiSnips"
+	.. " call misc#EditUltiSnips(<f-args>)")
