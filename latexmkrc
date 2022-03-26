@@ -10,6 +10,7 @@ $postscript_mode = 0;
 $dvi_mode = 0;
 $preview_continuous_mode = 1;
 
+# `a =~ b` is true if `b` is a substring of `a`.
 if($OSNAME =~ "MSWin32") {
   $pdf_previewer = '"/mnt/c/Program Files/SumatraPDF/SumatraPDF.exe" %O %S';
 } elsif($OSNAME =~ "darwin") {
