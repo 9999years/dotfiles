@@ -210,6 +210,9 @@ end
 if vim.fn["has"] "termguicolors" then
 	vim.opt.termguicolors = true
 end
+vim.opt.expandtab = true
+vim.opt.shiftwidth = 4
+vim.opt.tabstop = 4
 
 -- Make j and k operate on screen lines.
 -- Text selection still operates on file lines; these are normal-mode mappings
