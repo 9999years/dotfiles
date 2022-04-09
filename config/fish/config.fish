@@ -1,3 +1,34 @@
+# Bootstrap fundle: https://github.com/danhper/fundle#automatic-install
+if not functions -q fundle
+  eval (curl -sfL https://git.io/fundle-install)
+end
+
+# Fundle plugins.
+# See: https://github.com/danhper/fundle#usage
+
+# Send a notification when long-running commands exit.
+fundle plugin franciscolourenco/done
+
+# Find files efficiently.
+fundle plugin jethrokuan/fzf
+# Uses fd as default command showing also hidden files
+set -Ux FZF_DEFAULT_COMMAND "fd --hidden"
+
+# Source bash files in fish.
+fundle plugin edc/bass
+
+# C-s to add sudo to a command.
+fundle plugin oh-my-fish/plugin-sudope
+
+# Prompt.
+fundle plugin IlanCosman/tide@v5
+
+# Directory jumping.
+fundle plugin jethrokuan/z
+
+# Source/load plugins
+fundle init
+
 # These variables are used by the builtin `man` function (see `type man`).
 # We also use them to define the LESS_TERMCAP_* variables, for convenience / consistency.
 # blink: bold bright red
@@ -18,9 +49,6 @@ set -gx LESS_TERMCAP_so (set_color $man_standout)
 set -gx LESS_TERMCAP_se $end
 set -gx LESS_TERMCAP_us (set_color $man_underline)
 set -gx LESS_TERMCAP_ue $end
-
-# Uses fd as default command showing also hidden files
-set -Ux FZF_DEFAULT_COMMAND "fd --hidden"
 
 abbr --add --global c. 'cd ..'
 abbr --add --global c2 'cd ../..'
