@@ -70,9 +70,6 @@ abbr --add --global gpu 'git push'
 abbr --add --global gst 'git status'
 abbr --add --global gsw 'git switch'
 
-abbr --add --global ll 'exa -la'
-abbr --add --global ls 'exa -l'
-
 abbr --add --global s 'sudo systemctl'
 abbr --add --global tz timedatectl
 abbr --add --global x 'chmod +x'
