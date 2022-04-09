@@ -52,3 +52,7 @@ if test -e $nix_daemon
     echo '`nix-daemon.sh` found but `bass` not installed; nix will not be available in this shell.'
   end
 end
+
+if command -q any-nix-shell
+  any-nix-shell fish | source
+end
