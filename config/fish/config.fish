@@ -42,9 +42,6 @@ abbr --add --global ls 'exa -l'
 abbr --add --global s 'sudo systemctl'
 abbr --add --global tz timedatectl
 abbr --add --global x 'chmod +x'
-abbr --add --global xclip wl-copy
-
-abbr --add --global penv 'source (poetry env info --path)/bin/activate.fish'
 
 # Nix support.
 set -l nix_daemon /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
