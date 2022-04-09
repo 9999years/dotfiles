@@ -12,7 +12,7 @@ fundle plugin franciscolourenco/done
 # Find files efficiently.
 fundle plugin jethrokuan/fzf
 # Uses fd as default command showing also hidden files
-set -Ux FZF_DEFAULT_COMMAND "fd --hidden"
+set -gx FZF_DEFAULT_COMMAND "fd --hidden"
 
 # Source bash files in fish.
 fundle plugin edc/bass
