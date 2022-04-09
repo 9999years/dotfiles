@@ -22,6 +22,12 @@ fundle plugin oh-my-fish/plugin-sudope
 
 # Prompt.
 fundle plugin IlanCosman/tide@v5
+# set -g tide_nix_color 8BB6DE
+set -g tide_nix_color 5873BA
+set -g tide_nix_bg_color FFFFFF
+if ! contains nix $tide_left_prompt_items
+  set --prepend tide_left_prompt_items nix
+end
 
 # Directory jumping.
 fundle plugin jethrokuan/z
