@@ -8,6 +8,8 @@ end
 
 # Send a notification when long-running commands exit.
 fundle plugin franciscolourenco/done
+# See: https://github.com/franciscolourenco/done#settings
+set -g __done_exclude 'man|less|journalctl|nix-shell|git (?!push|pull)'
 
 # Find files efficiently.
 fundle plugin jethrokuan/fzf
