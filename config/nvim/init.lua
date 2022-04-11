@@ -42,6 +42,18 @@ require('packer').startup(function(use)
           enable = true,
         },
       }
+
+      local parser_config = require("nvim-treesitter.parsers").get_parser_configs()
+      parser_config.markdown = {
+        install_info = {
+          url = "https://github.com/MDeiml/tree-sitter-markdown.git",
+          files = {"src/parser.c"},
+          branch = "main",
+          generate_requires_npm = false,
+          requires_generate_from_grammar = false,
+        },
+        filetype = "md",
+      }
     end,
   }
 
