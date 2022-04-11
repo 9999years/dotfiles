@@ -1,10 +1,15 @@
 # See: https://github.com/alacritty/alacritty/blob/master/alacritty.yml
 ---
+window:
+  decorations: full
+  dimensions:
+    lines: 24
+    columns: 80
+
 font:
   size: 15
   normal:
     family: PragmataPro Mono Liga
-
   offset:
     x: 0
     y: -1
