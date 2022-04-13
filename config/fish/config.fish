@@ -83,6 +83,24 @@ abbr --add --global s 'sudo systemctl'
 abbr --add --global tz timedatectl
 abbr --add --global x 'chmod +x'
 
+# Fish still seems to overwrite user-defined functions for `ls` and `ll`, so these live here.
+
+function ls --wraps exa -d 'List files'
+    if command -q exa
+        exa -l $argv
+    else
+        ls -l $argv
+    end
+end
+
+function ll --wraps exa -d 'List files, including hidden files'
+    if command -q exa
+        exa -la $argv
+    else
+        ls -la $argv
+    end
+end
+
 # Nix support.
 set -l nix_daemon /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
 if test -e $nix_daemon
