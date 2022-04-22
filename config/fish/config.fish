@@ -12,9 +12,15 @@ fundle plugin franciscolourenco/done
 set -g __done_exclude 'man|less|journalctl|nix-shell|git (?!push|pull)'
 
 # Find files efficiently.
+# Ctrl-o to find a file and insert into the command line.
+# Ctrl-r to search history.
+# Alt-c to cd into a sub-directory.
+# Alt-o to open a file in $EDITOR.
+# Alt-Shift-o to open a file.
 fundle plugin jethrokuan/fzf
 # Uses fd as default command showing also hidden files
 set -gx FZF_DEFAULT_COMMAND "fd --hidden"
+set -gx FZF_LEGACY_KEYBINDINGS 0
 
 # Source bash files in fish.
 fundle plugin jorgebucaran/replay.fish
@@ -124,4 +130,8 @@ end
 
 if command -q any-nix-shell
   any-nix-shell fish | source
+end
+
+if command -q nvim
+  set -gx EDITOR nvim
 end
