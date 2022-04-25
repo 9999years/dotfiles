@@ -136,7 +136,8 @@ require('packer').startup(function(use)
       end
     end
   }
-  vim.cmd [[autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting_sync()]]
+  -- Autoformat on save:
+  -- vim.cmd [[autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting_sync()]]
 
   -- Snippets
   use {
