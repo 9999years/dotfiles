@@ -135,3 +135,14 @@ end
 if command -q nvim
   set -gx EDITOR nvim
 end
+
+# Add `ghcup` to `PATH` if it's installed and we're not in a `nix-shell`.
+if test -e ~/.ghcup/bin
+  if test -n "$IN_NIX_SHELL"
+    while set -l index (contains -i ~/.ghcup/bin $PATH)
+      set --erase PATH[$index]
+    end
+  else
+    set --prepend PATH ~/.ghcup/bin
+  end
+end
