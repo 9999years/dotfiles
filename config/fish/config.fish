@@ -9,7 +9,7 @@ end
 # Send a notification when long-running commands exit.
 fundle plugin franciscolourenco/done
 # See: https://github.com/franciscolourenco/done#settings
-set -g __done_exclude 'man|less|journalctl|nix-shell|git (?!push|pull)'
+set -g __done_exclude 'vi|man|less|journalctl|nix-shell|git (?!push|pull)'
 
 # Find files efficiently.
 # Ctrl-o to find a file and insert into the command line.
