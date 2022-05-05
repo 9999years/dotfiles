@@ -30,6 +30,13 @@
 [alias]
 	last = log -1 HEAD
 	graph = log --decorate --oneline --graph
+	co = checkout
+	d = diff
+	g = graph
+	p = pull
+	pu = push
+	st = status
+	sw = switch
 [hub]
 	protocol = https
 [branch]
