@@ -47,6 +47,27 @@ Thumbs.db
 .mypy_cache
 __pycache__
 
+#===LaTeX files===
+*.aux
+*.nav
+*.snm
+*.dvi
+*.toc
+*.fls
+*.out
+*.fdb_latexmk
+*.bbl
+*.bbg
+*.blg
+*.bcf
+*.thm
+*.idx
+*.ilg
+*.ind
+*.kaux
+*.diagnose
+*.run.xml
+
 .idea/libraries/**
 node_modules
 package-lock.json
