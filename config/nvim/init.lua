@@ -72,157 +72,23 @@ require('packer').startup(function(use)
     requires = { "nvim-lua/popup.nvim", "nvim-lua/plenary.nvim" },
   }
 
-  -- LSP configuration
+  -- GitHub integration / view in browser.
   use {
-    "neovim/nvim-lspconfig",
-    config = function()
-      -- See: https://github.com/neovim/nvim-lspconfig/blob/master/doc/server_configurations.md
-
-      -- Use an on_attach function to only map the following keys
-      -- after the language server attaches to the current buffer
-      local on_attach = function(client, bufnr)
-        local function buf_set_keymap(...) vim.api.nvim_buf_set_keymap(bufnr, ...) end
-        local function buf_set_option(...) vim.api.nvim_buf_set_option(bufnr, ...) end
-
-        --Enable completion triggered by <c-x><c-o>
-        buf_set_option("omnifunc", "v:lua.vim.lsp.omnifunc")
-
-        -- Mappings.
-        local opts = { noremap = true, silent = true }
-
-        -- See `:help vim.lsp.*` for documentation on any of the below functions
-        buf_set_keymap("n", "gD",        "<cmd>lua vim.lsp.buf.declaration()<CR>", opts)
-        buf_set_keymap("n", "gd",        "<cmd>lua vim.lsp.buf.definition()<CR>", opts)
-        buf_set_keymap("n", "K",         "<cmd>lua vim.lsp.buf.hover()<CR>", opts)
-        buf_set_keymap("n", "gi",        "<cmd>lua vim.lsp.buf.implementation()<CR>", opts)
-        buf_set_keymap("n", "<C-k>",     "<cmd>lua vim.lsp.buf.signature_help()<CR>", opts)
-        buf_set_keymap("n", "<space>wa", "<cmd>lua vim.lsp.buf.add_workspace_folder()<CR>", opts)
-        buf_set_keymap("n", "<space>wr", "<cmd>lua vim.lsp.buf.remove_workspace_folder()<CR>", opts)
-        buf_set_keymap("n", "<space>wl", "<cmd>lua print(vim.inspect(vim.lsp.buf.list_workspace_folders()))<CR>", opts)
-        buf_set_keymap("n", "<space>D",  "<cmd>lua vim.lsp.buf.type_definition()<CR>", opts)
-        buf_set_keymap("n", "<space>rn", "<cmd>lua vim.lsp.buf.rename()<CR>", opts)
-        buf_set_keymap("n", "<space>ca", ":<C-u>Telescope lsp_code_actions<CR>", opts)
-        buf_set_keymap("n", "gr",        "<cmd>lua vim.lsp.buf.references()<CR>", opts)
-        buf_set_keymap("n", "<space>e",  "<cmd>lua vim.lsp.diagnostic.show_line_diagnostics()<CR>", opts)
-        buf_set_keymap("n", "[d",        "<cmd>lua vim.diagnostic.goto_prev()<CR>", opts)
-        buf_set_keymap("n", "]d",        "<cmd>lua vim.diagnostic.goto_next()<CR>", opts)
-        buf_set_keymap("n", "<space>q",  "<cmd>lua vim.diagnostic.setloclist()<CR>", opts)
-        buf_set_keymap("n", "<space>f",  "<cmd>lua vim.lsp.buf.formatting()<CR>", opts)
-
-      end
-
-      -- Gross!!!!!
-      -- See: https://github.com/neovim/nvim-lspconfig#keybindings-and-completion
-      local nvim_lsp = require "lspconfig"
-
-      local servers = {
-        "pyright",
-        "rust_analyzer",
-        "tsserver",
-        "hls",
-      }
-      for _, lsp in ipairs(servers) do
-        nvim_lsp[lsp].setup {
-          on_attach = on_attach,
-          flags = {
-            debounce_text_changes = 150,
-          },
-          settings = {
-            haskell = {
-              formattingProvider = "fourmolu",
-            },
-          },
-        }
-      end
-    end
+    "tyru/open-browser-github.vim",
+    requires = { "tyru/open-browser.vim" },
   }
+
+  -- LSP configuration
+  use "neovim/nvim-lspconfig"
   -- Autoformat on save:
   -- vim.cmd [[autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting_sync()]]
-
-  -- Snippets
   use {
-    "L3MON4D3/LuaSnip",
-  }
-  require("luasnip.loaders.from_lua").load({
-      paths = "./luasnippets",
-  })
-
-  -- Autocomplete
-  use {
-    "hrsh7th/nvim-cmp",
+    "ms-jpq/coq_nvim",
+    run = "python3 -m coq deps",
+    branch = "coq",
     requires = {
-      "hrsh7th/cmp-nvim-lsp",
-      "hrsh7th/cmp-buffer",
-      "hrsh7th/cmp-path",
-      -- "hrsh7th/cmp-cmdline",
-      -- "quangnguyen30192/cmp-nvim-tags",
-      "saadparwaiz1/cmp_luasnip",
-    },
-  }
-
-  -- Autocomplete/snippets config
-  local has_words_before = function()
-    local line, col = unpack(vim.api.nvim_win_get_cursor(0))
-    return col ~= 0
-      and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]
-        :sub(col, col)
-        :match("%s")
-        == nil
-  end
-
-  local luasnip = require("luasnip")
-  local cmp = require("cmp")
-  cmp.setup {
-    snippet = {
-      expand = function(args)
-        require("luasnip").lsp_expand(args.body)
-      end,
-    },
-    sources = {
-      { name = "path" },
-      { name = "buffer" },
-      -- { name = "ctags" },
-      { name = "luasnip" },
-      { name = "nvim_lsp" },
-    },
-    mapping = {
-      ["<C-j>"] = cmp.mapping(function(fallback)
-        if luasnip.expand_or_jumpable() then
-          luasnip.expand_or_jump()
-        else
-          fallback()
-        end
-      end, { "i", "s" }),
-
-      ["<C-k>"] = cmp.mapping(function(fallback)
-        if luasnip.jumpable() then
-          luasnip.jump(-1)
-        else
-          fallback()
-        end
-      end, { "i", "s" }),
-
-      ["<Tab>"] = cmp.mapping(function(fallback)
-        if cmp.visible() then
-          cmp.select_next_item()
-        elseif luasnip.expand_or_jumpable() then
-          luasnip.expand_or_jump()
-        elseif has_words_before() then
-          cmp.complete()
-        else
-          fallback()
-        end
-      end, { "i", "s" }),
-
-      ["<S-Tab>"] = cmp.mapping(function(fallback)
-        if cmp.visible() then
-          cmp.select_prev_item()
-        elseif luasnip.jumpable(-1) then
-          luasnip.jump(-1)
-        else
-          fallback()
-        end
-      end, { "i", "s" }),
+      { "ms-jpq/coq.artifacts", branch = "artifacts" },
+      { "ms-jpq/coq.thirdparty", branch = "3p" },
     },
   }
 
@@ -260,6 +126,9 @@ require('packer').startup(function(use)
   -- g:polyglot_disabled must be set before polyglot is loaded
   vim.g.polyglot_disabled = { "rust", "latex", "java" }
   use "sheerun/vim-polyglot"
+
+  -- Yesod Haskell web framework syntax highlighting.
+  use "alx741/yesod.vim"
 
   use "rust-lang/rust.vim"
   use {
@@ -328,3 +197,86 @@ vim.cmd("command! -nargs=? -complete=filetype EditAfterFtplugin"
   .. " call misc#EditAfterFtplugin(<f-args>)")
 vim.cmd("command! -nargs=? -complete=filetype EditUltiSnips"
   .. " call misc#EditUltiSnips(<f-args>)")
+
+-- Language server / autocomplete configuration
+
+-- See: https://github.com/neovim/nvim-lspconfig/blob/master/doc/server_configurations.md
+
+-- Use an on_attach function to only map the following keys
+-- after the language server attaches to the current buffer
+local lsp_on_attach = function(client, bufnr)
+  local function buf_set_keymap(...) vim.api.nvim_buf_set_keymap(bufnr, ...) end
+  local function buf_set_option(...) vim.api.nvim_buf_set_option(bufnr, ...) end
+
+  --Enable completion triggered by <c-x><c-o>
+  buf_set_option("omnifunc", "v:lua.vim.lsp.omnifunc")
+
+  -- Mappings.
+  local opts = { noremap = true, silent = true }
+
+  -- See `:help vim.lsp.*` for documentation on any of the below functions
+  buf_set_keymap("n", "gD",        "<cmd>lua vim.lsp.buf.declaration()<CR>", opts)
+  buf_set_keymap("n", "gd",        "<cmd>lua vim.lsp.buf.definition()<CR>", opts)
+  buf_set_keymap("n", "K",         "<cmd>lua vim.lsp.buf.hover()<CR>", opts)
+  buf_set_keymap("n", "gi",        "<cmd>lua vim.lsp.buf.implementation()<CR>", opts)
+  buf_set_keymap("n", "<C-k>",     "<cmd>lua vim.lsp.buf.signature_help()<CR>", opts)
+  buf_set_keymap("n", "<space>wa", "<cmd>lua vim.lsp.buf.add_workspace_folder()<CR>", opts)
+  buf_set_keymap("n", "<space>wr", "<cmd>lua vim.lsp.buf.remove_workspace_folder()<CR>", opts)
+  buf_set_keymap("n", "<space>wl", "<cmd>lua print(vim.inspect(vim.lsp.buf.list_workspace_folders()))<CR>", opts)
+  buf_set_keymap("n", "<space>D",  "<cmd>lua vim.lsp.buf.type_definition()<CR>", opts)
+  buf_set_keymap("n", "<space>rn", "<cmd>lua vim.lsp.buf.rename()<CR>", opts)
+  buf_set_keymap("n", "<space>ca", ":<C-u>Telescope lsp_code_actions<CR>", opts)
+  buf_set_keymap("n", "gr",        "<cmd>lua vim.lsp.buf.references()<CR>", opts)
+  buf_set_keymap("n", "<space>e",  "<cmd>lua vim.lsp.diagnostic.show_line_diagnostics()<CR>", opts)
+  buf_set_keymap("n", "[d",        "<cmd>lua vim.diagnostic.goto_prev()<CR>", opts)
+  buf_set_keymap("n", "]d",        "<cmd>lua vim.diagnostic.goto_next()<CR>", opts)
+  buf_set_keymap("n", "<space>q",  "<cmd>lua vim.diagnostic.setloclist()<CR>", opts)
+  buf_set_keymap("n", "<space>f",  "<cmd>lua vim.lsp.buf.formatting()<CR>", opts)
+
+end
+
+-- Automatically start coq
+vim.g.coq_settings = {
+  auto_start = "shut-up",
+}
+
+-- Gross!!!!!
+-- See: https://github.com/neovim/nvim-lspconfig#keybindings-and-completion
+local nvim_lsp = require "lspconfig"
+
+local lsp_options = {
+  on_attach = lsp_on_attach,
+  flags = {
+    debounce_text_changes = 150,
+  },
+  settings = {
+    haskell = {
+      formattingProvider = "fourmolu",
+    },
+  },
+}
+
+local lsp_server_options = {
+  hls = {
+    cmd = { "halfsp" },
+  },
+}
+
+local lsp_servers = {
+  "pyright",
+  "rust_analyzer",
+  "tsserver",
+  "hls",
+}
+
+for _, lsp in ipairs(lsp_servers) do
+  nvim_lsp[lsp].setup(
+    require("coq").lsp_ensure_capabilities(
+      vim.tbl_extend(
+        "keep",
+        lsp_server_options[lsp] or {},
+        lsp_options
+      )
+    )
+  )
+end
