@@ -94,7 +94,10 @@ require('packer').startup(function(use)
 
   use "lukas-reineke/indent-blankline.nvim" -- Indentation guides
   use "tpope/vim-fugitive"                  -- Git wrapper
-  use "lewis6991/gitsigns.nvim"             -- Git gutter
+  use {
+    "lewis6991/gitsigns.nvim",              -- Git gutter
+    config = function() require("gitsigns").setup() end,
+  }
 
   -- Color scheme
   use {
