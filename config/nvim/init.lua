@@ -78,7 +78,8 @@ require('packer').startup(function(use)
     requires = { "tyru/open-browser.vim" },
     config = function()
       vim.cmd [[
-        command! -range=% -nargs=0 Browse <line1>,<line2>OpenGithubFile
+        command! -range -nargs=0 Browse <line1>,<line2>OpenGithubFile
+        nnoremap <leader>og :Browse<CR>
       ]]
     end,
   }
