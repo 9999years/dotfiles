@@ -76,6 +76,11 @@ require('packer').startup(function(use)
   use {
     "tyru/open-browser-github.vim",
     requires = { "tyru/open-browser.vim" },
+    config = function()
+      vim.cmd [[
+        command! -range=% -nargs=0 Browse <line1>,<line2>OpenGithubFile
+      ]]
+    end,
   }
 
   -- LSP configuration
