@@ -125,10 +125,10 @@ require('packer').startup(function(use)
   --   - dag/vim-fish
   --   - idris-hackers/idris-vim
   --   - pangloss/vim-javascript
-
-  -- g:polyglot_disabled must be set before polyglot is loaded
-  vim.g.polyglot_disabled = { "rust", "latex", "java" }
-  use "sheerun/vim-polyglot"
+  use {
+    "sheerun/vim-polyglot",
+    setup = function() vim.g.polyglot_disabled = { "rust", "latex", "java" } end
+  }
 
   -- Yesod Haskell web framework syntax highlighting.
   use "alx741/yesod.vim"
