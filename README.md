@@ -7,9 +7,10 @@ Setup with `git clone --recurse-submodules https://github.com/9999years/dotfiles
 ## Utility software I like
 
 - `bat`
+- `exa`
 - `fd`
 - `fish`
-- `fzy`
+- `fzf`/`fzy`
 - `git-absorb`
 - `git-delta`
 - `hub`
