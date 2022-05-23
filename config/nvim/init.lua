@@ -265,10 +265,17 @@ local lsp_options = {
   },
 }
 
+local lsp_hls_config = {}
+
+-- Only use `halfsp` if it's in `$PATH`.
+if vim.fn.executable("halfsp") == 1 then
+  lsp_hls_config = {
+    cmd = { "halfsp" }
+  }
+end
+
 local lsp_server_options = {
-  hls = {
-    cmd = { "halfsp" },
-  },
+  hls = lsp_hls_config,
 }
 
 local lsp_servers = {
