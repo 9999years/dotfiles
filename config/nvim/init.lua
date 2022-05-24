@@ -140,19 +140,7 @@ require('packer').startup(function(use)
   use "alx741/yesod.vim"
 
   use "rust-lang/rust.vim"
-  use {
-    "simrat39/rust-tools.nvim",
-    config = function()
-      require("rust-tools").setup {
-        tools = {
-          inlay_hints = {
-            parameter_hints_prefix = "← ",
-            other_hints_prefix = "⇒ ",
-          },
-        },
-      }
-    end
-  }
+  use "simrat39/rust-tools.nvim"
 
   -- Automatically set up your configuration after cloning packer.nvim
   -- Put this at the end after all plugins
@@ -263,6 +251,18 @@ local lsp_options = {
       formattingProvider = "fourmolu",
     },
   },
+}
+
+-- `rust-tools` initializes `lspconfig`'s `rust_analyzer` as well, so it has to
+-- go before...
+require("rust-tools").setup {
+  tools = {
+    inlay_hints = {
+      parameter_hints_prefix = "← ",
+      other_hints_prefix = "⇒ ",
+    },
+  },
+  server = lsp_options,
 }
 
 local lsp_hls_config = {}
