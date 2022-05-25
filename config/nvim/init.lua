@@ -72,6 +72,15 @@ require('packer').startup(function(use)
     requires = { "nvim-lua/popup.nvim", "nvim-lua/plenary.nvim" },
   }
 
+  use {
+    "nvim-telescope/telescope-ui-select.nvim",
+    requires = "nvim-telescope/telescope.nvim",
+    config = function()
+      require("telescope").setup{}
+      require("telescope").load_extension("ui-select")
+    end,
+  }
+
   -- GitHub integration / view in browser.
   use {
     "tyru/open-browser-github.vim",
