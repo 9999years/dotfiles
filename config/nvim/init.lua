@@ -61,24 +61,28 @@ require('packer').startup(function(use)
   use {
     "nvim-telescope/telescope.nvim",
     config = function()
-      vim.cmd [[
-        nnoremap <leader>t :<C-u>Telescope<CR>
-        nnoremap <leader>f :<C-u>Telescope find_files<CR>
-        nnoremap <leader>b :<C-u>Telescope buffers<CR>
-        nnoremap <leader>g :<C-u>Telescope live_grep<CR>
-        nnoremap <leader>h :<C-u>Telescope oldfiles<CR>
-      ]]
-    end,
-    requires = { "nvim-lua/popup.nvim", "nvim-lua/plenary.nvim" },
-  }
-
-  use {
-    "nvim-telescope/telescope-ui-select.nvim",
-    requires = "nvim-telescope/telescope.nvim",
-    config = function()
+      vim.api.nvim_set_keymap("n", "<leader>t", ":<C-u>Telescope builtin include_extensions=true<CR>", { noremap = true })
+      vim.api.nvim_set_keymap("n", "<leader>f", ":<C-u>Telescope find_files<CR>", { noremap = true })
+      vim.api.nvim_set_keymap("n", "<leader>b", ":<C-u>Telescope buffers<CR>", { noremap = true })
+      vim.api.nvim_set_keymap("n", "<leader>g", ":<C-u>Telescope live_grep<CR>", { noremap = true })
+      vim.api.nvim_set_keymap("n", "<leader>h", ":<C-u>Telescope oldfiles<CR>", { noremap = true })
+      vim.api.nvim_set_keymap("n", "<space>fb", ":<C-u>Telescope file_browser<CR>", { noremap = true })
       require("telescope").setup{}
-      require("telescope").load_extension("ui-select")
+      require('telescope').load_extension("fzy_native")
+      require("telescope").load_extension("ui-select") -- telescope-ui-select.nvim
+      require("telescope").load_extension("gh")  -- telescope-github.nvim
+      require("telescope").load_extension("file_browser") -- telescope-file-browser.nvim
+      require("telescope").load_extension("packer")
     end,
+    requires = {
+      "nvim-lua/popup.nvim",
+      "nvim-lua/plenary.nvim",
+      "nvim-telescope/telescope-fzy-native.nvim",
+      "nvim-telescope/telescope-ui-select.nvim",
+      "nvim-telescope/telescope-github.nvim",
+      "nvim-telescope/telescope-file-browser.nvim",
+      "nvim-telescope/telescope-packer.nvim",
+    },
   }
 
   -- GitHub integration / view in browser.
