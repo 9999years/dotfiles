@@ -192,12 +192,13 @@ vim.opt.tabstop = 4
 -- Make j and k operate on screen lines.
 -- Text selection still operates on file lines; these are normal-mode mappings
 -- only.
-vim.cmd [[
-  nnoremap j gj
-  nnoremap k gk
-  nnoremap gj j
-  nnoremap gk k
-]]
+vim.api.nvim_set_keymap("n", "j", "gj", { noremap = true })
+vim.api.nvim_set_keymap("n", "k", "gk", { noremap = true })
+vim.api.nvim_set_keymap("n", "gj", "j", { noremap = true })
+vim.api.nvim_set_keymap("n", "gk", "k", { noremap = true })
+
+-- `\w` toggles line-wrapping
+vim.api.nvim_set_keymap("n", "<leader>w", ":<C-u>set wrap!<CR>", { noremap = true })
 
 vim.cmd("command! -range=% -nargs=0 StripWhitespace"
   .. " call misc#StripWhitespace(<line1>, <line2>)")
