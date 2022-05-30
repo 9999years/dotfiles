@@ -82,6 +82,8 @@ set -gx LESS_TERMCAP_se $end
 set -gx LESS_TERMCAP_us (set_color $man_underline)
 set -gx LESS_TERMCAP_ue $end
 
+set -gx MANPAGER 'nvim +Man!'
+
 abbr --add --global c. 'cd ..'
 abbr --add --global c2 'cd ../..'
 abbr --add --global c3 'cd ../../..'
