@@ -2,6 +2,7 @@
 
 -- Bootstrap packer: https://github.com/wbthomason/packer.nvim#bootstrapping
 local packer_install_path = vim.fn.stdpath("data") .. "/site/pack/packer/start/packer.nvim"
+local packer_bootstrap
 if vim.fn.empty(vim.fn.glob(packer_install_path)) > 0 then
   packer_bootstrap = vim.fn.system {
     "git",
@@ -19,6 +20,9 @@ require("packer").startup(function(use)
 
   -- Better repeated mappings with plugins.
   use("tpope/vim-repeat")
+
+  -- Mapping/command utils.
+  use("9999years/batteries.nvim")
 
   -- Comment toggling.
   use {
@@ -75,17 +79,14 @@ require("packer").startup(function(use)
   use {
     "nvim-telescope/telescope.nvim",
     config = function()
-      vim.api.nvim_set_keymap(
-        "n",
-        "<leader>t",
-        ":<C-u>Telescope builtin include_extensions=true<CR>",
-        { noremap = true }
-      )
-      vim.api.nvim_set_keymap("n", "<leader>f", ":<C-u>Telescope find_files<CR>", { noremap = true })
-      vim.api.nvim_set_keymap("n", "<leader>b", ":<C-u>Telescope buffers<CR>", { noremap = true })
-      vim.api.nvim_set_keymap("n", "<leader>g", ":<C-u>Telescope live_grep<CR>", { noremap = true })
-      vim.api.nvim_set_keymap("n", "<leader>h", ":<C-u>Telescope oldfiles<CR>", { noremap = true })
-      vim.api.nvim_set_keymap("n", "<space>fb", ":<C-u>Telescope file_browser<CR>", { noremap = true })
+      require("batteries").map {
+        { "<leader>t", "<cmd>Telescope builtin include_extensions=true<CR>", "Telescope" },
+        { "<leader>f", "<cmd>Telescope find_files<CR>", "Find files" },
+        { "<leader>b", "<cmd>Telescope buffers<CR>", "Find buffers" },
+        { "<leader>g", "<cmd>Telescope live_grep<CR>", "Grep" },
+        { "<leader>h", "<cmd>Telescope oldfiles<CR>", "Recently opened" },
+        { "<space>fb", "<cmd>Telescope file_browser<CR>", "File browser" },
+      }
       require("telescope").setup {}
       require("telescope").load_extension("fzy_native")
       require("telescope").load_extension("ui-select") -- telescope-ui-select.nvim
@@ -109,10 +110,19 @@ require("packer").startup(function(use)
     "tyru/open-browser-github.vim",
     requires = { "tyru/open-browser.vim" },
     config = function()
-      vim.cmd([[
-        command! -range -nargs=0 Browse <line1>,<line2>OpenGithubFile
-        nnoremap <leader>og :Browse<CR>
-      ]])
+      local batteries = require("batteries")
+      batteries.cmd {
+        range = true,
+        nargs = 0,
+        "Browse",
+        "<line1>,<line2>OpenGithubFile",
+      }
+
+      batteries.map {
+        "<leader>og",
+        "<cmd>Browse<CR>",
+        "Open file on GitHub",
+      }
     end,
   }
 
@@ -204,31 +214,48 @@ vim.opt.breakindentopt = { min = 30, shift = -1 }
 vim.opt.showbreak = "↪" -- Show a cool arrow to indicate continued lines
 vim.opt.diffopt:append { "vertical", "iwhiteall" }
 vim.opt.shortmess = "aoOsWAfil" -- Help avoid hit-enter prompts
-if vim.fn["has"]("mouse") then
+if vim.fn.has("mouse") then
   vim.opt.mouse = "nvichar"
 end
-if vim.fn["has"]("termguicolors") then
+if vim.fn.has("termguicolors") then
   vim.opt.termguicolors = true
 end
 vim.opt.expandtab = true
 vim.opt.shiftwidth = 4
 vim.opt.tabstop = 4
 
--- Make j and k operate on screen lines.
--- Text selection still operates on file lines; these are normal-mode mappings
--- only.
-vim.api.nvim_set_keymap("n", "j", "gj", { noremap = true })
-vim.api.nvim_set_keymap("n", "k", "gk", { noremap = true })
-vim.api.nvim_set_keymap("n", "gj", "j", { noremap = true })
-vim.api.nvim_set_keymap("n", "gk", "k", { noremap = true })
+local batteries = require("batteries")
+batteries.map {
+  -- Make j and k operate on screen lines.
+  -- Text selection still operates on file lines; these are normal-mode
+  -- mappings only.
+  { "j", "gj", "Cursor down one screen line" },
+  { "k", "gk", "Cursor up one screen line" },
+  { "gj", "j", "Cursor down one file line" },
+  { "gk", "k", "Cursor up one file line" },
 
--- `\w` toggles line-wrapping
-vim.api.nvim_set_keymap("n", "<leader>w", ":<C-u>set wrap!<CR>", { noremap = true })
+  -- `\w` toggles line-wrapping
+  { "<leader>w", "<cmd>set wrap!<CR>", "Toggle wrapping" },
+}
 
-vim.cmd("command! -range=% -nargs=0 StripWhitespace" .. " call misc#StripWhitespace(<line1>, <line2>)")
-vim.cmd("command! -nargs=? -complete=filetype EditFtplugin" .. " call misc#EditFtplugin(<f-args>)")
-vim.cmd("command! -nargs=? -complete=filetype EditAfterFtplugin" .. " call misc#EditAfterFtplugin(<f-args>)")
-vim.cmd("command! -nargs=? -complete=filetype EditUltiSnips" .. " call misc#EditUltiSnips(<f-args>)")
+batteries.cmd {
+  range = "%",
+  nargs = 0,
+  "StripWhitespace",
+  "call misc#StripWhitespace(<line1>, <line2>)",
+}
+batteries.cmd {
+  nargs = "?",
+  complete = "filetype",
+  "EditFtplugin",
+  "call misc#EditFtplugin(<f-args>)",
+}
+batteries.cmd {
+  nargs = "?",
+  complete = "filetype",
+  "EditAfterFtplugin",
+  "call misc#EditAfterFtplugin(<f-args>)",
+}
 
 -- Language server / autocomplete configuration
 
@@ -237,34 +264,45 @@ vim.cmd("command! -nargs=? -complete=filetype EditUltiSnips" .. " call misc#Edit
 -- Use an on_attach function to only map the following keys
 -- after the language server attaches to the current buffer
 local lsp_on_attach = function(client, bufnr)
-  local function buf_set_keymap(...)
-    vim.api.nvim_buf_set_keymap(bufnr, ...)
-  end
-
   --Enable completion triggered by <c-x><c-o>
   vim.api.nvim_buf_set_option(bufnr, "omnifunc", "v:lua.vim.lsp.omnifunc")
 
-  -- Mappings.
-  local opts = { noremap = true, silent = true }
+  function get_line_diagnostics()
+    vim.diagnostic.get(bufnr, { lnum = vim.fn.line('.') })
+  end
+
+  function list_workspace_folders()
+    print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
+  end
 
   -- See `:help vim.lsp.*` for documentation on any of the below functions
-  buf_set_keymap("n", "gD", "<cmd>lua vim.lsp.buf.declaration()<CR>", opts)
-  buf_set_keymap("n", "gd", "<cmd>lua vim.lsp.buf.definition()<CR>", opts)
-  buf_set_keymap("n", "K", "<cmd>lua vim.lsp.buf.hover()<CR>", opts)
-  buf_set_keymap("n", "gi", "<cmd>lua vim.lsp.buf.implementation()<CR>", opts)
-  buf_set_keymap("n", "<C-k>", "<cmd>lua vim.lsp.buf.signature_help()<CR>", opts)
-  buf_set_keymap("n", "<space>wa", "<cmd>lua vim.lsp.buf.add_workspace_folder()<CR>", opts)
-  buf_set_keymap("n", "<space>wr", "<cmd>lua vim.lsp.buf.remove_workspace_folder()<CR>", opts)
-  buf_set_keymap("n", "<space>wl", "<cmd>lua print(vim.inspect(vim.lsp.buf.list_workspace_folders()))<CR>", opts)
-  buf_set_keymap("n", "<space>D", "<cmd>lua vim.lsp.buf.type_definition()<CR>", opts)
-  buf_set_keymap("n", "<space>rn", "<cmd>lua vim.lsp.buf.rename()<CR>", opts)
-  buf_set_keymap("n", "<space>ca", "<cmd>lua vim.lsp.buf.code_action()<CR>", opts)
-  buf_set_keymap("n", "gr", "<cmd>lua vim.lsp.buf.references()<CR>", opts)
-  buf_set_keymap("n", "<space>e", "<cmd>lua vim.diagnostic.get(" .. bufnr .. ", { lnum = vim.fn.line('.') })<CR>", opts)
-  buf_set_keymap("n", "[d", "<cmd>lua vim.diagnostic.goto_prev()<CR>", opts)
-  buf_set_keymap("n", "]d", "<cmd>lua vim.diagnostic.goto_next()<CR>", opts)
-  buf_set_keymap("n", "<space>q", "<cmd>lua vim.diagnostic.setloclist()<CR>", opts)
-  buf_set_keymap("n", "<space>f", "<cmd>lua vim.lsp.buf.formatting()<CR>", opts)
+  -- stylua: ignore start
+  batteries.map {
+    buffer = bufnr,
+    { "gD",        vim.lsp.buf.declaration, "Go to declaration" },
+    { "gd",        vim.lsp.buf.definition, "Go to definition" },
+    { "K",         vim.lsp.buf.hover, "Hover docs" },
+    { "gi",        vim.lsp.buf.implementation, "Go to implementation" },
+    { "<C-k>",     vim.lsp.buf.signature_help, "Open signature help" },
+    { "<space>wa", vim.lsp.buf.add_workspace_folder, "Add workspace folder" },
+    { "<space>wr", vim.lsp.buf.remove_workspace_folder, "Remove workspace folder" },
+    { "<space>wl", list_workspace_folders, "List workspace folders" },
+    { "<space>D",  vim.lsp.buf.type_definition, "Go to symbol's type" },
+    { "<space>rn", vim.lsp.buf.rename, "Rename symbol" },
+    { "<space>ca", vim.lsp.buf.code_action, "Code actions" },
+    { "<M-.>",     vim.lsp.buf.code_action, "Code actions", mode = "i" },
+    { "gr",        vim.lsp.buf.references, "Go to references" },
+    { "<space>e",  get_line_diagnostics, "Get diagnostics" },
+    { "[d",        vim.diagnostic.goto_prev, "Prev diagnostic" },
+    { "]d",        vim.diagnostic.goto_next, "Next diagnostic" },
+    { "<space>q",  vim.diagnostic.setloclist, "Set loclist to diagnostics" },
+    { "<space>f",  vim.lsp.buf.formatting, "Format buffer" },
+  }
+  -- stylua: ignore end
+  batteries.map {
+    prefix = "<space>w",
+    name = "+workspace folders",
+  }
 end
 
 -- Automatically start coq
