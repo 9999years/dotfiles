@@ -294,19 +294,45 @@ batteries.cmd {
   range = "%",
   nargs = 0,
   "StripWhitespace",
-  "call misc#StripWhitespace(<line1>, <line2>)",
+  function(opts)
+    -- Save cursor position.
+    local cursor = vim.fn.getcurpos()
+    -- Strip trailing whitespace & display number of matches
+    local cmd = opts.line1 .. "," .. opts.line2 .. " smagic/\\s\\+$//e"
+    vim.cmd(
+      cmd .. "n\n"
+      .. "keepjumps " .. cmd .. "g\n"
+      .. "nohlsearch\n"
+    )
+    vim.fn.setpos(".", cursor)
+  end,
+  "Delete trailing whitespace in the current buffer"
 }
 batteries.cmd {
   nargs = "?",
   complete = "filetype",
   "EditFtplugin",
-  "call misc#EditFtplugin(<f-args>)",
+  function(opts)
+    local ft = opts.fargs[1]
+    if ft == "" then
+      ft = vim.opt.ft:get()
+    end
+    vim.cmd("split " .. vim.fn.stdpath("config") .. "/ftplugin/" .. ft .. ".vim")
+  end,
+  "Edit the ftplugin for a filetype"
 }
 batteries.cmd {
   nargs = "?",
   complete = "filetype",
   "EditAfterFtplugin",
-  "call misc#EditAfterFtplugin(<f-args>)",
+  function(opts)
+    local ft = opts.fargs[1]
+    if ft == "" then
+      ft = vim.opt.ft:get()
+    end
+    vim.cmd("split " .. vim.fn.stdpath("config") .. "/after/ftplugin/" .. ft .. ".vim")
+  end,
+  "Edit the after/ftplugin for a filetype"
 }
 
 -- Language server / autocomplete configuration
