@@ -80,12 +80,15 @@ require("packer").startup(function(use)
     "nvim-telescope/telescope.nvim",
     config = function()
       require("batteries").map {
-        { "<leader>t", "<cmd>Telescope builtin include_extensions=true<CR>", "Telescope" },
-        { "<leader>f", "<cmd>Telescope find_files<CR>", "Find files" },
-        { "<leader>b", "<cmd>Telescope buffers<CR>", "Find buffers" },
-        { "<leader>g", "<cmd>Telescope live_grep<CR>", "Grep" },
-        { "<leader>h", "<cmd>Telescope oldfiles<CR>", "Recently opened" },
-        { "<space>fb", "<cmd>Telescope file_browser<CR>", "File browser" },
+        { prefix = "<Leader>t", name = "+telescope" },
+        { "<Leader>tt", "<cmd>Telescope builtin include_extensions=true<CR>", "Telescope" },
+        { "<Leader>tf", "<cmd>Telescope find_files<CR>", "Find files" },
+        { "<Leader>f", "<cmd>Telescope find_files<CR>", "Find files" },
+        { "<Leader>tb", "<cmd>Telescope buffers<CR>", "Find buffers" },
+        { "<Leader>b", "<cmd>Telescope buffers<CR>", "Find buffers" },
+        { "<Leader>tg", "<cmd>Telescope live_grep<CR>", "Grep" },
+        { "<Leader>th", "<cmd>Telescope oldfiles<CR>", "Recently opened" },
+        { "<Space>fb", "<cmd>Telescope file_browser<CR>", "File browser" },
       }
       require("telescope").setup {}
       require("telescope").load_extension("fzy_native")
