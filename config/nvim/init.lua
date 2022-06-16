@@ -452,11 +452,11 @@ require("rust-tools").setup {
 local lsp_hls_config = {}
 
 -- Only use `halfsp` if it's in `$PATH`.
-if vim.fn.executable("halfsp") == 1 then
-  lsp_hls_config = {
-    cmd = { "halfsp" },
-  }
-end
+-- if vim.fn.executable("halfsp") == 1 then
+  -- lsp_hls_config = {
+    -- cmd = { "halfsp" },
+  -- }
+-- end
 
 local lsp_server_options = {
   hls = lsp_hls_config,
