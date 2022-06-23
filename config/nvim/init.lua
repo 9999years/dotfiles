@@ -1,4 +1,6 @@
 -- See: `:h lua`
+-- I like to format this file with `stylua` (`cargo install stylua`).
+-- https://github.com/JohnnyMorganz/StyLua
 
 -- Bootstrap packer: https://github.com/wbthomason/packer.nvim#bootstrapping
 local packer_install_path = vim.fn.stdpath("data") .. "/site/pack/packer/start/packer.nvim"
@@ -274,6 +276,7 @@ require("packer").startup(function(use)
 
   use("rust-lang/rust.vim")
   use("simrat39/rust-tools.nvim")
+  use("b0o/schemastore.nvim")
 
   -- Automatically set up your configuration after cloning packer.nvim
   -- Put this at the end after all plugins
@@ -434,6 +437,18 @@ local lsp_options = {
     haskell = {
       formattingProvider = "fourmolu",
     },
+    json = {
+      schemas = require("schemastore").json.schemas(),
+      validate = {
+        enable = true,
+      },
+    },
+    -- The yaml-language-server actually crashes if I do this with nested
+    -- tables instead of writing the property name with dots. Incredible.
+    -- Anyways this gets me autocomplete for things like GitHub Actions files.
+    -- Essential.
+    -- https://github.com/redhat-developer/yaml-language-server
+    ["yaml.schemaStore.enable"] = true,
   },
 }
 
@@ -467,6 +482,8 @@ local lsp_servers = {
   "rust_analyzer",
   "tsserver",
   "hls",
+  "jsonls",
+  "yamlls",
 }
 
 for _, lsp in ipairs(lsp_servers) do
