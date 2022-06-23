@@ -82,7 +82,7 @@ require("packer").startup(function(use)
     requires = "kyazdani42/nvim-web-devicons",
     config = function()
       require("trouble").setup {}
-    end
+    end,
   }
 
   -- Fuzzy finder
@@ -117,14 +117,14 @@ require("packer").startup(function(use)
           layout_config = {
             horizontal = {
               height = max_height,
-              width  = max_width,
+              width = max_width,
             },
             vertical = {
               height = max_height,
-              width  = max_width,
-            }
+              width = max_width,
+            },
           },
-        }
+        },
       }
       require("telescope").load_extension("fzy_native")
       require("telescope").load_extension("ui-select") -- telescope-ui-select.nvim
@@ -198,11 +198,13 @@ require("packer").startup(function(use)
                 if vim.wo.diff then
                   return "]c"
                 end
-                vim.schedule(function() gs.next_hunk() end)
+                vim.schedule(function()
+                  gs.next_hunk()
+                end)
                 return "<Ignore>"
               end,
               "Next diff hunk",
-              expr = true
+              expr = true,
             },
             {
               "[c",
@@ -210,28 +212,42 @@ require("packer").startup(function(use)
                 if vim.wo.diff then
                   return "[c"
                 end
-                vim.schedule(function() gs.prev_hunk() end)
+                vim.schedule(function()
+                  gs.prev_hunk()
+                end)
                 return "<Ignore>"
               end,
               "Prev diff hunk",
-              expr = true
+              expr = true,
             },
 
             -- Text object
-            { "ih", "<Cmd>Gitsigns select_hunk<CR>", "Hunk", mode = {"o", "x"} },
+            { "ih", "<Cmd>Gitsigns select_hunk<CR>", "Hunk", mode = { "o", "x" } },
 
             -- Actions
             { prefix = "<Leader>h", name = "+hunk" },
-            { "<Leader>hs", "<Cmd>Gitsigns stage_hunk<CR>", "Stage hunk", mode = {"n", "v"} },
-            { "<Leader>hr", "<Cmd>Gitsigns reset_hunk<CR>", "Reset (unstage) hunk", mode = {"n", "v"} },
+            { "<Leader>hs", "<Cmd>Gitsigns stage_hunk<CR>", "Stage hunk", mode = { "n", "v" } },
+            { "<Leader>hr", "<Cmd>Gitsigns reset_hunk<CR>", "Reset (unstage) hunk", mode = { "n", "v" } },
             { "<Leader>hS", gs.stage_buffer, "Stage buffer" },
             { "<Leader>hu", gs.undo_stage_hunk, "Undo stage hunk" },
             { "<Leader>hR", gs.reset_buffer, "Reset buffer" },
             { "<Leader>hp", gs.preview_hunk, "Preview hunk" },
-            { "<Leader>hb", function() gs.blame_line { full = true } end, "Blame line" },
-            { "<Leader>hD", function() gs.diffthis("~") end, "Diff" },
+            {
+              "<Leader>hb",
+              function()
+                gs.blame_line { full = true }
+              end,
+              "Blame line",
+            },
+            {
+              "<Leader>hD",
+              function()
+                gs.diffthis("~")
+              end,
+              "Diff",
+            },
           }
-        end
+        end,
       }
     end,
   }
@@ -335,14 +351,10 @@ batteries.cmd {
     local cursor = vim.fn.getcurpos()
     -- Strip trailing whitespace & display number of matches
     local cmd = opts.line1 .. "," .. opts.line2 .. " smagic/\\s\\+$//e"
-    vim.cmd(
-      cmd .. "n\n"
-      .. "keepjumps " .. cmd .. "g\n"
-      .. "nohlsearch\n"
-    )
+    vim.cmd(cmd .. "n\n" .. "keepjumps " .. cmd .. "g\n" .. "nohlsearch\n")
     vim.fn.setpos(".", cursor)
   end,
-  "Delete trailing whitespace in the current buffer"
+  "Delete trailing whitespace in the current buffer",
 }
 batteries.cmd {
   nargs = "?",
@@ -355,7 +367,7 @@ batteries.cmd {
     end
     vim.cmd("split " .. vim.fn.stdpath("config") .. "/ftplugin/" .. ft .. ".vim")
   end,
-  "Edit the ftplugin for a filetype"
+  "Edit the ftplugin for a filetype",
 }
 batteries.cmd {
   nargs = "?",
@@ -368,7 +380,7 @@ batteries.cmd {
     end
     vim.cmd("split " .. vim.fn.stdpath("config") .. "/after/ftplugin/" .. ft .. ".vim")
   end,
-  "Edit the after/ftplugin for a filetype"
+  "Edit the after/ftplugin for a filetype",
 }
 
 -- Language server / autocomplete configuration
@@ -382,7 +394,7 @@ local lsp_on_attach = function(client, bufnr)
   vim.api.nvim_buf_set_option(bufnr, "omnifunc", "v:lua.vim.lsp.omnifunc")
 
   function get_line_diagnostics()
-    vim.diagnostic.get(bufnr, { lnum = vim.fn.line('.') })
+    vim.diagnostic.get(bufnr, { lnum = vim.fn.line(".") })
   end
 
   function list_workspace_folders()
@@ -468,9 +480,9 @@ local lsp_hls_config = {}
 
 -- Only use `halfsp` if it's in `$PATH`.
 -- if vim.fn.executable("halfsp") == 1 then
-  -- lsp_hls_config = {
-    -- cmd = { "halfsp" },
-  -- }
+-- lsp_hls_config = {
+-- cmd = { "halfsp" },
+-- }
 -- end
 
 local lsp_server_options = {
