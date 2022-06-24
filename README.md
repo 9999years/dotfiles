@@ -17,3 +17,6 @@ Setup with `git clone --recurse-submodules https://github.com/9999years/dotfiles
 - `neovim`
 - `rg`
 - `tmux`
+- [`npm i -g vscode-langservers-extracted`](https://github.com/hrsh7th/vscode-langservers-extracted)
+- [`npm i -g yaml-language-server`](https://github.com/redhat-developer/yaml-language-server)
+- [`npm install -g pyright`](https://github.com/microsoft/pyright)

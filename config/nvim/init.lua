@@ -496,6 +496,8 @@ local lsp_servers = {
   "hls",
   "jsonls",
   "yamlls",
+  "html",
+  "cssls",
 }
 
 for _, lsp in ipairs(lsp_servers) do
