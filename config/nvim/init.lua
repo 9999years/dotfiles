@@ -491,6 +491,7 @@ local lsp_server_options = {
 
 local lsp_servers = {
   "pyright",
+  "racket_langserver",
   "rust_analyzer",
   "tsserver",
   "hls",
