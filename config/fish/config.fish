@@ -102,6 +102,7 @@ abbr --add --global v nvim
 abbr --add --global s 'sudo systemctl'
 abbr --add --global tz timedatectl
 abbr --add --global x 'chmod +x'
+abbr --add --global tree 'exa --tree --level 2'
 
 # Fish still seems to overwrite user-defined functions for `ls` and `ll`, so these live here.
 
