@@ -164,6 +164,14 @@ require("packer").startup(function(use)
     end,
   }
 
+  -- Only add `dash.nvim` if `Dash.app` is installed.
+  if vim.fn.empty(vim.fn.glob("/Applications/Dash.app/")) == 0 then
+    use {
+      "mrjones2014/dash.nvim",
+      run = "make install",
+    }
+  end
+
   -- LSP configuration
   use("neovim/nvim-lspconfig")
   -- Autoformat on save:
