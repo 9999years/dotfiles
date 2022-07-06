@@ -142,7 +142,7 @@ end
 
 # Add `ghcup` to `PATH` if it's installed and we're not in a `nix-shell`.
 if test -e ~/.ghcup/bin
-  if test -n "$IN_NIX_SHELL"
+  if test -n "$IN_NIX_SHELL" || test -n "$IN_NIX_RUN"
     while set -l index (contains -i ~/.ghcup/bin $PATH)
       set --erase PATH[$index]
     end
