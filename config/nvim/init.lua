@@ -40,6 +40,9 @@ require("packer").startup(function(use)
   -- Pairs of mappings
   use("tpope/vim-unimpaired")
 
+  -- `:Move`, `:Rename`, `:Mkdir`, etc.
+  use("tpope/vim-eunuch")
+
   use {
     "nvim-treesitter/nvim-treesitter",
     run = ":TSUpdate",
