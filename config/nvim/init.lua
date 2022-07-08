@@ -178,7 +178,7 @@ require("packer").startup(function(use)
   -- LSP configuration
   use("neovim/nvim-lspconfig")
   -- Autoformat on save:
-  -- vim.cmd [[autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting_sync()]]
+  use "lukas-reineke/lsp-format.nvim"
   use {
     "ms-jpq/coq_nvim",
     run = "python3 -m coq deps",
@@ -401,7 +401,7 @@ batteries.cmd {
 -- Use an on_attach function to only map the following keys
 -- after the language server attaches to the current buffer
 local lsp_on_attach = function(client, bufnr)
-  --Enable completion triggered by <c-x><c-o>
+  -- Enable completion triggered by <c-x><c-o>
   vim.api.nvim_buf_set_option(bufnr, "omnifunc", "v:lua.vim.lsp.omnifunc")
 
   function get_line_diagnostics()
@@ -440,6 +440,9 @@ local lsp_on_attach = function(client, bufnr)
     prefix = "<space>w",
     name = "+workspace folders",
   }
+
+  -- Autoformat on save
+  require("lsp-format").on_attach(client)
 end
 
 -- Automatically start coq
@@ -473,6 +476,10 @@ local lsp_options = {
     -- https://github.com/redhat-developer/yaml-language-server
     ["yaml.schemaStore.enable"] = true,
   },
+}
+
+require("lsp-format").setup {
+  exclude = { "hls" },
 }
 
 -- `rust-tools` initializes `lspconfig`'s `rust_analyzer` as well, so it has to
