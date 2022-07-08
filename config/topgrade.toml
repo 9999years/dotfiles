@@ -3,6 +3,9 @@
 # Display the time in step titles
 display_time = true
 
+# I manage `stack` with `ghcup`.
+disable = [ "stack" ]
+
 [git]
 # Additional git repositories to pull.
 repos = [
@@ -16,3 +19,4 @@ repos = [
 "Update Fish plugins (Fundle)" = "fish -c 'fundle self-update && fundle update'"
 # Packer: https://github.com/wbthomason/packer.nvimhttps://github.com/wbthomason/packer.nvim
 "Update Neovim/Packer" = "nvim -c 'autocmd User PackerComplete quitall' -c 'PackerSync'"
+"Update ghcup" = "ghcup upgrade"
