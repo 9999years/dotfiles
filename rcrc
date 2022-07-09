@@ -1,5 +1,12 @@
 # vim: ft=sh
 EXCLUDES=README.md
+
+if [ "$(uname)" != Darwin ]; then
+    EXCLUDES="Library:* $EXCLUDES"
+else
+    UNDOTTED=Library
+fi
+
 SYMLINK_DIRS="\
     config/fish \
     config/nvim \

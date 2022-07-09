@@ -1,17 +1,16 @@
 """
 https://github.com/prompt-toolkit/ptpython/blob/master/examples/ptpython_config/config.py
 """
-from prompt_toolkit.filters import ViInsertMode
-from prompt_toolkit.key_binding.key_processor import KeyPress
-from prompt_toolkit.keys import Keys
-from pygments.token import Token
+from prompt_toolkit.output import ColorDepth
 
 from ptpython.layout import CompletionVisualisation
+from ptpython.repl import PythonRepl
+
 
 __all__ = ("configure",)
 
 
-def configure(repl):
+def configure(repl: PythonRepl) -> None:
     """
     Configuration method. This is called during the start-up of ptpython.
 
@@ -103,7 +102,7 @@ def configure(repl):
     # Set color depth (keep in mind that not all terminals support true color).
 
     # 'DEPTH_{1,4,8,24}_BIT'
-    repl.color_depth = "DEPTH_24_BIT"
+    repl.color_depth = ColorDepth.DEPTH_24_BIT
 
     # Syntax.
     repl.enable_syntax_highlighting = True
