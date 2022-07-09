@@ -175,7 +175,7 @@ require("packer").startup(function(use)
   -- LSP configuration
   use("neovim/nvim-lspconfig")
   -- Autoformat on save:
-  use "lukas-reineke/lsp-format.nvim"
+  use("lukas-reineke/lsp-format.nvim")
   use {
     "ms-jpq/coq_nvim",
     run = "python3 -m coq deps",
@@ -184,6 +184,11 @@ require("packer").startup(function(use)
       { "ms-jpq/coq.artifacts", branch = "artifacts" },
       { "ms-jpq/coq.thirdparty", branch = "3p" },
     },
+  }
+  -- Diagnostic injection, etc.
+  use {
+    "jose-elias-alvarez/null-ls.nvim",
+    requires = "nvim-lua/plenary.nvim",
   }
 
   use("lukas-reineke/indent-blankline.nvim") -- Indentation guides
@@ -441,6 +446,28 @@ local lsp_on_attach = function(client, bufnr)
   -- Autoformat on save
   require("lsp-format").on_attach(client)
 end
+
+-- null-ls allows Lua and external commands to inject diagnostics as though
+-- they were a full-fledged language server.
+-- Among other things this is a really neat way to support format-on-save; I
+-- have a plugin that handles that for LSPs, so null-ls bridges the gap by
+-- letting me use any old formatter.
+-- https://github.com/jose-elias-alvarez/null-ls.nvim/blob/main/doc/BUILTINS.md
+local null_ls = require("null-ls")
+null_ls.setup {
+  on_attach = lsp_on_attach,
+  sources = {
+    null_ls.builtins.code_actions.gitsigns,
+    null_ls.builtins.code_actions.shellcheck,
+    null_ls.builtins.diagnostics.actionlint,
+    null_ls.builtins.diagnostics.fish,
+    null_ls.builtins.formatting.black,
+    null_ls.builtins.formatting.fish_indent,
+    null_ls.builtins.formatting.jq,
+    null_ls.builtins.formatting.nixfmt,
+    null_ls.builtins.formatting.stylua,
+  },
+}
 
 -- Automatically start coq
 vim.g.coq_settings = {
