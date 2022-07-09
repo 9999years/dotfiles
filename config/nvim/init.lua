@@ -101,7 +101,6 @@ require("packer").startup(function(use)
         { "<Leader>b", "<cmd>Telescope buffers<CR>", "Find buffers" },
         { "<Leader>tg", "<cmd>Telescope live_grep<CR>", "Grep" },
         { "<Leader>th", "<cmd>Telescope oldfiles<CR>", "Recently opened" },
-        { "<Space>fb", "<cmd>Telescope file_browser<CR>", "File browser" },
       }
       local trouble = require("trouble.providers.telescope")
       function max_height(self, max_columns, max_lines)
@@ -132,7 +131,6 @@ require("packer").startup(function(use)
       require("telescope").load_extension("fzy_native")
       require("telescope").load_extension("ui-select") -- telescope-ui-select.nvim
       require("telescope").load_extension("gh") -- telescope-github.nvim
-      require("telescope").load_extension("file_browser") -- telescope-file-browser.nvim
       require("telescope").load_extension("packer")
     end,
     requires = {
@@ -141,7 +139,6 @@ require("packer").startup(function(use)
       "nvim-telescope/telescope-fzy-native.nvim",
       "nvim-telescope/telescope-ui-select.nvim",
       "nvim-telescope/telescope-github.nvim",
-      "nvim-telescope/telescope-file-browser.nvim",
       "nvim-telescope/telescope-packer.nvim",
     },
   }
