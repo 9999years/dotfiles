@@ -429,7 +429,7 @@ local lsp_on_attach = function(client, bufnr)
     { "<space>D",  vim.lsp.buf.type_definition, "Go to symbol's type" },
     { "<space>rn", vim.lsp.buf.rename, "Rename symbol" },
     { "<space>ca", vim.lsp.buf.code_action, "Code actions" },
-    { "<M-.>",     vim.lsp.buf.code_action, "Code actions", mode = "i" },
+    { "<M-.>",     vim.lsp.buf.code_action, "Code actions", mode = { "i", "n" } },
     { "gr",        vim.lsp.buf.references, "Go to references" },
     { "<space>e",  get_line_diagnostics, "Get diagnostics" },
     { "[d",        vim.diagnostic.goto_prev, "Prev diagnostic" },
@@ -457,15 +457,23 @@ local null_ls = require("null-ls")
 null_ls.setup {
   on_attach = lsp_on_attach,
   sources = {
-    null_ls.builtins.code_actions.gitsigns,
     null_ls.builtins.code_actions.shellcheck,
+    null_ls.builtins.code_actions.statix,
     null_ls.builtins.diagnostics.actionlint,
+    null_ls.builtins.diagnostics.checkmake,
+    null_ls.builtins.diagnostics.codespell,
     null_ls.builtins.diagnostics.fish,
+    null_ls.builtins.diagnostics.hadolint,
+    null_ls.builtins.diagnostics.statix,
+    null_ls.builtins.diagnostics.yamllint,
+    null_ls.builtins.formatting.beautysh,
     null_ls.builtins.formatting.black,
+    null_ls.builtins.formatting.cabal_fmt,
     null_ls.builtins.formatting.fish_indent,
     null_ls.builtins.formatting.jq,
     null_ls.builtins.formatting.nixfmt,
     null_ls.builtins.formatting.stylua,
+    null_ls.builtins.formatting.taplo,
   },
 }
 
