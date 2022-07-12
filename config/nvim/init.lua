@@ -110,6 +110,14 @@ require("packer").startup(function(use)
         return max_columns
       end
       require("telescope").setup {
+        extensions = {
+          ["ui-select"] = {
+            -- Defined here: https://github.com/nvim-telescope/telescope.nvim/blob/master/lua/telescope/themes.lua
+            require("telescope.themes").get_dropdown {
+              layout_strategy = "cursor",
+            },
+          },
+        },
         defaults = {
           mappings = {
             i = { ["<c-t>"] = trouble.open_with_trouble },
@@ -124,6 +132,10 @@ require("packer").startup(function(use)
             vertical = {
               height = max_height,
               width = max_width,
+            },
+            cursor = {
+              height = { 0.25, min = 3 },
+              width = { 0.5, min = 40 },
             },
           },
         },
