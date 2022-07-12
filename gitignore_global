@@ -78,3 +78,4 @@ auto
 /.vim
 XXX*
 xxx*
+.envrc
