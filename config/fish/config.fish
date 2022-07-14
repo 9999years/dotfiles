@@ -1,6 +1,6 @@
 # Bootstrap fundle: https://github.com/danhper/fundle#automatic-install
 if not functions -q fundle
-  eval (curl -sfL https://git.io/fundle-install)
+    eval (curl -sfL https://git.io/fundle-install)
 end
 
 # Fundle plugins.
@@ -38,9 +38,9 @@ set -g tide_nix_color 8BB6DE
 # right half of the character), so we use the special `normal` keyword for the
 # background color. (See `man set_color`.)
 set -g tide_nix_bg_color normal
-set -g tide_nix_icon ' '  # ❆❄
+set -g tide_nix_icon ' ' # ❆❄
 if ! contains nix $tide_left_prompt_items
-  set --prepend tide_left_prompt_items nix
+    set --prepend tide_left_prompt_items nix
 end
 # I don't need fancy shapes, and my `normal` bg_color hack above plays poorly
 # with them anyways.
@@ -126,28 +126,28 @@ end
 # Nix support.
 set -l nix_daemon /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
 if test -e $nix_daemon
-  if type -q replay
-    replay . $nix_daemon
-  else
-    echo 'Found `nix-daemon.sh` but `replay.fish` not installed; nix will not be available in this shell.'
-  end
+    if type -q replay
+        replay . $nix_daemon
+    else
+        echo 'Found `nix-daemon.sh` but `replay.fish` not installed; nix will not be available in this shell.'
+    end
 end
 
 if command -q any-nix-shell
-  any-nix-shell fish | source
+    any-nix-shell fish | source
 end
 
 if command -q nvim
-  set -gx EDITOR nvim
+    set -gx EDITOR nvim
 end
 
 # Add `ghcup` to `PATH` if it's installed and we're not in a `nix-shell`.
 if test -e ~/.ghcup/bin
-  if test -n "$IN_NIX_SHELL" || test -n "$IN_NIX_RUN"
-    while set -l index (contains -i ~/.ghcup/bin $PATH)
-      set --erase PATH[$index]
+    if test -n "$IN_NIX_SHELL" || test -n "$IN_NIX_RUN"
+        while set -l index (contains -i ~/.ghcup/bin $PATH)
+            set --erase PATH[$index]
+        end
+    else
+        set --prepend PATH ~/.ghcup/bin
     end
-  else
-    set --prepend PATH ~/.ghcup/bin
-  end
 end

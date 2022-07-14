@@ -8,7 +8,7 @@
 function br --wraps=broot
     set -l cmd_file (mktemp)
     if broot --outcmd $cmd_file $argv
-        read --local --null cmd < $cmd_file
+        read --local --null cmd <$cmd_file
         rm -f $cmd_file
         eval $cmd
     else
@@ -17,4 +17,3 @@ function br --wraps=broot
         return $code
     end
 end
-

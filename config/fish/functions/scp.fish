@@ -1,3 +1,3 @@
 function scp
-	command env SHELL=(command -v bash) scp $argv
+    command env SHELL=(command -v bash) scp $argv
 end
