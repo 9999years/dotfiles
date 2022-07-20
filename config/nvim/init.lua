@@ -101,8 +101,8 @@ require("packer").startup(function(use)
       require("batteries").map {
         { prefix = "<Leader>t", name = "+telescope" },
         { "<Leader>tt", "<cmd>Telescope builtin include_extensions=true<CR>", "Telescope" },
-        { "<Leader>tf", "<cmd>Telescope find_files<CR>", "Find files" },
-        { "<Leader>f", "<cmd>Telescope find_files<CR>", "Find files" },
+        { "<Leader>tf", "<cmd>Telescope find_files hidden=true<CR>", "Find files" },
+        { "<Leader>f", "<cmd>Telescope find_files hidden=true<CR>", "Find files" },
         { "<Leader>tb", "<cmd>Telescope buffers<CR>", "Find buffers" },
         { "<Leader>b", "<cmd>Telescope buffers<CR>", "Find buffers" },
         { "<Leader>tg", "<cmd>Telescope live_grep<CR>", "Grep" },
