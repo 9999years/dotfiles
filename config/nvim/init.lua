@@ -34,6 +34,23 @@ require("packer").startup(function(use)
     end,
   }
 
+  -- File browser / tree.
+  use {
+    "preservim/nerdtree",
+    config = function()
+      vim.cmd([[
+        " Start NERDTree when Vim starts and put the cursor back in the other window.
+        autocmd VimEnter * NERDTree | wincmd p
+        " Exit Vim if NERDTree is the only window remaining in the only tab.
+        autocmd BufEnter * if tabpagenr('$') == 1 && winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree() | quit | endif
+      ]])
+      require("batteries").map {
+        { prefix = "<Leader>n", name = "+nerdtree" },
+        { "<Leader>nt", "<cmd>NERDTree<CR>", "Open file tree sidebar" },
+      }
+    end,
+  }
+
   -- Text table alignment
   use("godlygeek/tabular")
 
