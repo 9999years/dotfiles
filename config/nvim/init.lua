@@ -38,12 +38,6 @@ require("packer").startup(function(use)
   use {
     "preservim/nerdtree",
     config = function()
-      vim.cmd([[
-        " Start NERDTree when Vim starts and put the cursor back in the other window.
-        autocmd VimEnter * NERDTree | wincmd p
-        " Exit Vim if NERDTree is the only window remaining in the only tab.
-        autocmd BufEnter * if tabpagenr('$') == 1 && winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree() | quit | endif
-      ]])
       require("batteries").map {
         { prefix = "<Leader>n", name = "+nerdtree" },
         { "<Leader>nt", "<cmd>NERDTree<CR>", "Open file tree sidebar" },
@@ -486,13 +480,8 @@ null_ls.setup {
   sources = {
     null_ls.builtins.code_actions.shellcheck,
     null_ls.builtins.diagnostics.actionlint,
-    null_ls.builtins.diagnostics.codespell,
     null_ls.builtins.diagnostics.fish,
-    null_ls.builtins.diagnostics.hadolint,
-    null_ls.builtins.diagnostics.yamllint,
-    null_ls.builtins.formatting.beautysh,
     null_ls.builtins.formatting.black,
-    null_ls.builtins.formatting.cabal_fmt,
     null_ls.builtins.formatting.fish_indent,
     null_ls.builtins.formatting.jq,
     null_ls.builtins.formatting.nixfmt,
