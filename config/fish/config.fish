@@ -48,6 +48,7 @@ set -g tide_left_prompt_prefix ''
 set -g tide_left_prompt_suffix ''
 set -g tide_right_prompt_prefix ''
 set -g tide_right_prompt_suffix ''
+set -g tide_character_icon '$'
 
 # Directory jumping.
 fundle plugin jethrokuan/z
