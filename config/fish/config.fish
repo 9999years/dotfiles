@@ -30,7 +30,8 @@ abbr --add --global bass replay
 fundle plugin oh-my-fish/plugin-sudope
 
 # Prompt.
-fundle plugin IlanCosman/tide
+# fundle plugin IlanCosman/tide
+fundle plugin 9999years/tide # I am the captain now.
 # Nix logo colors: 8BB6DE 5873BA
 set -g tide_nix_color 8BB6DE
 # Something about Fish/Alacritty gets weird about printing these nonstandardly
