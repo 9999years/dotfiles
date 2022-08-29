@@ -521,6 +521,11 @@ local lsp_options = {
     ["yaml.schemaStore.enable"] = true,
 
     ["rust-analyzer"] = {
+      -- Meanwhile, `rust-analyzer` won't recognize `imports.granularity.group`
+      -- unless it's formatted *with* nested tables.
+      --
+      -- This setting makes rust-analyzer create a new `use` statement for each
+      -- import when using the auto-import functionality.
       -- https://rust-analyzer.github.io/manual.html#auto-import
       imports = {
         granularity = {
