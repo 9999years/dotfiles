@@ -519,6 +519,15 @@ local lsp_options = {
     -- Essential.
     -- https://github.com/redhat-developer/yaml-language-server
     ["yaml.schemaStore.enable"] = true,
+
+    ["rust-analyzer"] = {
+      -- https://rust-analyzer.github.io/manual.html#auto-import
+      imports = {
+        granularity = {
+          group = "item",
+        },
+      },
+    },
   },
 }
 
