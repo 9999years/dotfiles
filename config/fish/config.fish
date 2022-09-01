@@ -56,9 +56,6 @@ fundle plugin jethrokuan/z
 # Automatically complete pairs of brackets/quotes.
 fundle plugin jorgebucaran/autopair.fish
 
-# Node version manager.
-# fundle plugin jorgebucaran/nvm.fish
-
 # Source/load plugins
 fundle init
 
