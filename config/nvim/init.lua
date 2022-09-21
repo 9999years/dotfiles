@@ -34,17 +34,6 @@ require("packer").startup(function(use)
     end,
   }
 
-  -- File browser / tree.
-  use {
-    "preservim/nerdtree",
-    config = function()
-      require("batteries").map {
-        { prefix = "<Leader>n", name = "+nerdtree" },
-        { "<Leader>nt", "<cmd>NERDTree<CR>", "Open file tree sidebar" },
-      }
-    end,
-  }
-
   -- Text table alignment
   use("godlygeek/tabular")
 
@@ -83,9 +72,6 @@ require("packer").startup(function(use)
       }
     end,
   }
-
-  -- Sneak successor for navigation.
-  use("ggandor/lightspeed.nvim")
 
   -- Create directories when saving files.
   use("jghauser/mkdir.nvim")
