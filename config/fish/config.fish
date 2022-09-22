@@ -109,7 +109,7 @@ function ls --wraps exa -d 'List files'
     if command -q exa
         exa -l $argv
     else
-        ls -l $argv
+        command ls -l $argv
     end
 end
 
@@ -117,7 +117,7 @@ function ll --wraps exa -d 'List files, including hidden files'
     if command -q exa
         exa -la $argv
     else
-        ls -la $argv
+        command ls -la $argv
     end
 end
 
