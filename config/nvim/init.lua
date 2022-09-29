@@ -433,7 +433,7 @@ local lsp_on_attach = function(client, bufnr)
     { "<space>wa", vim.lsp.buf.add_workspace_folder, "Add workspace folder" },
     { "<space>wr", vim.lsp.buf.remove_workspace_folder, "Remove workspace folder" },
     { "<space>wl", list_workspace_folders, "List workspace folders" },
-    { "<space>D",  vim.lsp.buf.type_definition, "Go to symbol's type" },
+    { "gt",        vim.lsp.buf.type_definition, "Go to symbol's type" },
     { "<space>rn", vim.lsp.buf.rename, "Rename symbol" },
     { "<space>ca", vim.lsp.buf.code_action, "Code actions" },
     { "<M-.>",     vim.lsp.buf.code_action, "Code actions", mode = { "i", "n" } },
