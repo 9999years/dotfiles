@@ -1,0 +1,14 @@
+# See: `man ssh_config`
+#
+# Since the first obtained value for each parameter is used, more host-specific
+# declarations should be given near the beginning of the file, and general
+# defaults at the end. So the Host `* section` should probably go at the end.
+#
+# See: https://stackoverflow.com/a/10197697
+
+Host pi  # Raspberry Pi
+    HostName 192.168.1.4
+    User pi
+
+# For 1Password SSH agent.
+Include local_config
