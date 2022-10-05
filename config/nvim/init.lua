@@ -531,12 +531,14 @@ require("lsp-format").setup {
 require("rust-tools").setup {
   tools = {
     inlay_hints = {
+      auto = true,
       parameter_hints_prefix = "← ",
       other_hints_prefix = "⇒ ",
     },
   },
   server = lsp_options,
 }
+require("rust-tools").inlay_hints.enable()
 
 local lsp_hls_config = {}
 
