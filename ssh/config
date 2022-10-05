@@ -12,4 +12,3 @@ Host pi  # Raspberry Pi
 
 # For 1Password SSH agent.
 Include config_local
-Include local_config
