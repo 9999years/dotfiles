@@ -470,7 +470,7 @@ null_ls.setup {
     null_ls.builtins.formatting.black,
     null_ls.builtins.formatting.fish_indent,
     null_ls.builtins.formatting.jq,
-    null_ls.builtins.formatting.nixfmt,
+    null_ls.builtins.formatting.alejandra,
     null_ls.builtins.formatting.stylua,
   },
 }
