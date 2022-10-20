@@ -23,8 +23,8 @@ set -gx FZF_DEFAULT_COMMAND "fd --hidden"
 set -gx FZF_LEGACY_KEYBINDINGS 0
 
 # Source bash files in fish.
-fundle plugin jorgebucaran/replay.fish
-abbr --add --global bass replay
+fundle plugin edc/bass
+abbr --add --global replay bass
 
 # C-s to add sudo to a command.
 fundle plugin oh-my-fish/plugin-sudope
@@ -124,10 +124,10 @@ end
 # Nix support.
 set -l nix_daemon /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
 if test -e $nix_daemon
-    if type -q replay
-        replay . $nix_daemon
+    if type -q bass
+        bass . $nix_daemon
     else
-        echo 'Found `nix-daemon.sh` but `replay.fish` not installed; nix will not be available in this shell.'
+        echo 'Found `nix-daemon.sh` but `bass` not installed; nix will not be available in this shell.'
     end
 end
 
