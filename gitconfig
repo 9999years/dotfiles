@@ -61,3 +61,5 @@
 	process = git-lfs filter-process
 [include]
 	path = ~/.gitconfig_local
+[apply]
+	ignoreWhitespace = change
