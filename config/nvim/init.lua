@@ -260,7 +260,7 @@ require("packer").startup(function(use)
               "Blame line",
             },
             {
-              "<Leader>hD",
+              "<Leader>hd",
               function()
                 gs.diffthis("~")
               end,
