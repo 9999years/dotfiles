@@ -1,22 +1,7 @@
-# https://github.com/r-darwish/topgrade/blob/master/config.example.toml
+# https://github.com/topgrade-rs/topgrade/blob/master/config.example.toml
 
 # Display the time in step titles
 display_time = true
 
 # I manage `stack` with `ghcup`.
 disable = [ "stack" ]
-
-[git]
-# Additional git repositories to pull.
-repos = [
-    "~/.dotfiles"
-]
-
-# For built-in steps, see: https://github.com/r-darwish/topgrade/wiki/Step-list
-[commands]
-"Update dotfiles" = "rcup -v"
-# Fundle: https://github.com/danhper/fundle
-"Update Fish plugins (Fundle)" = "fish -c 'fundle self-update && fundle update'"
-# Packer: https://github.com/wbthomason/packer.nvim
-"Update Neovim/Packer" = "nvim -c 'autocmd User PackerComplete quitall' -c 'PackerSync'"
-"Update ghcup" = "ghcup upgrade"
