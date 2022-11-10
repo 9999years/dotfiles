@@ -498,7 +498,15 @@ local lsp_status = require("lsp-status")
 lsp_status.register_progress()
 
 require("lualine").setup {
+  options = {
+    section_separators = { left = "", right = "" },
+    component_separators = { left = "│", right = "│" },
+  },
   sections = {
+    lualine_a = { "filename" },
+    lualine_b = { "diff", "diagnostics" },
+    lualine_c = {},
+    lualine_x = { "encoding", "filetype" },
     lualine_y = {
       "progress",
       function()
