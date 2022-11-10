@@ -317,7 +317,6 @@ require("packer").startup(function(use)
 
   use("rust-lang/rust.vim")
   use("simrat39/rust-tools.nvim")
-  use("b0o/schemastore.nvim")
 
   -- Automatically set up your configuration after cloning packer.nvim
   -- Put this at the end after all plugins
@@ -524,7 +523,6 @@ local lsp_options = {
       formattingProvider = "fourmolu",
     },
     json = {
-      schemas = require("schemastore").json.schemas(),
       validate = {
         enable = true,
       },
