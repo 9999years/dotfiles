@@ -551,7 +551,7 @@ local lsp_options = {
 }
 
 require("lsp-format").setup {
-  exclude = { "hls" },
+  exclude = {},
 }
 
 -- `rust-tools` initializes `lspconfig`'s `rust_analyzer` as well, so it has to
