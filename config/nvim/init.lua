@@ -76,6 +76,9 @@ require("packer").startup(function(use)
   -- Create directories when saving files.
   use("jghauser/mkdir.nvim")
 
+  -- Status line (mostly for LSP progress)
+  use("nvim-lualine/lualine.nvim")
+
   use {
     "folke/which-key.nvim",
     config = function()
@@ -192,6 +195,8 @@ require("packer").startup(function(use)
       { "ms-jpq/coq.thirdparty", branch = "3p" },
     },
   }
+  -- Status/diagnostic information
+  use("nvim-lua/lsp-status.nvim")
   -- Diagnostic injection, etc.
   use {
     "jose-elias-alvarez/null-ls.nvim",
@@ -407,6 +412,9 @@ batteries.cmd {
 
 -- See: https://github.com/neovim/nvim-lspconfig/blob/master/doc/server_configurations.md
 
+-- https://github.com/neovim/neovim/issues/16807#issuecomment-1001618856
+require("vim.lsp.log").set_format_func(vim.inspect)
+
 -- Use an on_attach function to only map the following keys
 -- after the language server attaches to the current buffer
 local lsp_on_attach = function(client, bufnr)
@@ -452,6 +460,8 @@ local lsp_on_attach = function(client, bufnr)
 
   -- Autoformat on save
   require("lsp-format").on_attach(client)
+  -- Setup progress/status info
+  require("lsp-status").on_attach(client)
 end
 
 -- null-ls allows Lua and external commands to inject diagnostics as though
@@ -484,8 +494,28 @@ vim.g.coq_settings = {
 -- See: https://github.com/neovim/nvim-lspconfig#keybindings-and-completion
 local nvim_lsp = require("lspconfig")
 
+-- Progress information / diagnostics
+local lsp_status = require("lsp-status")
+lsp_status.register_progress()
+
+require("lualine").setup {
+  sections = {
+    lualine_y = {
+      "progress",
+      function()
+        if #vim.lsp.buf_get_clients() > 0 then
+          return lsp_status.status()
+        else
+          return ""
+        end
+      end,
+    },
+  },
+}
+
 local lsp_options = {
   on_attach = lsp_on_attach,
+  capabilities = lsp_status.capabilities,
   flags = {
     debounce_text_changes = 150,
   },
