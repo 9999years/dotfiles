@@ -511,7 +511,7 @@ require("lualine").setup {
       "progress",
       function()
         if #vim.lsp.buf_get_clients() > 0 then
-          return lsp_status.status()
+          return lsp_status.status_progress()
         else
           return ""
         end
