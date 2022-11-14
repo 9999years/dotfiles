@@ -127,7 +127,7 @@ if test -e $nix_daemon
     if type -q bass
         bass . $nix_daemon
     else
-        echo 'Found `nix-daemon.sh` but `bass` not installed; nix will not be available in this shell.'
+        echo 'Found `nix-daemon.sh` but `bass` not installed; nix will not be available in this shell.' >&2
     end
 end
 
