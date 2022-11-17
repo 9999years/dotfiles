@@ -545,14 +545,30 @@ local lsp_options = {
     ["rust-analyzer"] = {
       -- Meanwhile, `rust-analyzer` won't recognize `imports.granularity.group`
       -- unless it's formatted *with* nested tables.
-      --
-      -- This setting makes rust-analyzer create a new `use` statement for each
-      -- import when using the auto-import functionality.
-      -- https://rust-analyzer.github.io/manual.html#auto-import
       imports = {
         granularity = {
+          -- Reformat imports.
+          enforce = true,
+          -- Create a new `use` statement for each import when using the
+          -- auto-import functionality.
+          -- https://rust-analyzer.github.io/manual.html#auto-import
           group = "item",
         },
+      },
+      inlayHints = {
+        bindingModeHints = {
+          enable = true,
+        },
+        closureReturnTypeHints = {
+          enable = "always",
+        },
+        expressionAdjustmentHints = {
+          enable = "always",
+        },
+      },
+      checkOnSave = {
+        -- Get clippy lints
+        command = "clippy",
       },
     },
   },
