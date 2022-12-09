@@ -26,9 +26,6 @@ set -gx FZF_LEGACY_KEYBINDINGS 0
 fundle plugin edc/bass
 abbr --add --global replay bass
 
-# C-s to add sudo to a command.
-fundle plugin oh-my-fish/plugin-sudope
-
 # Prompt.
 fundle plugin IlanCosman/tide
 # Nix logo colors: 8BB6DE 5873BA
