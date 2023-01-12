@@ -105,7 +105,7 @@ require("packer").startup(function(use)
         { "<Leader>f", "<cmd>Telescope find_files hidden=true<CR>", "Find files" },
         { "<Leader>tb", "<cmd>Telescope buffers<CR>", "Find buffers" },
         { "<Leader>b", "<cmd>Telescope buffers<CR>", "Find buffers" },
-        { "<Leader>tg", "<cmd>Telescope live_grep<CR>", "Grep" },
+        { "<Leader>g", "<cmd>Telescope live_grep<CR>", "Grep" },
         { "<Leader>th", "<cmd>Telescope oldfiles<CR>", "Recently opened" },
       }
       local trouble = require("trouble.providers.telescope")
