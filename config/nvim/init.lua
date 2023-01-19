@@ -474,6 +474,7 @@ null_ls.setup {
   on_attach = lsp_on_attach,
   sources = {
     null_ls.builtins.code_actions.shellcheck,
+    null_ls.builtins.diagnostics.shellcheck,
     null_ls.builtins.diagnostics.actionlint,
     null_ls.builtins.diagnostics.fish,
     null_ls.builtins.formatting.black,
