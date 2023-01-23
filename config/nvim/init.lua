@@ -428,6 +428,10 @@ local lsp_on_attach = function(client, bufnr)
     print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
   end
 
+  function format()
+    vim.lsp.buf.format { async = true }
+  end
+
   -- See `:help vim.lsp.*` for documentation on any of the below functions
   -- stylua: ignore start
   batteries.map {
@@ -449,7 +453,7 @@ local lsp_on_attach = function(client, bufnr)
     { "[d",        vim.diagnostic.goto_prev, "Prev diagnostic" },
     { "]d",        vim.diagnostic.goto_next, "Next diagnostic" },
     { "<space>q",  vim.diagnostic.setloclist, "Set loclist to diagnostics" },
-    { "<space>f",  vim.lsp.buf.formatting, "Format buffer" },
+    { "<space>f",  format, "Format buffer" },
   }
   -- stylua: ignore end
   batteries.map {
@@ -510,13 +514,7 @@ require("lualine").setup {
     lualine_x = { "encoding", "filetype" },
     lualine_y = {
       "progress",
-      function()
-        if #vim.lsp.buf_get_clients() > 0 then
-          return lsp_status.status_progress()
-        else
-          return ""
-        end
-      end,
+      lsp_status.status_progress,
     },
   },
 }
