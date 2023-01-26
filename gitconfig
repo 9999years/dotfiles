@@ -63,3 +63,5 @@
 	path = ~/.gitconfig_local
 [apply]
 	ignoreWhitespace = change
+[safe]
+	directory = /etc/nixos
