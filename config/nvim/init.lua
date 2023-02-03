@@ -420,6 +420,11 @@ local lsp_on_attach = function(client, bufnr)
   -- Enable completion triggered by <c-x><c-o>
   vim.api.nvim_buf_set_option(bufnr, "omnifunc", "v:lua.vim.lsp.omnifunc")
 
+  -- *Don't* set `formatexpr` to `v:lua.vim.lsp.formatexpr()` because I like
+  -- Vim's default word-wrapping for comments and such. Anyways I have
+  -- `:Format` and format-on-save. See `lsp-format`.
+  vim.api.nvim_buf_set_option(bufnr, "formatexpr", "")
+
   function get_line_diagnostics()
     vim.diagnostic.get(bufnr, { lnum = vim.fn.line(".") })
   end
