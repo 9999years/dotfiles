@@ -26,7 +26,7 @@
 [rerere]
 	enabled = true
 [blame]
-	ignoreRevsFile = .git-blame-ignore-revs
+	; ignoreRevsFile = .git-blame-ignore-revs
 [alias]
 	last = log -1 HEAD
 	graph = log --decorate --oneline --graph
