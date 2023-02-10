@@ -128,8 +128,8 @@ if test -e $nix_daemon
     end
 end
 
-if command -q any-nix-shell
-    any-nix-shell fish | source
+if command -q nix-your-shell
+    nix-your-shell fish | source
 end
 
 if command -q nvim
