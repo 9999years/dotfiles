@@ -609,6 +609,7 @@ local lsp_server_options = {
   hls = lsp_hls_config,
 }
 
+-- https://github.com/neovim/nvim-lspconfig/blob/master/doc/server_configurations.md
 local lsp_servers = {
   "pyright",
   "racket_langserver",
@@ -619,6 +620,7 @@ local lsp_servers = {
   "yamlls",
   "html",
   "cssls",
+  "texlab",
 }
 
 for _, lsp in ipairs(lsp_servers) do
