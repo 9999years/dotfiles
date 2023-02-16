@@ -531,14 +531,17 @@ local lsp_options = {
     debounce_text_changes = 150,
   },
   settings = {
+
     haskell = {
       formattingProvider = "fourmolu",
     },
+
     json = {
       validate = {
         enable = true,
       },
     },
+
     -- The yaml-language-server actually crashes if I do this with nested
     -- tables instead of writing the property name with dots. Incredible.
     -- Anyways this gets me autocomplete for things like GitHub Actions files.
@@ -575,6 +578,12 @@ local lsp_options = {
         command = "clippy",
       },
     },
+
+    ["nil"] = {
+      formatting = {
+        command = { "nixpkgs-fmt" },
+      },
+    },
   },
 }
 
@@ -596,17 +605,12 @@ require("rust-tools").setup {
 }
 require("rust-tools").inlay_hints.enable()
 
-local lsp_hls_config = {}
-
--- Only use `halfsp` if it's in `$PATH`.
--- if vim.fn.executable("halfsp") == 1 then
--- lsp_hls_config = {
--- cmd = { "halfsp" },
--- }
--- end
-
 local lsp_server_options = {
-  hls = lsp_hls_config,
+  ["nil"] = {
+    formatting = {
+      command = { "alejandra" },
+    },
+  },
 }
 
 -- https://github.com/neovim/nvim-lspconfig/blob/master/doc/server_configurations.md
@@ -620,7 +624,8 @@ local lsp_servers = {
   "yamlls",
   "html",
   "cssls",
-  "texlab",
+  "texlab", -- LaTeX
+  "nil_ls", -- Nix: https://github.com/oxalica/nil
 }
 
 for _, lsp in ipairs(lsp_servers) do
