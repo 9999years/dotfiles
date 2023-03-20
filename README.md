@@ -13,7 +13,8 @@ Setup with `git clone --recurse-submodules https://github.com/9999years/dotfiles
 - `fzf`/`fzy`
 - `git-absorb`
 - `git-delta`
-- `hub`
+- `hub`/`gh`
+    - [`gh extension install seachicken/gh-poi`](https://github.com/seachicken/gh-poi)
 - `neovim`
 - `rg`
 - `tmux`
