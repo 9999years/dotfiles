@@ -86,14 +86,6 @@ require("packer").startup(function(use)
     end,
   }
 
-  use {
-    "folke/trouble.nvim",
-    requires = "kyazdani42/nvim-web-devicons",
-    config = function()
-      require("trouble").setup {}
-    end,
-  }
-
   -- Fuzzy finder
   use {
     "nvim-telescope/telescope.nvim",
@@ -108,7 +100,6 @@ require("packer").startup(function(use)
         { "<Leader>g", "<cmd>Telescope live_grep<CR>", "Grep" },
         { "<Leader>th", "<cmd>Telescope oldfiles<CR>", "Recently opened" },
       }
-      local trouble = require("trouble.providers.telescope")
       function max_height(self, max_columns, max_lines)
         return max_lines
       end
@@ -125,10 +116,6 @@ require("packer").startup(function(use)
           },
         },
         defaults = {
-          mappings = {
-            i = { ["<c-t>"] = trouble.open_with_trouble },
-            n = { ["<c-t>"] = trouble.open_with_trouble },
-          },
           -- See: `:h telescope.resolve`
           layout_config = {
             horizontal = {
