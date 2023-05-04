@@ -137,6 +137,7 @@ require("packer").startup(function(use)
       require("telescope").load_extension("ui-select") -- telescope-ui-select.nvim
       require("telescope").load_extension("gh") -- telescope-github.nvim
       require("telescope").load_extension("packer")
+      require("telescope").load_extension("ctags_plus")
     end,
     requires = {
       "nvim-lua/popup.nvim",
@@ -146,6 +147,7 @@ require("packer").startup(function(use)
       { "nvim-telescope/telescope-ui-select.nvim", branch = "fix-newlines-in-prompt-bug" },
       "nvim-telescope/telescope-github.nvim",
       "nvim-telescope/telescope-packer.nvim",
+      "gnfisher/nvim-telescope-ctags-plus",
     },
   }
 
