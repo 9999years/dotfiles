@@ -84,3 +84,6 @@ xxx*
 .git
 # For cabal
 dist-newstyle/
+# For Nix
+result
+result-*
