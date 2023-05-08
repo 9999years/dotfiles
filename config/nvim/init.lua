@@ -144,7 +144,7 @@ require("packer").startup(function(use)
       "nvim-lua/plenary.nvim",
       "nvim-telescope/telescope-fzy-native.nvim",
       -- "nvim-telescope/telescope-ui-select.nvim",
-      { "nvim-telescope/telescope-ui-select.nvim", branch = "fix-newlines-in-prompt-bug" },
+      { "9999years/telescope-ui-select.nvim", branch = "fix-newlines-in-prompt-bug" },
       "nvim-telescope/telescope-github.nvim",
       "nvim-telescope/telescope-packer.nvim",
       "gnfisher/nvim-telescope-ctags-plus",
@@ -153,17 +153,12 @@ require("packer").startup(function(use)
 
   -- GitHub integration / view in browser.
   use {
-    "tyru/open-browser-github.vim",
-    requires = { "tyru/open-browser.vim" },
+    "9999years/open-browser-git.nvim",
     config = function()
-      local batteries = require("batteries")
-      batteries.cmd {
-        range = true,
-        nargs = 0,
-        "Browse",
-        "<line1>,<line2>OpenGithubFile",
+      require("open_browser_git").setup {
+        command_prefix = "Browse",
       }
-
+      local batteries = require("batteries")
       batteries.map {
         "<leader>og",
         "<cmd>Browse<CR>",
