@@ -87,3 +87,5 @@ dist-newstyle/
 # For Nix
 result
 result-*
+# Tags files
+/tags

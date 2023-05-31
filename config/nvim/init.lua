@@ -598,6 +598,10 @@ local lsp_server_options = {
   },
 }
 
+if vim.fn.executable("static-ls") == 1 then
+  lsp_server_options.hls = { cmd = { "static-ls" } }
+end
+
 -- https://github.com/neovim/nvim-lspconfig/blob/master/doc/server_configurations.md
 local lsp_servers = {
   "pyright",
