@@ -89,3 +89,5 @@ result
 result-*
 # Tags files
 /tags
+# Lua LSP
+.luarc.json

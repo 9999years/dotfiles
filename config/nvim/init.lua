@@ -582,6 +582,20 @@ local lsp_options = {
         command = { "nixpkgs-fmt" },
       },
     },
+
+    Lua = {
+      runtime = {
+        -- For neovim
+        version = "LuaJIT",
+      },
+      diagnostics = {
+        globals = { "vim" },
+      },
+      workspace = {
+        -- Make the server aware of Neovim runtime files
+        library = vim.api.nvim_get_runtime_file("", true),
+      },
+    },
   },
 }
 
@@ -628,6 +642,7 @@ local lsp_servers = {
   "cssls",
   "texlab", -- LaTeX
   "nil_ls", -- Nix: https://github.com/oxalica/nil
+  "lua_ls", -- https://github.com/LuaLS/lua-language-server
 }
 
 for _, lsp in ipairs(lsp_servers) do
