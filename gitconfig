@@ -20,7 +20,7 @@
 [merge]
 	conflictstyle = diff3
 [diff]
-	algorithm = patience
+	algorithm = histogram
 [difftool]
 	prompt = false
 [rerere]
