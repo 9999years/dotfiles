@@ -1,3 +1,4 @@
+[misc]
 # https://github.com/topgrade-rs/topgrade/blob/master/config.example.toml
 
 # Display the time in step titles
@@ -5,6 +6,3 @@ display_time = true
 
 # I manage `stack` with `ghcup`.
 disable = [ "stack" ]
-
-# Disable annoying notify-send banner
-display_preamble = false
