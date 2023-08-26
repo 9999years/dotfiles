@@ -624,6 +624,10 @@ local lsp_server_options = {
     formatting = {
       command = { "alejandra" },
     },
+    nix = {
+      autoArchive = true,
+      autoEvalInputs = true,
+    },
   },
 }
 
