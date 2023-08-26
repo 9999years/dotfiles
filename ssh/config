@@ -10,6 +10,10 @@ Host pi  # Raspberry Pi
     HostName 192.168.1.4
     User pi
 
+Host steamdeck  # Steam Deck
+    HostName 10.0.0.113
+    User deck
+
 Host fraktur  # Linux work laptop
     HostName 10.0.0.132
     User wiggles
