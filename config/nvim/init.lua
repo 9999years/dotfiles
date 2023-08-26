@@ -100,21 +100,23 @@ require("packer").startup(function(use)
     config = function()
       require("batteries").map {
         { prefix = "<Leader>t", name = "+telescope" },
-        { "<Leader>tt", "<cmd>Telescope builtin include_extensions=true<CR>", "Telescope" },
-        { "<Leader>tf", "<cmd>Telescope find_files hidden=true<CR>", "Find files" },
-        { "<Leader>f", "<cmd>Telescope find_files hidden=true<CR>", "Find files" },
-        { "<Leader>tb", "<cmd>Telescope buffers<CR>", "Find buffers" },
-        { "<Leader>b", "<cmd>Telescope buffers<CR>", "Find buffers" },
-        { "<Leader>g", "<cmd>Telescope live_grep<CR>", "Grep" },
-        { "<Leader>th", "<cmd>Telescope oldfiles<CR>", "Recently opened" },
+        { "<Leader>tt",         "<cmd>Telescope builtin include_extensions=true<CR>", "Telescope" },
+        { "<Leader>tf",         "<cmd>Telescope find_files hidden=true<CR>",          "Find files" },
+        { "<Leader>f",          "<cmd>Telescope find_files hidden=true<CR>",          "Find files" },
+        { "<Leader>tb",         "<cmd>Telescope buffers<CR>",                         "Find buffers" },
+        { "<Leader>b",          "<cmd>Telescope buffers<CR>",                         "Find buffers" },
+        { "<Leader>g",          "<cmd>Telescope live_grep<CR>",                       "Grep" },
+        { "<Leader>th",         "<cmd>Telescope oldfiles<CR>",                        "Recently opened" },
       }
       local trouble = require("trouble.providers.telescope")
       function max_height(self, max_columns, max_lines)
         return max_lines
       end
+
       function max_width(self, max_columns, max_lines)
         return max_columns
       end
+
       require("telescope").setup {
         extensions = {
           ["ui-select"] = {
@@ -148,7 +150,7 @@ require("packer").startup(function(use)
       }
       require("telescope").load_extension("fzy_native")
       require("telescope").load_extension("ui-select") -- telescope-ui-select.nvim
-      require("telescope").load_extension("gh") -- telescope-github.nvim
+      require("telescope").load_extension("gh")        -- telescope-github.nvim
       require("telescope").load_extension("packer")
       require("telescope").load_extension("ctags_plus")
     end,
@@ -189,7 +191,7 @@ require("packer").startup(function(use)
     run = "python3 -m coq deps",
     branch = "coq",
     requires = {
-      { "ms-jpq/coq.artifacts", branch = "artifacts" },
+      { "ms-jpq/coq.artifacts",  branch = "artifacts" },
       { "ms-jpq/coq.thirdparty", branch = "3p" },
     },
   }
@@ -202,9 +204,9 @@ require("packer").startup(function(use)
   }
 
   use("lukas-reineke/indent-blankline.nvim") -- Indentation guides
-  use("tpope/vim-fugitive") -- Git wrapper
+  use("tpope/vim-fugitive")                  -- Git wrapper
   use {
-    "lewis6991/gitsigns.nvim", -- Git gutter
+    "lewis6991/gitsigns.nvim",               -- Git gutter
     config = function()
       require("gitsigns").setup {
         on_attach = function(bufnr)
@@ -245,16 +247,16 @@ require("packer").startup(function(use)
             },
 
             -- Text object
-            { "ih", "<Cmd>Gitsigns select_hunk<CR>", "Hunk", mode = { "o", "x" } },
+            { "ih",                 "<Cmd>Gitsigns select_hunk<CR>", "Hunk",                 mode = { "o", "x" } },
 
             -- Actions
             { prefix = "<Leader>h", name = "+hunk" },
-            { "<Leader>hs", "<Cmd>Gitsigns stage_hunk<CR>", "Stage hunk", mode = { "n", "v" } },
-            { "<Leader>hr", "<Cmd>Gitsigns reset_hunk<CR>", "Reset (unstage) hunk", mode = { "n", "v" } },
-            { "<Leader>hS", gs.stage_buffer, "Stage buffer" },
-            { "<Leader>hu", gs.undo_stage_hunk, "Undo stage hunk" },
-            { "<Leader>hR", gs.reset_buffer, "Reset buffer" },
-            { "<Leader>hp", gs.preview_hunk, "Preview hunk" },
+            { "<Leader>hs",         "<Cmd>Gitsigns stage_hunk<CR>",  "Stage hunk",           mode = { "n", "v" } },
+            { "<Leader>hr",         "<Cmd>Gitsigns reset_hunk<CR>",  "Reset (unstage) hunk", mode = { "n", "v" } },
+            { "<Leader>hS",         gs.stage_buffer,                 "Stage buffer" },
+            { "<Leader>hu",         gs.undo_stage_hunk,              "Undo stage hunk" },
+            { "<Leader>hR",         gs.reset_buffer,                 "Reset buffer" },
+            { "<Leader>hp",         gs.preview_hunk,                 "Preview hunk" },
             {
               "<Leader>hb",
               function()
@@ -331,7 +333,7 @@ vim.opt.splitright = true
 vim.opt.confirm = true
 vim.opt.joinspaces = false
 vim.opt.conceallevel = 2 -- Concealed text is hidden unless it has a :syn-cchar
-vim.opt.list = true -- Display tabs and trailing spaces; see listchars
+vim.opt.list = true      -- Display tabs and trailing spaces; see listchars
 vim.opt.listchars = { tab = "│ ", trail = "·", extends = "…", nbsp = "␣" }
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
@@ -355,10 +357,10 @@ batteries.map {
   -- Make j and k operate on screen lines.
   -- Text selection still operates on file lines; these are normal-mode
   -- mappings only.
-  { "j", "gj", "Cursor down one screen line" },
-  { "k", "gk", "Cursor up one screen line" },
-  { "gj", "j", "Cursor down one file line" },
-  { "gk", "k", "Cursor up one file line" },
+  { "j",         "gj",                 "Cursor down one screen line" },
+  { "k",         "gk",                 "Cursor up one screen line" },
+  { "gj",        "j",                  "Cursor down one file line" },
+  { "gk",        "k",                  "Cursor up one file line" },
 
   -- `\w` toggles line-wrapping
   { "<leader>w", "<cmd>set wrap!<CR>", "Toggle wrapping" },
@@ -439,24 +441,24 @@ local lsp_on_attach = function(client, bufnr)
   -- stylua: ignore start
   batteries.map {
     buffer = bufnr,
-    { "gD",        vim.lsp.buf.declaration, "Go to declaration" },
-    { "gd",        vim.lsp.buf.definition, "Go to definition" },
-    { "K",         vim.lsp.buf.hover, "Hover docs" },
-    { "gi",        vim.lsp.buf.implementation, "Go to implementation" },
-    { "<C-k>",     vim.lsp.buf.signature_help, "Open signature help" },
-    { "<space>wa", vim.lsp.buf.add_workspace_folder, "Add workspace folder" },
+    { "gD",        vim.lsp.buf.declaration,             "Go to declaration" },
+    { "gd",        vim.lsp.buf.definition,              "Go to definition" },
+    { "K",         vim.lsp.buf.hover,                   "Hover docs" },
+    { "gi",        vim.lsp.buf.implementation,          "Go to implementation" },
+    { "<C-k>",     vim.lsp.buf.signature_help,          "Open signature help" },
+    { "<space>wa", vim.lsp.buf.add_workspace_folder,    "Add workspace folder" },
     { "<space>wr", vim.lsp.buf.remove_workspace_folder, "Remove workspace folder" },
-    { "<space>wl", list_workspace_folders, "List workspace folders" },
-    { "gt",        vim.lsp.buf.type_definition, "Go to symbol's type" },
-    { "<space>rn", vim.lsp.buf.rename, "Rename symbol" },
-    { "<space>ca", vim.lsp.buf.code_action, "Code actions" },
-    { "<M-.>",     vim.lsp.buf.code_action, "Code actions", mode = { "i", "n" } },
-    { "gr",        vim.lsp.buf.references, "Go to references" },
-    { "<space>e",  get_line_diagnostics, "Get diagnostics" },
-    { "[d",        vim.diagnostic.goto_prev, "Prev diagnostic" },
-    { "]d",        vim.diagnostic.goto_next, "Next diagnostic" },
-    { "<space>q",  vim.diagnostic.setloclist, "Set loclist to diagnostics" },
-    { "<space>f",  format, "Format buffer" },
+    { "<space>wl", list_workspace_folders,              "List workspace folders" },
+    { "gt",        vim.lsp.buf.type_definition,         "Go to symbol's type" },
+    { "<space>rn", vim.lsp.buf.rename,                  "Rename symbol" },
+    { "<space>ca", vim.lsp.buf.code_action,             "Code actions" },
+    { "<M-.>",     vim.lsp.buf.code_action,             "Code actions",              mode = { "i", "n" } },
+    { "gr",        vim.lsp.buf.references,              "Go to references" },
+    { "<space>e",  get_line_diagnostics,                "Get diagnostics" },
+    { "[d",        vim.diagnostic.goto_prev,            "Prev diagnostic" },
+    { "]d",        vim.diagnostic.goto_next,            "Next diagnostic" },
+    { "<space>q",  vim.diagnostic.setloclist,           "Set loclist to diagnostics" },
+    { "<space>f",  format,                              "Format buffer" },
   }
   -- stylua: ignore end
   batteries.map {
