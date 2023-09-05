@@ -91,3 +91,5 @@ result-*
 /tags
 # Lua LSP
 .luarc.json
+# Direnv cache
+/.direnv
