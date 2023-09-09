@@ -1,11 +1,109 @@
 // Place your key bindings in this file to override the defaultsauto[]
 [
-        {
-                "key": "ctrl+k a",
-                "command": "workbench.action.addRootFolder"
-        },
-        {
-                "key": "ctrl+meta+w",
-                "command": "-workbench.action.toggleTabsVisibility"
-        }
+    {
+        "key": "ctrl+k a",
+        "command": "workbench.action.addRootFolder"
+    },
+    {
+        "key": "cmd+k a",
+        "command": "workbench.action.addRootFolder",
+        "when": "isMac"
+    },
+    // this drives me batty i have to disable it
+    {
+        "key": "ctrl+meta+w",
+        "command": "-workbench.action.toggleTabsVisibility"
+    },
+    {
+        "key": "ctrl+w",
+        "command": "-workbench.action.switchWindow"
+    },
+    {
+        "key": "ctrl+w",
+        "command": "deleteWordLeft"
+    },
+    // window management!
+    {
+        "key": "ctrl+w h",
+        "command": "workbench.action.focusLeftGroup",
+    },
+    {
+        "key": "ctrl+w j",
+        "command": "workbench.action.focusBelowGroup",
+    },
+    {
+        "key": "ctrl+w k",
+        "command": "workbench.action.focusAboveGroup",
+    },
+    {
+        "key": "ctrl+w l",
+        "command": "workbench.action.focusRightGroup",
+    },
+    {
+        "key": "ctrl+w shift-h",
+        "command": "workbench.action.moveActiveEditorGroupLeft"
+    },
+    {
+        "key": "ctrl+w shift-j",
+        "command": "workbench.action.moveActiveEditorGroupDown"
+    },
+    {
+        "key": "ctrl+w shift-k",
+        "command": "workbench.action.moveActiveEditorGroupUp"
+    },
+    {
+        "key": "ctrl+w shift-l",
+        "command": "workbench.action.moveActiveEditorGroupRight"
+    },
+    // tmux-like
+    {
+        "key": "ctrl+b shift+\\",
+        "command": "workbench.action.splitEditorRight",
+        "when": "editorFocus"
+    },
+    {
+        "key": "ctrl+b shift+'",
+        "command": "workbench.action.splitEditorDown",
+        "when": "editorFocus"
+    },
+    {
+        "key": "ctrl+b h",
+        "command": "workbench.action.focusLeftGroup",
+    },
+    {
+        "key": "ctrl+b j",
+        "command": "workbench.action.focusBelowGroup",
+    },
+    {
+        "key": "ctrl+b k",
+        "command": "workbench.action.focusAboveGroup",
+    },
+    {
+        "key": "ctrl+b l",
+        "command": "workbench.action.focusRightGroup",
+    },
+    {
+        "key": "ctrl+b c",
+        "command": "workbench.action.createTerminalEditor",
+    },
+    {
+        "key": "ctrl+b z",
+        "command": "workbench.action.maximizeEditor",
+    },
+    // get me out of here
+    {
+        "key": "escape",
+        "command": "closeFindWidget",
+        "when": "findWidgetVisible"
+    },
+    {
+        "key": "escape",
+        "command": "closeReferenceSearch",
+        "when": "referenceSearchVisible"
+    },
+    {
+        "key": "escape",
+        "command": "workbench.action.closeSidebar",
+        "when": "sideBarFocus"
+    }
 ]

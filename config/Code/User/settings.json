@@ -1,72 +1,111 @@
 {
-    "[python]": {
-        "editor.formatOnSave": true,
-        "editor.wordBasedSuggestions": false,
-        "gitlens.codeLens.symbolScopes": [
-            "!Module"
-        ]
+    // Editor settings
+    "window.zoomLevel": 1,
+    "workbench.colorTheme": "monokai-charcoal",
+    "workbench.editorAssociations": {
+        "*.ipynb": "jupyter-notebook"
     },
-    "[rust]": {
-        "editor.formatOnSave": true,
-        "editor.formatOnPaste": true,
-        "editor.formatOnType": true
-    },
-    "[yaml]": {
-        "editor.autoIndent": "keep",
-        "editor.formatOnType": true,
-        "editor.insertSpaces": true,
-        "editor.quickSuggestions": {
-            "comments": false,
-            "other": true,
-            "strings": true
-        },
-        "editor.tabSize": 2,
-        "gitlens.codeLens.scopes": [
-            "document"
-        ]
-    },
+    "workbench.iconTheme": "vscode-icons",
+    "workbench.startupEditor": "none",
+    "diffEditor.renderSideBySide": false,
+    "editor.comments.ignoreEmptyLines": false,
     "editor.cursorStyle": "line",
+    "editor.cursorSurroundingLines": 1,
     "editor.fontFamily": "'PragmataPro Liga','Iosevka Term SS08', 'Droid Sans Mono', 'monospace', monospace, 'Droid Sans Fallback'",
     "editor.fontLigatures": true,
+    "editor.gotoLocation.multipleDeclarations": "gotoAndPeek",
+    "editor.gotoLocation.multipleDefinitions": "gotoAndPeek",
+    "editor.gotoLocation.multipleImplementations": "gotoAndPeek",
+    "editor.gotoLocation.multipleReferences": "gotoAndPeek",
+    "editor.gotoLocation.multipleTypeDefinitions": "gotoAndPeek",
+    "editor.inlineSuggest.enabled": true,
     "editor.lineNumbers": "on",
     "editor.minimap.enabled": false,
+    "editor.renderControlCharacters": true,
+    "editor.renderFinalNewline": "off",
+    "editor.renderWhitespace": "trailing",
+    "editor.rulers": [
+        80,
+        100,
+        135
+    ],
+    "editor.scrollbar.horizontal": "hidden",
+    "editor.scrollbar.horizontalScrollbarSize": 0,
+    "editor.scrollbar.vertical": "hidden",
+    "editor.scrollbar.verticalScrollbarSize": 0,
     "editor.stickyTabStops": true,
+    "editor.suggest.preview": true,
+    "editor.suggest.showDeprecated": false,
+    "editor.tabCompletion": "on",
     "editor.wordSeparators": "/\\()\"':,.;<>~!@#$%^&*|+=[]{}`?-",
     "editor.wordWrap": "off",
+    // Explorer
     "explorer.confirmDelete": false,
     "explorer.confirmDragAndDrop": false,
+    "files.insertFinalNewline": true,
+    "files.simpleDialog.enable": true,
+    "files.trimFinalNewlines": true,
+    "files.trimTrailingWhitespace": true,
+    // Git
     "git.autofetch": true,
+    "git.confirmSync": false,
     "git.defaultCloneDirectory": "~",
-    "pylance.insidersChannel": "daily",
+    // Plugin settings
+    "extensions.experimental.affinity": {
+        "asvetliakov.vscode-neovim": 1
+    },
+    "emeraldwalk.runonsave": {
+        "commands": [
+            {
+                "cmd": "reorder-python-imports ${file}",
+                "match": "\\.py$"
+            },
+            {
+                "cmd": "ts-standard --fix ${file}",
+                "match": "\\.ts$"
+            }
+        ]
+    },
     "python.analysis.diagnosticMode": "workspace",
     "python.analysis.diagnosticSeverityOverrides": {
         "reportMissingImports": "information"
     },
-    "python.formatting.provider": "black",
-    "python.insidersChannel": "weekly",
-    "python.linting.banditEnabled": true,
-    "python.linting.mypyArgs": [
-        "--follow-imports=silent",
-        "--show-column-numbers",
-        "--check-untyped-defs",
-        "--show-error-codes"
-    ],
-    "python.linting.mypyEnabled": true,
-    "python.linting.pydocstyleEnabled": true,
-    "python.linting.pylintCategorySeverity.refactor": "Warning",
-    "python.linting.pylintEnabled": true,
-    "python.linting.pylintUseMinimalCheckers": false,
+    "python.autoComplete.showAdvancedMembers": false,
     "python.terminal.activateEnvInCurrentTerminal": true,
     "python.venvFolders": [
         "~/.cache/pypoetry/virtualenvs/"
     ],
     "redhat.telemetry.enabled": false,
     "restructuredtext.confPath": "${workspaceFolder}",
+    "restructuredtext.languageServer.disabled": true,
+    "rust-analyzer.assist.importGranularity": "item",
+    "rust-analyzer.cargo.allFeatures": true,
+    "rust-analyzer.hoverActions.references": true,
     "snooty.trace.server": "messages",
+    "typescript.format.insertSpaceBeforeFunctionParenthesis": true,
+    "typescript.format.semicolons": "remove",
+    "typescript.inlayHints.parameterTypes.enabled": true,
+    "typescript.inlayHints.propertyDeclarationTypes.enabled": true,
+    "typescript.inlayHints.variableTypes.enabled": true,
+    "typescript.suggest.completeFunctionCalls": true,
+    "typescript.updateImportsOnFileMove.enabled": "always",
+    "vim.enableNeovim": true,
     "vim.handleKeys": {
+        "<C-b>": false,
         "<C-d>": true,
-        "<C-k>": false
+        "<C-k>": false,
+        "<C-w>": true
     },
+    "vim.insertModeKeyBindings": [
+        {
+            "before": [
+                "<C-w>"
+            ],
+            "commands": [
+                "deleteWordLeft"
+            ],
+        }
+    ],
     "vim.normalModeKeyBindings": [
         {
             "before": [
@@ -103,88 +142,83 @@
             ]
         },
         {
-            "before": ["]", "c"],
+            "before": [
+                "]",
+                "c"
+            ],
             "commands": [
                 "editor.action.diffReview.next"
             ]
         },
         {
-            "before": ["[", "c"],
+            "before": [
+                "[",
+                "c"
+            ],
             "commands": [
                 "editor.action.diffReview.prev"
+            ]
+        },
+        {
+            "before": [
+                ":"
+            ],
+            "commands": [
+                "vim.showQuickpickCmdLine"
+            ]
+        },
+        {
+            "before": [
+                "<C-w>",
+                "<S-h>"
+            ],
+            "commands": [
+                "workbench.action.moveActiveEditorGroupLeft"
             ]
         }
     ],
     "vsicons.dontShowNewVersionMessage": true,
-    "workbench.colorTheme": "monokai-charcoal",
-    "workbench.editorAssociations": {
-        "*.ipynb": "jupyter-notebook"
-    },
-    "workbench.iconTheme": "vscode-icons",
-    "workbench.startupEditor": "none",
     "yaml.customTags": [
         "!encrypted/pkcs1-oaep scalar",
         "!vault scalar"
     ],
-    "diffEditor.renderSideBySide": false,
-    "emeraldwalk.runonsave": {
-        "commands": [
-            {
-                "match": "\\.py$",
-                "cmd": "reorder-python-imports ${file}"
-            },
-            {
-                "match": "\\.ts$",
-                "cmd": "ts-standard --fix ${file}"
-            }
+    "[json]": {
+        "editor.formatOnPaste": true,
+        "editor.formatOnSave": true,
+        "editor.formatOnType": true
+    },
+    "[jsonc]": {
+        "editor.formatOnPaste": true,
+        "editor.formatOnSave": true,
+        "editor.formatOnType": true
+    },
+    "[python]": {
+        "editor.formatOnSave": true,
+        "editor.wordBasedSuggestions": false,
+        "gitlens.codeLens.symbolScopes": [
+            "!Module"
         ]
     },
-    "python.formatting.blackArgs": [
-        "--fast"
-    ],
-    "notebook.cellToolbarLocation": {
-        "default": "right",
-        "jupyter-notebook": "left"
+    "[rust]": {
+        "editor.formatOnPaste": true,
+        "editor.formatOnSave": true,
+        "editor.formatOnType": true
     },
-    "python.autoComplete.showAdvancedMembers": false,
-    "editor.renderFinalNewline": false,
-    "files.insertFinalNewline": true,
-    "files.trimFinalNewlines": true,
-    "editor.comments.ignoreEmptyLines": false,
-    "editor.gotoLocation.multipleDeclarations": "gotoAndPeek",
-    "editor.gotoLocation.multipleDefinitions": "gotoAndPeek",
-    "editor.gotoLocation.multipleImplementations": "gotoAndPeek",
-    "editor.gotoLocation.multipleReferences": "gotoAndPeek",
-    "editor.gotoLocation.multipleTypeDefinitions": "gotoAndPeek",
-    "editor.renderControlCharacters": true,
-    "editor.renderWhitespace": "trailing",
-    "editor.rulers": [
-        80,
-        100,
-        135
-    ],
-    "editor.cursorSurroundingLines": 1,
-    "editor.inlineSuggest.enabled": true,
-    "editor.suggest.preview": true,
-    "editor.suggest.showDeprecated": false,
-    "files.simpleDialog.enable": true,
-    "files.trimTrailingWhitespace": true,
-    "typescript.updateImportsOnFileMove.enabled": "always",
-    "javascript.format.insertSpaceBeforeFunctionParenthesis": true,
-    "typescript.format.insertSpaceBeforeFunctionParenthesis": true,
-    "typescript.inlayHints.parameterTypes.enabled": true,
-    "typescript.inlayHints.propertyDeclarationTypes.enabled": true,
-    "typescript.inlayHints.variableTypes.enabled": true,
-    "typescript.suggest.completeFunctionCalls": true,
-    "typescript.format.semicolons": "remove",
-    "rust-analyzer.assist.importGranularity": "item",
-    "rust-analyzer.hoverActions.references": true,
-    "python.linting.banditArgs": [
-        "--skip",
-        "B101"
-    ],
-    "restructuredtext.languageServer.disabled": true,
-    "git.confirmSync": false,
-    "rust-analyzer.cargo.allFeatures": true,
-    "window.zoomLevel": 1
+    "[yaml]": {
+        "editor.autoIndent": "keep",
+        "editor.formatOnType": true,
+        "editor.insertSpaces": true,
+        "editor.quickSuggestions": {
+            "comments": false,
+            "other": true,
+            "strings": true
+        },
+        "editor.tabSize": 2,
+        "gitlens.codeLens.scopes": [
+            "document"
+        ]
+    },
+    "editor.fontSize": 14,
+    "terminal.integrated.fontSize": 14,
+    "vscode-neovim.neovimInitVimPaths.darwin": "~/.config/nvim/init.lua",
 }
