@@ -7,7 +7,7 @@ Setup with `git clone --recurse-submodules https://github.com/9999years/dotfiles
 ## Utility software I like
 
 - `bat`
-- `exa`
+- [`eza`](https://github.com/eza-community/eza)
 - `fd`
 - `fish`
 - `fzf`/`fzy`

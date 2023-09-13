@@ -98,21 +98,21 @@ abbr --add --global v nvim
 abbr --add --global s 'sudo systemctl'
 abbr --add --global tz timedatectl
 abbr --add --global x 'chmod +x'
-abbr --add --global tree 'exa --tree --level 2'
+abbr --add --global tree 'eza --tree --level 2'
 
 # Fish still seems to overwrite user-defined functions for `ls` and `ll`, so these live here.
 
-function ls --wraps exa -d 'List files'
-    if command -q exa
-        exa -l $argv
+function ls --wraps eza -d 'List files'
+    if command -q eza
+        eza -l $argv
     else
         command ls -l $argv
     end
 end
 
-function ll --wraps exa -d 'List files, including hidden files'
-    if command -q exa
-        exa -la $argv
+function ll --wraps eza -d 'List files, including hidden files'
+    if command -q eza
+        eza -la $argv
     else
         command ls -la $argv
     end
