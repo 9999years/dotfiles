@@ -119,11 +119,11 @@ require("packer").startup(function(use)
         { "<Leader>th",         "<cmd>Telescope oldfiles<CR>",                        "Recently opened" },
       }
       local trouble = require("trouble.providers.telescope")
-      function max_height(self, max_columns, max_lines)
+      local function max_height(_self, _max_columns, max_lines)
         return max_lines
       end
 
-      function max_width(self, max_columns, max_lines)
+      local function max_width(_self, max_columns, _max_lines)
         return max_columns
       end
 
@@ -435,20 +435,19 @@ local lsp_on_attach = function(client, bufnr)
   -- `:Format` and format-on-save. See `lsp-format`.
   vim.api.nvim_buf_set_option(bufnr, "formatexpr", "")
 
-  function get_line_diagnostics()
+  local function get_line_diagnostics()
     vim.diagnostic.get(bufnr, { lnum = vim.fn.line(".") })
   end
 
-  function list_workspace_folders()
+  local function list_workspace_folders()
     print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
   end
 
-  function format()
+  local function format()
     vim.lsp.buf.format { async = true }
   end
 
   -- See `:help vim.lsp.*` for documentation on any of the below functions
-  -- stylua: ignore start
   batteries.map {
     buffer = bufnr,
     { "gD",        vim.lsp.buf.declaration,             "Go to declaration" },
@@ -470,7 +469,6 @@ local lsp_on_attach = function(client, bufnr)
     { "<space>q",  vim.diagnostic.setloclist,           "Set loclist to diagnostics" },
     { "<space>f",  format,                              "Format buffer" },
   }
-  -- stylua: ignore end
   batteries.map {
     prefix = "<space>w",
     name = "+workspace folders",
