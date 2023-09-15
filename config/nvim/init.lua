@@ -203,6 +203,11 @@ require("lazy").setup {
       { "ms-jpq/coq.artifacts", branch = "artifacts" },
       { "ms-jpq/coq.thirdparty", branch = "3p" },
     },
+    init = function()
+      vim.g.coq_settings = {
+        auto_start = "shut-up",
+      }
+    end,
   },
   -- Status/diagnostic information
   { "nvim-lua/lsp-status.nvim" },
@@ -495,11 +500,6 @@ null_ls.setup {
   },
 }
 
--- Automatically start coq
-vim.g.coq_settings = {
-  auto_start = "shut-up",
-}
-
 -- Gross!!!!!
 -- See: https://github.com/neovim/nvim-lspconfig#keybindings-and-completion
 local nvim_lsp = require("lspconfig")
@@ -593,6 +593,7 @@ local lsp_options = {
       },
       diagnostics = {
         globals = { "vim" },
+        unusedLocalExclude = { "_*" },
       },
       workspace = {
         -- Make the server aware of Neovim runtime files
