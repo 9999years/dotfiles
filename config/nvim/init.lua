@@ -50,6 +50,7 @@ require("packer").startup(function(use)
     config = function()
       -- See: https://github.com/nvim-treesitter/nvim-treesitter#available-modules
       require("nvim-treesitter.configs").setup {
+        ensure_installed = { "diff", "git_rebase" },
         auto_install = true,
         highlight = {
           enable = true,
@@ -80,6 +81,12 @@ require("packer").startup(function(use)
         },
         filetype = "md",
       }
+
+      -- https://neovim.discourse.group/t/git-diff-highlighting-are-not-working-anymore-in-gitcommit-filetype/3547/5
+      vim.cmd([[
+        highlight def link @text.diff.add DiffAdded
+        highlight def link @text.diff.delete DiffRemoved
+      ]])
     end,
   }
 
