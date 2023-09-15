@@ -447,6 +447,10 @@ local lsp_on_attach = function(client, bufnr)
     vim.lsp.buf.format { async = true }
   end
 
+  local function lsp_references()
+    require("trouble").open("lsp_references")
+  end
+
   -- See `:help vim.lsp.*` for documentation on any of the below functions
   batteries.map {
     buffer = bufnr,
@@ -462,7 +466,7 @@ local lsp_on_attach = function(client, bufnr)
     { "<space>rn", vim.lsp.buf.rename,                  "Rename symbol" },
     { "<space>ca", vim.lsp.buf.code_action,             "Code actions" },
     { "<M-.>",     vim.lsp.buf.code_action,             "Code actions",              mode = { "i", "n" } },
-    { "gr",        vim.lsp.buf.references,              "Go to references" },
+    { "gr",        lsp_references,                      "Go to references" },
     { "<space>e",  get_line_diagnostics,                "Get diagnostics" },
     { "[d",        vim.diagnostic.goto_prev,            "Prev diagnostic" },
     { "]d",        vim.diagnostic.goto_next,            "Next diagnostic" },
