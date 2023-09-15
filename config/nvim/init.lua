@@ -2,51 +2,49 @@
 -- I like to format this file with `stylua` (`cargo install stylua`).
 -- https://github.com/JohnnyMorganz/StyLua
 
--- Bootstrap packer: https://github.com/wbthomason/packer.nvim#bootstrapping
-local packer_install_path = vim.fn.stdpath("data") .. "/site/pack/packer/start/packer.nvim"
-local packer_bootstrap
-if vim.fn.empty(vim.fn.glob(packer_install_path)) > 0 then
-  packer_bootstrap = vim.fn.system {
+-- Bootstrap lazy.nvim: https://github.com/folke/lazy.nvim
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+if not vim.loop.fs_stat(lazypath) then
+  vim.fn.system {
     "git",
     "clone",
-    "--depth",
-    "1",
-    "https://github.com/wbthomason/packer.nvim",
-    packer_install_path,
+    "--filter=blob:none",
+    "https://github.com/folke/lazy.nvim.git",
+    "--branch=stable", -- latest stable release
+    lazypath,
   }
 end
+vim.opt.rtp:prepend(lazypath)
 
 -- Package manager & plugin configuration.
-require("packer").startup(function(use)
-  use("wbthomason/packer.nvim")
-
+require("lazy").setup {
   -- Better repeated mappings with plugins.
-  use("tpope/vim-repeat")
+  { "tpope/vim-repeat" },
 
   -- Mapping/command utils.
-  use("9999years/batteries.nvim")
+  { "9999years/batteries.nvim" },
 
   -- Comment toggling.
-  use {
+  {
     "scrooloose/nerdcommenter",
-    setup = function()
+    init = function()
       vim.g.NERDSpaceDelims = 1
     end,
-  }
+  },
 
   -- Text table alignment
-  use("godlygeek/tabular")
+  { "godlygeek/tabular" },
 
   -- Pairs of mappings
-  use("tpope/vim-unimpaired")
+  { "tpope/vim-unimpaired" },
 
   -- `:Move`, `:Rename`, `:Mkdir`, etc.
-  use("tpope/vim-eunuch")
+  { "tpope/vim-eunuch" },
 
-  use {
+  {
     "nvim-treesitter/nvim-treesitter",
-    run = ":TSUpdate",
-    requires = { "nvim-treesitter/playground" },
+    build = ":TSUpdate",
+    dependencies = { "nvim-treesitter/playground" },
     config = function()
       -- See: https://github.com/nvim-treesitter/nvim-treesitter#available-modules
       require("nvim-treesitter.configs").setup {
@@ -88,31 +86,27 @@ require("packer").startup(function(use)
         highlight def link @text.diff.delete DiffRemoved
       ]])
     end,
-  }
+  },
 
   -- Create directories when saving files.
-  use("jghauser/mkdir.nvim")
+  { "jghauser/mkdir.nvim" },
 
   -- Status line (mostly for LSP progress)
-  use("nvim-lualine/lualine.nvim")
+  { "nvim-lualine/lualine.nvim" },
 
-  use {
+  {
     "folke/which-key.nvim",
-    config = function()
-      require("which-key").setup {}
-    end,
-  }
+    config = true,
+  },
 
-  use {
+  {
     "folke/trouble.nvim",
-    requires = "kyazdani42/nvim-web-devicons",
-    config = function()
-      require("trouble").setup {}
-    end,
-  }
+    dependencies = "kyazdani42/nvim-web-devicons",
+    config = true,
+  },
 
   -- Fuzzy finder
-  use {
+  {
     "nvim-telescope/telescope.nvim",
     config = function()
       require("batteries").map {
@@ -168,23 +162,21 @@ require("packer").startup(function(use)
       require("telescope").load_extension("fzy_native")
       require("telescope").load_extension("ui-select") -- telescope-ui-select.nvim
       require("telescope").load_extension("gh") -- telescope-github.nvim
-      require("telescope").load_extension("packer")
       require("telescope").load_extension("ctags_plus")
     end,
-    requires = {
+    dependencies = {
       "nvim-lua/popup.nvim",
       "nvim-lua/plenary.nvim",
       "nvim-telescope/telescope-fzy-native.nvim",
       -- "nvim-telescope/telescope-ui-select.nvim",
       { "9999years/telescope-ui-select.nvim", branch = "fix-newlines-in-prompt-bug" },
       "nvim-telescope/telescope-github.nvim",
-      "nvim-telescope/telescope-packer.nvim",
       "gnfisher/nvim-telescope-ctags-plus",
     },
-  }
+  },
 
   -- GitHub integration / view in browser.
-  use {
+  {
     "9999years/open-browser-git.nvim",
     config = function()
       require("open_browser_git").setup {
@@ -197,120 +189,116 @@ require("packer").startup(function(use)
         "Open file on GitHub",
       }
     end,
-  }
+  },
 
   -- LSP configuration
-  use("neovim/nvim-lspconfig")
+  { "neovim/nvim-lspconfig" },
   -- Autoformat on save:
-  use("lukas-reineke/lsp-format.nvim")
-  use {
+  { "lukas-reineke/lsp-format.nvim" },
+  {
     "ms-jpq/coq_nvim",
-    run = "python3 -m coq deps",
+    build = "python3 -m coq deps",
     branch = "coq",
-    requires = {
+    dependencies = {
       { "ms-jpq/coq.artifacts", branch = "artifacts" },
       { "ms-jpq/coq.thirdparty", branch = "3p" },
     },
-  }
+  },
   -- Status/diagnostic information
-  use("nvim-lua/lsp-status.nvim")
+  { "nvim-lua/lsp-status.nvim" },
   -- Diagnostic injection, etc.
-  use {
+  {
     "jose-elias-alvarez/null-ls.nvim",
-    requires = "nvim-lua/plenary.nvim",
-  }
+    dependencies = "nvim-lua/plenary.nvim",
+  },
 
-  use("lukas-reineke/indent-blankline.nvim") -- Indentation guides
-  use("tpope/vim-fugitive") -- Git wrapper
-  use {
+  { "lukas-reineke/indent-blankline.nvim" }, -- Indentation guides
+  { "tpope/vim-fugitive" }, -- Git wrapper
+  {
     "lewis6991/gitsigns.nvim", -- Git gutter
-    config = function()
-      require("gitsigns").setup {
-        on_attach = function(bufnr)
-          local gs = require("gitsigns")
-          local batteries = require("batteries")
+    opts = {
+      on_attach = function(bufnr)
+        local gs = require("gitsigns")
+        local batteries = require("batteries")
 
-          batteries.map {
-            buffer = bufnr,
+        batteries.map {
+          buffer = bufnr,
 
-            -- Navigation
-            {
-              "]c",
-              function()
-                if vim.wo.diff then
-                  return "]c"
-                end
-                vim.schedule(function()
-                  gs.next_hunk()
-                end)
-                return "<Ignore>"
-              end,
-              "Next diff hunk",
-              expr = true,
-            },
-            {
-              "[c",
-              function()
-                if vim.wo.diff then
-                  return "[c"
-                end
-                vim.schedule(function()
-                  gs.prev_hunk()
-                end)
-                return "<Ignore>"
-              end,
-              "Prev diff hunk",
-              expr = true,
-            },
+          -- Navigation
+          {
+            "]c",
+            function()
+              if vim.wo.diff then
+                return "]c"
+              end
+              vim.schedule(function()
+                gs.next_hunk()
+              end)
+              return "<Ignore>"
+            end,
+            "Next diff hunk",
+            expr = true,
+          },
+          {
+            "[c",
+            function()
+              if vim.wo.diff then
+                return "[c"
+              end
+              vim.schedule(function()
+                gs.prev_hunk()
+              end)
+              return "<Ignore>"
+            end,
+            "Prev diff hunk",
+            expr = true,
+          },
 
-            -- Text object
-            { "ih", "<Cmd>Gitsigns select_hunk<CR>", "Hunk", mode = { "o", "x" } },
+          -- Text object
+          { "ih", "<Cmd>Gitsigns select_hunk<CR>", "Hunk", mode = { "o", "x" } },
 
-            -- Actions
-            { prefix = "<Leader>h", name = "+hunk" },
-            { "<Leader>hs", "<Cmd>Gitsigns stage_hunk<CR>", "Stage hunk", mode = { "n", "v" } },
-            { "<Leader>hr", "<Cmd>Gitsigns reset_hunk<CR>", "Reset (unstage) hunk", mode = { "n", "v" } },
-            { "<Leader>hS", gs.stage_buffer, "Stage buffer" },
-            { "<Leader>hu", gs.undo_stage_hunk, "Undo stage hunk" },
-            { "<Leader>hR", gs.reset_buffer, "Reset buffer" },
-            { "<Leader>hp", gs.preview_hunk, "Preview hunk" },
-            {
-              "<Leader>hb",
-              function()
-                gs.blame_line { full = true }
-              end,
-              "Blame line",
-            },
-            {
-              "<Leader>hd",
-              function()
-                gs.diffthis("~")
-              end,
-              "Diff",
-            },
-          }
-        end,
-      }
-    end,
-  }
+          -- Actions
+          { prefix = "<Leader>h", name = "+hunk" },
+          { "<Leader>hs", "<Cmd>Gitsigns stage_hunk<CR>", "Stage hunk", mode = { "n", "v" } },
+          { "<Leader>hr", "<Cmd>Gitsigns reset_hunk<CR>", "Reset (unstage) hunk", mode = { "n", "v" } },
+          { "<Leader>hS", gs.stage_buffer, "Stage buffer" },
+          { "<Leader>hu", gs.undo_stage_hunk, "Undo stage hunk" },
+          { "<Leader>hR", gs.reset_buffer, "Reset buffer" },
+          { "<Leader>hp", gs.preview_hunk, "Preview hunk" },
+          {
+            "<Leader>hb",
+            function()
+              gs.blame_line { full = true }
+            end,
+            "Blame line",
+          },
+          {
+            "<Leader>hd",
+            function()
+              gs.diffthis("~")
+            end,
+            "Diff",
+          },
+        }
+      end,
+    },
+  },
 
   -- Color scheme
-  use {
+  {
     "Shatur/neovim-ayu",
     config = function()
       vim.cmd("colorscheme ayu")
     end,
-  }
+  },
 
   -- Show a lightbulb to indicate code actions
-  use {
+  {
     "kosayoda/nvim-lightbulb",
-    config = function()
-      require("nvim-lightbulb").setup {
-        autocmd = { enabled = true },
-      }
-    end,
-  }
+    opts = {
+      autocmd = { enabled = true },
+    },
+  },
 
   -- Language-specific plugins
   -- vim-polyglot includes (among many others):
@@ -322,25 +310,19 @@ require("packer").startup(function(use)
   --   - dag/vim-fish
   --   - idris-hackers/idris-vim
   --   - pangloss/vim-javascript
-  use {
+  {
     "sheerun/vim-polyglot",
-    setup = function()
+    init = function()
       vim.g.polyglot_disabled = { "rust", "latex", "java" }
     end,
-  }
+  },
 
   -- Yesod Haskell web framework syntax highlighting.
-  use("alx741/yesod.vim")
+  { "alx741/yesod.vim" },
 
-  use("rust-lang/rust.vim")
-  use("simrat39/rust-tools.nvim")
-
-  -- Automatically set up your configuration after cloning packer.nvim
-  -- Put this at the end after all plugins
-  if packer_bootstrap then
-    require("packer").sync()
-  end
-end)
+  { "rust-lang/rust.vim" },
+  { "simrat39/rust-tools.nvim" },
+}
 
 vim.opt.number = true
 vim.opt.hidden = true
