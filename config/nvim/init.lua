@@ -578,6 +578,14 @@ local lsp_options = {
         -- Get clippy lints
         command = "clippy",
       },
+      -- rust-analyzer.files.excludeDirs
+      files = {
+        excludeDirs = {
+          -- Don't scan nixpkgs on startup -_-
+          -- https://github.com/rust-lang/rust-analyzer/issues/12613#issuecomment-1174418175
+          ".direnv",
+        },
+      },
     },
 
     ["nil"] = {
