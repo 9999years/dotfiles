@@ -578,7 +578,6 @@ local lsp_options = {
         -- Get clippy lints
         command = "clippy",
       },
-      -- rust-analyzer.files.excludeDirs
       files = {
         excludeDirs = {
           -- Don't scan nixpkgs on startup -_-
@@ -614,6 +613,26 @@ local lsp_options = {
   },
 }
 
+local lsp_server_options = {
+  ["nil"] = {
+    formatting = {
+      command = { "alejandra" },
+    },
+    nix = {
+      autoArchive = true,
+      autoEvalInputs = true,
+    },
+  },
+}
+
+local function lsp_server_options_for(server)
+  return require("coq").lsp_ensure_capabilities(vim.tbl_extend("keep", lsp_server_options[server] or {}, lsp_options))
+end
+
+if vim.fn.executable("static-ls") == 1 then
+  lsp_server_options.hls = { cmd = { "static-ls" } }
+end
+
 require("lsp-format").setup {
   exclude = {},
 }
@@ -628,25 +647,9 @@ require("rust-tools").setup {
       other_hints_prefix = "⇒ ",
     },
   },
-  server = lsp_options,
+  server = lsp_server_options_for("rust_analyzer"),
 }
 require("rust-tools").inlay_hints.enable()
-
-local lsp_server_options = {
-  ["nil"] = {
-    formatting = {
-      command = { "alejandra" },
-    },
-    nix = {
-      autoArchive = true,
-      autoEvalInputs = true,
-    },
-  },
-}
-
-if vim.fn.executable("static-ls") == 1 then
-  lsp_server_options.hls = { cmd = { "static-ls" } }
-end
 
 -- https://github.com/neovim/nvim-lspconfig/blob/master/doc/server_configurations.md
 local lsp_servers = {
@@ -665,7 +668,5 @@ local lsp_servers = {
 }
 
 for _, lsp in ipairs(lsp_servers) do
-  nvim_lsp[lsp].setup(
-    require("coq").lsp_ensure_capabilities(vim.tbl_extend("keep", lsp_server_options[lsp] or {}, lsp_options))
-  )
+  nvim_lsp[lsp].setup(lsp_server_options_for(lsp))
 end
