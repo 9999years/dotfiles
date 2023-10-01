@@ -28,24 +28,6 @@ abbr --add --global replay bass
 
 # Prompt.
 fundle plugin IlanCosman/tide
-# Nix logo colors: 8BB6DE 5873BA
-set -g tide_nix_color 8BB6DE
-# Something about Fish/Alacritty gets weird about printing these nonstandardly
-# double-wide characters unless the background color is unset (it cuts off the
-# right half of the character), so we use the special `normal` keyword for the
-# background color. (See `man set_color`.)
-set -g tide_nix_bg_color normal
-set -g tide_nix_icon ' ' # ❆❄
-if ! contains nix $tide_left_prompt_items
-    set --prepend tide_left_prompt_items nix
-end
-# I don't need fancy shapes, and my `normal` bg_color hack above plays poorly
-# with them anyways.
-set -g tide_left_prompt_prefix ''
-set -g tide_left_prompt_suffix ''
-set -g tide_right_prompt_prefix ''
-set -g tide_right_prompt_suffix ''
-set -g tide_character_icon '$'
 
 # Directory jumping.
 fundle plugin jethrokuan/z
