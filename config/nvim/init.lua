@@ -665,6 +665,7 @@ local lsp_servers = {
   "texlab", -- LaTeX
   "nil_ls", -- Nix: https://github.com/oxalica/nil
   "lua_ls", -- https://github.com/LuaLS/lua-language-server
+  "gopls", -- https://github.com/golang/tools/tree/master/gopls
 }
 
 for _, lsp in ipairs(lsp_servers) do
