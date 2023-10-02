@@ -1,0 +1,8 @@
+true_colors = true
+default_flags = "gh"
+icon_theme = "nerd"
+quit_on_last_cancel = true
+
+[search-modes]
+"<empty>" = "fuzzy path"
+"/" = "regex content"
