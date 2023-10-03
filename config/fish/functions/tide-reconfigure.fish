@@ -20,6 +20,9 @@ function tide-reconfigure
     if ! contains nix $tide_left_prompt_items
         set --prepend tide_left_prompt_items nix
     end
+    if set -l index (contains --index nix_shell $tide_right_prompt_items)
+        set --erase tide_right_prompt_items[$index]
+    end
     # I don't need fancy shapes, and my `normal` bg_color hack above plays poorly
     # with them anyways.
     set -U tide_left_prompt_prefix ''
