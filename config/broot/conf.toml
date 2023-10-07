@@ -1,5 +1,5 @@
 imports = [
-    "skins/dark-blue.hjson"
+    "skins/dark-blue.hjson",
 ]
 
 true_colors = true
@@ -9,3 +9,51 @@ quit_on_last_cancel = true
 [search-modes]
 "<empty>" = "fuzzy path"
 "/" = "regex content"
+
+[[verbs]]
+key = "ctrl-w"
+internal = ":input_del_word_left"
+
+[[verbs]]
+key = "ctrl-u"
+internal = ":input_clear"
+
+[[verbs]]
+key = "alt-f"
+internal = ":input_go_word_right"
+
+[[verbs]]
+key = "alt-b"
+internal = ":input_go_word_left"
+
+[[verbs]]
+key = "ctrl-c"
+internal = ":escape"
+
+[[verbs]]
+key = "ctrl-h"
+internal = ":panel_left_no_open"
+
+[[verbs]]
+key = "ctrl-l"
+internal = ":panel_right"
+
+[[verbs]]
+key = "ctrl-k"
+internal = ":line_up"
+
+[[verbs]]
+key = "ctrl-j"
+internal = ":line_down"
+
+[[verbs]]
+shortcut = "~"
+cmd = ":focus ~"
+
+# [[verbs]]
+# key = "enter"
+# invocation = "edit"
+# shortcut = "e"
+# apply_to = "file"
+# external = "nvim {file}"
+# leave_broot = false
