@@ -348,6 +348,14 @@ require("lazy").setup {
   -- Yesod Haskell web framework syntax highlighting.
   { "alx741/yesod.vim" },
 
+  -- Neovim Lua setup.
+  {
+    "folke/neodev.nvim",
+    opts = {
+      lspconfig = false,
+    },
+  },
+
   { "rust-lang/rust.vim" },
   { "simrat39/rust-tools.nvim" },
 }
@@ -549,6 +557,7 @@ require("lualine").setup {
 }
 
 local lsp_options = {
+  before_init = require("neodev.lsp").before_init,
   on_attach = lsp_on_attach,
   capabilities = lsp_status.capabilities,
   flags = {
