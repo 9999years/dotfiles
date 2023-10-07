@@ -90,7 +90,12 @@ require("lazy").setup {
   {
     "folke/trouble.nvim",
     dependencies = "kyazdani42/nvim-web-devicons",
-    config = true,
+    config = {
+      action_keys = {
+        jump = "<tab>",
+        jump_close = "<cr>",
+      },
+    },
   },
 
   -- Fuzzy finder
