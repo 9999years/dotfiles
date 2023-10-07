@@ -106,10 +106,8 @@ require("lazy").setup {
         { prefix = "<Leader>t", name = "+telescope" },
         { "<Leader>tt", "<cmd>Telescope builtin include_extensions=true<CR>", "Telescope" },
         { "<Leader>tf", "<cmd>Telescope find_files hidden=true<CR>", "Find files" },
-        { "<Leader>f", "<cmd>Telescope find_files hidden=true<CR>", "Find files" },
         { "<Leader>tb", "<cmd>Telescope buffers<CR>", "Find buffers" },
         { "<Leader>b", "<cmd>Telescope buffers<CR>", "Find buffers" },
-        { "<Leader>g", "<cmd>Telescope live_grep<CR>", "Grep" },
         { "<Leader>th", "<cmd>Telescope oldfiles<CR>", "Recently opened" },
       }
       local trouble = require("trouble.providers.telescope")
@@ -166,6 +164,38 @@ require("lazy").setup {
       "nvim-telescope/telescope-github.nvim",
       "gnfisher/nvim-telescope-ctags-plus",
     },
+  },
+
+  -- Broot integration
+  {
+    "9999years/broot.nvim",
+    config = function()
+      local batteries = require("batteries")
+      batteries.map {
+        "<leader>f",
+        function()
+          require("broot").broot()
+        end,
+        "Edit file with Broot",
+      }
+      batteries.map {
+        "<leader>g",
+        function()
+          require("broot").broot {
+            extra_args = '--cmd "/"',
+          }
+        end,
+        "Edit file with Broot",
+      }
+      batteries.cmd {
+        nargs = "?",
+        "Broot",
+        function(_opts)
+          require("broot").broot()
+        end,
+        "Edit file with Broot",
+      }
+    end,
   },
 
   -- GitHub integration / view in browser.
