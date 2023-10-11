@@ -544,7 +544,7 @@ require("lualine").setup {
     component_separators = { left = "│", right = "│" },
   },
   sections = {
-    lualine_a = { "filename" },
+    lualine_a = { { "filename", path = 1 } },
     lualine_b = { "diff", "diagnostics" },
     lualine_c = {},
     lualine_x = { "encoding", "filetype" },
