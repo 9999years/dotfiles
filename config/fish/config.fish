@@ -101,8 +101,11 @@ function ll --wraps eza -d 'List files, including hidden files'
 end
 
 # Add extra `$PATH` variables.
-fish_add_path /opt/homebrew/bin
-fish_add_path ~/.ghcup/bin
+fish_add_path \
+    /opt/homebrew/bin \
+    ~/.ghcup/bin \
+    ~/.cabal/bin \
+    ~/.cargo/bin
 
 # Nix support.
 set -l nix_daemon /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
