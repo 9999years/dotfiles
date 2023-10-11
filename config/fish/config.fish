@@ -100,6 +100,10 @@ function ll --wraps eza -d 'List files, including hidden files'
     end
 end
 
+# Add extra `$PATH` variables.
+fish_add_path /opt/homebrew/bin
+fish_add_path ~/.ghcup/bin
+
 # Nix support.
 set -l nix_daemon /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
 if test -e $nix_daemon
@@ -115,16 +119,7 @@ if command -q nix-your-shell
 end
 
 if command -q nvim
-    set -gx EDITOR nvim
+    set --global --export EDITOR nvim
 end
 
-# Add `ghcup` to `PATH` if it's installed and we're not in a `nix-shell`.
-if test -e ~/.ghcup/bin
-    if test -n "$IN_NIX_SHELL" || test -n "$IN_NIX_RUN"
-        while set -l index (contains --index ~/.ghcup/bin $PATH)
-            set --erase PATH[$index]
-        end
-    else
-        set --prepend PATH ~/.ghcup/bin
-    end
-end
+prepend-nix-store-paths
