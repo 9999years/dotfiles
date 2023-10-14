@@ -82,10 +82,7 @@ require("lazy").setup {
   -- Status line (mostly for LSP progress)
   { "nvim-lualine/lualine.nvim" },
 
-  {
-    "folke/which-key.nvim",
-    config = true,
-  },
+  { "folke/which-key.nvim", config = true },
 
   {
     "folke/trouble.nvim",
@@ -211,22 +208,55 @@ require("lazy").setup {
 
   -- LSP configuration
   { "neovim/nvim-lspconfig" },
-  -- Autoformat on save:
-  { "lukas-reineke/lsp-format.nvim" },
+  -- Autocompletion
   {
-    "ms-jpq/coq_nvim",
-    build = "python3 -m coq deps",
-    branch = "coq",
+    "hrsh7th/nvim-cmp",
     dependencies = {
-      { "ms-jpq/coq.artifacts", branch = "artifacts" },
-      { "ms-jpq/coq.thirdparty", branch = "3p" },
+      "hrsh7th/cmp-nvim-lsp",
+      "hrsh7th/cmp-buffer",
+      "FelipeLema/cmp-async-path",
+      "hrsh7th/cmp-cmdline",
+      "hrsh7th/cmp-nvim-lsp-signature-help",
+      "mtoohey31/cmp-fish",
+      "hrsh7th/cmp-nvim-lua",
+      "L3MON4D3/LuaSnip",
+      "saadparwaiz1/cmp_luasnip",
+      {
+        "petertriho/cmp-git",
+        dependencies = {
+          "nvim-lua/plenary.nvim",
+        },
+      },
     },
-    init = function()
-      vim.g.coq_settings = {
-        auto_start = "shut-up",
+    config = function()
+      local cmp = require("cmp")
+      cmp.setup {
+        snippet = {
+          expand = function(args)
+            require("luasnip").lsp_expand(args.body)
+          end,
+        },
+        mapping = cmp.mapping.preset.insert {
+          ["<C-a>"] = cmp.mapping.scroll_docs(-4),
+          ["<C-e>"] = cmp.mapping.scroll_docs(4),
+          ["<C-Space>"] = cmp.mapping.complete(),
+          ["<CR>"] = cmp.mapping.confirm { select = true },
+        },
+        sources = cmp.config.sources {
+          { name = "nvim_lsp" },
+          { name = "nvim_lsp_signature_help" },
+          { name = "luasnip" },
+          { name = "async_path" },
+          { name = "buffer" },
+          { name = "git" },
+          { name = "fish" },
+          { name = "nvim_lua" },
+        },
       }
     end,
   },
+  -- Autoformat on save:
+  { "lukas-reineke/lsp-format.nvim" },
   -- Status/diagnostic information
   { "nvim-lua/lsp-status.nvim" },
   -- Diagnostic injection, etc.
@@ -554,7 +584,7 @@ require("lualine").setup {
 local lsp_options = {
   before_init = require("neodev.lsp").before_init,
   on_attach = lsp_on_attach,
-  capabilities = lsp_status.capabilities,
+  capabilities = require("cmp_nvim_lsp").default_capabilities(lsp_status.capabilities),
   flags = {
     debounce_text_changes = 150,
   },
@@ -653,7 +683,7 @@ local lsp_server_options = {
 }
 
 local function lsp_server_options_for(server)
-  return require("coq").lsp_ensure_capabilities(vim.tbl_extend("keep", lsp_server_options[server] or {}, lsp_options))
+  return vim.tbl_extend("keep", lsp_server_options[server] or {}, lsp_options)
 end
 
 if vim.fn.executable("static-ls") == 1 then
