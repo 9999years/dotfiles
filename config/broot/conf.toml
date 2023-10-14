@@ -3,7 +3,7 @@ imports = [
 ]
 
 true_colors = true
-default_flags = "gh"
+default_flags = "h"
 quit_on_last_cancel = true
 
 [search-modes]
@@ -49,6 +49,55 @@ internal = ":line_down"
 [[verbs]]
 shortcut = "~"
 cmd = ":focus ~"
+
+[[verbs]]
+shortcut = "snew"
+internal = ":sort_by_date"
+
+[[verbs]]
+invocation = "git_repo_root"
+shortcut = "gr"
+internal = ":focus {git-root}"
+
+[[verbs]]
+shortcut = "tc"
+internal = ":toggle_counts"
+
+[[verbs]]
+shortcut = "td"
+internal = ":toggle_dates"
+
+[[verbs]]
+shortcut = "tf"
+internal = ":toggle_files"
+
+[[verbs]]
+shortcut = "tg"
+internal = ":toggle_git_file_info"
+
+[[verbs]]
+shortcut = "tgi"
+internal = ":toggle_git_ignore"
+
+[[verbs]]
+shortcut = "tgs"
+internal = ":toggle_git_status"
+
+[[verbs]]
+shortcut = "th"
+internal = ":toggle_hidden"
+
+[[verbs]]
+shortcut = "tp"
+internal = ":toggle_perm"
+
+[[verbs]]
+shortcut = "ts"
+internal = ":toggle_sizes"
+
+[[verbs]]
+shortcut = "ttr"
+internal = ":toggle_trim_root"
 
 # [[verbs]]
 # key = "enter"
