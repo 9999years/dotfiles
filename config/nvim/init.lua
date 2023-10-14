@@ -169,6 +169,10 @@ require("lazy").setup {
   {
     "9999years/broot.nvim",
     config = function()
+      require("broot").setup {
+        default_directory = require("broot.default_directory").current_file,
+        create_user_commands = true,
+      }
       local batteries = require("batteries")
       batteries.map {
         "<leader>f",
@@ -181,16 +185,8 @@ require("lazy").setup {
         "<leader>g",
         function()
           require("broot").broot {
-            extra_args = '--cmd "/"',
+            extra_args = { "--cmd", "/" },
           }
-        end,
-        "Edit file with Broot",
-      }
-      batteries.cmd {
-        nargs = "?",
-        "Broot",
-        function(_opts)
-          require("broot").broot()
         end,
         "Edit file with Broot",
       }
