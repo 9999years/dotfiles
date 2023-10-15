@@ -367,7 +367,17 @@ require("lazy").setup {
           ["<C-a>"] = cmp.mapping.scroll_docs(-4),
           ["<C-e>"] = cmp.mapping.scroll_docs(4),
           ["<C-Space>"] = cmp.mapping.complete(),
-          ["<CR>"] = cmp.mapping.confirm { select = false },
+          ["<CR>"] = function(fallback)
+            if luasnip.expandable() then
+              -- If we can expand a snippet, do so.
+              luasnip.expand()
+            elseif cmp.get_selected_entry() ~= nil then
+              -- Otherwise, if we have a completion selected, confirm it.
+              cmp.confirm { select = true }
+            else
+              fallback()
+            end
+          end,
           ["<Tab>"] = cmp.mapping(function(fallback)
             if cmp.visible() then
               cmp.select_next_item()
