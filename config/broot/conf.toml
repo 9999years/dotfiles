@@ -96,13 +96,17 @@ shortcut = "ts"
 internal = ":toggle_sizes"
 
 [[verbs]]
+shortcut = "s"
+internal = ":toggle_sizes"
+
+[[verbs]]
 shortcut = "ttr"
 internal = ":toggle_trim_root"
 
-# [[verbs]]
+[[verbs]]
 # key = "enter"
-# invocation = "edit"
-# shortcut = "e"
-# apply_to = "file"
-# external = "nvim {file}"
-# leave_broot = false
+invocation = "nvim"
+shortcut = "v"
+apply_to = "file"
+external = "nvim +{line} {file}"
+leave_broot = true
