@@ -33,3 +33,9 @@ Setup with `git clone --recurse-submodules https://github.com/9999years/dotfiles
 - [`brew install --cask rectangle`](https://rectangleapp.com/)
 - [`brew install entr`](https://github.com/eradman/entr)
 - [`brew install mas`](https://github.com/mas-cli/mas)
+- [`brew install pam-reattach`](https://github.com/fabianishere/pam_reattach)
+  for Touch ID authentication for `sudo`. Add to `/etc/pam.d/sudo_local`:
+  ```
+  auth     optional     /opt/homebrew/lib/pam/pam_reattach.so
+  auth     sufficient   pam_tid.so
+  ```
