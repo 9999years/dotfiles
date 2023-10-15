@@ -287,6 +287,7 @@ require("lazy").setup {
         complete = "filetype",
         "EditSnippets",
         function()
+          -- TODO: No way to override when user types a filetype?
           require("luasnip.loaders").edit_snippet_files {
             ft_filter = function(filetype)
               return #filetype > 0 and filetype ~= "_"
