@@ -1,0 +1,19 @@
+snippet meta `meta` attribute
+    meta = with stdenv.lib; { # https://nixos.org/manual/nixpkgs/stable/#chap-meta
+        description = "${1:One-line description}";
+        longDescription = ''
+            ${2:Longer description.}
+        '';
+        homepage = "${3:URL}";
+        license = ${4:licenses.mit};
+        platforms = ${4:platforms.all};
+    };
+
+snippet drv stdenv.mkDerivation
+	stdenv.mkDerivation {
+		pname = "$1";
+		version = "${2:0.0.0}";
+		src = ${3:./.};
+		nativeBuildInputs = [ $4 ];
+		$0
+	}

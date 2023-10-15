@@ -1,0 +1,93 @@
+snippet colors ANSI color definitions
+	function RESET            { echo -e "\e[0m";  }
+	function BOLD             { echo -e "\e[1m";  }
+	function RESET_BOLD       { echo -e "\e[21m"; }
+	function DIM              { echo -e "\e[2m";  }
+	function RESET_DIM        { echo -e "\e[22m"; }
+	function UNDERLINED       { echo -e "\e[4m";  }
+	function RESET_UNDERLINED { echo -e "\e[24m"; }
+	function BRRED            { echo -e "\e[31m"; }
+	function RED              { echo -e "\e[91m"; }
+	function BRGREEN          { echo -e "\e[32m"; }
+	function GREEN            { echo -e "\e[92m"; }
+	function BRYELLOW         { echo -e "\e[33m"; }
+	function YELLOW           { echo -e "\e[93m"; }
+	function BRBLUE           { echo -e "\e[34m"; }
+	function BLUE             { echo -e "\e[94m"; }
+	function BRPURPLE         { echo -e "\e[35m"; }
+	function PURPLE           { echo -e "\e[95m"; }
+	function BRCYAN           { echo -e "\e[36m"; }
+	function CYAN             { echo -e "\e[96m"; }
+	function BRGRAY           { echo -e "\e[37m"; }
+	function GRAY             { echo -e "\e[97m"; }
+	function RESET_FG         { echo -e "\e[39m"; }
+
+snippet logging Logging boilerplate
+	readonly PROG_NAME="\$0"
+
+	function now { date +%FT%T; }
+
+	function _log {
+		color="\$1"
+		shift
+		level="\$1"
+		shift
+		echo -n "\$color\$level \$PROG_NAME \${color}[$(now)]:" "$@"
+		RESET
+	}
+
+	function dbg   { _log "$(GRAY)$(DIM)"   "[debug]" "$@"; }
+	function info  { _log "$(BRGREEN)"      "[info] " "$@"; }
+	function warn  { _log "$(BRYELLOW)"     "[warn] " "$@"; }
+	function error { _log "$(BRRED)"        "[error]" "$@"; }
+	function fatal { _log "$(BOLD)$(BRRED)" "[FATAL]" "$@"; exit 1; }
+	function cmd   { _log "$(CYAN)"         "[run]  " "\$ $(BOLD)$(UNDERLINED)$*"; }
+
+snippet append Append to an array variable
+	${1:ARRAY}+=(${2:"element"})
+
+snippet usearr Use an array variable as arguments
+	\${${1:ARRAY}[*]}
+
+snippet join Join an array variable by a delimiter string
+	( IFS=${1:\$'\n'}; echo "\${${2:ARRAY}[*]}" )
+
+snippet len Array length
+	\${#${1:ARRAY}[@]}
+
+snippet nl Literal newline character
+	\$'\n'
+
+snippet arith Arithmetic expression
+	(( ${1:i += 1} ))
+
+snippet argparse Argument parsing
+	readonly USAGE="Usage: \$0 $1"
+	declare -a args
+	while (( "$#" ))
+	do
+		case "\$1" in
+			-h|--help)
+				echo "$USAGE"
+				exit
+				;;
+			--)
+				shift
+				break
+				;;
+			*)
+				args+=("\$1")
+				;;
+		esac
+		shift
+	done
+	args+=("$@")
+
+snippet lines Iterate over program stdout as lines
+	while IFS="" read -r ${1:line}
+	do
+		${0:echo "Line: \$$1"}
+	done < ${2:<(ps aux)}
+
+snippet scriptdir The directory the script is stored in
+	${1:SCRIPT_DIR}="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"

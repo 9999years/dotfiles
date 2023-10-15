@@ -101,7 +101,11 @@ require("lazy").setup {
     config = function()
       require("batteries").map {
         { prefix = "<Leader>t", name = "+telescope" },
-        { "<Leader>tt", "<cmd>Telescope builtin include_extensions=true<CR>", "Telescope" },
+        {
+          "<Leader>tt",
+          "<cmd>Telescope builtin include_extensions=true<CR>",
+          "Telescope",
+        },
         { "<Leader>tf", "<cmd>Telescope find_files hidden=true<CR>", "Find files" },
         { "<Leader>tb", "<cmd>Telescope buffers<CR>", "Find buffers" },
         { "<Leader>b", "<cmd>Telescope buffers<CR>", "Find buffers" },
@@ -206,6 +210,41 @@ require("lazy").setup {
     end,
   },
 
+  -- Snippets
+  {
+    "L3MON4D3/LuaSnip",
+    version = "v2.*",
+    build = "make install_jsregexp",
+    dependencies = {
+      "honza/vim-snippets",
+    },
+    config = function()
+      require("luasnip.util.log").set_loglevel("debug")
+      local luasnip = require("luasnip")
+      require("luasnip.loaders.from_snipmate").lazy_load()
+      -- Treat `_.snippets` as `all`.
+      luasnip.filetype_extend("all", { "_" })
+      require("batteries").map {
+        {
+          "<C-j>",
+          function()
+            luasnip.jump(1)
+          end,
+          "Expand a snippet or jump to the next placeholder",
+          mode = "i",
+        },
+        {
+          "<C-k>",
+          function()
+            luasnip.jump(-1)
+          end,
+          "Jump to the previous snippet placeholder",
+          mode = "i",
+        },
+      }
+    end,
+  },
+
   -- LSP configuration
   { "neovim/nvim-lspconfig" },
   -- Autocompletion
@@ -219,7 +258,6 @@ require("lazy").setup {
       "hrsh7th/cmp-nvim-lsp-signature-help",
       "mtoohey31/cmp-fish",
       "hrsh7th/cmp-nvim-lua",
-      "L3MON4D3/LuaSnip",
       "saadparwaiz1/cmp_luasnip",
       {
         "petertriho/cmp-git",
@@ -229,7 +267,19 @@ require("lazy").setup {
       },
     },
     config = function()
+      local function has_words_before()
+        local line, col = unpack(vim.api.nvim_win_get_cursor(0))
+        return col ~= 0
+          and vim.api
+              .nvim_buf_get_lines(0, line - 1, line, true)[1]
+              :sub(col, col)
+              :match("%s")
+            == nil
+      end
+
       local cmp = require("cmp")
+      local luasnip = require("luasnip")
+
       cmp.setup {
         snippet = {
           expand = function(args)
@@ -240,7 +290,30 @@ require("lazy").setup {
           ["<C-a>"] = cmp.mapping.scroll_docs(-4),
           ["<C-e>"] = cmp.mapping.scroll_docs(4),
           ["<C-Space>"] = cmp.mapping.complete(),
-          ["<CR>"] = cmp.mapping.confirm { select = true },
+          ["<CR>"] = cmp.mapping.confirm { select = false },
+          ["<Tab>"] = cmp.mapping(function(fallback)
+            if cmp.visible() then
+              cmp.select_next_item()
+            -- You could replace the expand_or_jumpable() calls with expand_or_locally_jumpable()
+            -- that way you will only jump inside the snippet region
+            elseif luasnip.expand_or_jumpable() then
+              luasnip.expand_or_jump()
+            elseif has_words_before() then
+              cmp.complete()
+            else
+              fallback()
+            end
+          end, { "i", "s" }),
+
+          ["<S-Tab>"] = cmp.mapping(function(fallback)
+            if cmp.visible() then
+              cmp.select_prev_item()
+            elseif luasnip.jumpable(-1) then
+              luasnip.jump(-1)
+            else
+              fallback()
+            end
+          end, { "i", "s" }),
         },
         sources = cmp.config.sources {
           { name = "nvim_lsp" },
@@ -312,8 +385,18 @@ require("lazy").setup {
 
           -- Actions
           { prefix = "<Leader>h", name = "+hunk" },
-          { "<Leader>hs", "<Cmd>Gitsigns stage_hunk<CR>", "Stage hunk", mode = { "n", "v" } },
-          { "<Leader>hr", "<Cmd>Gitsigns reset_hunk<CR>", "Reset (unstage) hunk", mode = { "n", "v" } },
+          {
+            "<Leader>hs",
+            "<Cmd>Gitsigns stage_hunk<CR>",
+            "Stage hunk",
+            mode = { "n", "v" },
+          },
+          {
+            "<Leader>hr",
+            "<Cmd>Gitsigns reset_hunk<CR>",
+            "Reset (unstage) hunk",
+            mode = { "n", "v" },
+          },
           { "<Leader>hS", gs.stage_buffer, "Stage buffer" },
           { "<Leader>hu", gs.undo_stage_hunk, "Undo stage hunk" },
           { "<Leader>hR", gs.reset_buffer, "Reset buffer" },
@@ -462,7 +545,9 @@ batteries.cmd {
     if ft == "" then
       ft = vim.opt.ft:get()
     end
-    vim.cmd("split " .. vim.fn.stdpath("config") .. "/after/ftplugin/" .. ft .. ".vim")
+    vim.cmd(
+      "split " .. vim.fn.stdpath("config") .. "/after/ftplugin/" .. ft .. ".vim"
+    )
   end,
   "Edit the after/ftplugin for a filetype",
 }
@@ -584,7 +669,9 @@ require("lualine").setup {
 local lsp_options = {
   before_init = require("neodev.lsp").before_init,
   on_attach = lsp_on_attach,
-  capabilities = require("cmp_nvim_lsp").default_capabilities(lsp_status.capabilities),
+  capabilities = require("cmp_nvim_lsp").default_capabilities(
+    lsp_status.capabilities
+  ),
   flags = {
     debounce_text_changes = 150,
   },
