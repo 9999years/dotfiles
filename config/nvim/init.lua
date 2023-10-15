@@ -615,28 +615,15 @@ batteries.cmd {
   complete = "filetype",
   "EditFtplugin",
   function(opts)
-    local ft = opts.fargs[1]
-    if ft == "" then
-      ft = vim.opt.ft:get()
-    end
-    vim.cmd("split " .. vim.fn.stdpath("config") .. "/ftplugin/" .. ft .. ".vim")
-  end,
-  "Edit the ftplugin for a filetype",
-}
-batteries.cmd {
-  nargs = "?",
-  complete = "filetype",
-  "EditAfterFtplugin",
-  function(opts)
-    local ft = opts.fargs[1]
-    if ft == "" then
-      ft = vim.opt.ft:get()
+    local filetype = opts.fargs[1]
+    if filetype == "" then
+      filetype = vim.opt.filetype:get()
     end
     vim.cmd(
-      "split " .. vim.fn.stdpath("config") .. "/after/ftplugin/" .. ft .. ".vim"
+      "split " .. vim.fn.stdpath("config") .. "/ftplugin/" .. filetype .. ".lua"
     )
   end,
-  "Edit the after/ftplugin for a filetype",
+  "Edit the ftplugin for a filetype",
 }
 
 -- Language server / autocomplete configuration
