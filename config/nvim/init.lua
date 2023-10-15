@@ -171,7 +171,7 @@ require("lazy").setup {
     "9999years/broot.nvim",
     config = function()
       require("broot").setup {
-        default_directory = require("broot.default_directory").current_file,
+        default_directory = require("broot.default_directory").git_root,
         create_user_commands = true,
       }
       local batteries = require("batteries")
@@ -219,7 +219,6 @@ require("lazy").setup {
       "honza/vim-snippets",
     },
     config = function()
-      require("luasnip.util.log").set_loglevel("debug")
       local luasnip = require("luasnip")
       require("luasnip.loaders.from_snipmate").lazy_load()
       -- Treat `_.snippets` as `all`.
