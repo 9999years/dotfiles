@@ -1,0 +1,1 @@
+s("trig", t("loaded!!"))
