@@ -663,26 +663,69 @@ local lsp_on_attach = function(client, bufnr)
     vim.lsp.buf.format { async = true }
   end
 
-  local function lsp_references()
-    require("trouble").open("lsp_references")
+  local function trouble_lsp_on_list(opts)
+    if #opts.items == 1 then
+      vim.api.nvim_win_set_cursor(0, { "row", "col" })
+    else
+      vim.fn.setloclist(0, {}, " ", opts)
+      require("trouble").open("loclist")
+    end
   end
 
   -- See `:help vim.lsp.*` for documentation on any of the below functions
   batteries.map {
     buffer = bufnr,
-    { "gD", vim.lsp.buf.declaration, "Go to declaration" },
-    { "gd", vim.lsp.buf.definition, "Go to definition" },
+    {
+      "gD",
+      function()
+        vim.lsp.buf.declaration {
+          on_list = trouble_lsp_on_list,
+        }
+      end,
+      "Go to declaration",
+    },
+    {
+      "gd",
+      function()
+        vim.lsp.buf.definition {
+          on_list = trouble_lsp_on_list,
+        }
+      end,
+      "Go to definition",
+    },
     { "K", vim.lsp.buf.hover, "Hover docs" },
-    { "gi", vim.lsp.buf.implementation, "Go to implementation" },
+    {
+      "gi",
+      function()
+        vim.lsp.buf.implementation {
+          on_list = trouble_lsp_on_list,
+        }
+      end,
+      "Go to implementation",
+    },
+    {
+      "gr",
+      function()
+        vim.lsp.buf.references(nil, { on_list = trouble_lsp_on_list })
+      end,
+      "Go to references",
+    },
+    {
+      "gt",
+      function()
+        vim.lsp.buf.type_definition {
+          on_list = trouble_lsp_on_list,
+        }
+      end,
+      "Go to symbol's type",
+    },
     { "<C-k>", vim.lsp.buf.signature_help, "Open signature help" },
     { "<space>wa", vim.lsp.buf.add_workspace_folder, "Add workspace folder" },
     { "<space>wr", vim.lsp.buf.remove_workspace_folder, "Remove workspace folder" },
     { "<space>wl", list_workspace_folders, "List workspace folders" },
-    { "gt", vim.lsp.buf.type_definition, "Go to symbol's type" },
     { "<space>rn", vim.lsp.buf.rename, "Rename symbol" },
     { "<space>ca", vim.lsp.buf.code_action, "Code actions" },
     { "<M-.>", vim.lsp.buf.code_action, "Code actions", mode = { "i", "n" } },
-    { "gr", lsp_references, "Go to references" },
     { "<space>e", get_line_diagnostics, "Get diagnostics" },
     { "[d", vim.diagnostic.goto_prev, "Prev diagnostic" },
     { "]d", vim.diagnostic.goto_next, "Next diagnostic" },
