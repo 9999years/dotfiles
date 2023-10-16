@@ -120,6 +120,8 @@ require("lazy").setup {
         return max_columns
       end
 
+      local actions = require("telescope.actions")
+
       require("telescope").setup {
         extensions = {
           ["ui-select"] = {
@@ -131,7 +133,11 @@ require("lazy").setup {
         },
         defaults = {
           mappings = {
-            i = { ["<c-t>"] = trouble.open_with_trouble },
+            i = {
+              ["<c-t>"] = trouble.open_with_trouble,
+              ["<Tab>"] = actions.move_selection_next,
+              ["<S-Tab>"] = actions.move_selection_previous,
+            },
             n = { ["<c-t>"] = trouble.open_with_trouble },
           },
           -- See: `:h telescope.resolve`
