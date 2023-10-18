@@ -17,3 +17,9 @@ snippet drv stdenv.mkDerivation
 		nativeBuildInputs = [ $4 ];
 		$0
 	}
+
+snippet forAllSystems
+	forAllSystems = function:
+		builtins.mapAttrs
+			(system: pkgs: function pkgs)
+			nixpkgs.legacyPackages;
