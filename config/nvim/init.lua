@@ -84,17 +84,6 @@ require("lazy").setup {
 
   { "folke/which-key.nvim", config = true },
 
-  {
-    "folke/trouble.nvim",
-    dependencies = "kyazdani42/nvim-web-devicons",
-    config = {
-      action_keys = {
-        jump = "<tab>",
-        jump_close = "<cr>",
-      },
-    },
-  },
-
   -- Fuzzy finder
   {
     "nvim-telescope/telescope.nvim",
@@ -111,7 +100,6 @@ require("lazy").setup {
         { "<Leader>b", "<cmd>Telescope buffers<CR>", "Find buffers" },
         { "<Leader>th", "<cmd>Telescope oldfiles<CR>", "Recently opened" },
       }
-      local trouble = require("trouble.providers.telescope")
       local function max_height(_self, _max_columns, max_lines)
         return max_lines
       end
@@ -134,11 +122,9 @@ require("lazy").setup {
         defaults = {
           mappings = {
             i = {
-              ["<c-t>"] = trouble.open_with_trouble,
               ["<Tab>"] = actions.move_selection_next,
               ["<S-Tab>"] = actions.move_selection_previous,
             },
-            n = { ["<c-t>"] = trouble.open_with_trouble },
           },
           -- See: `:h telescope.resolve`
           layout_config = {
@@ -592,6 +578,10 @@ vim.opt.expandtab = true
 vim.opt.shiftwidth = 4
 vim.opt.tabstop = 4
 
+if vim.fn.executable("rg") == 1 then
+  vim.opt.grepprg = "rg --line-number $*"
+end
+
 local batteries = require("batteries")
 batteries.map {
   -- Make j and k operate on screen lines.
@@ -604,6 +594,40 @@ batteries.map {
 
   -- `\w` toggles line-wrapping
   { "<leader>w", "<cmd>set wrap!<CR>", "Toggle wrapping" },
+
+  -- Quickfix bindings!
+  { prefix = "<Leader>q", name = "+quickfix" },
+  {
+    "<Leader>qn",
+    "<cmd>:cnext<CR>",
+    "Next item in qflist",
+  },
+  {
+    "<Leader>qp",
+    "<cmd>:cprevious<CR>",
+    "Previous item in qflist",
+  },
+  {
+    "<Leader>qa",
+    "<cmd>:cafter<CR>",
+    "Item in qflist *a*fter cursor",
+  },
+  {
+    "<Leader>qb",
+    "<cmd>:cbefore<CR>",
+    "Item in qflist *b*efore cursor",
+  },
+  { prefix = "<Leader>qf", name = "+file" },
+  {
+    "<Leader>qfn",
+    "<cmd>:cnfile<CR>",
+    "Next file in qflist",
+  },
+  {
+    "<Leader>qfp",
+    "<cmd>:cpfile<CR>",
+    "Previous file in qflist",
+  },
 }
 
 batteries.cmd {
@@ -666,10 +690,6 @@ local lsp_on_attach = function(client, bufnr)
     vim.lsp.buf.format { async = true }
   end
 
-  local function lsp_references()
-    require("trouble").open("lsp_references")
-  end
-
   -- See `:help vim.lsp.*` for documentation on any of the below functions
   batteries.map {
     buffer = bufnr,
@@ -685,7 +705,7 @@ local lsp_on_attach = function(client, bufnr)
     { "<space>rn", vim.lsp.buf.rename, "Rename symbol" },
     { "<space>ca", vim.lsp.buf.code_action, "Code actions" },
     { "<M-.>", vim.lsp.buf.code_action, "Code actions", mode = { "i", "n" } },
-    { "gr", lsp_references, "Go to references" },
+    { "gr", vim.lsp.buf.references, "Go to references" },
     { "<space>e", get_line_diagnostics, "Get diagnostics" },
     { "[d", vim.diagnostic.goto_prev, "Prev diagnostic" },
     { "]d", vim.diagnostic.goto_next, "Next diagnostic" },
