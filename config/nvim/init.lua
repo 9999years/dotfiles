@@ -41,10 +41,62 @@ require("lazy").setup {
   -- `:Move`, `:Rename`, `:Mkdir`, etc.
   { "tpope/vim-eunuch" },
 
+  -- Better parsing for syntax highlighting and other goodies.
   {
     "nvim-treesitter/nvim-treesitter",
     build = ":TSUpdate",
-    dependencies = { "nvim-treesitter/playground" },
+    dependencies = {
+      "nvim-treesitter/playground",
+      -- Folding!
+      {
+        "kevinhwang91/nvim-ufo",
+        dependencies = { "kevinhwang91/promise-async", "batteries.nvim" },
+        config = function()
+          vim.opt.foldcolumn = "0"
+          vim.opt.foldlevel = 99
+          vim.opt.foldlevelstart = 99
+          vim.opt.foldenable = true
+
+          local more_msg_highlight = vim.api.nvim_get_hl_id_by_name("MoreMsg")
+
+          require("ufo").setup {
+            provider_selector = function(_bufnr, _filetype, _buftype)
+              return { "treesitter", "indent" }
+            end,
+            preview = {
+              win_config = {
+                winblend = 0,
+              },
+            },
+            fold_virt_text_handler = function(
+              virtual_text_chunks,
+              start_line,
+              end_line,
+              text_width,
+              truncate
+            )
+              local line_delta = (" 󰁂 %d "):format(end_line - start_line)
+              table.insert(virtual_text_chunks, { "", more_msg_highlight })
+            end,
+          }
+
+          require("batteries").map {
+            { "zR", require("ufo").openAllFolds, "Open all folds" },
+            { "zM", require("ufo").closeAllFolds, "Close all folds" },
+            {
+              "K",
+              function()
+                local window_id = require("ufo").peekFoldedLinesUnderCursor()
+                if not window_id then
+                  vim.lsp.buf.hover()
+                end
+              end,
+              "Hover fold or documentation",
+            },
+          }
+        end,
+      },
+    },
     config = function()
       -- See: https://github.com/nvim-treesitter/nvim-treesitter#available-modules
       require("nvim-treesitter.configs").setup {
@@ -627,9 +679,13 @@ require("lazy").setup {
           buffer = bufnr,
           { "gD", vim.lsp.buf.declaration, "Go to declaration" },
           { "gd", vim.lsp.buf.definition, "Go to definition" },
-          { "K", vim.lsp.buf.hover, "Hover docs" },
           { "gi", vim.lsp.buf.implementation, "Go to implementation" },
-          { "<C-k>", vim.lsp.buf.signature_help, "Open signature help" },
+          {
+            "<C-k>",
+            vim.lsp.buf.signature_help,
+            "Open signature help",
+            mode = { "i", "n" },
+          },
           { "gt", vim.lsp.buf.type_definition, "Go to symbol's type" },
           { "<space>rn", vim.lsp.buf.rename, "Rename symbol" },
           { "<space>ca", vim.lsp.buf.code_action, "Code actions" },
