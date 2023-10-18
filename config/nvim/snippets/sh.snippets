@@ -43,6 +43,9 @@ snippet logging Logging boilerplate
 	function fatal { _log "$(BOLD)$(BRRED)" "[FATAL]" "$@"; exit 1; }
 	function cmd   { _log "$(CYAN)"         "[run]  " "\$ $(BOLD)$(UNDERLINED)$*"; }
 
+snippet array Create a new array variable
+	${1:ARRAY}=()
+
 snippet append Append to an array variable
 	${1:ARRAY}+=(${2:"element"})
 
