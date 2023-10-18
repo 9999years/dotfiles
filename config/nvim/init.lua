@@ -80,7 +80,31 @@ require("lazy").setup {
   { "jghauser/mkdir.nvim" },
 
   -- Status line (mostly for LSP progress)
-  { "nvim-lualine/lualine.nvim" },
+  {
+    "nvim-lualine/lualine.nvim",
+    dependencies = {
+      "lsp-status.nvim",
+    },
+    config = function()
+      require("lualine").setup {
+        options = {
+          theme = "ayu",
+          section_separators = { left = "", right = "" },
+          component_separators = { left = "│", right = "│" },
+        },
+        sections = {
+          lualine_a = { { "filename", path = 1 } },
+          lualine_b = { "diff", "diagnostics" },
+          lualine_c = {},
+          lualine_x = { "encoding", "filetype" },
+          lualine_y = {
+            "progress",
+            require("lsp-status").status_progress,
+          },
+        },
+      }
+    end,
+  },
 
   { "folke/which-key.nvim", config = true },
 
@@ -315,8 +339,6 @@ require("lazy").setup {
     end,
   },
 
-  -- LSP configuration
-  { "neovim/nvim-lspconfig" },
   -- Autocompletion
   {
     "hrsh7th/nvim-cmp",
@@ -335,6 +357,7 @@ require("lazy").setup {
           "nvim-lua/plenary.nvim",
         },
       },
+      "LuaSnip",
     },
     config = function()
       local function has_words_before()
@@ -410,15 +433,6 @@ require("lazy").setup {
         },
       }
     end,
-  },
-  -- Autoformat on save:
-  { "lukas-reineke/lsp-format.nvim" },
-  -- Status/diagnostic information
-  { "nvim-lua/lsp-status.nvim" },
-  -- Diagnostic injection, etc.
-  {
-    "jose-elias-alvarez/null-ls.nvim",
-    dependencies = "nvim-lua/plenary.nvim",
   },
 
   { "lukas-reineke/indent-blankline.nvim" }, -- Indentation guides
@@ -539,16 +553,286 @@ require("lazy").setup {
   -- Yesod Haskell web framework syntax highlighting.
   { "alx741/yesod.vim" },
 
-  -- Neovim Lua setup.
+  -- LSP configuration
   {
-    "folke/neodev.nvim",
-    opts = {
-      lspconfig = false,
-    },
-  },
+    "neovim/nvim-lspconfig",
 
-  { "rust-lang/rust.vim" },
-  { "simrat39/rust-tools.nvim" },
+    dependencies = {
+      "batteries.nvim",
+      -- Autoformat on save.
+      {
+        "lukas-reineke/lsp-format.nvim",
+        config = function()
+          require("lsp-format").setup {
+            exclude = {},
+          }
+        end,
+      },
+      -- Status/diagnostic information
+      {
+        "nvim-lua/lsp-status.nvim",
+        config = function()
+          require("lsp-status").register_progress()
+        end,
+      },
+      -- Diagnostic injection, etc.
+      {
+        "jose-elias-alvarez/null-ls.nvim",
+        dependencies = "nvim-lua/plenary.nvim",
+      },
+      -- Rust inlay hints and extras.
+      "simrat39/rust-tools.nvim",
+      -- Neovim Lua setup.
+      {
+        "folke/neodev.nvim",
+        opts = {
+          lspconfig = false,
+        },
+      },
+    },
+
+    config = function()
+      -- Language server / autocomplete configuration
+
+      -- See: https://github.com/neovim/nvim-lspconfig/blob/master/doc/server_configurations.md
+
+      -- https://github.com/neovim/neovim/issues/16807#issuecomment-1001618856
+      require("vim.lsp.log").set_format_func(vim.inspect)
+
+      -- Use an on_attach function to only map the following keys
+      -- after the language server attaches to the current buffer
+      local function lsp_on_attach(client, bufnr)
+        -- Enable completion triggered by <c-x><c-o>
+        vim.api.nvim_buf_set_option(bufnr, "omnifunc", "v:lua.vim.lsp.omnifunc")
+
+        -- *Don't* set `formatexpr` to `v:lua.vim.lsp.formatexpr()` because I like
+        -- Vim's default word-wrapping for comments and such. Anyways I have
+        -- `:Format` and format-on-save. See `lsp-format`.
+        vim.api.nvim_buf_set_option(bufnr, "formatexpr", "")
+
+        local function get_line_diagnostics()
+          vim.diagnostic.get(bufnr, { lnum = vim.fn.line(".") })
+        end
+
+        local function list_workspace_folders()
+          print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
+        end
+
+        local function format()
+          vim.lsp.buf.format { async = true }
+        end
+
+        -- See `:help vim.lsp.*` for documentation on any of the below functions
+        require("batteries").map {
+          buffer = bufnr,
+          { "gD", vim.lsp.buf.declaration, "Go to declaration" },
+          { "gd", vim.lsp.buf.definition, "Go to definition" },
+          { "K", vim.lsp.buf.hover, "Hover docs" },
+          { "gi", vim.lsp.buf.implementation, "Go to implementation" },
+          { "<C-k>", vim.lsp.buf.signature_help, "Open signature help" },
+          { "gt", vim.lsp.buf.type_definition, "Go to symbol's type" },
+          { "<space>rn", vim.lsp.buf.rename, "Rename symbol" },
+          { "<space>ca", vim.lsp.buf.code_action, "Code actions" },
+          { "<M-.>", vim.lsp.buf.code_action, "Code actions", mode = { "i", "n" } },
+          { "gr", vim.lsp.buf.references, "Go to references" },
+          { "<space>e", get_line_diagnostics, "Get diagnostics" },
+          { "[d", vim.diagnostic.goto_prev, "Prev diagnostic" },
+          { "]d", vim.diagnostic.goto_next, "Next diagnostic" },
+          { "<space>q", vim.diagnostic.setloclist, "Set loclist to diagnostics" },
+          { "<space>f", format, "Format buffer" },
+          {
+            prefix = "<space>w",
+            name = "+workspace folders",
+          },
+          { "<space>wa", vim.lsp.buf.add_workspace_folder, "Add workspace folder" },
+          {
+            "<space>wr",
+            vim.lsp.buf.remove_workspace_folder,
+            "Remove workspace folder",
+          },
+          { "<space>wl", list_workspace_folders, "List workspace folders" },
+        }
+
+        -- Autoformat on save
+        require("lsp-format").on_attach(client)
+        -- Setup progress/status info
+        require("lsp-status").on_attach(client)
+      end
+
+      -- null-ls allows Lua and external commands to inject diagnostics as though
+      -- they were a full-fledged language server.
+      -- Among other things this is a really neat way to support format-on-save; I
+      -- have a plugin that handles that for LSPs, so null-ls bridges the gap by
+      -- letting me use any old formatter.
+      -- https://github.com/jose-elias-alvarez/null-ls.nvim/blob/main/doc/BUILTINS.md
+      local null_ls = require("null-ls")
+      null_ls.setup {
+        on_attach = lsp_on_attach,
+        sources = {
+          null_ls.builtins.code_actions.shellcheck,
+          null_ls.builtins.diagnostics.shellcheck,
+          null_ls.builtins.diagnostics.actionlint,
+          null_ls.builtins.diagnostics.fish,
+          null_ls.builtins.formatting.black,
+          null_ls.builtins.formatting.fish_indent,
+          null_ls.builtins.formatting.jq,
+          null_ls.builtins.formatting.alejandra,
+          null_ls.builtins.formatting.stylua,
+        },
+      }
+
+      -- Gross!!!!!
+      -- See: https://github.com/neovim/nvim-lspconfig#keybindings-and-completion
+      local nvim_lsp = require("lspconfig")
+
+      local lsp_options = {
+        before_init = require("neodev.lsp").before_init,
+        on_attach = lsp_on_attach,
+        capabilities = require("cmp_nvim_lsp").default_capabilities(
+          require("lsp-status").capabilities
+        ),
+        flags = {
+          debounce_text_changes = 150,
+        },
+        settings = {
+
+          haskell = {
+            formattingProvider = "fourmolu",
+          },
+
+          json = {
+            validate = {
+              enable = true,
+            },
+          },
+
+          -- The yaml-language-server actually crashes if I do this with nested
+          -- tables instead of writing the property name with dots. Incredible.
+          -- Anyways this gets me autocomplete for things like GitHub Actions files.
+          -- Essential.
+          -- https://github.com/redhat-developer/yaml-language-server
+          ["yaml.schemaStore.enable"] = true,
+
+          ["rust-analyzer"] = {
+            -- Meanwhile, `rust-analyzer` won't recognize `imports.granularity.group`
+            -- unless it's formatted *with* nested tables.
+            imports = {
+              granularity = {
+                -- Reformat imports.
+                enforce = true,
+                -- Create a new `use` statement for each import when using the
+                -- auto-import functionality.
+                -- https://rust-analyzer.github.io/manual.html#auto-import
+                group = "item",
+              },
+            },
+            inlayHints = {
+              bindingModeHints = {
+                enable = true,
+              },
+              closureReturnTypeHints = {
+                enable = "always",
+              },
+              expressionAdjustmentHints = {
+                enable = "always",
+              },
+            },
+            checkOnSave = {
+              -- Get clippy lints
+              command = "clippy",
+            },
+            files = {
+              excludeDirs = {
+                -- Don't scan nixpkgs on startup -_-
+                -- https://github.com/rust-lang/rust-analyzer/issues/12613#issuecomment-1174418175
+                ".direnv",
+              },
+            },
+          },
+
+          ["nil"] = {
+            formatting = {
+              command = { "nixpkgs-fmt" },
+            },
+          },
+
+          Lua = {
+            runtime = {
+              -- For neovim
+              version = "LuaJIT",
+            },
+            diagnostics = {
+              globals = { "vim" },
+              unusedLocalExclude = { "_*" },
+            },
+            workspace = {
+              -- Make the server aware of Neovim runtime files
+              library = vim.api.nvim_get_runtime_file("", true),
+              checkThirdParty = false,
+            },
+            format = {
+              enable = false,
+            },
+          },
+        },
+      }
+
+      local lsp_server_options = {
+        ["nil"] = {
+          formatting = {
+            command = { "alejandra" },
+          },
+          nix = {
+            autoArchive = true,
+            autoEvalInputs = true,
+          },
+        },
+      }
+
+      local function lsp_server_options_for(server)
+        return vim.tbl_extend("keep", lsp_server_options[server] or {}, lsp_options)
+      end
+
+      if vim.fn.executable("static-ls") == 1 then
+        lsp_server_options.hls = { cmd = { "static-ls" } }
+      end
+
+      -- `rust-tools` initializes `lspconfig`'s `rust_analyzer` as well, so it has to
+      -- go before...
+      require("rust-tools").setup {
+        tools = {
+          inlay_hints = {
+            auto = true,
+            parameter_hints_prefix = "← ",
+            other_hints_prefix = "⇒ ",
+          },
+        },
+        server = lsp_server_options_for("rust_analyzer"),
+      }
+      require("rust-tools").inlay_hints.enable()
+
+      -- https://github.com/neovim/nvim-lspconfig/blob/master/doc/server_configurations.md
+      local lsp_servers = {
+        "pyright",
+        "racket_langserver",
+        "rust_analyzer",
+        "tsserver",
+        "hls",
+        "jsonls",
+        "yamlls",
+        "html",
+        "cssls",
+        "texlab", -- LaTeX
+        "nil_ls", -- Nix: https://github.com/oxalica/nil
+        "lua_ls", -- https://github.com/LuaLS/lua-language-server
+        "gopls", -- https://github.com/golang/tools/tree/master/gopls
+      }
+
+      for _, lsp in ipairs(lsp_servers) do
+        nvim_lsp[lsp].setup(lsp_server_options_for(lsp))
+      end
+    end,
+  },
 }
 
 vim.opt.number = true
@@ -659,264 +943,3 @@ batteries.cmd {
   end,
   "Edit the ftplugin for a filetype",
 }
-
--- Language server / autocomplete configuration
-
--- See: https://github.com/neovim/nvim-lspconfig/blob/master/doc/server_configurations.md
-
--- https://github.com/neovim/neovim/issues/16807#issuecomment-1001618856
-require("vim.lsp.log").set_format_func(vim.inspect)
-
--- Use an on_attach function to only map the following keys
--- after the language server attaches to the current buffer
-local lsp_on_attach = function(client, bufnr)
-  -- Enable completion triggered by <c-x><c-o>
-  vim.api.nvim_buf_set_option(bufnr, "omnifunc", "v:lua.vim.lsp.omnifunc")
-
-  -- *Don't* set `formatexpr` to `v:lua.vim.lsp.formatexpr()` because I like
-  -- Vim's default word-wrapping for comments and such. Anyways I have
-  -- `:Format` and format-on-save. See `lsp-format`.
-  vim.api.nvim_buf_set_option(bufnr, "formatexpr", "")
-
-  local function get_line_diagnostics()
-    vim.diagnostic.get(bufnr, { lnum = vim.fn.line(".") })
-  end
-
-  local function list_workspace_folders()
-    print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
-  end
-
-  local function format()
-    vim.lsp.buf.format { async = true }
-  end
-
-  -- See `:help vim.lsp.*` for documentation on any of the below functions
-  batteries.map {
-    buffer = bufnr,
-    { "gD", vim.lsp.buf.declaration, "Go to declaration" },
-    { "gd", vim.lsp.buf.definition, "Go to definition" },
-    { "K", vim.lsp.buf.hover, "Hover docs" },
-    { "gi", vim.lsp.buf.implementation, "Go to implementation" },
-    { "<C-k>", vim.lsp.buf.signature_help, "Open signature help" },
-    { "<space>wa", vim.lsp.buf.add_workspace_folder, "Add workspace folder" },
-    { "<space>wr", vim.lsp.buf.remove_workspace_folder, "Remove workspace folder" },
-    { "<space>wl", list_workspace_folders, "List workspace folders" },
-    { "gt", vim.lsp.buf.type_definition, "Go to symbol's type" },
-    { "<space>rn", vim.lsp.buf.rename, "Rename symbol" },
-    { "<space>ca", vim.lsp.buf.code_action, "Code actions" },
-    { "<M-.>", vim.lsp.buf.code_action, "Code actions", mode = { "i", "n" } },
-    { "gr", vim.lsp.buf.references, "Go to references" },
-    { "<space>e", get_line_diagnostics, "Get diagnostics" },
-    { "[d", vim.diagnostic.goto_prev, "Prev diagnostic" },
-    { "]d", vim.diagnostic.goto_next, "Next diagnostic" },
-    { "<space>q", vim.diagnostic.setloclist, "Set loclist to diagnostics" },
-    { "<space>f", format, "Format buffer" },
-  }
-  batteries.map {
-    prefix = "<space>w",
-    name = "+workspace folders",
-  }
-
-  -- Autoformat on save
-  require("lsp-format").on_attach(client)
-  -- Setup progress/status info
-  require("lsp-status").on_attach(client)
-end
-
--- null-ls allows Lua and external commands to inject diagnostics as though
--- they were a full-fledged language server.
--- Among other things this is a really neat way to support format-on-save; I
--- have a plugin that handles that for LSPs, so null-ls bridges the gap by
--- letting me use any old formatter.
--- https://github.com/jose-elias-alvarez/null-ls.nvim/blob/main/doc/BUILTINS.md
-local null_ls = require("null-ls")
-null_ls.setup {
-  on_attach = lsp_on_attach,
-  sources = {
-    null_ls.builtins.code_actions.shellcheck,
-    null_ls.builtins.diagnostics.shellcheck,
-    null_ls.builtins.diagnostics.actionlint,
-    null_ls.builtins.diagnostics.fish,
-    null_ls.builtins.formatting.black,
-    null_ls.builtins.formatting.fish_indent,
-    null_ls.builtins.formatting.jq,
-    null_ls.builtins.formatting.alejandra,
-    null_ls.builtins.formatting.stylua,
-  },
-}
-
--- Gross!!!!!
--- See: https://github.com/neovim/nvim-lspconfig#keybindings-and-completion
-local nvim_lsp = require("lspconfig")
-
--- Progress information / diagnostics
-local lsp_status = require("lsp-status")
-lsp_status.register_progress()
-
-require("lualine").setup {
-  options = {
-    section_separators = { left = "", right = "" },
-    component_separators = { left = "│", right = "│" },
-  },
-  sections = {
-    lualine_a = { { "filename", path = 1 } },
-    lualine_b = { "diff", "diagnostics" },
-    lualine_c = {},
-    lualine_x = { "encoding", "filetype" },
-    lualine_y = {
-      "progress",
-      lsp_status.status_progress,
-    },
-  },
-}
-
-local lsp_options = {
-  before_init = require("neodev.lsp").before_init,
-  on_attach = lsp_on_attach,
-  capabilities = require("cmp_nvim_lsp").default_capabilities(
-    lsp_status.capabilities
-  ),
-  flags = {
-    debounce_text_changes = 150,
-  },
-  settings = {
-
-    haskell = {
-      formattingProvider = "fourmolu",
-    },
-
-    json = {
-      validate = {
-        enable = true,
-      },
-    },
-
-    -- The yaml-language-server actually crashes if I do this with nested
-    -- tables instead of writing the property name with dots. Incredible.
-    -- Anyways this gets me autocomplete for things like GitHub Actions files.
-    -- Essential.
-    -- https://github.com/redhat-developer/yaml-language-server
-    ["yaml.schemaStore.enable"] = true,
-
-    ["rust-analyzer"] = {
-      -- Meanwhile, `rust-analyzer` won't recognize `imports.granularity.group`
-      -- unless it's formatted *with* nested tables.
-      imports = {
-        granularity = {
-          -- Reformat imports.
-          enforce = true,
-          -- Create a new `use` statement for each import when using the
-          -- auto-import functionality.
-          -- https://rust-analyzer.github.io/manual.html#auto-import
-          group = "item",
-        },
-      },
-      inlayHints = {
-        bindingModeHints = {
-          enable = true,
-        },
-        closureReturnTypeHints = {
-          enable = "always",
-        },
-        expressionAdjustmentHints = {
-          enable = "always",
-        },
-      },
-      checkOnSave = {
-        -- Get clippy lints
-        command = "clippy",
-      },
-      files = {
-        excludeDirs = {
-          -- Don't scan nixpkgs on startup -_-
-          -- https://github.com/rust-lang/rust-analyzer/issues/12613#issuecomment-1174418175
-          ".direnv",
-        },
-      },
-    },
-
-    ["nil"] = {
-      formatting = {
-        command = { "nixpkgs-fmt" },
-      },
-    },
-
-    Lua = {
-      runtime = {
-        -- For neovim
-        version = "LuaJIT",
-      },
-      diagnostics = {
-        globals = { "vim" },
-        unusedLocalExclude = { "_*" },
-      },
-      workspace = {
-        -- Make the server aware of Neovim runtime files
-        library = vim.api.nvim_get_runtime_file("", true),
-        checkThirdParty = false,
-      },
-      format = {
-        enable = false,
-      },
-    },
-  },
-}
-
-local lsp_server_options = {
-  ["nil"] = {
-    formatting = {
-      command = { "alejandra" },
-    },
-    nix = {
-      autoArchive = true,
-      autoEvalInputs = true,
-    },
-  },
-}
-
-local function lsp_server_options_for(server)
-  return vim.tbl_extend("keep", lsp_server_options[server] or {}, lsp_options)
-end
-
-if vim.fn.executable("static-ls") == 1 then
-  lsp_server_options.hls = { cmd = { "static-ls" } }
-end
-
-require("lsp-format").setup {
-  exclude = {},
-}
-
--- `rust-tools` initializes `lspconfig`'s `rust_analyzer` as well, so it has to
--- go before...
-require("rust-tools").setup {
-  tools = {
-    inlay_hints = {
-      auto = true,
-      parameter_hints_prefix = "← ",
-      other_hints_prefix = "⇒ ",
-    },
-  },
-  server = lsp_server_options_for("rust_analyzer"),
-}
-require("rust-tools").inlay_hints.enable()
-
--- https://github.com/neovim/nvim-lspconfig/blob/master/doc/server_configurations.md
-local lsp_servers = {
-  "pyright",
-  "racket_langserver",
-  "rust_analyzer",
-  "tsserver",
-  "hls",
-  "jsonls",
-  "yamlls",
-  "html",
-  "cssls",
-  "texlab", -- LaTeX
-  "nil_ls", -- Nix: https://github.com/oxalica/nil
-  "lua_ls", -- https://github.com/LuaLS/lua-language-server
-  "gopls", -- https://github.com/golang/tools/tree/master/gopls
-}
-
-for _, lsp in ipairs(lsp_servers) do
-  nvim_lsp[lsp].setup(lsp_server_options_for(lsp))
-end
