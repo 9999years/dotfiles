@@ -41,12 +41,17 @@ require("lazy").setup {
   -- `:Move`, `:Rename`, `:Mkdir`, etc.
   { "tpope/vim-eunuch" },
 
+  -- `%` (matchit) delimiter matching but with treesitter support.
+  { "andymass/vim-matchup" },
+
   -- Better parsing for syntax highlighting and other goodies.
   {
     "nvim-treesitter/nvim-treesitter",
     build = ":TSUpdate",
     dependencies = {
       "nvim-treesitter/playground",
+      -- Matching
+      "vim-matchup",
       -- Folding!
       {
         "kevinhwang91/nvim-ufo",
@@ -124,9 +129,13 @@ require("lazy").setup {
         end,
       },
     },
+
     config = function()
       -- See: https://github.com/nvim-treesitter/nvim-treesitter#available-modules
       require("nvim-treesitter.configs").setup {
+        matchup = {
+          enable = true,
+        },
         ensure_installed = { "diff", "git_rebase" },
         auto_install = true,
         highlight = {
