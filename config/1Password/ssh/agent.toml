@@ -1,0 +1,5 @@
+ssh-keys = [
+    {item = "rebeccat@mercury.com", vault = "Mercury"},
+    {item = "diemenica", vault = "Private"},
+    {item = "Raspberry Pi", vault = "Private"},
+]
