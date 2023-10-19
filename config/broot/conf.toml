@@ -104,6 +104,12 @@ shortcut = "ttr"
 internal = ":toggle_trim_root"
 
 [[verbs]]
+invocation = "touch {newpath}"
+shortcut = "t"
+external = "touch {newpath:path-from-directory}"
+leave_broot = false
+
+[[verbs]]
 # key = "enter"
 invocation = "nvim"
 shortcut = "v"
