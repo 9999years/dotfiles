@@ -110,6 +110,12 @@ external = "touch {newpath:path-from-directory}"
 leave_broot = false
 
 [[verbs]]
+invocation = "ln {source} {destination}"
+shortcut = "l"
+external = "ln -s {destination} {source:path-from-directory}"
+leave_broot = false
+
+[[verbs]]
 # key = "enter"
 invocation = "nvim"
 shortcut = "v"
