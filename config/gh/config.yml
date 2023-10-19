@@ -1,0 +1,4 @@
+# Clone repositories with SSH by default.
+git_protocol: ssh
+aliases:
+    co: pr checkout
