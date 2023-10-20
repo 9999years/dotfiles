@@ -15,8 +15,8 @@ Host steamdeck  # Steam Deck
     User deck
 
 Host fraktur  # Linux work laptop
-    # HostName 10.0.0.132
-    HostName 10.0.0.190
+    HostName 10.0.0.132
+    # HostName 10.0.0.190
     User wiggles
     ForwardAgent yes
 
