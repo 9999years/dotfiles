@@ -65,6 +65,7 @@ require("lazy").setup {
           local more_msg_highlight = vim.api.nvim_get_hl_id_by_name("MoreMsg")
           local non_text_highlight = vim.api.nvim_get_hl_id_by_name("NonText")
 
+          ---@diagnostic disable-next-line: missing-fields
           require("ufo").setup {
             provider_selector = function(_bufnr, _filetype, _buftype)
               return { "treesitter", "indent" }
@@ -132,6 +133,7 @@ require("lazy").setup {
 
     config = function()
       -- See: https://github.com/nvim-treesitter/nvim-treesitter#available-modules
+      ---@diagnostic disable-next-line: missing-fields
       require("nvim-treesitter.configs").setup {
         matchup = {
           enable = true,
