@@ -506,13 +506,14 @@ require("lazy").setup {
         },
 
         -- Note: The two-level structure here groups completion items.
+        -- If a completion source in the first group has matches, the second
+        -- source isn't queried.
         sources = cmp.config.sources({
           { name = "nvim_lsp_signature_help" },
           { name = "nvim_lsp" },
-        }, {
           { name = "luasnip" },
-          { name = "async_path" },
         }, {
+          { name = "async_path" },
           { name = "buffer" },
         }),
       }
