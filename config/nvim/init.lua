@@ -454,12 +454,14 @@ require("lazy").setup {
       local cmp = require("cmp")
       local luasnip = require("luasnip")
 
+      ---@diagnostic disable-next-line: missing-fields
       cmp.setup {
         snippet = {
           expand = function(args)
             require("luasnip").lsp_expand(args.body)
           end,
         },
+
         mapping = cmp.mapping.preset.insert {
           ["<C-a>"] = cmp.mapping.scroll_docs(-4),
           ["<C-e>"] = cmp.mapping.scroll_docs(4),
@@ -502,6 +504,7 @@ require("lazy").setup {
             end
           end, { "i", "s" }),
         },
+
         -- Note: The two-level structure here groups completion items.
         sources = cmp.config.sources({
           { name = "nvim_lsp_signature_help" },
