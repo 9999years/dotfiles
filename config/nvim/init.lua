@@ -516,6 +516,11 @@ require("lazy").setup {
           { name = "async_path" },
           { name = "buffer" },
         }),
+
+        ---@diagnostic disable-next-line: missing-fields
+        matching = {
+          disallow_partial_fuzzy_matching = false,
+        },
       }
     end,
   },
