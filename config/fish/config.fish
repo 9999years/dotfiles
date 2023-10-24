@@ -115,6 +115,7 @@ if test -e $nix_daemon
     else
         echo 'Found `nix-daemon.sh` but `bass` not installed; nix will not be available in this shell.' >&2
     end
+    set -g --append fish_complete_path ~/.nix-profile/share/fish/vendor_completions.d/
 end
 
 if command -q nix-your-shell
