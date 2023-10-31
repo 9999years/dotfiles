@@ -1,19 +1,21 @@
+# shellcheck shell=sh
 # vim: ft=sh
-EXCLUDES=README.md
+export EXCLUDES=README.md
 
 if [ "$(uname)" != Darwin ]; then
     EXCLUDES="Library:* $EXCLUDES"
 else
-    UNDOTTED=Library
+    export UNDOTTED=Library
 fi
 
-SYMLINK_DIRS="\
+export SYMLINK_DIRS="\
     config/fish \
     config/nvim \
+    config/home-mangler \
     config/Code/User \
     tmux/plugins/tpm \
 "
-DOTFILES_DIRS="\
+export DOTFILES_DIRS="\
     ~/.dotfiles \
     ~/.dotfiles-corp \
 "
