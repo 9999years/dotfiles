@@ -16,16 +16,25 @@
       home-mangler-lib.makeConfiguration
       {
         packages = [
+          pkgs.actionlint
           pkgs.alejandra
           pkgs.bash
+          pkgs.bat
           pkgs.broot
           pkgs.cargo-nextest
+          pkgs.cargo-watch
           pkgs.coreutils
+          pkgs.delta # git-delta
           pkgs.dig
           pkgs.eza
+          pkgs.fd
           pkgs.fzf
           pkgs.fzy
+          pkgs.gh
+          pkgs.git-absorb
           pkgs.gitleaks
+          pkgs.hub
+          pkgs.jq
           pkgs.jujutsu
           pkgs.lua-language-server
           pkgs.neovim
@@ -34,8 +43,16 @@
           pkgs.nix-direnv
           pkgs.nix-top
           pkgs.nix-your-shell
+          pkgs.rcm
+          pkgs.ripgrep
           pkgs.rust-analyzer
+          pkgs.rustup
+          pkgs.shellcheck
           pkgs.stylua
+          pkgs.tmux
+          pkgs.tokei
+          pkgs.topgrade
+          pkgs.universal-ctags
         ];
       };
   in {
