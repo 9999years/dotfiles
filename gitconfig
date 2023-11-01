@@ -11,14 +11,14 @@
 [core]
 	editor = nvim
 	autocrlf = false
-	excludesfile = ~/.gitignore_global
-	attributesfile = ~/.gitattributes_global
+	excludesFile = ~/.gitignore_global
+	attributesFile = ~/.gitattributes_global
 	eol = lf
 	pager = delta --features main-theme
 [interactive]
 	diffFilter = delta --color-only
 [merge]
-	conflictstyle = diff3
+	conflictStyle = diff3
 [diff]
 	algorithm = histogram
 [difftool]
@@ -40,7 +40,7 @@
 [hub]
 	protocol = https
 [branch]
-	autosetupmerge = always
+	autoSetupMerge = always
 [branch.master]
 	remote = origin
 [gui]
@@ -48,7 +48,8 @@
 [pull]
 	rebase = true
 [rebase]
-	autosquash = true
+	autoSquash = true
+	autoStash = true
 [init]
 	defaultBranch = main
 [delta "main-theme"]
