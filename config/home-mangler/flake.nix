@@ -10,7 +10,12 @@
     home-mangler,
   }: let
     configuration = system: let
-      pkgs = nixpkgs.legacyPackages.${system};
+      pkgs = import nixpkgs {
+        inherit system;
+        overlays = [
+          home-mangler.overlays.default
+        ];
+      };
       home-mangler-lib = home-mangler.lib.${system};
     in
       home-mangler-lib.makeConfiguration
@@ -33,6 +38,7 @@
           pkgs.gh
           pkgs.git-absorb
           pkgs.gitleaks
+          pkgs.home-mangler
           pkgs.hub
           pkgs.jq
           pkgs.jujutsu
