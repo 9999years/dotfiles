@@ -49,6 +49,7 @@
           pkgs.nix-direnv
           pkgs.nix-top
           pkgs.nix-your-shell
+          pkgs.nixUnstable
           pkgs.rcm
           pkgs.ripgrep
           pkgs.rust-analyzer
