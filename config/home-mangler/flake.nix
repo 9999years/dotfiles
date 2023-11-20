@@ -23,9 +23,15 @@
                 ++ [
                   (final.fetchpatch {
                     url = "https://github.com/maralorn/nix-output-monitor/pull/121.diff";
-                    hash = "sha256-zASfg0Kp+zKhaJnnlGJ32HcX2K/NrBWAmvPVMm7/jCw=";
+                    hash = "sha256-l+F2qRltOeiCEHJ4KACWiAQ/RtbjIGSQ3dND3BS6K0c=";
+                    excludes = ["default.nix" "nix-output-monitor.cabal"];
                   })
                 ];
+            });
+
+            # See: https://github.com/NixOS/nixpkgs/pull/268762
+            tokei = prev.tokei.overrideAttrs (old: {
+              buildInputs = (old.buildInputs or []) ++ [final.libz];
             });
           })
         ];
