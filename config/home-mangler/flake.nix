@@ -28,11 +28,6 @@
                   })
                 ];
             });
-
-            # See: https://github.com/NixOS/nixpkgs/pull/268762
-            tokei = prev.tokei.overrideAttrs (old: {
-              buildInputs = (old.buildInputs or []) ++ [final.libz];
-            });
           })
         ];
       };
