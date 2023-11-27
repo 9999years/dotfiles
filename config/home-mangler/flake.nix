@@ -14,21 +14,6 @@
         inherit system;
         overlays = [
           home-mangler.overlays.default
-          (final: prev: {
-            # Fix table alignment in output.
-            # See: https://github.com/maralorn/nix-output-monitor/issues/78
-            nix-output-monitor = prev.nix-output-monitor.overrideAttrs (old: {
-              patches =
-                (old.patches or [])
-                ++ [
-                  (final.fetchpatch {
-                    url = "https://github.com/maralorn/nix-output-monitor/pull/121.diff";
-                    hash = "sha256-l+F2qRltOeiCEHJ4KACWiAQ/RtbjIGSQ3dND3BS6K0c=";
-                    excludes = ["default.nix" "nix-output-monitor.cabal"];
-                  })
-                ];
-            });
-          })
         ];
       };
       home-mangler-lib = home-mangler.lib.${system};
