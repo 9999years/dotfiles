@@ -94,3 +94,8 @@ snippet lines Iterate over program stdout as lines
 
 snippet scriptdir The directory the script is stored in
 	${1:SCRIPT_DIR}="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
+snippet heredoc Multiline string
+	<< ${1:EOF}
+	$0
+	$1
