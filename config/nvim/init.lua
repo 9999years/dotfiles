@@ -918,6 +918,7 @@ require("lazy").setup {
         "nil_ls", -- Nix: https://github.com/oxalica/nil
         "lua_ls", -- https://github.com/LuaLS/lua-language-server
         "gopls", -- https://github.com/golang/tools/tree/master/gopls
+        "clangd", -- https://clangd.llvm.org/
       }
 
       for _, lsp in ipairs(lsp_servers) do
