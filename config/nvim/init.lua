@@ -143,6 +143,11 @@ require("lazy").setup {
         highlight = {
           enable = true,
           additional_vim_regex_highlighting = false,
+          disable = {
+            "markdown",
+            "gitcommit",
+            "make",
+          },
         },
         indent = {
           enable = true,
