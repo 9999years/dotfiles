@@ -1,0 +1,13 @@
+# Note: `ripgrep` will only read configuration from `$RIPGREP_CONFIG_PATH`.
+# See: https://github.com/BurntSushi/ripgrep/blob/master/GUIDE.md#configuration-file
+
+# Don't print super long lines but show the first part instead of hiding them
+# entirely.
+--max-columns=150
+--max-columns-preview
+
+# Search dotfiles (but not VCS directories).
+--hidden
+
+# Enable case-insensitive search for lowercase queries.
+--smart-case
