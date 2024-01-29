@@ -1027,6 +1027,7 @@ batteries.cmd {
   end,
   "Delete trailing whitespace in the current buffer",
 }
+
 batteries.cmd {
   nargs = "?",
   complete = "filetype",
@@ -1041,4 +1042,12 @@ batteries.cmd {
     )
   end,
   "Edit the ftplugin for a filetype",
+}
+
+batteries.cmd {
+  "MergeConflicts",
+  function()
+    vim.cmd([[/\M^\(<\{7}\||\{7}\|=\{7}\|>\{7}\)]])
+  end,
+  "Search for Git merge conflict markers",
 }
