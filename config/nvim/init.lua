@@ -218,7 +218,7 @@ require("lazy").setup {
         { "<Leader>tf", "<cmd>Telescope find_files hidden=true<CR>", "Find files" },
         { "<Leader>tb", "<cmd>Telescope buffers<CR>", "Find buffers" },
         { "<Leader>b", "<cmd>Telescope buffers<CR>", "Find buffers" },
-        { "<Leader>th", "<cmd>Telescope oldfiles<CR>", "Recently opened" },
+        { "<Leader>to", "<cmd>Telescope oldfiles<CR>", "Recently opened" },
       }
       local function max_height(_self, _max_columns, max_lines)
         return max_lines
@@ -295,13 +295,33 @@ require("lazy").setup {
         "Edit file with Broot",
       }
       batteries.map {
-        "<leader>g",
-        function()
-          require("broot").broot {
-            extra_args = { "--cmd", "/" },
-          }
-        end,
-        "Edit file with Broot",
+        {
+          "<leader>g",
+          function()
+            require("broot").broot {
+              extra_args = { "--cmd", "/" },
+            }
+          end,
+          "Edit file with Broot",
+        },
+        {
+          "<leader>tc",
+          function()
+            require("broot").broot {
+              directory = vim.fn.getcwd(),
+            }
+          end,
+          "Broot (current directory)",
+        },
+        {
+          "<leader>th",
+          function()
+            require("broot").broot {
+              directory = require("broot.default_directory").current_file(),
+            }
+          end,
+          "Broot (directory of current file)",
+        },
       }
     end,
   },
