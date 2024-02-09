@@ -970,7 +970,7 @@ vim.opt.breakindent = true
 vim.opt.breakindentopt = { min = 30, shift = -1 }
 vim.opt.showbreak = "↪" -- Show a cool arrow to indicate continued lines
 vim.opt.diffopt:append { "vertical", "iwhiteall" }
-vim.opt.shortmess = "aoOsWAfil" -- Help avoid hit-enter prompts
+vim.opt.shortmess = "aoOsWAfilt" -- Help avoid hit-enter prompts
 if vim.fn.has("mouse") then
   vim.opt.mouse = "nvichar"
 end
