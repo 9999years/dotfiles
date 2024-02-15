@@ -784,6 +784,28 @@ require("lazy").setup {
       -- letting me use any old formatter.
       -- https://github.com/jose-elias-alvarez/null-ls.nvim/blob/main/doc/BUILTINS.md
       local null_ls = require("null-ls")
+
+      local python_formatter = null_ls.builtins.formatting.black
+
+      if vim.fn.executable("ruff") == 1 then
+        local null_ls_helpers = require("null-ls.helpers")
+        python_formatter = null_ls_helpers.make_builtin {
+          name = "ruff",
+          meta = {
+            url = "https://github.com/charliermarsh/ruff/",
+            description = "An extremely fast Python linter, written in Rust.",
+          },
+          method = require("null-ls.methods").internal.FORMATTING,
+          filetypes = { "python" },
+          generator_opts = {
+            command = "ruff",
+            args = { "format", "--stdin-filename", "$FILENAME", "-" },
+            to_stdin = true,
+          },
+          factory = null_ls_helpers.formatter_factory,
+        }
+      end
+
       null_ls.setup {
         on_attach = lsp_on_attach,
         sources = {
@@ -791,11 +813,11 @@ require("lazy").setup {
           null_ls.builtins.diagnostics.shellcheck,
           null_ls.builtins.diagnostics.actionlint,
           null_ls.builtins.diagnostics.fish,
-          null_ls.builtins.formatting.black,
           null_ls.builtins.formatting.fish_indent,
           null_ls.builtins.formatting.jq,
           null_ls.builtins.formatting.alejandra,
           null_ls.builtins.formatting.stylua,
+          python_formatter,
         },
       }
 
