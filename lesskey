@@ -1,10 +1,8 @@
-# Make sure to run `lesskey` to compile changes to `~/.less`.
-
-#command
+# Vim-style movement commands.
 h left-scroll
 l right-scroll
 
-#line-edit
+# Line editing commands.
 ^A home
 ^E end
 ^\kl word-left
@@ -13,10 +11,13 @@ l right-scroll
 \e[1;5D word-left
 \e[1;5C word-right
 
-# Ugh, we can't disable ESC entirely because of ANSI escapes and other stuff (I
-# think less uses escapes internally for some commands / bindings...?), but we
+# `less` uses the escape key as a shortcut prefix, which is a little bit
+# annoying.
+#
+# We can't disable ESC entirely because of ANSI escapes and other stuff (I
+# think `less` uses ESC internally for some commands / bindings...?), but we
 # can at least let repeated escapes get us out of a line entry prompt:
 \e\e abort
 
-#env
-LESS = --jump-target=.3 --mouse --wheel-lines=5 --RAW-CONTROL-CHARS
+# Support terminal color sequences:
+LESS = --RAW-CONTROL-CHARS
