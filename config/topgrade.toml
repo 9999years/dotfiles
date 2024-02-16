@@ -9,3 +9,6 @@ display_time = true
 
 # I manage `stack` with `ghcup`.
 disable = [ "stack" ]
+
+[commands]
+home-mangler = "home-mangler --update -v"
