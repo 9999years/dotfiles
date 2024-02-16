@@ -31,8 +31,10 @@
           pkgs.coreutils
           pkgs.delta # git-delta
           pkgs.dig
+          pkgs.direnv
           pkgs.eza
           pkgs.fd
+          pkgs.fnm
           pkgs.fzf
           pkgs.fzy
           pkgs.gh
@@ -40,6 +42,7 @@
           pkgs.gitleaks
           pkgs.home-mangler
           pkgs.hub
+          pkgs.hyperfine
           pkgs.jq
           pkgs.jujutsu
           pkgs.lua-language-server
@@ -61,6 +64,7 @@
           pkgs.tmux
           pkgs.tokei
           pkgs.topgrade
+          pkgs.units
           pkgs.universal-ctags
         ];
       };
