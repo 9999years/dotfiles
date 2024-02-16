@@ -1,8 +1,15 @@
-# Vim-style movement commands.
+# `~/.lesskey` is used by `less` version >=582. Earlier versions needed you to
+# run `lesskey` to compile this file into `~/.less`.
+
+# The `#command` section customizes command key bindings. It's not a comment!
+# Don't delete it or rename it to something more descriptive!
+#command
 h left-scroll
 l right-scroll
 
-# Line editing commands.
+# The `#line-edit` section customizes line-editing key bindings. It's not a
+# comment! Don't delete it or rename it to something more descriptive!
+#line-edit
 ^A home
 ^E end
 ^\kl word-left
@@ -19,5 +26,9 @@ l right-scroll
 # can at least let repeated escapes get us out of a line entry prompt:
 \e\e abort
 
-# Support terminal color sequences:
+# The `#env` section defines environment variables. It's not a comment! Don't
+# delete it or rename it to something more descriptive!
+#env
+# Note: If we use `--mouse`, we can scroll in `less` (yay!) but we can't use
+# the mouse to select and copy bits of text through `tmux` (unyay).
 LESS = --RAW-CONTROL-CHARS
