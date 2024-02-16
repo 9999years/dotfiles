@@ -29,22 +29,25 @@
           pkgs.cargo-nextest
           pkgs.cargo-watch
           pkgs.coreutils
-          pkgs.delta # git-delta
+          pkgs.delta # `git-delta`
           pkgs.dig
           pkgs.direnv
           pkgs.eza
           pkgs.fd
+          pkgs.findutils # `find` and `xargs`
           pkgs.fnm
           pkgs.fzf
           pkgs.fzy
           pkgs.gh
           pkgs.git-absorb
           pkgs.gitleaks
+          pkgs.gnugrep
           pkgs.home-mangler
           pkgs.hub
           pkgs.hyperfine
           pkgs.jq
           pkgs.jujutsu
+          pkgs.less
           pkgs.lua-language-server
           pkgs.neovim
           pkgs.nil
