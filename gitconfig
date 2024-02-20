@@ -37,6 +37,7 @@
 	pu = push
 	st = status
 	sw = switch
+	leash = push --force-with-lease
 [hub]
 	protocol = https
 [branch]
