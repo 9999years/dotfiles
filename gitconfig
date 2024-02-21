@@ -42,6 +42,7 @@
 	protocol = https
 [branch]
 	autoSetupMerge = always
+	sort = -committerdate
 [branch.master]
 	remote = origin
 [gui]
