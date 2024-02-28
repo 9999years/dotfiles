@@ -50,7 +50,12 @@ snippet append Append to an array variable
 	${1:ARRAY}+=(${2:"element"})
 
 snippet usearr Use an array variable as arguments
-	\${${1:ARRAY}[*]}
+	"\${${1:ARRAY}[@]}"
+
+snippet iterarr Iterate over array elements
+	for ${1:i} in "\${${2:ARRAY}[@]}"; do
+		echo "\$${1}"
+	done
 
 snippet join Join an array variable by a delimiter string
 	( IFS=${1:\$'\n'}; echo "\${${2:ARRAY}[*]}" )
