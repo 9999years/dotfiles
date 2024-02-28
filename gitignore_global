@@ -93,3 +93,5 @@ result-*
 .luarc.json
 # Direnv cache
 /.direnv
+# Code coverage data
+.coverage
