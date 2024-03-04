@@ -23,7 +23,7 @@
         packages = [
           pkgs.actionlint
           pkgs.alejandra
-          pkgs.bash
+          pkgs.bashInteractive
           pkgs.bat
           pkgs.broot
           pkgs.cargo-nextest
