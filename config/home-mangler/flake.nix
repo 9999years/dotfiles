@@ -39,6 +39,9 @@
           pkgs.fzf
           pkgs.fzy
           pkgs.gh
+          pkgs.gitFull
+          pkgs.git-hub
+          pkgs.git-lfs
           pkgs.git-absorb
           pkgs.gitleaks
           pkgs.gnugrep
