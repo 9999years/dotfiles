@@ -48,6 +48,7 @@
           pkgs.home-mangler
           pkgs.hub
           pkgs.hyperfine
+          pkgs.imagemagickBig
           pkgs.jq
           pkgs.jujutsu
           pkgs.less
