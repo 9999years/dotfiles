@@ -332,6 +332,11 @@ require("lazy").setup {
     config = function()
       require("open_browser_git").setup {
         command_prefix = "Browse",
+        flavor_patterns = {
+          forgejo = {
+            "git.lix.systems",
+          },
+        },
       }
       local batteries = require("batteries")
       batteries.map {
