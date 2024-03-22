@@ -21,6 +21,12 @@
       home-mangler-lib.makeConfiguration
       {
         packages = [
+          pkgs.coreutils
+          pkgs.findutils # `find` and `xargs`
+          pkgs.gnused
+          pkgs.gnugrep
+          pkgs.curl
+
           pkgs.actionlint
           pkgs.alejandra
           pkgs.bashInteractive
@@ -28,13 +34,11 @@
           pkgs.broot
           pkgs.cargo-nextest
           pkgs.cargo-watch
-          pkgs.coreutils
           pkgs.delta # `git-delta`
           pkgs.dig
           pkgs.direnv
           pkgs.eza
           pkgs.fd
-          pkgs.findutils # `find` and `xargs`
           pkgs.fnm
           pkgs.fzf
           pkgs.fzy
@@ -44,7 +48,6 @@
           pkgs.git-lfs
           pkgs.git-absorb
           pkgs.gitleaks
-          pkgs.gnugrep
           pkgs.home-mangler
           pkgs.hub
           pkgs.hyperfine
