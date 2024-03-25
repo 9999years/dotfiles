@@ -45,11 +45,11 @@
         "systems": "systems"
       },
       "locked": {
-        "lastModified": 1710874856,
-        "narHash": "sha256-5Bsg4km3D3wxn8TodaZcK1VF2edK30RUiOaCfXYANOA=",
+        "lastModified": 1711384397,
+        "narHash": "sha256-csZdasp8IEmxqgJ0p61svf4JIXM05N/TK49Vn+xKHyY=",
         "owner": "home-mangler",
         "repo": "home-mangler",
-        "rev": "680b1af95bc7a25da59c15adc109606d9f94eac5",
+        "rev": "61193d767e199b4e1d7bdf34144a887ab76ad6fe",
         "type": "github"
       },
       "original": {
@@ -75,11 +75,11 @@
     },
     "nixpkgs_2": {
       "locked": {
-        "lastModified": 1710873270,
-        "narHash": "sha256-M2tkL4uo8HuPDvnk6xGcuzM9t0sauxC81s7CKVZ3RrQ=",
+        "lastModified": 1711395091,
+        "narHash": "sha256-OXKufK2qlXA3P0OOhSULLBnIugrgyhxb9RzwzWzCiok=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "a5c530979994172ab3d266f058c644836e129567",
+        "rev": "4617c089d200fee8f7de3119f950049e799f436d",
         "type": "github"
       },
       "original": {
