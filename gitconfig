@@ -39,7 +39,7 @@
 	sw = switch
 	leash = push --force-with-lease
 [hub]
-	protocol = https
+	protocol = ssh
 [branch]
 	autoSetupMerge = always
 	sort = -committerdate
