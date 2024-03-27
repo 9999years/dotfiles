@@ -61,6 +61,7 @@ set -gx LESS_TERMCAP_ue $end
 
 set -gx MANPAGER 'nvim +Man!'
 set -gx PYTHONSTARTUP ~/.pythonrc
+set -gx RIPGREP_CONFIG_PATH ~/.ripgreprc
 
 abbr --add --global c. 'cd ..'
 abbr --add --global c2 'cd ../..'
