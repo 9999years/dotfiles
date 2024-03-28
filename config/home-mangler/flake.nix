@@ -71,6 +71,7 @@
           pkgs.rnr # Batch/regex renamer.
           pkgs.rust-analyzer
           pkgs.rustup
+          pkgs.sd # `sed` replacement
           pkgs.shellcheck
           pkgs.stylua
           pkgs.tmux
