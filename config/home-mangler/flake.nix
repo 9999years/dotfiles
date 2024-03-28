@@ -68,6 +68,7 @@
           pkgs.pre-commit
           pkgs.rcm
           pkgs.ripgrep
+          pkgs.rnr # Batch/regex renamer.
           pkgs.rust-analyzer
           pkgs.rustup
           pkgs.shellcheck
