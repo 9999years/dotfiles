@@ -636,6 +636,10 @@ require("lazy").setup {
     },
   },
 
+  -- `diff3` conflict highlighting
+  -- `:Conflict3Highlight` and similar
+  { "mkotha/conflict3" },
+
   -- Color scheme
   {
     "Shatur/neovim-ayu",
