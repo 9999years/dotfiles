@@ -18,7 +18,9 @@
 [interactive]
 	diffFilter = delta --color-only
 [merge]
-	conflictStyle = diff3
+	# Enable zealous diff3.
+	# https://stackoverflow.com/a/70387424
+	conflictStyle = zdiff3
 [diff]
 	algorithm = histogram
 [difftool]
