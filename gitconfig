@@ -73,3 +73,8 @@
 	ignoreWhitespace = change
 [safe]
 	directory = /etc/nixos
+[revise]
+    # What the hell, why does `git-revise` have its own bespoke commit signing
+    # implementation that can't sign commits with SSH keys???
+    # https://github.com/mystor/git-revise/issues/123
+    gpgSign = false
