@@ -49,7 +49,7 @@
           pkgs.fzf
           pkgs.fzy
           pkgs.gh
-          pkgs.gitFull
+          pkgs.git
           pkgs.git-hub
           pkgs.git-lfs
           pkgs.git-absorb
