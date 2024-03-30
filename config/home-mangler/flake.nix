@@ -54,6 +54,7 @@
           pkgs.git-lfs
           pkgs.git-absorb
           pkgs.git-revise
+          pkgs.git-upstream
           pkgs.gitleaks
           pkgs.home-mangler
           pkgs.hub
