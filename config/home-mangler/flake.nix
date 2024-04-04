@@ -53,6 +53,7 @@
           pkgs.git-hub
           pkgs.git-lfs
           pkgs.git-absorb
+          pkgs.git-gr
           pkgs.git-revise
           pkgs.git-upstream
           pkgs.gitleaks
