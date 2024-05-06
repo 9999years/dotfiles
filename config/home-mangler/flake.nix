@@ -73,7 +73,6 @@
           pkgs.nix-output-monitor
           pkgs.nix-top
           pkgs.nix-your-shell
-          pkgs.nixUnstable
           pkgs.pre-commit
           pkgs.rcm
           pkgs.ripgrep
