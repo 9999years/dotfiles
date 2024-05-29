@@ -676,6 +676,14 @@ require("lazy").setup {
   -- Yesod Haskell web framework syntax highlighting.
   { "alx741/yesod.vim" },
 
+  -- nushell integration
+  {
+    "LhKipp/nvim-nu",
+    dependencies = {
+      "nvim-treesitter/nvim-treesitter",
+    },
+  },
+
   -- LSP configuration
   {
     "neovim/nvim-lspconfig",
@@ -976,6 +984,7 @@ require("lazy").setup {
         "lua_ls", -- https://github.com/LuaLS/lua-language-server
         "gopls", -- https://github.com/golang/tools/tree/master/gopls
         "clangd", -- https://clangd.llvm.org/
+        "nushell",
       }
 
       for _, lsp in ipairs(lsp_servers) do
