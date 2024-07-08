@@ -137,6 +137,10 @@ require("lazy").setup {
       require("nvim-treesitter.configs").setup {
         matchup = {
           enable = true,
+          disable = {
+            -- https://github.com/andymass/vim-matchup/issues/347
+            "haskell",
+          },
         },
         ensure_installed = { "diff", "git_rebase" },
         auto_install = true,
