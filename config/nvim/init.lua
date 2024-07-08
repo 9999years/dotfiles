@@ -152,6 +152,7 @@ require("lazy").setup {
             "gitcommit",
             "make",
             "vimdoc",
+            "haskell",
           },
         },
         indent = {
