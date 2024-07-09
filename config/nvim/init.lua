@@ -674,7 +674,7 @@ require("lazy").setup {
   {
     "sheerun/vim-polyglot",
     init = function()
-      vim.g.polyglot_disabled = { "rust", "latex", "java" }
+      vim.g.polyglot_disabled = { "rust", "latex", "java", "markdown" }
     end,
   },
 
