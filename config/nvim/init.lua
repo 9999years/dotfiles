@@ -214,7 +214,7 @@ require("lazy").setup {
     "nvim-telescope/telescope.nvim",
     config = function()
       require("batteries").map {
-        { prefix = "<Leader>t", name = "+telescope" },
+        { prefix = "<Leader>t", group = "telescope" },
         {
           "<Leader>tt",
           "<cmd>Telescope builtin include_extensions=true<CR>",
@@ -605,7 +605,7 @@ require("lazy").setup {
           { "ih", "<Cmd>Gitsigns select_hunk<CR>", "Hunk", mode = { "o", "x" } },
 
           -- Actions
-          { prefix = "<Leader>h", name = "+hunk" },
+          { prefix = "<Leader>h", group = "hunk" },
           {
             "<Leader>hs",
             "<Cmd>Gitsigns stage_hunk<CR>",
@@ -774,7 +774,7 @@ require("lazy").setup {
           { "<space>f", format, "Format buffer" },
           {
             prefix = "<space>w",
-            name = "+workspace folders",
+            group = "workspace folders",
           },
           { "<space>wa", vim.lsp.buf.add_workspace_folder, "Add workspace folder" },
           {
@@ -1035,7 +1035,7 @@ batteries.map {
   { "<leader>w", "<cmd>set wrap!<CR>", "Toggle wrapping" },
 
   -- Quickfix bindings!
-  { prefix = "<Leader>q", name = "+quickfix" },
+  { prefix = "<Leader>q", group = "quickfix" },
   {
     "<Leader>qn",
     "<cmd>:cnext<CR>",
@@ -1056,7 +1056,7 @@ batteries.map {
     "<cmd>:cbefore<CR>",
     "Item in qflist *b*efore cursor",
   },
-  { prefix = "<Leader>qf", name = "+file" },
+  { prefix = "<Leader>qf", group = "file" },
   {
     "<Leader>qfn",
     "<cmd>:cnfile<CR>",
