@@ -829,7 +829,6 @@ require("lazy").setup {
           null_ls.builtins.diagnostics.fish,
           null_ls.builtins.formatting.fish_indent,
           null_ls.builtins.formatting.jq,
-          null_ls.builtins.formatting.alejandra,
           null_ls.builtins.formatting.stylua,
           python_formatter,
         },
@@ -909,7 +908,7 @@ require("lazy").setup {
 
           ["nil"] = {
             formatting = {
-              command = { "nixpkgs-fmt" },
+              command = { "nixfmt" },
             },
           },
 
