@@ -902,6 +902,9 @@ require("lazy").setup {
                 ".direnv",
               },
             },
+            cargo = {
+              features = "all",
+            },
           },
 
           ["nil"] = {
