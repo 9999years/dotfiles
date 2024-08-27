@@ -89,6 +89,7 @@
           pkgs.topgrade
           pkgs.units
           pkgs.universal-ctags
+          pkgs.weechat
         ];
       };
   in {
