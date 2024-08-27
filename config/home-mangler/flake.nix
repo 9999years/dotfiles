@@ -56,6 +56,7 @@
           pkgs.git-gr
           pkgs.git-revise
           pkgs.git-upstream
+          pkgs.git-gr
           pkgs.gitleaks
           pkgs.home-mangler
           pkgs.hub
@@ -73,6 +74,7 @@
           pkgs.nix-output-monitor
           pkgs.nix-top
           pkgs.nix-your-shell
+          pkgs.nixfmt-rfc-style
           pkgs.pre-commit
           pkgs.rcm
           pkgs.ripgrep
