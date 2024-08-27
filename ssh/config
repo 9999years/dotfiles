@@ -19,12 +19,12 @@ Host fraktur  # Linux work laptop
     User wiggles
     ForwardAgent yes
 
-Host gerrit.lix.systems  # Lix Gerrit
-    Port 2022
+Host gerrit.lix.systems
     User rbt
-    controlmaster auto
-    controlpath /tmp/ssh-%r@%h:%p
-    controlpersist 120
+    Port 2022
+    ControlMaster auto
+    ControlPath /tmp/ssh-%r@%h:%p
+    ControlPersist 120
 
 Host *
   IdentityAgent "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
