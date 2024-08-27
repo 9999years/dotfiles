@@ -3,4 +3,5 @@ git_protocol: ssh
 aliases:
     co: pr checkout
     fork: repo fork
+    view: pr view --web
 version: "1"
