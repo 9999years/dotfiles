@@ -2,4 +2,5 @@
 git_protocol: ssh
 aliases:
     co: pr checkout
+    fork: repo fork
 version: "1"
