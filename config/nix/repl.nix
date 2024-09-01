@@ -29,6 +29,6 @@ in
     {
       original = attrs;
     })
-  // (collapseRenamed "legacyPackages" "pkgs")
   // (collapseRenamed "packages" "pkgs")
+  // (collapseRenamed "legacyPackages" "pkgs")
   // collapseAll
