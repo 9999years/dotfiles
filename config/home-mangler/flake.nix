@@ -54,6 +54,7 @@
           pkgs.fzf
           pkgs.fzy
           pkgs.gh
+          pkgs.lix.man
           pkgs.git
           pkgs.git-hub
           pkgs.git-lfs
