@@ -15,17 +15,22 @@
     nixpkgs,
     home-mangler,
   }: let
-    configuration = system: let
-      pkgs = import nixpkgs {
+    inherit (nixpkgs) lib;
+
+    makePkgs = system:
+      import nixpkgs {
         inherit system;
         overlays = [
           home-mangler.overlays.default
+          self.overlays.default
         ];
       };
+
+    configuration = system: let
+      pkgs = self.pkgs.${system};
       home-mangler-lib = home-mangler.lib.${system};
     in
-      home-mangler-lib.makeConfiguration
-      {
+      home-mangler-lib.makeConfiguration {
         packages = [
           pkgs.coreutils
           pkgs.findutils # `find` and `xargs`
@@ -98,5 +103,18 @@
       san-fransisco = configuration "aarch64-darwin";
       helvetica = configuration "aarch64-darwin";
     };
+
+    overlays.default = final: prev: {
+      nixVersions =
+        lib.mapAttrs (
+          _name: pkg:
+            if builtins.isAttrs pkg
+            then final.lix
+            else pkg
+        )
+        prev.nixVersions;
+    };
+
+    pkgs = lib.mapAttrs (system: _pkgs: makePkgs system) nixpkgs.legacyPackages;
   };
 }
