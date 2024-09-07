@@ -972,7 +972,7 @@ require("lazy").setup {
         "pyright",
         "racket_langserver",
         "rust_analyzer",
-        "tsserver",
+        "ts_ls",
         "hls",
         "jsonls",
         "yamlls",
