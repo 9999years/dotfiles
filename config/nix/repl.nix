@@ -8,8 +8,8 @@ info: final: attrs: let
   # If `attrs.${oldName}.${info.currentSystem}` exists, alias `${newName}` to
   # it.
   collapseRenamed = oldName: newName:
-    optionalAttrs (builtins.hasAttr oldName attrs
-      && builtins.hasAttr info.currentSystem attrs.${oldName})
+    optionalAttrs (attrs ? oldName
+      && attrs.${oldName} ? ${info.currentSystem})
     {
       ${newName} = attrs.${oldName}.${info.currentSystem};
     };
