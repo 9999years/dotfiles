@@ -203,6 +203,13 @@ require("lazy").setup {
             require("lsp-status").status_progress,
           },
         },
+        inactive_sections = {
+          lualine_a = { { "filename", path = 1 } },
+          lualine_b = { "diff", "diagnostics" },
+          lualine_c = {},
+          lualine_x = { "location" },
+          lualine_y = {},
+        },
       }
     end,
   },
