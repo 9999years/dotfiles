@@ -7,7 +7,7 @@ let
   # it.
   collapseRenamed =
     oldName: newName:
-    optionalAttrs (attrs ? oldName && attrs.${oldName} ? ${info.currentSystem}) {
+    optionalAttrs (attrs ? ${oldName} && attrs.${oldName} ? ${info.currentSystem}) {
       ${newName} = attrs.${oldName}.${info.currentSystem};
     };
 
