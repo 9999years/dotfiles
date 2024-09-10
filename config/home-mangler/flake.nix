@@ -37,6 +37,7 @@
           pkgs.gnused
           pkgs.gnugrep
           pkgs.curl
+          pkgs.man
 
           pkgs.actionlint
           pkgs.alejandra
