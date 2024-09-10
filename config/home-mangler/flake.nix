@@ -50,6 +50,7 @@
           pkgs.direnv
           pkgs.eza
           pkgs.fd
+          pkgs.fish
           pkgs.fnm
           pkgs.fzf
           pkgs.fzy
