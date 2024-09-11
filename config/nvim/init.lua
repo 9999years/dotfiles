@@ -571,6 +571,10 @@ require("lazy").setup {
   {
     "lewis6991/gitsigns.nvim", -- Git gutter
     opts = {
+      diff_opts = {
+        ignore_whitespace = false,
+      },
+
       on_attach = function(bufnr)
         local gs = require("gitsigns")
         local batteries = require("batteries")
