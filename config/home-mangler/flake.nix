@@ -62,15 +62,14 @@
             pkgs.fzf
             pkgs.fzy
             pkgs.gh
-            pkgs.lix.man
             pkgs.git
-            pkgs.git-hub
-            pkgs.git-lfs
             pkgs.git-absorb
             pkgs.git-gr
+            pkgs.git-gr
+            pkgs.git-hub
+            pkgs.git-lfs
             pkgs.git-revise
             pkgs.git-upstream
-            pkgs.git-gr
             pkgs.gitleaks
             pkgs.home-mangler
             pkgs.hub
@@ -79,6 +78,7 @@
             pkgs.jq
             pkgs.jujutsu
             pkgs.less
+            pkgs.lix.man
             pkgs.lua-language-server
             pkgs.neovim
             pkgs.nil
