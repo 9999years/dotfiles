@@ -44,6 +44,7 @@
             pkgs.curl
             pkgs.man
 
+            pkgs.__tmux_window_name
             pkgs.actionlint
             pkgs.alejandra
             pkgs.bashInteractive
@@ -117,6 +118,9 @@
         nixVersions = lib.mapAttrs (
           _name: pkg: if builtins.isAttrs pkg then final.lix else pkg
         ) prev.nixVersions;
+
+        # TODO: Use `lib.packagesFromDirectoryRecursive` or similar.
+        __tmux_window_name = final.callPackage ./__tmux_window_name.nix { };
       };
 
       pkgs = lib.mapAttrs (system: _pkgs: makePkgs system) nixpkgs.legacyPackages;
