@@ -40,6 +40,10 @@
 	st = status
 	sw = switch
 	leash = push --force-with-lease
+	wa = worktree add
+	wl = worktree list
+	wm = worktree move
+	wr = worktree remove
 [hub]
 	protocol = ssh
 [branch]
