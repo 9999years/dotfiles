@@ -16,6 +16,8 @@ if [[ "$(uname)" == "Darwin" ]]; then
 	tmux_bind_copy pbcopy
 elif [[ -n "$WSL_DISTRO_NAME" ]]; then
 	tmux_bind_copy /mnt/c/Windows/System32/clip.exe
+elif command -v wl-copy >/dev/null; then
+    tmux_bind_copy wl-copy
 fi
 
 # See: `./config/home-mangler/__tmux_window_name.sh`
