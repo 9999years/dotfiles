@@ -75,6 +75,7 @@
             pkgs.hub
             pkgs.hyperfine
             pkgs.imagemagickBig
+            pkgs.isort # Python import sorter.
             pkgs.jq
             pkgs.jujutsu
             pkgs.less
@@ -93,6 +94,7 @@
             pkgs.rcm
             pkgs.ripgrep
             pkgs.rnr # Batch/regex renamer.
+            pkgs.ruff # Python formatter.
             pkgs.rust-analyzer
             pkgs.rustup
             pkgs.sd # `sed` replacement
