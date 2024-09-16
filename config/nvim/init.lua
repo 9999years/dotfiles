@@ -718,10 +718,63 @@ require("lazy").setup {
       "batteries.nvim",
       -- Autoformat on save.
       {
-        "lukas-reineke/lsp-format.nvim",
+        "stevearc/conform.nvim",
         config = function()
-          require("lsp-format").setup {
-            exclude = {},
+          vim.g.format_on_save = true
+
+          require("conform").setup {
+            default_format_opts = {
+              lsp_format = "fallback",
+            },
+            formatters_by_ft = {
+              lua = { "stylua" },
+              python = { "ruff", "isort" },
+              json = { "jq" },
+            },
+            notify_no_formatters = false,
+            format_on_save = function(bufnr)
+              if not vim.g.format_on_save then
+                return
+              end
+              local buf_format_on_save = vim.b[bufnr].format_on_save
+              if buf_format_on_save ~= nil and not buf_format_on_save then
+                return
+              end
+              return {}
+            end,
+          }
+
+          local batteries = require("batteries")
+          batteries.cmd {
+            "Format",
+            function(_opts)
+              require("conform").format()
+            end,
+            "Format the current buffer with conform",
+          }
+          batteries.cmd {
+            "FormatDisable",
+            function(opts)
+              if opts.bang then
+                vim.b.format_on_save = false
+              else
+                vim.g.format_on_save = false
+              end
+            end,
+            "Disable formatting on save",
+            bang = true,
+          }
+          batteries.cmd {
+            "FormatEnable",
+            function(opts)
+              if opts.bang then
+                vim.b.format_on_save = true
+              else
+                vim.g.format_on_save = true
+              end
+            end,
+            "Enable formatting on save",
+            bang = true,
           }
         end,
       },
@@ -731,11 +784,6 @@ require("lazy").setup {
         config = function()
           require("lsp-status").register_progress()
         end,
-      },
-      -- Diagnostic injection, etc.
-      {
-        "jose-elias-alvarez/null-ls.nvim",
-        dependencies = "nvim-lua/plenary.nvim",
       },
       -- Rust inlay hints and extras.
       "simrat39/rust-tools.nvim",
@@ -776,7 +824,7 @@ require("lazy").setup {
         end
 
         local function format()
-          vim.lsp.buf.format { async = true }
+          require("conform").format { bufnr = bufnr }
         end
 
         -- See `:help vim.lsp.*` for documentation on any of the below functions
@@ -815,51 +863,9 @@ require("lazy").setup {
           { "<space>wl", list_workspace_folders, "List workspace folders" },
         }
 
-        -- Autoformat on save
-        require("lsp-format").on_attach(client)
         -- Setup progress/status info
         require("lsp-status").on_attach(client)
       end
-
-      -- null-ls allows Lua and external commands to inject diagnostics as though
-      -- they were a full-fledged language server.
-      -- Among other things this is a really neat way to support format-on-save; I
-      -- have a plugin that handles that for LSPs, so null-ls bridges the gap by
-      -- letting me use any old formatter.
-      -- https://github.com/jose-elias-alvarez/null-ls.nvim/blob/main/doc/BUILTINS.md
-      local null_ls = require("null-ls")
-
-      local python_formatter = null_ls.builtins.formatting.black
-
-      if vim.fn.executable("ruff") == 1 then
-        local null_ls_helpers = require("null-ls.helpers")
-        python_formatter = null_ls_helpers.make_builtin {
-          name = "ruff",
-          meta = {
-            url = "https://github.com/charliermarsh/ruff/",
-            description = "An extremely fast Python linter, written in Rust.",
-          },
-          method = require("null-ls.methods").internal.FORMATTING,
-          filetypes = { "python" },
-          generator_opts = {
-            command = "ruff",
-            args = { "format", "--stdin-filename", "$FILENAME", "-" },
-            to_stdin = true,
-          },
-          factory = null_ls_helpers.formatter_factory,
-        }
-      end
-
-      null_ls.setup {
-        on_attach = lsp_on_attach,
-        sources = {
-          null_ls.builtins.diagnostics.fish,
-          null_ls.builtins.formatting.fish_indent,
-          null_ls.builtins.formatting.jq,
-          null_ls.builtins.formatting.stylua,
-          python_formatter,
-        },
-      }
 
       -- Gross!!!!!
       -- See: https://github.com/neovim/nvim-lspconfig#keybindings-and-completion
