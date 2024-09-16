@@ -672,6 +672,24 @@ require("lazy").setup {
     },
   },
 
+  {
+    "mfussenegger/nvim-lint",
+    config = function()
+      local lint = require("lint")
+
+      lint.linters_by_ft = {
+        sh = { "shellcheck" },
+        yaml = { "actionlint" },
+      }
+
+      vim.api.nvim_create_autocmd({ "BufWritePost" }, {
+        callback = function()
+          lint.try_lint()
+        end,
+      })
+    end,
+  },
+
   -- Language-specific plugins
   -- vim-polyglot includes (among many others):
   --   - rust-lang/rust.vim
@@ -835,9 +853,6 @@ require("lazy").setup {
       null_ls.setup {
         on_attach = lsp_on_attach,
         sources = {
-          null_ls.builtins.code_actions.shellcheck,
-          null_ls.builtins.diagnostics.shellcheck,
-          null_ls.builtins.diagnostics.actionlint,
           null_ls.builtins.diagnostics.fish,
           null_ls.builtins.formatting.fish_indent,
           null_ls.builtins.formatting.jq,
