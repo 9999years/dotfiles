@@ -783,6 +783,7 @@ require("lazy").setup {
           { "]d", vim.diagnostic.goto_next, "Next diagnostic" },
           { "<space>q", vim.diagnostic.setloclist, "Set loclist to diagnostics" },
           { "<space>f", format, "Format buffer" },
+          { "<space>f", format, "Format range", mode = "v" },
           {
             prefix = "<space>w",
             group = "workspace folders",
