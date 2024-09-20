@@ -720,7 +720,7 @@ require("lazy").setup {
       {
         "stevearc/conform.nvim",
         config = function()
-          vim.g.format_on_save = true
+          vim.g.format_after_save = true
 
           require("conform").setup {
             default_format_opts = {
@@ -732,12 +732,12 @@ require("lazy").setup {
               json = { "jq" },
             },
             notify_no_formatters = false,
-            format_on_save = function(bufnr)
-              if not vim.g.format_on_save then
+            format_after_save = function(bufnr)
+              if not vim.g.format_after_save then
                 return
               end
-              local buf_format_on_save = vim.b[bufnr].format_on_save
-              if buf_format_on_save ~= nil and not buf_format_on_save then
+              local buf_format_after_save = vim.b[bufnr].format_after_save
+              if buf_format_after_save ~= nil and not buf_format_after_save then
                 return
               end
               return {}
@@ -756,9 +756,9 @@ require("lazy").setup {
             "FormatDisable",
             function(opts)
               if opts.bang then
-                vim.b.format_on_save = false
+                vim.b.format_after_save = false
               else
-                vim.g.format_on_save = false
+                vim.g.format_after_save = false
               end
             end,
             "Disable formatting on save",
@@ -768,9 +768,9 @@ require("lazy").setup {
             "FormatEnable",
             function(opts)
               if opts.bang then
-                vim.b.format_on_save = true
+                vim.b.format_after_save = true
               else
-                vim.g.format_on_save = true
+                vim.g.format_after_save = true
               end
             end,
             "Enable formatting on save",
