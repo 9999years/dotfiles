@@ -675,11 +675,19 @@ require("lazy").setup {
   {
     "mfussenegger/nvim-lint",
     config = function()
+      -- See: https://github.com/mfussenegger/nvim-lint/issues/660
+      vim.filetype.add {
+        pattern = {
+          [".*/.github/workflows/.*%.yml"] = "yaml.ghaction",
+          [".*/.github/workflows/.*%.yaml"] = "yaml.ghaction",
+        },
+      }
+
       local lint = require("lint")
 
       lint.linters_by_ft = {
         sh = { "shellcheck" },
-        yaml = { "actionlint" },
+        ghaction = { "actionlint" },
       }
 
       vim.api.nvim_create_autocmd({ "BufWritePost" }, {
