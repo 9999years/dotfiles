@@ -1,0 +1,7 @@
+# Remote names to try to push to, highest preference first.
+remotes = [
+    "mercury", # Employer :)
+    "9999years",
+    "fork",
+    "origin",
+]
