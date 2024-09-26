@@ -79,7 +79,6 @@
             pkgs.jq
             pkgs.jujutsu
             pkgs.less
-            pkgs.lix.man
             pkgs.lua-language-server
             pkgs.neovim
             pkgs.nil
