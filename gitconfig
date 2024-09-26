@@ -48,7 +48,8 @@
 [gui]
 	encoding = utf-8
 [pull]
-	rebase = true
+	# Only fast-forward merges are allowed when pulling.
+	ff = only
 [rebase]
 	autoSquash = true
 	autoStash = true
