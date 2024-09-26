@@ -4,10 +4,6 @@
 [push]
 	default = simple
 	followTags = true
-[credential]
-	helper = store
-	modalPrompt = false ; consider flipping this if you're having trouble...
-	canFallBackToInsecureStore = true
 [core]
 	editor = nvim
 	autocrlf = false
