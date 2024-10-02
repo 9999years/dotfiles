@@ -735,9 +735,10 @@ require("lazy").setup {
               lsp_format = "fallback",
             },
             formatters_by_ft = {
-              lua = { "stylua" },
-              python = { "ruff", "isort" },
               json = { "jq" },
+              lua = { "stylua" },
+              nix = { "nixfmt" },
+              python = { "ruff", "isort" },
             },
             notify_no_formatters = false,
             format_after_save = function(bufnr)
