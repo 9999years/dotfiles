@@ -77,3 +77,5 @@
 	# implementation that can't sign commits with SSH keys???
 	# https://github.com/mystor/git-revise/issues/123
 	gpgSign = false
+[worktree]
+	guessRemote = true
