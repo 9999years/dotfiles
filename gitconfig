@@ -11,6 +11,8 @@
 	attributesFile = ~/.gitattributes_global
 	eol = lf
 	pager = delta --features main-theme
+[commit]
+	verbose = true
 [interactive]
 	diffFilter = delta --color-only
 [merge]
