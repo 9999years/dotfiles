@@ -81,3 +81,6 @@
 	gpgSign = false
 [worktree]
 	guessRemote = true
+[checkout]
+	guess = true
+	defaultRemote = origin
