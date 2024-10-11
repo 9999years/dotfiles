@@ -55,6 +55,7 @@ __pycache__
 *.dvi
 *.toc
 *.fls
+# *.out
 *.fdb_latexmk
 *.bbl
 *.bbg
