@@ -63,11 +63,38 @@ snippet join Join an array variable by a delimiter string
 snippet len Array length
 	\${#${1:ARRAY}[@]}
 
+snippet quote Shell-quote a variable for reuse as input
+	\${${1:variable}@Q}
+
+snippet default Get a variable or a default value if unset/empty
+	\${${1:variable}:-${2:default}}
+
+snippet stripPrefix Strip a string from the start of a variable
+	\${${1:variable}##${2:prefix}}
+
+snippet stripSuffix Strip a string from the end of a variable
+	\${${1:variable}%%${2:suffix}}
+
+snippet replace Replace a substring in a variable
+	\${${1:variable}//${2:find}/${3:replace}}
+
+snippet replace1 Replace the first instance of a substring in a variable
+	\${${1:variable}/${2:find}/${3:replace}}
+
+snippet replacePrefix Replace a prefix in a variable
+	\${${1:variable}/#${2:find}/${3:replace}}
+
+snippet replaceSuffix Replace a suffix in a variable
+	\${${1:variable}/%${2:find}/${3:replace}}
+
 snippet nl Literal newline character
 	\$'\n'
 
 snippet arith Arithmetic expression
 	(( ${1:i += 1} ))
+
+snippet nargs Number of arguments
+	(( "$#" ))
 
 snippet argparse Argument parsing
 	readonly USAGE="Usage: \$0 $1"
@@ -104,3 +131,24 @@ snippet heredoc Multiline string
 	<< ${1:EOF}
 	$0
 	$1
+
+snippet regex Match string against regex
+	[[ "${1:\$input}" =~ "${2:.*}" ]]
+
+snippet glob Match string against glob
+	[[ "${1:\$input}" = ${2:*glob*} ]]
+
+snippet contains Check if string contains substring
+	[[ "${1:\$input}" = *"${2:infix}"* ]]
+
+snippet substr Check if string contains substring
+	[[ "${1:\$input}" = *"${2:infix}"* ]]
+
+snippet empty Check if a string is empty
+	[[ -z "${1:\$input}" ]]
+
+snippet nonempty Check if a string is non-empty
+	[[ -n "${1:\$input}" ]]
+
+snippet exists Check if a file exists
+	[[ -e "${1:\$path}" ]]
