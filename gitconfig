@@ -59,7 +59,6 @@
 	defaultBranch = main
 [fetch]
 	prune = true
-	pruneTags = true
 [delta "main-theme"]
 	line-numbers = true
 	syntax-theme = Dracula
