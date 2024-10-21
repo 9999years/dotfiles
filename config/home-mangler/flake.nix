@@ -88,6 +88,7 @@
             pkgs.nix-index
             pkgs.nix-output-monitor
             pkgs.nix-top
+            pkgs.nix-update
             pkgs.nix-your-shell
             pkgs.nixfmt-rfc-style
             pkgs.pre-commit
