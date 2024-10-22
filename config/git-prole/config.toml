@@ -1,0 +1,17 @@
+# See: https://github.com/9999years/git-prole
+
+[clone] # `man git-prole-clone`
+enable_gh = true
+
+[add] # `man git-prole-add`
+commands = [
+    { sh = '''
+      if [ -e .envrc ]; then
+        direnv allow
+      fi
+      ''' },
+]
+
+[[add.branch_replacements]]
+find = '''\w+/\w{1,4}-\d{1,5}-(\w+(?:-\w+){0,2}).*'''
+replace = '''$1'''
