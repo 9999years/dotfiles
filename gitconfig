@@ -40,6 +40,8 @@
 	wl = worktree list
 	wm = worktree move
 	wr = worktree remove
+	w = worktree
+	sm = submodule
 [hub]
 	protocol = ssh
 [branch]
