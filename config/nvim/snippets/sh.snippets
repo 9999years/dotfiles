@@ -152,3 +152,6 @@ snippet nonempty Check if a string is non-empty
 
 snippet exists Check if a file exists
 	[[ -e "${1:\$path}" ]]
+
+snippet defined Check if a variable is defined
+	[[ -v ${1:variable_name} ]]
