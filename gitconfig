@@ -42,6 +42,7 @@
 	wr = worktree remove
 	w = worktree
 	sm = submodule
+	cp = cherry-pick
 [hub]
 	protocol = ssh
 [branch]
