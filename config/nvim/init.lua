@@ -836,21 +836,83 @@ require("lazy").setup {
           require("conform").format { bufnr = bufnr }
         end
 
+        local function split_then(callback)
+          return function()
+            vim.cmd("split")
+            callback()
+          end
+        end
+
+        local function vsplit_then(callback)
+          return function()
+            vim.cmd("vsplit")
+            callback()
+          end
+        end
+
         -- See `:help vim.lsp.*` for documentation on any of the below functions
         require("batteries").map {
           buffer = bufnr,
           { "gD", vim.lsp.buf.declaration, "Go to declaration" },
           { "gd", vim.lsp.buf.definition, "Go to definition" },
           { "gi", vim.lsp.buf.implementation, "Go to implementation" },
+          { "gt", vim.lsp.buf.type_definition, "Go to symbol's type" },
+
+          { prefix = "gs", group = "Go to ... in split" },
+          { prefix = "gv", group = "Go to ... in vsplit" },
+
+          {
+            "gsD",
+            split_then(vim.lsp.buf.declaration),
+            "Go to declaration in split",
+          },
+          { "gsd", split_then(vim.lsp.buf.definition), "Go to definition in split" },
+          {
+            "gsi",
+            split_then(vim.lsp.buf.implementation),
+            "Go to implementation in split",
+          },
+          {
+            "gst",
+            split_then(vim.lsp.buf.type_definition),
+            "Go to symbol's type in split",
+          },
+
+          {
+            "gvD",
+            vsplit_then(vim.lsp.buf.declaration),
+            "Go to declaration in vsplit",
+          },
+          {
+            "gvd",
+            vsplit_then(vim.lsp.buf.definition),
+            "Go to definition in vsplit",
+          },
+          {
+            "gvi",
+            vsplit_then(vim.lsp.buf.implementation),
+            "Go to implementation in vsplit",
+          },
+          {
+            "gvt",
+            vsplit_then(vim.lsp.buf.type_definition),
+            "Go to symbol's type in vsplit",
+          },
+
           {
             "<C-k>",
             vim.lsp.buf.signature_help,
             "Open signature help",
             mode = { "i", "n" },
           },
-          { "gt", vim.lsp.buf.type_definition, "Go to symbol's type" },
+
           { "<space>rn", vim.lsp.buf.rename, "Rename symbol" },
-          { "<space>ca", vim.lsp.buf.code_action, "Code actions" },
+          {
+            "<space>ca",
+            vim.lsp.buf.code_action,
+            "Code action",
+            mode = { "n", "v" },
+          },
           { "<M-.>", vim.lsp.buf.code_action, "Code actions", mode = { "i", "n" } },
           { "gr", vim.lsp.buf.references, "Go to references" },
           { "<space>e", get_line_diagnostics, "Get diagnostics" },
