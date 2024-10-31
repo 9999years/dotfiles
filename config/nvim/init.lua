@@ -125,6 +125,7 @@ require("lazy").setup {
                 end
               end,
               "Hover fold or documentation",
+              mode = { "n", "v" },
             },
           }
         end,
