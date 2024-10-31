@@ -7,12 +7,14 @@
 # See: https://stackoverflow.com/a/10197697
 
 Host pi  # Raspberry Pi
-    HostName 10.0.0.212
+    HostName 10.0.0.2
     User pi
+    ForwardAgent yes
 
 Host steamdeck  # Steam Deck
     HostName 10.0.0.113
     User deck
+    ForwardAgent yes
 
 Host fraktur  # Linux work laptop
     HostName 10.0.0.190
