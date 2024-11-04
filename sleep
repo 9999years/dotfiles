@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# $ brew install sleepwatcher
+# $ brew services start sleepwatcher
+
+# lol. lmao
+pkill weechat
