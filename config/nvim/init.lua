@@ -740,6 +740,9 @@ require("lazy").setup {
               lua = { "stylua" },
               nix = { "nixfmt" },
               python = { "ruff", "isort" },
+              haskell = {
+                lsp_format = "never",
+              },
             },
             notify_no_formatters = false,
             format_after_save = function(bufnr)
