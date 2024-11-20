@@ -439,6 +439,9 @@ require("lazy").setup {
         function()
           -- TODO: No way to override when user types a filetype?
           require("luasnip.loaders").edit_snippet_files {
+            edit = function(file)
+              vim.cmd("split " .. file)
+            end,
             ft_filter = function(filetype)
               return #filetype > 0 and filetype ~= "_"
             end,
