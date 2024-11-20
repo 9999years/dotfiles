@@ -164,3 +164,11 @@ snippet onexit Run a function when the script exits
 		$1
 	}
 	trap cleanup EXIT
+
+snippet noecho Run a command without `set -x` echoing it
+	# See: https://unix.stackexchange.com/a/60049
+	(
+		{ set +x; } 2> /dev/null # silently disable xtrace
+		${1:echo "debug"}
+		set -x
+	)
