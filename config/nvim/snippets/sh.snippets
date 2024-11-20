@@ -158,3 +158,9 @@ snippet exists Check if a file exists
 
 snippet defined Check if a variable is defined
 	[[ -v ${1:variable_name} ]]
+
+snippet onexit Run a function when the script exits
+	function cleanup {
+		$1
+	}
+	trap cleanup EXIT
