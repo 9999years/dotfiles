@@ -823,16 +823,34 @@ require("lazy").setup {
       -- https://github.com/neovim/neovim/issues/16807#issuecomment-1001618856
       require("vim.lsp.log").set_format_func(vim.inspect)
 
+      --- @param ctx lsp.HandlerContext
+      --- @param callback function(client: vim.lsp.Client, bufnr: number)
+      local function for_all_attached_buffers(ctx, callback)
+        -- See: https://github.com/neovim/neovim/blob/49d6cd1da86cab49c7a5a8c79e59d48d016975fa/runtime/lua/vim/lsp/handlers.lua#L122-L131
+        local client = assert(vim.lsp.get_client_by_id(ctx.client_id))
+        for bufnr, _ in pairs(client.attached_buffers) do
+          callback(client, bufnr)
+        end
+      end
+
+      -- Reset options back to what I want. This is needed because the Neovim
+      -- LSP client will reset these options _after_ calling `on_attach`.
+      --
+      -- See: https://github.com/neovim/neovim/issues/31430
+      local function reset_defaults(_client, bufnr)
+        -- *Don't* set `formatexpr` to `v:lua.vim.lsp.formatexpr()` because I like
+        -- Vim's default word-wrapping for comments and such. Anyways I have
+        -- `:Format` and format-on-save. See `conform.nvim`.
+        vim.api.nvim_buf_set_option(bufnr, "formatexpr", "")
+      end
+
       -- Use an on_attach function to only map the following keys
       -- after the language server attaches to the current buffer
       local function lsp_on_attach(client, bufnr)
         -- Enable completion triggered by <c-x><c-o>
         vim.api.nvim_buf_set_option(bufnr, "omnifunc", "v:lua.vim.lsp.omnifunc")
 
-        -- *Don't* set `formatexpr` to `v:lua.vim.lsp.formatexpr()` because I like
-        -- Vim's default word-wrapping for comments and such. Anyways I have
-        -- `:Format` and format-on-save. See `lsp-format`.
-        vim.api.nvim_buf_set_option(bufnr, "formatexpr", "")
+        reset_defaults(client, bufnr)
 
         local function get_line_diagnostics()
           vim.diagnostic.get(bufnr, { lnum = vim.fn.line(".") })
@@ -953,12 +971,22 @@ require("lazy").setup {
       -- See: https://github.com/neovim/nvim-lspconfig#keybindings-and-completion
       local nvim_lsp = require("lspconfig")
 
+      -- See: vim.lsp.ClientConfig
       local lsp_options = {
         before_init = require("neodev.lsp").before_init,
         on_attach = lsp_on_attach,
         capabilities = require("cmp_nvim_lsp").default_capabilities(
           require("lsp-status").capabilities
         ),
+        handlers = {
+          -- See: https://github.com/neovim/neovim/issues/31430
+          ["client/registerCapability"] = function(err, result, ctx, config)
+            local default_result =
+              vim.lsp.handlers["client/registerCapability"](err, result, ctx, config)
+            for_all_attached_buffers(ctx, reset_defaults)
+            return default_result
+          end,
+        },
         flags = {
           debounce_text_changes = 150,
         },
