@@ -194,7 +194,7 @@
     },
     "[python]": {
         "editor.formatOnSave": true,
-        "editor.wordBasedSuggestions": false,
+        "editor.wordBasedSuggestions": "off",
         "gitlens.codeLens.symbolScopes": [
             "!Module"
         ]
@@ -221,4 +221,6 @@
     "editor.fontSize": 14,
     "terminal.integrated.fontSize": 14,
     "vscode-neovim.neovimInitVimPaths.darwin": "~/.config/nvim/init.lua",
+    "editor.inlayHints.fontSize": 12,
+    "makefile.configureOnOpen": false,
 }
