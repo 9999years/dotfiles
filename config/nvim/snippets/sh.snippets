@@ -122,12 +122,14 @@ snippet argparse Argument parsing
 	args+=("$@")
 
 snippet lines Iterate over program stdout as lines
+	# https://superuser.com/a/284226
 	while IFS="" read -r ${1:line} || [[ -n "\$$1" ]]
 	do
 		${0:echo "Line: \$$1"}
 	done < ${2:<(ps aux)}
 
 snippet scriptdir The directory the script is stored in
+	# https://stackoverflow.com/a/246128
 	${1:SCRIPT_DIR}="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 snippet heredoc Multiline string
