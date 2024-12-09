@@ -15,7 +15,3 @@ commands = [
 [[add.branch_replacements]]
 find = '''\w+/\w{1,4}-\d{1,5}-(\w+(?:-\w+){0,2}).*'''
 replace = '''$1'''
-
-[[add.branch_replacements]] # Workaround for #91
-find = '''.*/'''
-replace = ""
