@@ -13,9 +13,6 @@ let
 
   # Alias `attrs.${oldName}.${info.currentSystem} to `${newName}`.
   collapse = name: collapseRenamed name name;
-
-  # Alias all `attrs` keys with an `${info.currentSystem}` attribute.
-  collapseAll = builtins.foldl' (prev: name: prev // collapse name) { } (builtins.attrNames attrs);
 in
 # Preserve the original bindings as `original`.
 (optionalAttrs (!attrs ? original) {
@@ -23,4 +20,5 @@ in
 })
 // (collapseRenamed "packages" "pkgs")
 // (collapseRenamed "legacyPackages" "pkgs")
-// collapseAll
+// collapse "checks"
+// collapse "devShells"
