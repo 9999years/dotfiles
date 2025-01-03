@@ -108,6 +108,7 @@
             pkgs.typescript-language-server
             pkgs.units
             pkgs.universal-ctags
+            pkgs.vscode-langservers-extracted
             pkgs.weechat
           ];
         };
