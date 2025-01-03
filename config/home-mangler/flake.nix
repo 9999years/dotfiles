@@ -110,6 +110,7 @@
             pkgs.universal-ctags
             pkgs.vscode-langservers-extracted
             pkgs.weechat
+            pkgs.yaml-language-server
           ];
         };
     in
