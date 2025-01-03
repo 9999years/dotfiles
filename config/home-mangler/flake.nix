@@ -105,6 +105,7 @@
             pkgs.tmux
             pkgs.tokei
             pkgs.topgrade
+            pkgs.typescript-language-server
             pkgs.units
             pkgs.universal-ctags
             pkgs.weechat
