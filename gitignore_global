@@ -79,7 +79,6 @@ auto
 /.vim
 XXX*
 xxx*
-.envrc
 # I don't need this for git, but for fd/rg
 .git
 # For cabal
