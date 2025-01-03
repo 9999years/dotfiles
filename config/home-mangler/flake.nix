@@ -79,6 +79,7 @@
             pkgs.isort # Python import sorter.
             pkgs.jq
             pkgs.jujutsu
+            pkgs.keep-sorted
             pkgs.less
             pkgs.lua-language-server
             pkgs.neovim
