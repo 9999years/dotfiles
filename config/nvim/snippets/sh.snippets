@@ -132,10 +132,23 @@ snippet scriptdir The directory the script is stored in
 	# https://stackoverflow.com/a/246128
 	${1:SCRIPT_DIR}="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
-snippet heredoc Multiline string
-	<< ${1:EOF}
-	$0
-	$1
+snippet heredocfile Write a multiline string to a file
+	cat << EOF > ${1:~/output}
+	${0:you remembered that multiline strings work fine on their own, right? like this:
+	echo "line one
+	line two" > cat}
+	EOF
+
+snippet heredoc Assign a multiline string to a variable
+	read -r -d '' ${1:myVar} <<'EOF'
+	${0:you remembered that multiline strings work fine on their own, right? like this:
+	myVar="line one
+	line two"}
+	EOF
+
+snippet multiline Multiline variables "work"
+	${1:myVar}="${0:line one
+	line two}"
 
 snippet regex Match string against regex
 	[[ "${1:\$input}" =~ "${2:.*}" ]]
