@@ -320,7 +320,17 @@ require("lazy").setup {
               extra_args = { "--cmd", "/" },
             }
           end,
-          "Edit file with Broot",
+          "Grep with Broot",
+        },
+        {
+          "<leader>*",
+          function()
+            local identifier = vim.fn.expand("<cword>")
+            require("broot").broot {
+              extra_args = { "--cmd", "/" .. identifier },
+            }
+          end,
+          "Grep identifier under cursor Broot",
         },
         {
           "<leader>tc",
