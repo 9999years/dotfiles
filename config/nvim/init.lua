@@ -232,6 +232,11 @@ require("lazy").setup {
         { "<Leader>tb", "<cmd>Telescope buffers<CR>", "Find buffers" },
         { "<Leader>b", "<cmd>Telescope buffers<CR>", "Find buffers" },
         { "<Leader>to", "<cmd>Telescope oldfiles<CR>", "Recently opened" },
+        {
+          "<Leader>t*",
+          "<cmd>Telescope grep_string<CR>",
+          "Grep identifier under cursor",
+        },
       }
       local function max_height(_self, _max_columns, max_lines)
         return max_lines
