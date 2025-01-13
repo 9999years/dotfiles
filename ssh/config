@@ -12,7 +12,7 @@ Host pi  # Raspberry Pi
     ForwardAgent yes
 
 Host steamdeck  # Steam Deck
-    HostName 10.0.0.113
+    HostName 10.69.69.113
     User deck
     ForwardAgent yes
 
