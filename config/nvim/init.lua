@@ -988,6 +988,7 @@ require("lazy").setup {
       -- Gross!!!!!
       -- See: https://github.com/neovim/nvim-lspconfig#keybindings-and-completion
       local nvim_lsp = require("lspconfig")
+      local nvim_lsp_util = require("lspconfig.util")
 
       -- See: vim.lsp.ClientConfig
       local lsp_options = {
@@ -1104,6 +1105,19 @@ require("lazy").setup {
             autoEvalInputs = true,
           },
         },
+        denols = {
+          -- Removing `.git` here so it won't conflict with `ts_ls`.
+          root_dir = nvim_lsp_util.root_pattern("deno.json", "deno.jsonc"),
+        },
+        ts_ls = {
+          -- Removing `.git` here so it won't conflict with `deno`.
+          root_dir = nvim_lsp_util.root_pattern(
+            "tsconfig.json",
+            "jsconfig.json",
+            "package.json"
+          ),
+          single_file_support = false,
+        },
       }
 
       local function lsp_server_options_for(server)
@@ -1133,6 +1147,7 @@ require("lazy").setup {
         "pyright",
         "racket_langserver",
         "rust_analyzer",
+        "denols", -- https://docs.deno.com/runtime/reference/lsp_integration/
         "ts_ls",
         "hls",
         "jsonls",
