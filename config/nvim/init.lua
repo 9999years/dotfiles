@@ -158,6 +158,9 @@ require("lazy").setup {
         },
         indent = {
           enable = true,
+          disable = {
+            "markdown",
+          },
         },
         incremental_selection = {
           enable = true,
