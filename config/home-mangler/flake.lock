@@ -39,11 +39,11 @@
         "systems": "systems"
       },
       "locked": {
-        "lastModified": 1725690587,
-        "narHash": "sha256-OAvkL9g5eUz3pVTu3qDtGmUfQCXZ7mfqpOpOMVLlxQk=",
+        "lastModified": 1736874967,
+        "narHash": "sha256-U5ZNJdM0ezN1X9zbiNsHe//TyBLne9jd95Lu0SrrEhc=",
         "owner": "home-mangler",
         "repo": "home-mangler",
-        "rev": "b0a1c97ceb28d5d94acc841ce60fec09251cc8fc",
+        "rev": "a9faf62e8ebe5ebbe1950daf2fef8ef6dd64eef4",
         "type": "github"
       },
       "original": {
@@ -70,16 +70,15 @@
     },
     "nixpkgs_2": {
       "locked": {
-        "lastModified": 1735834308,
-        "narHash": "sha256-dklw3AXr3OGO4/XT1Tu3Xz9n/we8GctZZ75ZWVqAVhk=",
+        "lastModified": 1737481891,
+        "narHash": "sha256-1uQHOzXQcYPS2HNkiDJHDoemq26QODeASSEkxLKpA4o=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "6df24922a1400241dae323af55f30e4318a6ca65",
+        "rev": "003df7563e299d9d9adc30c3c3a55a01fbfe0085",
         "type": "github"
       },
       "original": {
         "owner": "NixOS",
-        "ref": "nixos-unstable",
         "repo": "nixpkgs",
         "type": "github"
       }

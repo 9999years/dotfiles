@@ -1,6 +1,7 @@
 {
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    # Needs: https://github.com/NixOS/nixpkgs/pull/374697
+    nixpkgs.url = "github:NixOS/nixpkgs";
     home-mangler.url = "github:home-mangler/home-mangler";
   };
 
