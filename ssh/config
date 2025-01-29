@@ -7,7 +7,7 @@
 # See: https://stackoverflow.com/a/10197697
 
 Host pi  # Raspberry Pi
-    HostName 10.0.0.2
+    HostName raspberrypi.local
     User pi
     ForwardAgent yes
 
