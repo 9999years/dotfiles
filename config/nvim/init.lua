@@ -572,8 +572,8 @@ require("lazy").setup {
         -- If a completion source in the first group has matches, the second
         -- source isn't queried.
         sources = cmp.config.sources({
-          { name = "nvim_lsp_signature_help" },
-          { name = "nvim_lsp" },
+          { name = "lazydev" },
+        }, {
           { name = "luasnip" },
         }, {
           { name = "async_path" },
@@ -652,7 +652,6 @@ require("lazy").setup {
             mode = { "n", "v" },
           },
           { "<Leader>hS", gs.stage_buffer, "Stage buffer" },
-          { "<Leader>hu", gs.undo_stage_hunk, "Undo stage hunk" },
           { "<Leader>hR", gs.reset_buffer, "Reset buffer" },
           { "<Leader>hp", gs.preview_hunk, "Preview hunk" },
           {
@@ -826,9 +825,14 @@ require("lazy").setup {
       "simrat39/rust-tools.nvim",
       -- Neovim Lua setup.
       {
-        "folke/neodev.nvim",
+        "folke/lazydev.nvim",
+        ft = "lua",
         opts = {
-          lspconfig = false,
+          library = {
+            -- See the configuration section for more details
+            -- Load luvit types when the `vim.uv` word is found
+            { path = "${3rd}/luv/library", words = { "vim%.uv" } },
+          },
         },
       },
     },
@@ -978,7 +982,6 @@ require("lazy").setup {
 
       -- See: vim.lsp.ClientConfig
       local lsp_options = {
-        before_init = require("neodev.lsp").before_init,
         on_attach = lsp_on_attach,
         capabilities = require("cmp_nvim_lsp").default_capabilities(
           require("lsp-status").capabilities
