@@ -882,19 +882,8 @@ require("lazy").setup {
           require("conform").format { bufnr = bufnr }
         end
 
-        local function split_then(callback)
-          return function()
-            vim.cmd("split")
-            callback()
-          end
-        end
-
-        local function vsplit_then(callback)
-          return function()
-            vim.cmd("vsplit")
-            callback()
-          end
-        end
+        local split_then = require("split_then").split_then
+        local vsplit_then = require("split_then").vsplit_then
 
         -- See `:help vim.lsp.*` for documentation on any of the below functions
         require("batteries").map {
@@ -903,9 +892,6 @@ require("lazy").setup {
           { "gd", vim.lsp.buf.definition, "Go to definition" },
           { "gi", vim.lsp.buf.implementation, "Go to implementation" },
           { "gt", vim.lsp.buf.type_definition, "Go to symbol's type" },
-
-          { prefix = "gs", group = "Go to ... in split" },
-          { prefix = "gv", group = "Go to ... in vsplit" },
 
           {
             "gsD",
@@ -1200,6 +1186,9 @@ if vim.fn.executable("rg") == 1 then
   vim.opt.grepprg = "rg --line-number $*"
 end
 
+local split_then = require("split_then").split_then
+local vsplit_then = require("split_then").vsplit_then
+
 local batteries = require("batteries")
 batteries.map {
   -- Make j and k operate on screen lines.
@@ -1209,6 +1198,41 @@ batteries.map {
   { "k", "gk", "Cursor up one screen line" },
   { "gj", "j", "Cursor down one file line" },
   { "gk", "k", "Cursor up one file line" },
+
+  { prefix = "gs", group = "Go to ... in split" },
+  { prefix = "gv", group = "Go to ... in vsplit" },
+
+  {
+    "gsf",
+    split_then(function()
+      vim.cmd("normal gf")
+    end),
+    "Go to file in split",
+  },
+
+  {
+    "gsF",
+    split_then(function()
+      vim.cmd("normal gF")
+    end),
+    "Go to file and line in split",
+  },
+
+  {
+    "gvf",
+    vsplit_then(function()
+      vim.cmd("normal gf")
+    end),
+    "Go to file in vsplit",
+  },
+
+  {
+    "gvF",
+    vsplit_then(function()
+      vim.cmd("normal gF")
+    end),
+    "Go to file and line in vsplit",
+  },
 
   -- `\w` toggles line-wrapping
   { "<leader>w", "<cmd>set wrap!<CR>", "Toggle wrapping" },
