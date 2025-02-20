@@ -504,6 +504,23 @@ require("lazy").setup {
       "hrsh7th/cmp-nvim-lsp-signature-help",
       "saadparwaiz1/cmp_luasnip",
       "LuaSnip",
+      {
+        "zbirenbaum/copilot-cmp",
+        dependencies = {
+          {
+            "zbirenbaum/copilot.lua",
+            config = function()
+              require("copilot").setup {
+                suggestion = { enabled = false },
+                panel = { enabled = false },
+              }
+            end,
+          },
+        },
+        config = function()
+          require("copilot_cmp").setup()
+        end,
+      },
     },
     config = function()
       local function has_words_before()
@@ -574,6 +591,7 @@ require("lazy").setup {
         sources = cmp.config.sources({
           { name = "lazydev" },
         }, {
+          { name = "copilot" },
           { name = "luasnip" },
         }, {
           { name = "async_path" },
