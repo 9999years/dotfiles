@@ -779,7 +779,11 @@ require("lazy").setup {
               json = { "jq" },
               lua = { "stylua" },
               nix = { "nixfmt" },
-              python = { "ruff", "isort" },
+              python = {
+                "ruff",
+                "ruff_format",
+                "isort",
+              },
               haskell = {
                 lsp_format = "never",
               },
