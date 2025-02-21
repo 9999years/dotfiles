@@ -588,15 +588,14 @@ require("lazy").setup {
         -- Note: The two-level structure here groups completion items.
         -- If a completion source in the first group has matches, the second
         -- source isn't queried.
-        sources = cmp.config.sources({
-          { name = "lazydev" },
-        }, {
-          { name = "copilot" },
-          { name = "luasnip" },
-        }, {
-          { name = "async_path" },
-          { name = "buffer" },
-        }),
+        sources = cmp.config.sources {
+          { name = "lazydev", group_index = 1 },
+          { name = "nvim_lsp", group_index = 2 },
+          { name = "copilot", group_index = 2 },
+          { name = "luasnip", group_index = 2 },
+          { name = "async_path", group_index = 3 },
+          { name = "buffer", group_index = 3 },
+        },
 
         ---@diagnostic disable-next-line: missing-fields
         matching = {
