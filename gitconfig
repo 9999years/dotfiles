@@ -30,6 +30,8 @@
 	# Replace `a/` and `b/` in your diff header output with where the diff is
 	# coming from, so `i/` (index), `w/` (working directory), or `c/` (commit).
 	mnemonicPrefix = true
+	# Enable rename detection in `git diff` and `git log`.
+	renames = true
 [difftool]
 	prompt = false
 [rerere]
