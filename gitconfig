@@ -27,6 +27,9 @@
 [diff]
 	algorithm = histogram
 	colorMoved = plain
+	# Replace `a/` and `b/` in your diff header output with where the diff is
+	# coming from, so `i/` (index), `w/` (working directory), or `c/` (commit).
+	mnemonicPrefix = true
 [difftool]
 	prompt = false
 [rerere]
