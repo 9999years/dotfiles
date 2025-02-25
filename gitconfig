@@ -2,6 +2,7 @@
 	name = Rebecca Turner
 	email = rbt@sent.as
 [push]
+	# Push the branch with the same name on the remote by default.
 	default = simple
 	followTags = true
 [core]
