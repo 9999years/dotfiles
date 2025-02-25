@@ -1,6 +1,13 @@
 [user]
 	name = Rebecca Turner
 	email = rbt@sent.as
+[core]
+	editor = nvim
+	autocrlf = false
+	excludesFile = ~/.gitignore_global
+	attributesFile = ~/.gitattributes_global
+	eol = lf
+	pager = delta --features main-theme
 [push]
 	# Push the branch with the same name on the remote by default.
 	default = simple
@@ -9,13 +16,6 @@
 	autoSetupRemote = true
 	# Push missing tags reachable from the ref being pushed.
 	followTags = true
-[core]
-	editor = nvim
-	autocrlf = false
-	excludesFile = ~/.gitignore_global
-	attributesFile = ~/.gitattributes_global
-	eol = lf
-	pager = delta --features main-theme
 [commit]
 	verbose = true
 [interactive]
