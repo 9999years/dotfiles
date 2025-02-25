@@ -83,6 +83,8 @@
 	prune = true
 	# Remove local tags that no longer exist on the remote when fetching.
 	pruneTags = true
+	# Fetch from all remotes by default.
+	all = true
 [delta "main-theme"]
 	line-numbers = true
 	syntax-theme = Dracula
