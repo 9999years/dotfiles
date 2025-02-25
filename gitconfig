@@ -81,6 +81,8 @@
 [fetch]
 	# Remove remote-tracking branches that no longer exist on the remote when fetching.
 	prune = true
+	# Remove local tags that no longer exist on the remote when fetching.
+	pruneTags = true
 [delta "main-theme"]
 	line-numbers = true
 	syntax-theme = Dracula
