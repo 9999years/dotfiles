@@ -7,6 +7,7 @@
 	# Assume `--set-upstream` when no upstream tracking branch exists for the
 	# current branch.
 	autoSetupRemote = true
+	# Push missing tags reachable from the ref being pushed.
 	followTags = true
 [core]
 	editor = nvim
