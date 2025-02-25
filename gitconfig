@@ -73,6 +73,9 @@
 [rebase]
 	autoSquash = true
 	autoStash = true
+	# When a rebasing moves a commit that a branch points to, update the branch
+	# to point to the new commit.
+	updateRefs = true
 [init]
 	defaultBranch = main
 [fetch]
