@@ -62,6 +62,9 @@
 	sort = -committerdate
 [branch.master]
 	remote = origin
+[tag]
+	# Sort tags as version numbers, not alphabetically.
+	sort = version:refname
 [gui]
 	encoding = utf-8
 [pull]
