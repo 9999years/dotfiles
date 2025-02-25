@@ -26,6 +26,7 @@
 	conflictStyle = zdiff3
 [diff]
 	algorithm = histogram
+	colorMoved = plain
 [difftool]
 	prompt = false
 [rerere]
