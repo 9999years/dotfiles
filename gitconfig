@@ -4,6 +4,9 @@
 [push]
 	# Push the branch with the same name on the remote by default.
 	default = simple
+	# Assume `--set-upstream` when no upstream tracking branch exists for the
+	# current branch.
+	autoSetupRemote = true
 	followTags = true
 [core]
 	editor = nvim
