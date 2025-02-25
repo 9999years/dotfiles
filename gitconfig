@@ -1,6 +1,8 @@
 [user]
 	name = Rebecca Turner
 	email = rbt@sent.as
+[include]
+	path = ~/.gitconfig_local
 [core]
 	editor = nvim
 	autocrlf = false
@@ -8,35 +10,7 @@
 	attributesFile = ~/.gitattributes_global
 	eol = lf
 	pager = delta --features main-theme
-[push]
-	# Push the branch with the same name on the remote by default.
-	default = simple
-	# Assume `--set-upstream` when no upstream tracking branch exists for the
-	# current branch.
-	autoSetupRemote = true
-	# Push missing tags reachable from the ref being pushed.
-	followTags = true
-[commit]
-	verbose = true
-[interactive]
-	diffFilter = delta --color-only
-[merge]
-	# Enable zealous diff3.
-	# https://stackoverflow.com/a/70387424
-	conflictStyle = zdiff3
-[diff]
-	algorithm = histogram
-	colorMoved = plain
-	# Replace `a/` and `b/` in your diff header output with where the diff is
-	# coming from, so `i/` (index), `w/` (working directory), or `c/` (commit).
-	mnemonicPrefix = true
-	# Enable rename detection in `git diff` and `git log`.
-	renames = true
-[difftool]
-	prompt = false
-[rerere]
-	enabled = true
-	autoUpdate = true
+
 [alias]
 	last = log -1 HEAD
 	graph = log --decorate --oneline --graph
@@ -55,29 +29,29 @@
 	w = worktree
 	sm = submodule
 	cp = cherry-pick
-[hub]
-	protocol = ssh
+
+[apply]
+	ignoreWhitespace = change
 [branch]
 	autoSetupMerge = always
 	sort = -committerdate
 [branch.master]
 	remote = origin
-[tag]
-	# Sort tags as version numbers, not alphabetically.
-	sort = version:refname
-[gui]
-	encoding = utf-8
-[pull]
-	# Only fast-forward merges are allowed when pulling.
-	ff = only
-[rebase]
-	autoSquash = true
-	autoStash = true
-	# When a rebasing moves a commit that a branch points to, update the branch
-	# to point to the new commit.
-	updateRefs = true
-[init]
-	defaultBranch = main
+[checkout]
+	guess = true
+	defaultRemote = origin
+[commit]
+	verbose = true
+[diff]
+	algorithm = histogram
+	colorMoved = plain
+	# Replace `a/` and `b/` in your diff header output with where the diff is
+	# coming from, so `i/` (index), `w/` (working directory), or `c/` (commit).
+	mnemonicPrefix = true
+	# Enable rename detection in `git diff` and `git log`.
+	renames = true
+[difftool]
+	prompt = false
 [fetch]
 	# Remove remote-tracking branches that no longer exist on the remote when fetching.
 	prune = true
@@ -85,6 +59,54 @@
 	pruneTags = true
 	# Fetch from all remotes by default.
 	all = true
+[gui]
+	encoding = utf-8
+[init]
+	defaultBranch = main
+[interactive]
+	diffFilter = delta --color-only
+[merge]
+	# Enable zealous diff3.
+	# https://stackoverflow.com/a/70387424
+	conflictStyle = zdiff3
+[pull]
+	# Only fast-forward merges are allowed when pulling.
+	ff = only
+[push]
+	# Push the branch with the same name on the remote by default.
+	default = simple
+	# Assume `--set-upstream` when no upstream tracking branch exists for the
+	# current branch.
+	autoSetupRemote = true
+	# Push missing tags reachable from the ref being pushed.
+	followTags = true
+[rebase]
+	autoSquash = true
+	autoStash = true
+	# When a rebasing moves a commit that a branch points to, update the branch
+	# to point to the new commit.
+	updateRefs = true
+[rerere]
+	enabled = true
+	autoUpdate = true
+[safe]
+	directory = /etc/nixos
+[tag]
+	# Sort tags as version numbers, not alphabetically.
+	sort = version:refname
+[worktree]
+	guessRemote = true
+
+# +------------+
+# | Extensions |
+# +------------+
+[hub]
+	protocol = ssh
+[revise]
+	# What the hell, why does `git-revise` have its own bespoke commit signing
+	# implementation that can't sign commits with SSH keys???
+	# https://github.com/mystor/git-revise/issues/123
+	gpgSign = false
 [delta "main-theme"]
 	line-numbers = true
 	syntax-theme = Dracula
@@ -93,19 +115,3 @@
 	required = true
 	clean = git-lfs clean -- %f
 	process = git-lfs filter-process
-[include]
-	path = ~/.gitconfig_local
-[apply]
-	ignoreWhitespace = change
-[safe]
-	directory = /etc/nixos
-[revise]
-	# What the hell, why does `git-revise` have its own bespoke commit signing
-	# implementation that can't sign commits with SSH keys???
-	# https://github.com/mystor/git-revise/issues/123
-	gpgSign = false
-[worktree]
-	guessRemote = true
-[checkout]
-	guess = true
-	defaultRemote = origin
