@@ -40,6 +40,8 @@
 [checkout]
 	guess = true
 	defaultRemote = origin
+[column]
+	ui = auto
 [commit]
 	verbose = true
 [diff]
