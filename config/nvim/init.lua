@@ -538,6 +538,12 @@ require("lazy").setup {
 
       ---@diagnostic disable-next-line: missing-fields
       cmp.setup {
+        experimental = {
+          ghost_text = true,
+        },
+
+        preselect = cmp.PreselectMode.Item,
+
         snippet = {
           expand = function(args)
             require("luasnip").lsp_expand(args.body)
@@ -600,6 +606,12 @@ require("lazy").setup {
         ---@diagnostic disable-next-line: missing-fields
         matching = {
           disallow_partial_fuzzy_matching = false,
+        },
+
+        view = {
+          docs = {
+            auto_open = true,
+          },
         },
       }
     end,
