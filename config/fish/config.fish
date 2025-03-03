@@ -130,7 +130,7 @@ if test -e $nix_daemon
 end
 
 if command -q nix-your-shell
-    nix-your-shell --nom fish | source
+    nix-your-shell fish | source
 end
 
 if command -q nvim
