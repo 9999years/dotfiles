@@ -2,7 +2,10 @@
   inputs = {
     # Needs: https://nixpk.gs/pr-tracker.html?pr=381077
     nixpkgs.url = "github:NixOS/nixpkgs";
-    home-mangler.url = "github:home-mangler/home-mangler";
+    home-mangler = {
+      url = "github:home-mangler/home-mangler";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   nixConfig = {
@@ -35,6 +38,11 @@
         let
           pkgs = self.pkgs.${system};
           home-mangler-lib = home-mangler.lib.${system};
+
+          # https://github.com/NixOS/nixpkgs/pull/385865
+          git-revise = pkgs.git-revise.overridePythonAttrs (drv: {
+            doCheck = false;
+          });
         in
         home-mangler-lib.makeConfiguration {
           packages = [
@@ -71,7 +79,7 @@
             pkgs.git-hub
             pkgs.git-lfs
             pkgs.git-prole
-            pkgs.git-revise
+            git-revise
             pkgs.git-upstream
             pkgs.gitleaks
             pkgs.home-mangler
