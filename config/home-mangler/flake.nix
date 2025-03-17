@@ -97,6 +97,7 @@
             pkgs.nix-diff
             pkgs.nix-direnv
             pkgs.nix-index
+            pkgs.nix-tree
             pkgs.nix-top
             pkgs.nix-update
             pkgs.nix-your-shell
