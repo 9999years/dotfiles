@@ -1,0 +1,11 @@
+shortcuts:
+  process_screen:
+    shortcut: z # "zoom"
+  process_start:
+    shortcut: u # "up"
+  process_stop:
+    shortcut: d # "down"
+  quit:
+    shortcut: q
+  help:
+    shortcut: '?'
