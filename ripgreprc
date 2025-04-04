@@ -3,7 +3,7 @@
 
 # Don't print super long lines but show the first part instead of hiding them
 # entirely.
---max-columns=150
+--max-columns=400
 --max-columns-preview
 
 # Search dotfiles (but not VCS directories).
