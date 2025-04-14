@@ -127,7 +127,7 @@
     {
       home-mangler = {
         grandiflora = configuration "aarch64-darwin";
-        san-fransisco = configuration "aarch64-darwin";
+        sectra = configuration "aarch64-darwin";
         helvetica = configuration "aarch64-darwin";
       };
 
