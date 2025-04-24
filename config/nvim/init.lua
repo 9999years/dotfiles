@@ -1180,7 +1180,7 @@ require("lazy").setup {
       }
       require("rust-tools").inlay_hints.enable()
 
-      -- https://github.com/neovim/nvim-lspconfig/blob/master/doc/server_configurations.md
+      -- https://github.com/neovim/nvim-lspconfig/blob/master/doc/configs.md
       local lsp_servers = {
         "pyright",
         "racket_langserver",
@@ -1197,6 +1197,7 @@ require("lazy").setup {
         "lua_ls", -- https://github.com/LuaLS/lua-language-server
         "gopls", -- https://github.com/golang/tools/tree/master/gopls
         "clangd", -- https://clangd.llvm.org/
+        "buck2", -- https://buck2.build/docs/users/commands/lsp/
       }
 
       for _, lsp in ipairs(lsp_servers) do
