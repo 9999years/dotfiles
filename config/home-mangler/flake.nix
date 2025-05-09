@@ -1,6 +1,5 @@
 {
   inputs = {
-    # Needs: https://nixpk.gs/pr-tracker.html?pr=381077
     nixpkgs.url = "github:NixOS/nixpkgs";
     home-mangler = {
       url = "github:home-mangler/home-mangler";
