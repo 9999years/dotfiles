@@ -55,7 +55,6 @@
 
             pkgs.__tmux_window_name
             pkgs.actionlint
-            pkgs.alejandra
             pkgs.bashInteractive
             pkgs.bat
             pkgs.broot
