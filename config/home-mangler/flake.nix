@@ -100,6 +100,7 @@
             pkgs.nix-update
             pkgs.nix-your-shell
             pkgs.nixfmt-rfc-style
+            pkgs.npins
             pkgs.pre-commit
             pkgs.rcm
             pkgs.ripgrep
@@ -116,6 +117,7 @@
             pkgs.typescript-language-server
             pkgs.units
             pkgs.universal-ctags
+            pkgs.uv
             pkgs.vscode-langservers-extracted
             pkgs.weechat
             pkgs.yaml-language-server
