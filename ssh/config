@@ -28,6 +28,9 @@ Host gerrit.lix.systems
     ControlPath /tmp/ssh-%r@%h:%p
     ControlPersist 120
 
+Host *.lix.systems
+    AddressFamily inet6
+
 # If this is not commented out on a Linux box everything will be fucked. Just FYI.
 Host *
   IdentityAgent "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
