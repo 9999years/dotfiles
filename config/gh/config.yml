@@ -4,5 +4,6 @@ aliases:
     co: pr checkout
     fork: repo fork
     clone: repo clone
+    create: repo create
     view: pr view --web
 version: "1"
