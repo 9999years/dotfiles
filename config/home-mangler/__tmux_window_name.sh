@@ -48,10 +48,15 @@ function repo_name {
 }
 
 function repo_name_and_dirname {
+    basename=$(basename "$(pwd)")
     if repo_name=$(repo_name); then
-        echo "$repo_name" "($(basename "$(pwd)"))"
+        if [[ "$basename" != "$repo_name" ]]; then
+            echo "$repo_name ($basename)"
+        else
+            echo "$repo_name"
+        fi
     else
-        basename "$(pwd)"
+        echo "$basename"
     fi
 }
 
