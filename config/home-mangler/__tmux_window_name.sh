@@ -47,4 +47,13 @@ function repo_name {
     fi
 }
 
-repo_name || basename "$(pwd)"
+function repo_name_and_dirname {
+    if repo_name=$(repo_name); then
+        echo "$repo_name" "($(basename "$(pwd)"))"
+    else
+        basename "$(pwd)"
+    fi
+}
+
+repo_name_and_dirname \
+    | sed 's/mercury-web-backend/mwb/g'
