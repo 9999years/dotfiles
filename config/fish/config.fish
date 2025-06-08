@@ -71,6 +71,7 @@ abbr --add --global c5 'cd ../../../../..'
 
 abbr --add --global gco 'git checkout'
 abbr --add --global gd 'git diff HEAD'
+abbr --add --global gdm 'git diff --merge-base'
 abbr --add --global gg 'git graph'
 abbr --add --global gp 'git pull'
 abbr --add --global gpu 'git push'
