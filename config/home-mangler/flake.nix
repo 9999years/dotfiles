@@ -101,6 +101,7 @@
             pkgs.nix-your-shell
             pkgs.nixfmt-rfc-style
             pkgs.npins
+            pkgs.nodejs_latest
             pkgs.pre-commit
             pkgs.rcm
             pkgs.ripgrep
