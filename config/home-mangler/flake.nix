@@ -137,6 +137,18 @@
           _name: pkg: if builtins.isAttrs pkg then final.lix else pkg
         ) prev.nixVersions;
 
+        nix-tree =
+          lib.warnIf (lib.versionAtLeast prev.nix-tree.version "0.6.3")
+            ''
+              nix-tree is ${prev.nix-tree.version}, but the override updates it to 0.6.3.
+            ''
+            (
+              prev.haskell.lib.compose.overrideCabal (drv: {
+                version = "0.6.3";
+                sha256 = "sha256-MpU7d4T+K+F3sNNLRYFI94SWAaLmWYGjD6FNtg9yvxk=";
+              }) prev.nix-tree
+            );
+
         # TODO: Use `lib.packagesFromDirectoryRecursive` or similar.
         __tmux_window_name = final.callPackage ./__tmux_window_name.nix { };
       };
