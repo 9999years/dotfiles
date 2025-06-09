@@ -7,8 +7,12 @@ pre_sudo = true
 # Display the time in step titles.
 display_time = true
 
-# I manage `stack` with `ghcup`.
-disable = [ "stack" ]
+disable = [
+    # I manage `stack` with `ghcup`.
+    "stack",
+    # I install `uv` with Nix.
+    "uv",
+]
 
 [commands]
 home-mangler = "home-mangler --update -v"
