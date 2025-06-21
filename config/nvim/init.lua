@@ -42,6 +42,7 @@ require("lazy").setup {
   { "tpope/vim-eunuch" },
 
   -- `%` (matchit) delimiter matching but with treesitter support.
+  -- This adds the `matchup` module to treesitter below.
   { "andymass/vim-matchup" },
 
   -- Better parsing for syntax highlighting and other goodies.
