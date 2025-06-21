@@ -52,6 +52,7 @@ require("lazy").setup {
     dependencies = {
       "nvim-treesitter/playground",
 
+      "nvim-treesitter/nvim-treesitter-textobjects",
       "RRethy/nvim-treesitter-textsubjects",
 
       -- Show "context" at the top of the window.
@@ -179,6 +180,25 @@ require("lazy").setup {
           enable = false,
           disable = {
             "markdown",
+          },
+        },
+        textobjects = {
+          select = {
+            enable = true,
+            lookahead = true,
+            keymaps = {
+              ["ia"] = "@parameter.inner",
+              ["aa"] = "@parameter.outer",
+              ["ic"] = "@class.inner",
+              ["ac"] = "@class.outer",
+              ["if"] = "@function.inner",
+              ["af"] = "@function.outer",
+              ["as"] = {
+                query = "@local.scope",
+                query_group = "locals",
+                desc = "Select language scope",
+              },
+            },
           },
         },
         -- Visual mappings for selecting.
