@@ -220,20 +220,32 @@ require("lazy").setup {
   {
     "nvim-telescope/telescope.nvim",
     config = function()
+      local builtin = require("telescope.builtin")
       require("batteries").map {
         { prefix = "<Leader>t", group = "telescope" },
         {
           "<Leader>tt",
-          "<cmd>Telescope builtin include_extensions=true<CR>",
+          function()
+            return builtin.builtin { include_extensions = true }
+          end,
           "Telescope",
         },
-        { "<Leader>tf", "<cmd>Telescope find_files hidden=true<CR>", "Find files" },
-        { "<Leader>tb", "<cmd>Telescope buffers<CR>", "Find buffers" },
-        { "<Leader>b", "<cmd>Telescope buffers<CR>", "Find buffers" },
-        { "<Leader>to", "<cmd>Telescope oldfiles<CR>", "Recently opened" },
+        {
+          "<Leader>tr",
+          builtin.resume,
+          "Resume",
+        },
+        {
+          "<Leader>tf",
+          function()
+            return builtin.find_files { hidden = true }
+          end,
+          "Find files",
+        },
+        { "<Leader>b", builtin.buffers, "Find buffers" },
         {
           "<Leader>t*",
-          "<cmd>Telescope grep_string<CR>",
+          builtin.grep_string,
           "Grep identifier under cursor",
         },
       }
