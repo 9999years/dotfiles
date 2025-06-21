@@ -152,7 +152,8 @@ require("lazy").setup {
           },
         },
         indent = {
-          enable = true,
+          -- maybe this sucks? (2025-06-20)
+          enable = false,
           disable = {
             "markdown",
           },
