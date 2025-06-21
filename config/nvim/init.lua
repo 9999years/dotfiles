@@ -54,6 +54,24 @@ require("lazy").setup {
 
       "RRethy/nvim-treesitter-textsubjects",
 
+      -- Show "context" at the top of the window.
+      {
+        "nvim-treesitter/nvim-treesitter-context",
+        config = function()
+          -- TODO: This doesn't work with the treesitter 'module' system?
+          require("treesitter-context").setup {
+            -- Only show a couple lines.
+            max_lines = 3,
+            min_window_height = 30,
+            patterns = {
+              nix = {
+                "binding",
+              },
+            },
+          }
+        end,
+      },
+
       -- Matching
       "vim-matchup",
 
