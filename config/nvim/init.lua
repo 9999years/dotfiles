@@ -51,8 +51,12 @@ require("lazy").setup {
     build = ":TSUpdate",
     dependencies = {
       "nvim-treesitter/playground",
+
+      "RRethy/nvim-treesitter-textsubjects",
+
       -- Matching
       "vim-matchup",
+
       -- Folding!
       {
         "kevinhwang91/nvim-ufo",
@@ -159,13 +163,19 @@ require("lazy").setup {
             "markdown",
           },
         },
-        incremental_selection = {
+        -- Visual mappings for selecting.
+        textsubjects = {
           enable = true,
+          -- All only in visual mode!
+          prev_selection = ",",
           keymaps = {
-            init_selection = "gnn", -- set to `false` to disable one of the mappings
-            node_incremental = "grn",
-            scope_incremental = "grc",
-            node_decremental = "grm",
+            -- `v.` Select "the current thing".
+            -- `.`  Select "more".
+            ["."] = "textsubjects-smart",
+            -- Select the "outer" container.
+            [";"] = "textsubjects-container-outer",
+            -- Select the "inner" container.
+            ["i;"] = "textsubjects-container-inner",
           },
         },
       }
