@@ -897,6 +897,8 @@ require("lazy").setup {
         end,
       },
       -- Rust inlay hints and extras.
+      --
+      -- Archived, replaced with: https://github.com/mrcjkb/rustaceanvim
       "simrat39/rust-tools.nvim",
       -- Neovim Lua setup.
       {
