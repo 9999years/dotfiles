@@ -757,6 +757,9 @@ require("lazy").setup {
   },
 
   -- Show a lightbulb to indicate code actions
+  --
+  -- Deprecation warning: `vim.validate is deprecated. Feature will be removed in Nvim 1.0`
+  -- See: https://github.com/kosayoda/nvim-lightbulb/pull/78
   {
     "kosayoda/nvim-lightbulb",
     opts = {
