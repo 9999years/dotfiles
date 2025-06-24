@@ -622,12 +622,10 @@ require("lazy").setup {
               if #entries == 1 then
                 cmp.confirm { select = true }
               else
-                cmp.select_next_item()
+                cmp.select_next_item {
+                  behavior = cmp.SelectBehavior.Select,
+                }
               end
-            elseif luasnip.expand_or_locally_jumpable() then
-              luasnip.expand_or_jump()
-            elseif has_words_before() then
-              cmp.complete()
             else
               fallback()
             end
