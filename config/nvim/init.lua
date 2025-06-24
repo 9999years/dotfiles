@@ -595,6 +595,7 @@ require("lazy").setup {
           ["<C-e>"] = cmp.mapping.scroll_docs(4),
           ["<C-l>"] = cmp.mapping.abort(),
           ["<C-Space>"] = cmp.mapping.complete(),
+
           ["<CR>"] = function(fallback)
             if cmp.get_selected_entry() ~= nil then
               -- If we have a completion selected, confirm it.
