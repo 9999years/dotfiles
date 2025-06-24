@@ -603,6 +603,17 @@ require("lazy").setup {
               fallback()
             end
           end,
+
+          ["<A-n>"] = function(_fallback)
+            -- Direction parameter.
+            luasnip.jump(1)
+          end,
+
+          ["<A-p>"] = function(_fallback)
+            -- Direction parameter.
+            luasnip.jump(-1)
+          end,
+
           ["<Tab>"] = cmp.mapping(function(fallback)
             if cmp.visible() then
               local entries = cmp.get_entries()
