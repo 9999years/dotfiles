@@ -824,23 +824,6 @@ require("lazy").setup {
     end,
   },
 
-  -- Language-specific plugins
-  -- vim-polyglot includes (among many others):
-  --   - rust-lang/rust.vim
-  --   - cespare/vim-toml
-  --   - wavded/vim-stylus
-  --   - typescript
-  --   - isobit/vim-caddyfile
-  --   - dag/vim-fish
-  --   - idris-hackers/idris-vim
-  --   - pangloss/vim-javascript
-  {
-    "sheerun/vim-polyglot",
-    init = function()
-      vim.g.polyglot_disabled = { "rust", "latex", "java", "markdown" }
-    end,
-  },
-
   -- Yesod Haskell web framework syntax highlighting.
   { "alx741/yesod.vim" },
 
