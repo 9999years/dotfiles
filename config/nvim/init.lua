@@ -967,8 +967,8 @@ require("lazy").setup {
           require("conform").format { bufnr = bufnr }
         end
 
-        local split_then = require("split_then").split_then
-        local vsplit_then = require("split_then").vsplit_then
+        local split_then = require("split-then").split_then
+        local vsplit_then = require("split-then").vsplit_then
 
         -- See `:help vim.lsp.*` for documentation on any of the below functions
         require("batteries").map {
@@ -1264,8 +1264,8 @@ vim.opt.shiftwidth = 4
 vim.opt.tabstop = 4
 vim.opt.exrc = true -- Load `.nvim.lua` when trusted
 
-local split_then = require("split_then").split_then
-local vsplit_then = require("split_then").vsplit_then
+local split_then = require("split-then").split_then
+local vsplit_then = require("split-then").vsplit_then
 
 local batteries = require("batteries")
 batteries.map {
