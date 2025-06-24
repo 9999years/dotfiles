@@ -1264,10 +1264,6 @@ vim.opt.shiftwidth = 4
 vim.opt.tabstop = 4
 vim.opt.exrc = true -- Load `.nvim.lua` when trusted
 
-if vim.fn.executable("rg") == 1 then
-  vim.opt.grepprg = "rg --line-number $*"
-end
-
 local split_then = require("split_then").split_then
 local vsplit_then = require("split_then").vsplit_then
 
