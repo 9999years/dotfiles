@@ -594,6 +594,7 @@ require("lazy").setup {
           ["<C-a>"] = cmp.mapping.scroll_docs(-4),
           ["<C-e>"] = cmp.mapping.scroll_docs(4),
           ["<C-l>"] = cmp.mapping.abort(),
+          ["<C-z>"] = cmp.mapping.abort(),
           ["<C-Space>"] = cmp.mapping.complete(),
 
           ["<CR>"] = function(fallback)
@@ -603,11 +604,6 @@ require("lazy").setup {
             else
               fallback()
             end
-          end,
-
-          -- Cancel completions.
-          ["<C-z>"] = function(_fallback)
-            cmp.abort()
           end,
 
           ["<A-n>"] = function(_fallback)
