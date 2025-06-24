@@ -604,6 +604,11 @@ require("lazy").setup {
             end
           end,
 
+          -- Cancel completions.
+          ["<C-z>"] = function(_fallback)
+            cmp.abort()
+          end,
+
           ["<A-n>"] = function(_fallback)
             -- Direction parameter.
             luasnip.jump(1)
