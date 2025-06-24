@@ -606,6 +606,26 @@ require("lazy").setup {
             end
           end,
 
+          ["<C-n>"] = cmp.mapping(function(fallback)
+            if cmp.visible() then
+              cmp.select_next_item {
+                behavior = cmp.SelectBehavior.Select,
+              }
+            else
+              fallback()
+            end
+          end, { "i", "s" }),
+
+          ["<C-p>"] = cmp.mapping(function(fallback)
+            if cmp.visible() then
+              cmp.select_prev_item {
+                behavior = cmp.SelectBehavior.Select,
+              }
+            else
+              fallback()
+            end
+          end, { "i", "s" }),
+
           ["<A-n>"] = function(_fallback)
             -- Direction parameter.
             luasnip.jump(1)
