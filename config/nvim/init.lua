@@ -176,6 +176,38 @@ require("lazy").setup {
     end,
   },
 
+  {
+    "wesQ3/vim-windowswap",
+    init = function()
+      vim.g.windowswap_map_keys = 0
+    end,
+    config = function()
+      require("batteries").map {
+        {
+          "<C-w>y",
+          function()
+            vim.fn["WindowSwap#MarkWindowSwap"]()
+          end,
+          "Yank window",
+        },
+        {
+          "<C-w>p",
+          function()
+            vim.fn["WindowSwap#DoWindowSwap"]()
+          end,
+          "Paste window",
+        },
+        {
+          "<C-w>e",
+          function()
+            vim.fn["WindowSwap#EasyWindowSwap"]()
+          end,
+          "Easy swap window",
+        },
+      }
+    end,
+  },
+
   -- Yesod Haskell web framework syntax highlighting.
   { "alx741/yesod.vim" },
 
