@@ -17,7 +17,7 @@ M.dependencies = {
       -- TODO: This doesn't work with the treesitter 'module' system?
       require("treesitter-context").setup {
         -- Only show a couple lines.
-        max_lines = 3,
+        max_lines = "10%",
         min_window_height = 30,
         patterns = {
           nix = {
