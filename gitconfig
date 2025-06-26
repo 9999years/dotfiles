@@ -45,6 +45,10 @@
 [commit]
 	verbose = true
 [diff]
+	# > This algorithm extends the patience algorithm to "support
+	# > low-occurrence common elements".
+	#
+	# See: https://blog.jcoglan.com/2017/09/19/the-patience-diff-algorithm/
 	algorithm = histogram
 	# Detect when code has moved without being changed and dim it so it's easy
 	# to ignore.
