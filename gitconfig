@@ -49,6 +49,9 @@
 	# Detect when code has moved without being changed and dim it so it's easy
 	# to ignore.
 	colorMoved = dimmed-zebra
+	# When figuring out if code moved, ignore whitespace changes (e.g. indent
+	# changes).
+	colorMovedWS = ignore-all-space
 	# Replace `a/` and `b/` in your diff header output with where the diff is
 	# coming from, so `i/` (index), `w/` (working directory), or `c/` (commit).
 	mnemonicPrefix = true
