@@ -10,7 +10,6 @@ local M = {
 
 function M.config()
   local luasnip = require("luasnip")
-  -- require("luasnip.util.log").set_loglevel("info")
   luasnip.setup {
     -- This `snip_env` is used as globals when loading snippets from `.lua`
     -- files.
