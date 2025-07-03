@@ -159,20 +159,35 @@ require("lazy").setup {
           [".*/.github/workflows/.*%.yml"] = "yaml.ghaction",
           [".*/.github/workflows/.*%.yaml"] = "yaml.ghaction",
         },
+        filename = {
+          ["flake.lock"] = "json.flake",
+        },
       }
 
       local lint = require("lint")
 
+      -- Display `lastModified` timestamps in `flake.lock` files as human-readable dates.
+      lint.linters.flake_lock_unix_timestamps =
+        require("rbt.flake_lock_unix_timestamps")
+
       lint.linters_by_ft = {
         sh = { "shellcheck" },
         ghaction = { "actionlint" },
+        flake = { "flake_lock_unix_timestamps" },
       }
 
-      vim.api.nvim_create_autocmd({ "BufWritePost" }, {
+      -- Lint when opening or writing a file.
+      vim.api.nvim_create_autocmd({ "BufEnter", "BufWritePost" }, {
         callback = function()
           lint.try_lint()
         end,
       })
+
+      -- Display human-readable `flake.lock` timestamps in virtual text,
+      -- without needing to jump to the lint explicitly.
+      local flakeunixtime_namespace =
+        require("lint").get_namespace("flake_lock_unix_timestamps")
+      vim.diagnostic.config({ virtual_text = true }, flakeunixtime_namespace)
     end,
   },
 
