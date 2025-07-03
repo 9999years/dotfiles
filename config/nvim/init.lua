@@ -382,3 +382,9 @@ batteries.cmd {
   end,
   "Search for Git merge conflict markers",
 }
+
+vim.filetype.add {
+  filename = {
+    ["gitconfig"] = "gitconfig",
+  },
+}
