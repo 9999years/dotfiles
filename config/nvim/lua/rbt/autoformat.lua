@@ -22,6 +22,7 @@ function M.config()
       haskell = {
         lsp_format = "never",
       },
+      ["*"] = { "keep-sorted" },
     },
     notify_no_formatters = false,
     format_after_save = function(bufnr)
