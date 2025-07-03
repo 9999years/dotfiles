@@ -13,7 +13,7 @@
 
 [alias]
 	last = log -1 HEAD
-	graph = log --decorate --oneline --graph
+	graph = log --graph --pretty='format:%C(auto)%h%(decorate) %s %C(dim)%>|(-20,trunc)%ch %>|(-1,trunc)%an%Creset'
 	co = checkout
 	d = diff
 	g = graph
