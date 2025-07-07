@@ -224,6 +224,7 @@ function M.config()
       -- https://github.com/redhat-developer/yaml-language-server
       ["yaml.schemaStore.enable"] = true,
 
+      -- See: https://rust-analyzer.github.io/book/configuration
       ["rust-analyzer"] = {
         -- Meanwhile, `rust-analyzer` won't recognize `imports.granularity.group`
         -- unless it's formatted *with* nested tables.
@@ -247,10 +248,6 @@ function M.config()
           expressionAdjustmentHints = {
             enable = "always",
           },
-        },
-        checkOnSave = {
-          -- Get clippy lints
-          command = "clippy",
         },
         files = {
           excludeDirs = {
