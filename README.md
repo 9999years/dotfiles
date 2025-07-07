@@ -31,6 +31,7 @@ Setup with `git clone --recurse-submodules https://github.com/9999years/dotfiles
 - [`npm install -g pyright`](https://github.com/microsoft/pyright)
 - [`brew install --cask raycast`](https://www.raycast.com/)
 - [`brew install --cask rectangle`](https://rectangleapp.com/)
+- [`brew install --cask alt-tab`](https://alt-tab-macos.netlify.app/)
 - [`brew install entr`](https://github.com/eradman/entr)
 - [`brew install mas`](https://github.com/mas-cli/mas)
 - [`brew install pam-reattach`](https://github.com/fabianishere/pam_reattach)
