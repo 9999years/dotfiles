@@ -12,6 +12,8 @@ disable = [
     "stack",
     # I install `uv` with Nix.
     "uv",
+    # I install `node` with Nix.
+    "node",
 ]
 
 [commands]
