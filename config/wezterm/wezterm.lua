@@ -7,6 +7,8 @@ config.font_size = 16.0
 
 config.window_decorations = "INTEGRATED_BUTTONS|RESIZE"
 
+config.scrollback_lines = 100000
+
 config.leader = {
 	key = "b",
 	mods = "CTRL",
