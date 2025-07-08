@@ -1,3 +1,4 @@
+-- See: https://wezterm.org/config/files.html
 local wezterm = require("wezterm")
 local act = wezterm.action
 local config = {}
@@ -15,6 +16,8 @@ config.leader = {
 	mods = "CTRL",
 }
 
+-- See: https://wezterm.org/config/keys.html
+-- See: https://wezterm.org/config/lua/keyassignment/
 config.keys = {
 	-- Split panes.
 	{
