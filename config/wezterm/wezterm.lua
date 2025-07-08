@@ -2,7 +2,8 @@ local wezterm = require("wezterm")
 local act = wezterm.action
 local config = {}
 
-config.font = wezterm.font("PragmataProLiga Nerd Font")
+-- TODO: Fallbacks?
+config.font = wezterm.font("PragmataPro Liga")
 config.font_size = 16.0
 
 config.window_decorations = "INTEGRATED_BUTTONS|RESIZE"
