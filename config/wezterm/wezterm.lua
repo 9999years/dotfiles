@@ -95,6 +95,13 @@ config.keys = {
 		action = act.SpawnTab("CurrentPaneDomain"),
 	},
 
+	-- Copy mode.
+	{
+		key = "[",
+		mods = "LEADER",
+		action = act.ActivateCopyMode,
+	},
+
 	-- WezTerm-specific :)
 	{
 		key = "k",
