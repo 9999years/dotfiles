@@ -11,6 +11,12 @@ config.window_decorations = "INTEGRATED_BUTTONS|RESIZE"
 
 config.scrollback_lines = 100000
 
+-- Show which key table is active in the status area
+wezterm.on("update-right-status", function(window, _pane)
+	local name = window:active_key_table()
+	window:set_right_status(name or "")
+end)
+
 config.leader = {
 	key = "b",
 	mods = "CTRL",
