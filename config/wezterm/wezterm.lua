@@ -30,6 +30,29 @@ config.leader = {
   mods = "CTRL",
 }
 
+if wezterm.gui then
+  local copy_mode = nil
+  copy_mode = wezterm.gui.default_key_tables().copy_mode
+
+  table.insert(copy_mode, {
+    key = "Enter",
+    action = act.Multiple {
+      act.CopyTo("Clipboard"),
+      act.CopyMode("Close"),
+    },
+  })
+
+  table.insert(copy_mode, {
+    key = "?",
+    action = act.Search("CurrentSelectionOrEmptyString"),
+  })
+
+  -- See: https://wezterm.org/config/key-tables.html
+  config.key_tables = {
+    copy_mode = copy_mode,
+  }
+end
+
 -- See: https://wezterm.org/config/keys.html
 -- See: https://wezterm.org/config/lua/keyassignment/
 config.keys = {
