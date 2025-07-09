@@ -72,9 +72,35 @@ extend_key_table("copy_mode", {
     key = "/",
     action = act.Search("CurrentSelectionOrEmptyString"),
   },
+
   { key = "n", action = act.CopyMode("NextMatch") },
   { key = "N", action = act.CopyMode("PriorMatch") },
   { key = "p", action = act.CopyMode("PriorMatch") },
+
+  -- VERY hacky paragraph movement.
+  -- See: https://github.com/wezterm/wezterm/issues/7079
+  {
+    key = "{",
+    action = act.Multiple {
+      act.Search {
+        Regex = "^\\s*$",
+      },
+      act.CopyMode("PriorMatch"),
+      act.CopyMode("AcceptPattern"),
+      act.CopyMode("ClearSelectionMode"),
+    },
+  },
+  {
+    key = "}",
+    action = act.Multiple {
+      act.Search {
+        Regex = "^\\s*$",
+      },
+      act.CopyMode("NextMatch"),
+      act.CopyMode("AcceptPattern"),
+      act.CopyMode("ClearSelectionMode"),
+    },
+  },
 })
 
 extend_key_table("search_mode", {
