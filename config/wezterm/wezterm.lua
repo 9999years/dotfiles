@@ -138,6 +138,12 @@ config.keys = {
   -- Copy mode.
   { key = "[", mods = "LEADER", action = act.ActivateCopyMode },
 
+  {
+    key = "?",
+    mods = "LEADER",
+    action = act.Search("CurrentSelectionOrEmptyString"),
+  },
+
   -- WezTerm-specific :)
   { key = "k", mods = "CMD", action = act.ActivateCommandPalette },
 }
