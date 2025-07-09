@@ -8,6 +8,12 @@ config.font = wezterm.font("PragmataPro Liga")
 config.font_size = 16.0
 
 config.window_decorations = "INTEGRATED_BUTTONS|RESIZE"
+config.window_padding = {
+  left = "0cell",
+  right = "0cell",
+  top = "0cell",
+  bottom = "0cell",
+}
 
 config.scrollback_lines = 100000
 
