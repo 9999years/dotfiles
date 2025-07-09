@@ -3,6 +3,32 @@ local wezterm = require("wezterm")
 local act = wezterm.action
 local config = {}
 
+-- Like `table.insert`, but adds multiple entries and only to the end of a
+-- table.
+local function insert_all(table_, entries)
+  for _i, entry in ipairs(entries) do
+    table.insert(table_, entry)
+  end
+end
+
+-- Add a series of key bindings to a default key table.
+--
+-- See: https://wezterm.org/config/key-tables.html
+-- See: https://wezterm.org/config/lua/wezterm.gui/default_key_tables.html
+local function extend_key_table(name, entries)
+  if wezterm.gui then
+    local key_table = wezterm.gui.default_key_tables()[name]
+
+    insert_all(key_table, entries)
+
+    if config.key_tables == nil then
+      config.key_tables = {}
+    end
+
+    config.key_tables[name] = key_table
+  end
+end
+
 -- TODO: Fallbacks?
 config.font = wezterm.font("PragmataPro Liga")
 config.font_size = 16.0
@@ -30,28 +56,42 @@ config.leader = {
   mods = "CTRL",
 }
 
-if wezterm.gui then
-  local copy_mode = nil
-  copy_mode = wezterm.gui.default_key_tables().copy_mode
-
-  table.insert(copy_mode, {
+extend_key_table("copy_mode", {
+  {
     key = "Enter",
     action = act.Multiple {
       act.CopyTo("Clipboard"),
       act.CopyMode("Close"),
     },
-  })
-
-  table.insert(copy_mode, {
+  },
+  {
     key = "?",
     action = act.Search("CurrentSelectionOrEmptyString"),
-  })
+  },
+  {
+    key = "/",
+    action = act.Search("CurrentSelectionOrEmptyString"),
+  },
+  { key = "n", action = act.CopyMode("NextMatch") },
+  { key = "N", action = act.CopyMode("PriorMatch") },
+  { key = "p", action = act.CopyMode("PriorMatch") },
+})
 
-  -- See: https://wezterm.org/config/key-tables.html
-  config.key_tables = {
-    copy_mode = copy_mode,
-  }
-end
+extend_key_table("search_mode", {
+  {
+    key = "Enter",
+    action = act.Multiple {
+      act.CopyMode("AcceptPattern"),
+    },
+  },
+  {
+    key = "Escape",
+    action = act.Multiple {
+      act.CopyMode("AcceptPattern"),
+      act.CopyMode("ClearSelectionMode"),
+    },
+  },
+})
 
 -- See: https://wezterm.org/config/keys.html
 -- See: https://wezterm.org/config/lua/keyassignment/
