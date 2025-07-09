@@ -16,6 +16,7 @@ config.window_padding = {
 }
 
 config.scrollback_lines = 100000
+config.bypass_mouse_reporting_modifiers = "CMD"
 
 -- Show which key table is active in the status area
 wezterm.on("update-right-status", function(window, _pane)
