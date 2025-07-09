@@ -56,6 +56,8 @@ config.leader = {
   mods = "CTRL",
 }
 
+-- Search/copy mode is kinda janky.
+-- See: https://github.com/wezterm/wezterm/issues/5952
 extend_key_table("copy_mode", {
   {
     key = "Enter",
