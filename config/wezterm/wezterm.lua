@@ -17,6 +17,7 @@ config.window_padding = {
 
 config.scrollback_lines = 100000
 config.bypass_mouse_reporting_modifiers = "CMD"
+config.enable_kitty_keyboard = true
 
 -- Show which key table is active in the status area
 wezterm.on("update-right-status", function(window, _pane)
