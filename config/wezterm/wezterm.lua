@@ -176,4 +176,12 @@ config.keys = {
   { key = "k", mods = "CMD", action = act.ActivateCommandPalette },
 }
 
+config.mouse_bindings = {
+  {
+    event = { Up = { streak = 1, button = "Left" } },
+    mods = "CMD",
+    action = act.CompleteSelectionOrOpenLinkAtMouseCursor("Clipboard"),
+  },
+}
+
 return config
