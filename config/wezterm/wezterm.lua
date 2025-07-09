@@ -108,9 +108,7 @@ extend_key_table("copy_mode", {
 extend_key_table("search_mode", {
   {
     key = "Enter",
-    action = act.Multiple {
-      act.CopyMode("AcceptPattern"),
-    },
+    action = act.CopyMode("AcceptPattern"),
   },
   {
     key = "Escape",
