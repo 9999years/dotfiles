@@ -43,6 +43,13 @@ function M.config()
       end,
       "Find files",
     },
+    {
+      "<Leader>tg",
+      function()
+        return builtin.live_grep()
+      end,
+      "Grep",
+    },
     { "<Leader>b", builtin.buffers, "Find buffers" },
     {
       "<Leader>t*",
