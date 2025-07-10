@@ -172,6 +172,14 @@ config.keys = {
 
   -- WezTerm-specific :)
   { key = "k", mods = "CMD", action = act.ActivateCommandPalette },
+
+  -- Don't encode `Delete` as `CTRL-h`.
+  {
+    key = "phys:Delete",
+    action = act.SendKey {
+      key = "Delete",
+    },
+  },
 }
 
 config.mouse_bindings = {
