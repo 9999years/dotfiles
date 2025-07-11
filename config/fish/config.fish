@@ -85,6 +85,8 @@ abbr --add --global tz timedatectl
 abbr --add --global x 'chmod +x'
 abbr --add --global tree 'eza --tree --level 2'
 
+bind ctrl-w backward-kill-word
+
 # Fish still seems to overwrite user-defined functions for `ls` and `ll`, so these live here.
 
 function ls --wraps eza -d 'List files'
