@@ -1,4 +1,12 @@
 -- See: https://wezterm.org/config/files.html
+--
+-- Wishlist:
+-- - Drag to reorder tabs: https://github.com/wezterm/wezterm/issues/549
+-- - Get entire key table stack: https://github.com/wezterm/wezterm/issues/3460
+-- - Spawn tab next to current tab: https://github.com/wezterm/wezterm/issues/909
+-- - Resize panes to equal sizes: https://github.com/wezterm/wezterm/issues/2972
+-- - Switch pane layouts: https://github.com/wezterm/wezterm/issues/3516
+-- - Inspect/mutate pane layouts from Lua: https://github.com/wezterm/wezterm/issues/7083
 local wezterm = require("wezterm")
 local act = wezterm.action
 local config = {}
@@ -146,6 +154,10 @@ config.keys = {
   -- Rotate panes.
   { key = "o", mods = "LEADER|CTRL", action = act.RotatePanes("Clockwise") },
   { key = "r", mods = "LEADER|CTRL", action = act.RotatePanes("CounterClockwise") },
+
+  -- TODO: Binding to swap panes.
+  -- See: https://wezterm.org/config/lua/keyassignment/PaneSelect.html
+  -- See: https://wezterm.org/config/lua/MuxTab/get_pane_direction.html
 
   -- Tabs.
   { key = "p", mods = "LEADER", action = act.ActivateTabRelative(-1) },
