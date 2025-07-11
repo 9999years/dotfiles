@@ -11,3 +11,7 @@
 
 # Enable case-insensitive search for lowercase queries.
 --smart-case
+
+# Buck files have many extensions.
+--type-add
+buck:{BUCK,BUCK.v2,*.bzl,*.bxl}
