@@ -53,6 +53,13 @@ config.scrollback_lines = 100000
 config.bypass_mouse_reporting_modifiers = "CMD"
 config.enable_kitty_keyboard = true
 
+config.quick_select_patterns = {
+  "sha256-[a-zA-Z0-9+/=]{44}",
+  -- Hash part can't include a couple characters, name part can include almost
+  -- anything.
+  "/nix/store/[a-z0-9]{32}-[a-zA-Z0-9_.-]*",
+}
+
 -- Show which key table is active in the status area
 wezterm.on("update-right-status", function(window, _pane)
   local name = window:active_key_table()
