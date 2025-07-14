@@ -51,7 +51,6 @@ config.window_padding = {
 
 config.scrollback_lines = 100000
 config.bypass_mouse_reporting_modifiers = "CMD"
-config.enable_kitty_keyboard = true
 
 config.quick_select_patterns = {
   "sha256-[a-zA-Z0-9+/=]{44}",
