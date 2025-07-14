@@ -75,6 +75,10 @@ wezterm.on("update-right-status", function(window, _pane)
   window:set_right_status(status)
 end)
 
+config.colors = {
+  compose_cursor = "orange",
+}
+
 config.leader = {
   key = "b",
   mods = "CTRL",
