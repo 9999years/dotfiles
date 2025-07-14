@@ -212,6 +212,16 @@ config.keys = {
       key = "Delete",
     },
   },
+
+  -- `CTRL-b CTRL-b` = `CTRL-b`.
+  {
+    key = "b",
+    mods = "CTRL|LEADER",
+    action = act.SendKey {
+      key = "b",
+      mods = "CTRL",
+    },
+  },
 }
 
 config.mouse_bindings = {
