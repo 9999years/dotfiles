@@ -62,7 +62,17 @@ config.quick_select_patterns = {
 -- Show which key table is active in the status area
 wezterm.on("update-right-status", function(window, _pane)
   local name = window:active_key_table()
-  window:set_right_status(name or "")
+  local status = name or ""
+
+  if window:leader_is_active() then
+    if status then
+      status = "leader " .. status
+    else
+      status = "leader"
+    end
+  end
+
+  window:set_right_status(status)
 end)
 
 config.leader = {
