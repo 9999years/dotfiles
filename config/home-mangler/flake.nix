@@ -89,6 +89,7 @@
             pkgs.jujutsu
             pkgs.keep-sorted
             pkgs.less
+            pkgs.lixPackageSets.latest.nix-eval-jobs
             pkgs.lua-language-server
             pkgs.neovim
             pkgs.nil
