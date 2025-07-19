@@ -123,6 +123,7 @@
             pkgs.vscode-langservers-extracted
             pkgs.weechat
             pkgs.yaml-language-server
+            pkgs.yt-dlp
           ];
         };
     in
