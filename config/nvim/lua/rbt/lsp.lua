@@ -169,7 +169,7 @@ local function lsp_on_attach(client, bufnr)
     },
     { "<M-.>", vim.lsp.buf.code_action, "Code actions", mode = { "i", "n" } },
     { "<space>e", get_line_diagnostics, "Get diagnostics" },
-    { "<space>q", vim.diagnostic.setloclist, "Set loclist to diagnostics" },
+    { "<space>q", vim.diagnostic.setqflist, "Set qflist to diagnostics" },
     { "<space>f", format, "Format buffer" },
     { "<space>f", format, "Format range", mode = "v" },
     {
