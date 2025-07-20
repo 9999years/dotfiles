@@ -64,6 +64,29 @@ end
 local split_then = require("split-then").split_then
 local vsplit_then = require("split-then").vsplit_then
 
+--- @arg opts vim.diagnostic.JumpOpts
+local function jump_most_severe(opts)
+  --- @arg severity vim.diagnostic.Severity
+  local function opts_for_severity(severity)
+    return vim.tbl_extend("keep", {
+      severity = severity,
+    }, opts)
+  end
+
+  local diagnostic =
+    vim.diagnostic.jump(opts_for_severity(vim.diagnostic.severity.ERROR))
+  if diagnostic ~= nil then
+    return
+  end
+
+  diagnostic = vim.diagnostic.jump(opts_for_severity(vim.diagnostic.severity.WARN))
+  if diagnostic ~= nil then
+    return
+  end
+
+  vim.diagnostic.jump(opts)
+end
+
 -- Use an on_attach function to only map the following keys
 -- after the language server attaches to the current buffer
 local function lsp_on_attach(client, bufnr)
@@ -160,6 +183,25 @@ local function lsp_on_attach(client, bufnr)
       "Remove workspace folder",
     },
     { "<space>wl", list_workspace_folders, "List workspace folders" },
+
+    {
+      "[d",
+      function()
+        jump_most_severe {
+          count = -1,
+        }
+      end,
+      "Go to next diagnostic",
+    },
+    {
+      "]d",
+      function()
+        jump_most_severe {
+          count = 1,
+        }
+      end,
+      "Go to next diagnostic",
+    },
   }
 
   -- Setup progress/status info
