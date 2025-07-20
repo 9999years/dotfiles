@@ -52,7 +52,6 @@
             pkgs.curl
             pkgs.man
 
-            pkgs.__tmux_window_name
             pkgs.actionlint
             pkgs.bashInteractive
             pkgs.bat
@@ -106,6 +105,7 @@
             pkgs.pre-commit
             pkgs.rcm
             pkgs.ripgrep
+            pkgs.rbt.__tmux_window_name
             pkgs.rnr # Batch/regex renamer.
             pkgs.ruff # Python formatter.
             pkgs.rust-analyzer
@@ -139,8 +139,7 @@
           _name: pkg: if builtins.isAttrs pkg then final.lix else pkg
         ) prev.nixVersions;
 
-        # TODO: Use `lib.packagesFromDirectoryRecursive` or similar.
-        __tmux_window_name = final.callPackage ./__tmux_window_name.nix { };
+        rbt = final.callPackage ./makePkgs.nix { };
       };
 
       pkgs = lib.mapAttrs (system: _pkgs: makePkgs system) nixpkgs.legacyPackages;
