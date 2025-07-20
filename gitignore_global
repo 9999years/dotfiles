@@ -96,3 +96,5 @@ result-*
 .coverage
 # Zed editor configuration
 .zed
+# Jujutsu repository
+.jj
