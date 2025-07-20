@@ -55,6 +55,14 @@ config.bypass_mouse_reporting_modifiers = "CMD"
 config.quick_select_patterns = {
   -- Nix SRI hash syntax, seen in Nix build hash mismatch outputs.
   "sha256-[a-zA-Z0-9+/=]{44}",
+
+  -- Jujutsu chanage IDs.
+  --
+  -- > A change ID is a unique identifier for a change. [...] These are
+  -- > actually hexadecimal numbers that use "digits" z-k instead of 0-9a-f.
+  --
+  -- See: https://jj-vcs.github.io/jj/latest/glossary/#change-id
+  "[k-z]{8,32}",
 }
 
 -- Show which key table is active in the status area
