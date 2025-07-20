@@ -69,6 +69,7 @@ abbr --add --global c3 'cd ../../..'
 abbr --add --global c4 'cd ../../../..'
 abbr --add --global c5 'cd ../../../../..'
 
+# Git aliases.
 abbr --add --global gco 'git checkout'
 abbr --add --global gd 'git diff HEAD'
 abbr --add --global gdm 'git diff --merge-base'
