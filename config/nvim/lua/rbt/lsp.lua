@@ -22,6 +22,10 @@ M.dependencies = {
   -- Archived, replaced with: https://github.com/mrcjkb/rustaceanvim
   "simrat39/rust-tools.nvim",
 
+  -- Needed to handle the `omnisharp` LSP's nonsense `$metadata` paths
+  -- correctly.
+  "Hoffs/omnisharp-extended-lsp.nvim",
+
   -- Neovim Lua setup.
   {
     "folke/lazydev.nvim",
@@ -107,13 +111,30 @@ local function lsp_on_attach(client, bufnr)
 
   reset_defaults(client, bufnr)
 
+  local definition = vim.lsp.buf.definition
+  local type_definition = vim.lsp.buf.type_definition
+  local references = vim.lsp.buf.references
+  local implementation = vim.lsp.buf.implementation
+
+  if vim.bo["filetype"] == "cs" then
+    local omnisharp = require("omnisharp_extended")
+    definition = omnisharp.lsp_definition
+    type_definition = omnisharp.lsp_type_definition
+    references = omnisharp.lsp_references
+    implementation = omnisharp.lsp_implementation
+  end
+
   -- See `:help vim.lsp.*` for documentation on any of the below functions
   require("batteries").map {
     buffer = bufnr,
     { "gD", vim.lsp.buf.declaration, "Go to declaration" },
-    { "gd", vim.lsp.buf.definition, "Go to definition" },
-    { "gi", vim.lsp.buf.implementation, "Go to implementation" },
-    { "gt", vim.lsp.buf.type_definition, "Go to symbol's type" },
+    { "gd", definition, "Go to definition" },
+    { "gi", implementation, "Go to implementation" },
+    { "gt", type_definition, "Go to symbol's type" },
+
+    { "grr", references, "Go to references" },
+    { "gri", implementation, "Go to implementation" },
+    { "grt", type_definition, "Go to type definition" },
 
     {
       "gsD",
@@ -339,6 +360,16 @@ function M.config()
         autoEvalInputs = true,
       },
     },
+    omnisharp = {
+      cmd = {
+        "OmniSharp",
+        "--zero-based-indices",
+        "DotNet:enablePackageRestore=false",
+        "--encoding",
+        "utf-8",
+        "--languageserver",
+      },
+    },
   }
 
   if vim.fn.executable("static-ls") == 1 then
@@ -380,6 +411,7 @@ function M.config()
     "gopls", -- https://github.com/golang/tools/tree/master/gopls
     "clangd", -- https://clangd.llvm.org/
     "buck2", -- https://buck2.build/docs/users/commands/lsp/
+    "omnisharp", -- C# https://github.com/dotnet/roslyn
   }
 
   for _, lsp in ipairs(lsp_servers) do
