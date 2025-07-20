@@ -37,11 +37,6 @@
         let
           pkgs = self.pkgs.${system};
           home-mangler-lib = home-mangler.lib.${system};
-
-          # https://github.com/NixOS/nixpkgs/pull/385865
-          git-revise = pkgs.git-revise.overridePythonAttrs (drv: {
-            doCheck = false;
-          });
         in
         home-mangler-lib.makeConfiguration {
           packages = [
@@ -76,7 +71,7 @@
             pkgs.git-hub
             pkgs.git-lfs
             pkgs.git-prole
-            git-revise
+            pkgs.git-revise
             pkgs.git-upstream
             pkgs.gitleaks
             pkgs.home-mangler
