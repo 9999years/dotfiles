@@ -40,13 +40,16 @@
         in
         home-mangler-lib.makeConfiguration {
           packages = [
+            # keep-sorted start
             pkgs.coreutils
-            pkgs.findutils # `find` and `xargs`
-            pkgs.gnused
-            pkgs.gnugrep
             pkgs.curl
+            pkgs.findutils # `find` and `xargs`
+            pkgs.gnugrep
+            pkgs.gnused
             pkgs.man
+            # keep-sorted end
 
+            # keep-sorted start
             pkgs.actionlint
             pkgs.bashInteractive
             pkgs.bat
@@ -66,7 +69,6 @@
             pkgs.gh
             pkgs.git
             pkgs.git-absorb
-            pkgs.git-gr
             pkgs.git-gr
             pkgs.git-hub
             pkgs.git-lfs
@@ -90,18 +92,18 @@
             pkgs.nix-diff
             pkgs.nix-direnv
             pkgs.nix-index
-            pkgs.nix-tree
             pkgs.nix-top
+            pkgs.nix-tree
             pkgs.nix-update
             pkgs.nix-your-shell
             pkgs.nixfmt-rfc-style
-            pkgs.npins
             pkgs.nodejs_latest
+            pkgs.npins
             pkgs.pre-commit
-            pkgs.rcm
-            pkgs.ripgrep
             pkgs.rbt.__tmux_window_name
             pkgs.rbt.slsk-batchdl
+            pkgs.rcm
+            pkgs.ripgrep
             pkgs.rnr # Batch/regex renamer.
             pkgs.ruff # Python formatter.
             pkgs.rust-analyzer
@@ -120,6 +122,7 @@
             pkgs.weechat
             pkgs.yaml-language-server
             pkgs.yt-dlp
+            # keep-sorted end
           ];
         };
     in
