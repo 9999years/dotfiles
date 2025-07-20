@@ -4,6 +4,12 @@ user.email = "rbt@sent.as"
 [aliases]
 # Move all bookmarks that are ancestors of `@-` to be at `@-`.
 tug = ["bookmark", "move", "--from", "heads(::@- & bookmarks())", "--to", "@-"]
+mut = ["--ignore-immutable"]
+here = ["bookmark", "set", "--revision", "@-"]
+blame = ["file", "annotate"]
+fetch = ["git", "fetch"]
+init = ["git", "init", "--colocate"]
+push = ["git", "push"]
 
 [ui]
 default-command = "log"
