@@ -1,8 +1,6 @@
 user.name = "Rebecca Turner"
 user.email = "rbt@sent.as"
 
-aliases.b = ["branch"]
-aliases.l = ["log", "-r", "(main..@):: | (main..@)-"]
 
 [templates]
 draft_commit_description = '''
