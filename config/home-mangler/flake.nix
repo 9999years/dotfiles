@@ -57,7 +57,6 @@
             pkgs.cargo-nextest
             pkgs.cargo-watch
             pkgs.delta # `git-delta`
-            pkgs.deno
             pkgs.dig
             pkgs.direnv
             pkgs.eza
