@@ -257,6 +257,8 @@ vim.opt.expandtab = true
 vim.opt.shiftwidth = 4
 vim.opt.tabstop = 4
 vim.opt.exrc = true -- Load `.nvim.lua` when trusted
+vim.opt.wildoptions:append { "fuzzy" } -- Fuzzy completion in command line
+vim.opt.wildignorecase = true
 
 local split_then = require("split-then").split_then
 local vsplit_then = require("split-then").vsplit_then
