@@ -9,6 +9,11 @@ tug = ["bookmark", "move", "--from", "heads(::@- & bookmarks())", "--to", "@-"]
 default-command = "log"
 diff-editor = ":builtin"
 
+# Note: Doesn't support `colorMoved`, but neither does the builtin diff formatter.
+# See: https://github.com/jj-vcs/jj/issues/76
+pager = "delta"
+diff-formatter = ":git"
+
 [templates]
 draft_commit_description = '''
 concat(
