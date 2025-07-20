@@ -80,6 +80,13 @@ abbr --add --global gle 'git leash'
 abbr --add --global gst 'git status'
 abbr --add --global gsw 'git switch'
 
+# Jujutsu aliases.
+abbr --add --global jco 'jj restore'
+abbr --add --global jd 'jj diff'
+abbr --add --global jg 'jj log --revisions ::@'
+abbr --add --global jst 'jj st'
+abbr --add --global jsw 'jj edit'
+
 abbr --add --global v nvim
 abbr --add --global s 'sudo systemctl'
 abbr --add --global tz timedatectl
