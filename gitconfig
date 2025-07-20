@@ -6,8 +6,6 @@
 [core]
 	editor = nvim
 	autocrlf = false
-	excludesFile = ~/.gitignore_global
-	attributesFile = ~/.gitattributes_global
 	eol = lf
 	pager = delta --features main-theme
 
