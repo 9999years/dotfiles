@@ -55,9 +55,6 @@ config.bypass_mouse_reporting_modifiers = "CMD"
 config.quick_select_patterns = {
   -- Nix SRI hash syntax, seen in Nix build hash mismatch outputs.
   "sha256-[a-zA-Z0-9+/=]{44}",
-  -- Hash part can't include a couple characters, name part can include almost
-  -- anything.
-  "/nix/store/[a-z0-9]{32}-[a-zA-Z0-9_.-]*",
 }
 
 -- Show which key table is active in the status area
