@@ -15,6 +15,8 @@ buildDotnetModule {
   };
 
   postPatch = ''
+    # .NET 6 is EOL, .NET 8 works fine modulo the trimming flag.
+    # See: https://github.com/fiso64/slsk-batchdl/issues/112
     sed \
         --in-place \
         --expression "s|<TargetFramework>net6\.0</TargetFramework>|<TargetFramework>net8\.0</TargetFramework>|g" \
@@ -23,6 +25,11 @@ buildDotnetModule {
   '';
 
   projectFile = "slsk-batchdl/slsk-batchdl.csproj";
+
+  # Tests fail to build.
+  # See: https://github.com/fiso64/slsk-batchdl/issues/111
+  # testProjectFile = "slsk-batchdl.Tests/slsk-batchdl.Tests.csproj";
+
   dotnet-sdk = dotnetCorePackages.sdk_8_0;
   nugetDeps = ./deps.json;
   executables = [ "sldl" ];
@@ -30,6 +37,7 @@ buildDotnetModule {
   dotnetFlags = [
     "--property:PublishSingleFile=true"
     # Note: This breaks Spotify authentication!
+    # See: https://github.com/fiso64/slsk-batchdl/issues/112
     # "--property:PublishTrimmed=true"
   ];
 
