@@ -53,6 +53,7 @@ config.scrollback_lines = 100000
 config.bypass_mouse_reporting_modifiers = "CMD"
 
 config.quick_select_patterns = {
+  -- Nix SRI hash syntax, seen in Nix build hash mismatch outputs.
   "sha256-[a-zA-Z0-9+/=]{44}",
   -- Hash part can't include a couple characters, name part can include almost
   -- anything.
