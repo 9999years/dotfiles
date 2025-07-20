@@ -20,6 +20,6 @@ function fish_greeting
             echo -sn (set_color --bold cyan) "Good morning, puppy! 🌄  "
     end
 
-    echo -s (set_color normal)(set_color green)"It's "(date '+%l:%M %P')". " \
-        (uptime | tail -c +12)(set_color normal)
+    echo -s (set_color normal)(set_color green)"It's "(date '+%l:%M %P')", " \
+        (uptime | sed 's/.*\(up[^,]*\),.*/\1/;')"."(set_color normal)
 end
