@@ -101,6 +101,7 @@
             pkgs.rcm
             pkgs.ripgrep
             pkgs.rbt.__tmux_window_name
+            pkgs.rbt.slsk-batchdl
             pkgs.rnr # Batch/regex renamer.
             pkgs.ruff # Python formatter.
             pkgs.rust-analyzer
