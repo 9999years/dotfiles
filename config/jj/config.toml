@@ -5,6 +5,9 @@ user.email = "rbt@sent.as"
 # Move all bookmarks that are ancestors of `@-` to be at `@-`.
 tug = ["bookmark", "move", "--from", "heads(::@- & bookmarks())", "--to", "@-"]
 
+[ui]
+default-command = "log"
+diff-editor = ":builtin"
 
 [templates]
 draft_commit_description = '''
