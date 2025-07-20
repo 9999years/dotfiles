@@ -94,4 +94,5 @@ result-*
 /.direnv
 # Code coverage data
 .coverage
+# Zed editor configuration
 .zed
