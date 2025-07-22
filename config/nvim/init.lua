@@ -380,7 +380,7 @@ batteries.cmd {
 batteries.cmd {
   "MergeConflicts",
   function()
-    vim.cmd([[/\M^\(<\{7}\||\{7}\|=\{7}\|>\{7}|+\{7}|%\{7}\)]])
+    vim.cmd([[/\M^\(<\{7}\||\{7}\|=\{7}\|>\{7}\|+\{7}\|%\{7}\)]])
   end,
   "Search for Git merge conflict markers",
 }
