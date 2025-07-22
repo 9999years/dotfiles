@@ -1,0 +1,58 @@
+# Hey can someone explain why Apple thinks `~/Music` isn't a good music
+# directory?
+directory: ~/Music/Music
+plugins: >-
+  bandcamp
+  chroma
+  discogs
+  duplicates
+  embedart
+  fetchart
+  fromfilename
+  lastgenre
+  lyrics
+  spotify
+
+lyrics:
+  auto: true
+  sources: lrclib genius tekstowo
+  synced: true
+
+import:
+  move: true
+  copy: false
+  duplicate_action: skip
+  log: ~/.cache/beets/beets.log
+  languages: ['en']
+
+musicbrainz:
+    external_ids:
+        discogs: true
+        spotify: true
+        bandcamp: true
+
+# Enable fingerprinting.
+chroma:
+    auto: true
+
+bandcamp:
+  art: true
+  comments_separator: "\n———\n"
+  genre:
+    capitalize: true
+    mode: progressive # classical, progressive or psychedelic
+
+fetchart:
+  cautious: true
+  sources: "itunes *"
+
+duplicates:
+  album: true # ?
+  merge: true
+
+lastgenre:
+  canonical: true
+  count: 5
+  force: true
+  min_weight: 10
+  separator: '; '
