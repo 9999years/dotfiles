@@ -100,6 +100,7 @@
             pkgs.npins
             pkgs.pre-commit
             pkgs.rbt.__tmux_window_name
+            pkgs.rbt.beetsWithBeetcamp
             pkgs.rbt.slsk-batchdl
             pkgs.rcm
             pkgs.ripgrep
