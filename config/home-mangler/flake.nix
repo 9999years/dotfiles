@@ -132,13 +132,10 @@
         helvetica = configuration "aarch64-darwin";
       };
 
-      overlays.default = final: prev: {
-        nixVersions = lib.mapAttrs (
-          _name: pkg: if builtins.isAttrs pkg then final.lix else pkg
-        ) prev.nixVersions;
-
-        rbt = final.callPackage ./makePkgs.nix { };
-      };
+      overlays.default = lib.composeManyExtensions [
+        (import ./overlays/lix.nix)
+        (import ./overlays/pkgs.nix)
+      ];
 
       pkgs = lib.mapAttrs (system: _pkgs: makePkgs system) nixpkgs.legacyPackages;
     };
