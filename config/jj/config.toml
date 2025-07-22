@@ -1,27 +1,24 @@
 user.name = "Rebecca Turner"
 user.email = "rbt@sent.as"
 
-[aliases]
 # Move all bookmarks that are ancestors of `@-` to be at `@-`.
-tug = ["bookmark", "move", "--from", "heads(::@- & bookmarks())", "--to", "@-"]
-mut = ["--ignore-immutable"]
-here = ["bookmark", "set", "--revision", "@-"]
-blame = ["file", "annotate"]
-fetch = ["git", "fetch"]
-init = ["git", "init", "--colocate"]
-push = ["git", "push"]
+aliases.tug = ["bookmark", "move", "--from", "heads(::@- & bookmarks())", "--to", "@-"]
+aliases.mut = ["--ignore-immutable"]
+aliases.here = ["bookmark", "set", "--revision", "@-"]
+aliases.blame = ["file", "annotate"]
+aliases.fetch = ["git", "fetch"]
+aliases.init = ["git", "init", "--colocate"]
+aliases.push = ["git", "push"]
 
-[ui]
-default-command = "log"
-diff-editor = ":builtin"
+ui.default-command = "log"
+ui.diff-editor = ":builtin"
 
 # Note: Doesn't support `colorMoved`, but neither does the builtin diff formatter.
 # See: https://github.com/jj-vcs/jj/issues/76
-pager = "delta"
-diff-formatter = ":git"
+ui.pager = "delta"
+ui.diff-formatter = ":git"
 
-[templates]
-draft_commit_description = '''
+templates.draft_commit_description = '''
 concat(
   coalesce(description, default_commit_description, "\n"),
   surround(
