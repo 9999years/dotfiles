@@ -9,7 +9,6 @@ function sldl --wraps=sldl
         --pass "$(op read "op://Private/Soulseek/password")" \
         --spotify-id "$(op read "op://Private/spotify.com/OAuth App/Client ID")" \
         --spotify-secret "$(op read "op://Private/spotify.com/OAuth App/Client Secret")" \
-        --spotify-token "$(op read "op://Private/spotify.com/OAuth App/Token")" \
         --spotify-refresh "$(op read "op://Private/spotify.com/OAuth App/Refresh token")" \
         $argv
 end
