@@ -2,6 +2,7 @@
   buildDotnetModule,
   dotnetCorePackages,
   fetchFromGitHub,
+  fetchpatch,
 }:
 buildDotnetModule {
   pname = "slsk-batchdl";
@@ -13,6 +14,15 @@ buildDotnetModule {
     rev = "v2.4.7";
     hash = "sha256-P7V7YJUA1bkfp13Glb1Q+NJ7iTya/xgO1TM88z1Nddc=";
   };
+
+  patches = [
+    # Debug-log search results.
+    # See: https://github.com/fiso64/slsk-batchdl/pull/116
+    (fetchpatch {
+      url = "https://github.com/fiso64/slsk-batchdl/commit/d3c18200d3a25baad9538e753c3d6517091c7a02.patch";
+      hash = "sha256-h+kU3OxOD+SLh5RbuJjIT73SYhQZJ9pF2H9iTKCS9mk=";
+    })
+  ];
 
   postPatch = ''
     # .NET 6 is EOL, .NET 8 works fine modulo the trimming flag.
