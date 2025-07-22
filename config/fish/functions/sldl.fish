@@ -5,8 +5,8 @@ function sldl --wraps=sldl
 
     command \
         sldl \
-        --user "$(op read "op://Private/SoulseekQT/username")" \
-        --pass "$(op read "op://Private/SoulseekQT/password")" \
+        --user "$(op read "op://Private/Soulseek/username")" \
+        --pass "$(op read "op://Private/Soulseek/password")" \
         --spotify-id "$(op read "op://Private/spotify.com/OAuth App/Client ID")" \
         --spotify-secret "$(op read "op://Private/spotify.com/OAuth App/Client Secret")" \
         --spotify-token "$(op read "op://Private/spotify.com/OAuth App/Token")" \
