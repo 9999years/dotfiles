@@ -1,6 +1,7 @@
 function sldl --wraps=sldl
     if test $argv[1] = --help
         command sldl $argv
+        return
     end
 
     command \
