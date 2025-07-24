@@ -63,13 +63,14 @@ set -gx MANPAGER 'nvim +Man!'
 set -gx PYTHONSTARTUP ~/.pythonrc
 set -gx RIPGREP_CONFIG_PATH ~/.ripgreprc
 
+# `cd ..`.
 abbr --add c. 'cd ..'
 abbr --add c2 'cd ../..'
 abbr --add c3 'cd ../../..'
 abbr --add c4 'cd ../../../..'
 abbr --add c5 'cd ../../../../..'
 
-# Git aliases.
+# Git.
 abbr --add gco 'git checkout'
 abbr --add gd 'git diff HEAD'
 abbr --add gdm 'git diff --merge-base'
@@ -80,7 +81,7 @@ abbr --add gle 'git leash'
 abbr --add gst 'git status'
 abbr --add gsw 'git switch'
 
-# Jujutsu aliases.
+# Jujutsu.
 abbr --add jco 'jj restore'
 abbr --add jd 'jj diff'
 abbr --add jg 'jj log --revisions ::@'
