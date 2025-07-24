@@ -10,6 +10,9 @@ aliases.fetch = ["git", "fetch"]
 aliases.init = ["git", "init", "--colocate"]
 aliases.push = ["git", "push"]
 
+# Commits starting with `private:` shouldn't be pushed.
+git.private-commits = 'subject(glob:"private:*") & mine()'
+
 ui.default-command = "log"
 ui.diff-editor = ":builtin"
 
