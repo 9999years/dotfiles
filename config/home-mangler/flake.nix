@@ -91,6 +91,7 @@
             pkgs.nix-diff
             pkgs.nix-direnv
             pkgs.nix-index
+            pkgs.nix-init
             pkgs.nix-top
             pkgs.nix-tree
             pkgs.nix-update
