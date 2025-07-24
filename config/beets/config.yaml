@@ -13,6 +13,8 @@ plugins: >-
   lyrics
   spotify
 
+verbose: true
+
 lyrics:
   auto: true
   sources: lrclib genius tekstowo
