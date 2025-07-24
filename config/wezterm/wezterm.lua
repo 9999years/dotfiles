@@ -63,6 +63,20 @@ config.quick_select_patterns = {
   --
   -- See: https://jj-vcs.github.io/jj/latest/glossary/#change-id
   "[k-z]{8,32}",
+
+  -- ISO 8601 dates.
+  --
+  -- Examples of accepted formats:
+  -- - 2025-04
+  -- - 2025-04-30
+  -- - 2025-04-30 01:50
+  -- - 2025-04-30T01:50:08
+  -- - 2025-04-30T01:50:08Z
+  -- - 2025-04-30T01:50:08+01:00
+  "[12][0-9]{3}-[0-9]{2}(?:-[0-9]{2}(?:[ T][0-9]{2}:[0-9]{2}(?::[0-9]{2}(?:Z|[+-][0-9]{2}:[0-9]{2})?)?)?)?",
+
+  -- Clock times.
+  "[12]?[0-9]:[0-9]{2}(?::[0-9]{2})? ?(:?[aApP][mM])?",
 }
 
 -- Show which key table is active in the status area
