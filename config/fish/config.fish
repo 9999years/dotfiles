@@ -87,6 +87,8 @@ abbr --add jd 'jj diff'
 abbr --add jg 'jj log --revisions ::@'
 abbr --add jst 'jj st'
 abbr --add jsw 'jj edit'
+abbr --add jp 'jj git pull'
+abbr --add jpu 'jj git push'
 
 # Nix.
 abbr --add nb 'nix build'
