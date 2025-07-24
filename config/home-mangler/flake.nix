@@ -61,6 +61,7 @@
             pkgs.direnv
             pkgs.eza
             pkgs.fd
+            pkgs.ffmpeg-full
             pkgs.fish
             pkgs.fnm
             pkgs.fzf
