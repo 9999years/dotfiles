@@ -1,10 +1,18 @@
 {
   beets,
+  chromaprint,
   rbt,
 }:
 
 (beets.override {
   pluginOverrides = {
+    # See: https://github.com/NixOS/nixpkgs/pull/428173
+    chroma = {
+      wrapperBins = [
+        chromaprint
+      ];
+    };
+
     beetcamp = {
       enable = true;
       propagatedBuildInputs = [ rbt.beetcamp ];
