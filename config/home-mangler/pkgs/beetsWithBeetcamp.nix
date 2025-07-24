@@ -47,8 +47,15 @@ lib.warnIf (lib.versionAtLeast beets.version "2.3.2")
       # Don't crash if a Discogs release is deleted.
       # See: https://github.com/beetbox/beets/pull/5893
       (fetchpatch {
-        url = "https://github.com/beetbox/beets/commit/312cfd9ed3605b276000d35006af9f09acd432fb.patch";
-        hash = "sha256-mP8bKY58nVZNgqzEYbH9poCZ4ZCI3SYD5/zcixBd4Xs=";
+        url = "https://github.com/beetbox/beets/commit/0b0ce86074b90ff61778d0272f4b417628748b8c.patch";
+        hash = "sha256-1jwaytNRVpHuGqwGlYk0GbwU57jrrWXPxvJmSYm2qws=";
+      })
+
+      # logging: add new TRACE level
+      # See: https://github.com/beetbox/beets/pull/5895
+      (fetchpatch {
+        url = "https://github.com/beetbox/beets/commit/d985391bcd07b30889ce87643f501395975f8e14.patch";
+        hash = "sha256-jFg+JxdqzG7u/0BvpcZPN+2s5K2czjGCHN+UcSB9zo0=";
       })
     ];
 
