@@ -38,6 +38,7 @@ chroma:
     auto: true
 
 bandcamp:
+  source_weight: 0.5
   art: true
   comments_separator: "\n———\n"
   genre:
