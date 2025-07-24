@@ -63,35 +63,35 @@ set -gx MANPAGER 'nvim +Man!'
 set -gx PYTHONSTARTUP ~/.pythonrc
 set -gx RIPGREP_CONFIG_PATH ~/.ripgreprc
 
-abbr --add --global c. 'cd ..'
-abbr --add --global c2 'cd ../..'
-abbr --add --global c3 'cd ../../..'
-abbr --add --global c4 'cd ../../../..'
-abbr --add --global c5 'cd ../../../../..'
+abbr --add c. 'cd ..'
+abbr --add c2 'cd ../..'
+abbr --add c3 'cd ../../..'
+abbr --add c4 'cd ../../../..'
+abbr --add c5 'cd ../../../../..'
 
 # Git aliases.
-abbr --add --global gco 'git checkout'
-abbr --add --global gd 'git diff HEAD'
-abbr --add --global gdm 'git diff --merge-base'
-abbr --add --global gg 'git graph'
-abbr --add --global gp 'git pull'
-abbr --add --global gpu 'git push'
-abbr --add --global gle 'git leash'
-abbr --add --global gst 'git status'
-abbr --add --global gsw 'git switch'
+abbr --add gco 'git checkout'
+abbr --add gd 'git diff HEAD'
+abbr --add gdm 'git diff --merge-base'
+abbr --add gg 'git graph'
+abbr --add gp 'git pull'
+abbr --add gpu 'git push'
+abbr --add gle 'git leash'
+abbr --add gst 'git status'
+abbr --add gsw 'git switch'
 
 # Jujutsu aliases.
-abbr --add --global jco 'jj restore'
-abbr --add --global jd 'jj diff'
-abbr --add --global jg 'jj log --revisions ::@'
-abbr --add --global jst 'jj st'
-abbr --add --global jsw 'jj edit'
+abbr --add jco 'jj restore'
+abbr --add jd 'jj diff'
+abbr --add jg 'jj log --revisions ::@'
+abbr --add jst 'jj st'
+abbr --add jsw 'jj edit'
 
-abbr --add --global v nvim
-abbr --add --global s 'sudo systemctl'
-abbr --add --global tz timedatectl
-abbr --add --global x 'chmod +x'
-abbr --add --global tree 'eza --tree --level 2'
+abbr --add v nvim
+abbr --add s 'sudo systemctl'
+abbr --add tz timedatectl
+abbr --add x 'chmod +x'
+abbr --add tree 'eza --tree --level 2'
 
 bind ctrl-w backward-kill-word
 
