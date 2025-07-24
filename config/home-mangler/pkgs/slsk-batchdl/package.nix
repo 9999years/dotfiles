@@ -19,8 +19,8 @@ buildDotnetModule {
     # Debug-log search results.
     # See: https://github.com/fiso64/slsk-batchdl/pull/116
     (fetchpatch {
-      url = "https://github.com/fiso64/slsk-batchdl/commit/d3c18200d3a25baad9538e753c3d6517091c7a02.patch";
-      hash = "sha256-h+kU3OxOD+SLh5RbuJjIT73SYhQZJ9pF2H9iTKCS9mk=";
+      url = "https://github.com/fiso64/slsk-batchdl/commit/1b45215afcf51853d790051e2584e61b2fe63056.patch";
+      hash = "sha256-UMS4yHCd4SDSBilrhdpVwaiBNcv7yBxHR+m8zmrUZEc=";
     })
   ];
 
