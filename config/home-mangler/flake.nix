@@ -102,6 +102,7 @@
             pkgs.pre-commit
             pkgs.rbt.__tmux_window_name
             pkgs.rbt.beetsWithBeetcamp
+            pkgs.rbt.pywatchman
             pkgs.rbt.slsk-batchdl
             pkgs.rcm
             pkgs.ripgrep
@@ -120,6 +121,7 @@
             pkgs.universal-ctags
             pkgs.uv
             pkgs.vscode-langservers-extracted
+            pkgs.watchman
             pkgs.weechat
             pkgs.yaml-language-server
             pkgs.yt-dlp
