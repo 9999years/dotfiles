@@ -87,6 +87,15 @@ abbr --add jg 'jj log --revisions ::@'
 abbr --add jst 'jj st'
 abbr --add jsw 'jj edit'
 
+# Nix.
+abbr --add nb 'nix build'
+abbr --add nd 'nix develop'
+abbr --add nf 'nix flake update'
+abbr --add nr 'nix run'
+abbr --add ns 'nix shell'
+abbr --add np 'nix path-info'
+abbr --add nd 'nix derivation show'
+
 abbr --add v nvim
 abbr --add s 'sudo systemctl'
 abbr --add tz timedatectl
