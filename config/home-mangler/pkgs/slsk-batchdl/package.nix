@@ -22,6 +22,14 @@ buildDotnetModule {
       url = "https://github.com/fiso64/slsk-batchdl/commit/1b45215afcf51853d790051e2584e61b2fe63056.patch";
       hash = "sha256-UMS4yHCd4SDSBilrhdpVwaiBNcv7yBxHR+m8zmrUZEc=";
     })
+
+    # Log download completion, e.g. `Completed 13/41 downloads = 31.70%`.
+    #
+    # See: https://github.com/fiso64/slsk-batchdl/pull/118
+    (fetchpatch {
+      url = "https://github.com/fiso64/slsk-batchdl/commit/2c43baacaebed0c2f3d7bdf938f2d00dfea5cb47.patch";
+      hash = "sha256-VRCSTE4xfZQbwGKo50bhizyg8Tq8WXQCCZBXsmW9QTc=";
+    })
   ];
 
   postPatch = ''
