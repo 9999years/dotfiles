@@ -1,0 +1,32 @@
+final: prev: {
+  python313 = prev.python313.override (python3Prev: {
+    packageOverrides = final.lib.composeExtensions (pythonFinal: pythonPrev: {
+      musicbrainzngs =
+        final.lib.warnIf (final.lib.versionAtLeast pythonPrev.musicbrainzngs.version "0.7.2")
+          ''
+            musicbrainzngs is ${pythonPrev.musicbrainzngs.version}, but our override bumps it to an unstable commit
+            after 0.7.1. Consider removing the `src` override.
+          ''
+          pythonPrev.musicbrainzngs.overridePythonAttrs
+          (prev: {
+
+            src = final.fetchFromGitHub {
+              owner = "alastair";
+              repo = "python-musicbrainzngs";
+              rev = "1638c6271e0beb9560243c2123d354461ec9f842";
+              hash = "sha256-1p7thMnaE5vqMfE2i7fIlXwOtVSR1nN/sz/DJyDd/Jk=";
+            };
+
+            patches = (prev.patches or [ ]) ++ [
+              # Timeout API calls after 10 seconds.
+              #
+              # See: https://github.com/alastair/python-musicbrainzngs/pull/295
+              (final.fetchpatch {
+                url = "https://github.com/alastair/python-musicbrainzngs/commit/588e01061973ce0e7d16c1b85eecafe10cc1c22a.patch";
+                hash = "sha256-exwIF60vucYZecy1UgDapIxficJoEhos34lCCg6rcZI=";
+              })
+            ];
+          });
+    }) (python3Prev.packageOverrides or (_: _: { }));
+  });
+}
