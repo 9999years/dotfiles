@@ -4,6 +4,7 @@ directory: ~/Music/Music
 plugins: >-
   bandcamp
   chroma
+  convert
   discogs
   duplicates
   embedart
@@ -36,6 +37,16 @@ musicbrainz:
 # Enable fingerprinting.
 chroma:
     auto: true
+
+convert:
+  # Surely I will not regret this.
+  delete_originals: true
+  formats:
+    # Use `libmp3lame` for reencoding MP3s and preserve metadata while doing so.
+    #
+    # See: https://stackoverflow.com/a/40313706
+    # See: https://stackoverflow.com/a/52354689
+    mp3: "ffmpeg -y -i $source -c:a libmp3lame -q:a 0 -map_metadata 0 -map_metadata 0:s:0 $dest"
 
 bandcamp:
   source_weight: 0.5
