@@ -57,6 +57,14 @@ lib.warnIf (lib.versionAtLeast beets.version "2.3.2")
         url = "https://github.com/beetbox/beets/commit/d985391bcd07b30889ce87643f501395975f8e14.patch";
         hash = "sha256-jFg+JxdqzG7u/0BvpcZPN+2s5K2czjGCHN+UcSB9zo0=";
       })
+
+      # logging: set root logger level/handler
+      #
+      # See: https://github.com/beetbox/beets/pull/5897
+      (fetchpatch {
+        url = "https://github.com/beetbox/beets/commit/2cb2f09d2352288175442f55a7fb08c0a3631002.patch";
+        hash = "sha256-EvudJ2lL91FWbRF5Qs6NaNEA9Tz8g92xtyGCN7Vw3bw=";
+      })
     ];
 
     disabledTestPaths =
