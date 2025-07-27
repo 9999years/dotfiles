@@ -16,6 +16,12 @@ plugins: >-
 
 verbose: true
 
+logging:
+  format: "{asctime} {name} {levelname}: {message}"
+  levels:
+    beets.plugins: WARNING
+    musicbrainzngs.mbxml: WARNING
+
 lyrics:
   auto: true
   sources: lrclib genius tekstowo
