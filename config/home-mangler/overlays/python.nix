@@ -25,6 +25,14 @@ final: prev: {
                 url = "https://github.com/alastair/python-musicbrainzngs/commit/588e01061973ce0e7d16c1b85eecafe10cc1c22a.patch";
                 hash = "sha256-exwIF60vucYZecy1UgDapIxficJoEhos34lCCg6rcZI=";
               })
+
+              # logging: use module names for loggers
+              #
+              # See: https://github.com/alastair/python-musicbrainzngs/pull/297
+              (final.fetchpatch {
+                url = "https://github.com/alastair/python-musicbrainzngs/commit/f768c3db1cf8a93922d6d381be4091a5eec112bf.patch";
+                hash = "sha256-lHHhMziETXZHFlZD/1uZvSbpfGzTEf7DE4KKQfxs6tk=";
+              })
             ];
           });
     })
