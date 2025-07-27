@@ -206,22 +206,22 @@ local function lsp_on_attach(client, bufnr)
     { "<space>wl", list_workspace_folders, "List workspace folders" },
 
     {
-      "[d",
+      "[D",
       function()
         jump_most_severe {
           count = -1,
         }
       end,
-      "Go to next diagnostic",
+      "Go to next severe diagnostic",
     },
     {
-      "]d",
+      "]D",
       function()
         jump_most_severe {
           count = 1,
         }
       end,
-      "Go to next diagnostic",
+      "Go to next severe diagnostic",
     },
   }
 
