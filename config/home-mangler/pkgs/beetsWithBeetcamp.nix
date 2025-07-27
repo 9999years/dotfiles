@@ -69,13 +69,13 @@ lib.warnIf (lib.versionAtLeast beets.version "2.3.2")
       })
       (fetchpatch {
         # logging: use beets logger in more places
-        url = "https://github.com/beetbox/beets/commit/28616a77b52e6763e9485491053d227441c77efe.patch";
-        hash = "sha256-v7Ica6/HCHWNTzYmhG0wzk02W0DVZ1WyRPsaXuhCpDo=";
+        url = "https://github.com/beetbox/beets/commit/a2963fa0c16be13ea4865cf0235c661d3c365d89.patch";
+        hash = "sha256-J6tMuZUXMr/RQTgt33Q0bqiRTymxRDlzIsA8IEhQVBk=";
       })
       (fetchpatch {
         # logging: make log levels/format configurable
-        url = "https://github.com/beetbox/beets/commit/c530b1e575d2b74f327cd3717b440a2f354f37b2.patch";
-        hash = "sha256-7OFEQ6Oy1vzskutHdsh52+NRG5N2WXjc666i1Fn7HlU=";
+        url = "https://github.com/beetbox/beets/commit/7e93ce71c93c7abef4e9e98889a37741d0cb8dca.patch";
+        hash = "sha256-n3X8WoujIt7sN8NuRwKp49lJi5APr9+GL5vlX24OwcQ=";
       })
     ];
 
