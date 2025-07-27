@@ -139,6 +139,7 @@
 
       overlays.default = lib.composeManyExtensions [
         (import ./overlays/lix.nix)
+        (import ./overlays/broot.nix)
         (import ./overlays/pkgs.nix)
       ];
 
