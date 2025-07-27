@@ -47,23 +47,35 @@ lib.warnIf (lib.versionAtLeast beets.version "2.3.2")
       # Don't crash if a Discogs release is deleted.
       # See: https://github.com/beetbox/beets/pull/5893
       (fetchpatch {
-        url = "https://github.com/beetbox/beets/commit/0b0ce86074b90ff61778d0272f4b417628748b8c.patch";
-        hash = "sha256-1jwaytNRVpHuGqwGlYk0GbwU57jrrWXPxvJmSYm2qws=";
+        url = "https://github.com/beetbox/beets/commit/5a4066ada03d6a28891a9346d0ab85654fc32c4e.patch";
+        hash = "sha256-czftG20yE7FtWY5yBGQfpMGNCxftDxgoTPHyvG72fgM=";
       })
 
-      # logging: add new TRACE level
-      # See: https://github.com/beetbox/beets/pull/5895
+      # chroma: set a default timeout of 10 seconds
+      #
+      # See: https://github.com/beetbox/beets/pull/5898
       (fetchpatch {
-        url = "https://github.com/beetbox/beets/commit/d985391bcd07b30889ce87643f501395975f8e14.patch";
-        hash = "sha256-jFg+JxdqzG7u/0BvpcZPN+2s5K2czjGCHN+UcSB9zo0=";
+        url = "https://github.com/beetbox/beets/commit/8ce0ad71d7bf10f50f17c2966f9e439cafae73d0.patch";
+        hash = "sha256-spdvev2eYeUInf8m5VplrbAS7g5LzJrlOcHV6KHj7lU=";
       })
 
-      # logging: set root logger level/handler
+      # logging: make levels/format configurable
       #
       # See: https://github.com/beetbox/beets/pull/5897
       (fetchpatch {
-        url = "https://github.com/beetbox/beets/commit/2cb2f09d2352288175442f55a7fb08c0a3631002.patch";
-        hash = "sha256-EvudJ2lL91FWbRF5Qs6NaNEA9Tz8g92xtyGCN7Vw3bw=";
+        # logging: use module names as logger names
+        url = "https://github.com/beetbox/beets/commit/2fc940852213a6572f87fd5be47e80562d7bb09a.patch";
+        hash = "sha256-yT9gRv98z6GCJTnlWHjtBUPjFViRpuOD0b8v7Cc11sU=";
+      })
+      (fetchpatch {
+        # logging: use beets logger in more places
+        url = "https://github.com/beetbox/beets/commit/28616a77b52e6763e9485491053d227441c77efe.patch";
+        hash = "sha256-v7Ica6/HCHWNTzYmhG0wzk02W0DVZ1WyRPsaXuhCpDo=";
+      })
+      (fetchpatch {
+        # logging: make log levels/format configurable
+        url = "https://github.com/beetbox/beets/commit/c530b1e575d2b74f327cd3717b440a2f354f37b2.patch";
+        hash = "sha256-7OFEQ6Oy1vzskutHdsh52+NRG5N2WXjc666i1Fn7HlU=";
       })
     ];
 
