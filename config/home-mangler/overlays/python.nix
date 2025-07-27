@@ -1,13 +1,13 @@
 final: prev: {
-  python313 = prev.python313.override (python3Prev: {
-    packageOverrides = final.lib.composeExtensions (pythonFinal: pythonPrev: {
+  pythonPackagesExtensions = (prev.pythonPackagesExtensions or [ ]) ++ [
+    (pyFinal: pyPrev: {
       musicbrainzngs =
-        final.lib.warnIf (final.lib.versionAtLeast pythonPrev.musicbrainzngs.version "0.7.2")
+        final.lib.warnIf (final.lib.versionAtLeast pyPrev.musicbrainzngs.version "0.7.2")
           ''
-            musicbrainzngs is ${pythonPrev.musicbrainzngs.version}, but our override bumps it to an unstable commit
+            musicbrainzngs is ${pyPrev.musicbrainzngs.version}, but our override bumps it to an unstable commit
             after 0.7.1. Consider removing the `src` override.
           ''
-          pythonPrev.musicbrainzngs.overridePythonAttrs
+          pyPrev.musicbrainzngs.overridePythonAttrs
           (prev: {
 
             src = final.fetchFromGitHub {
@@ -27,6 +27,6 @@ final: prev: {
               })
             ];
           });
-    }) (python3Prev.packageOverrides or (_: _: { }));
-  });
+    })
+  ];
 }
