@@ -49,10 +49,12 @@
             pkgs.man
             # keep-sorted end
 
-            # keep-sorted start
+            # keep-sorted start ignore_prefixes=pkgs,pkgs.rbt
+            pkgs.rbt.__tmux_window_name
             pkgs.actionlint
             pkgs.bashInteractive
             pkgs.bat
+            pkgs.rbt.beetsWithBeetcamp
             pkgs.broot
             pkgs.cargo-nextest
             pkgs.cargo-watch
@@ -101,10 +103,7 @@
             pkgs.nodejs_latest
             pkgs.npins
             pkgs.pre-commit
-            pkgs.rbt.__tmux_window_name
-            pkgs.rbt.beetsWithBeetcamp
             pkgs.rbt.pywatchman
-            pkgs.rbt.slsk-batchdl
             pkgs.rcm
             pkgs.ripgrep
             pkgs.rnr # Batch/regex renamer.
@@ -113,6 +112,7 @@
             pkgs.rustup
             pkgs.sd # `sed` replacement
             pkgs.shellcheck
+            pkgs.rbt.slsk-batchdl
             pkgs.stylua
             pkgs.tmux
             pkgs.tokei
