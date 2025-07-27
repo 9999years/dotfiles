@@ -23,3 +23,15 @@ snippet forAllSystems
 		builtins.mapAttrs
 			(system: pkgs: function pkgs)
 			nixpkgs.legacyPackages;
+
+snippet patch patch URL
+    https://github.com/${1:repo}/commit/${2:hash}.patch
+
+snippet fetchpatch fetchpatch invocation
+    # ${2:SUBJECT}
+    #
+    # See: ${3:PR_URL}
+    (fetchpatch {
+        url = "$1";
+        hash = "$0";
+    })
