@@ -35,7 +35,7 @@
       configuration =
         system:
         let
-          pkgs = self.pkgs.${system};
+          pkgs = self.legacyPackages.${system};
           home-mangler-lib = home-mangler.lib.${system};
         in
         home-mangler-lib.makeConfiguration {
@@ -145,6 +145,6 @@
         (import ./overlays/pkgs.nix)
       ];
 
-      pkgs = lib.mapAttrs (system: _pkgs: makePkgs system) nixpkgs.legacyPackages;
+      legacyPackages = lib.mapAttrs (system: _pkgs: makePkgs system) nixpkgs.legacyPackages;
     };
 }
