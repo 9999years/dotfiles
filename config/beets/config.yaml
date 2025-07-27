@@ -27,6 +27,8 @@ import:
   duplicate_action: skip
   log: ~/.cache/beets/beets.log
   languages: ['en']
+  # Use metadata to partition into albums, not directory structure.
+  group_albums: true
 
 musicbrainz:
     external_ids:
