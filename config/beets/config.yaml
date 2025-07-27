@@ -19,7 +19,7 @@ verbose: true
 logging:
   format: "{asctime} {name} {levelname}: {message}"
   levels:
-    beets.plugins: WARNING
+    beets.plugins: INFO
     musicbrainzngs.mbxml: WARNING
 
 lyrics:
