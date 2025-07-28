@@ -7,6 +7,8 @@
 -- - Resize panes to equal sizes: https://github.com/wezterm/wezterm/issues/2972
 -- - Switch pane layouts: https://github.com/wezterm/wezterm/issues/3516
 -- - Inspect/mutate pane layouts from Lua: https://github.com/wezterm/wezterm/issues/7083
+-- - It's too easy to accidentally drag the window while selecting tabs:
+--   https://github.com/wezterm/wezterm/issues/7116
 local wezterm = require("wezterm")
 local act = wezterm.action
 local config = {}
