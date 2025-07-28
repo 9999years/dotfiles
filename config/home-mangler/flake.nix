@@ -33,7 +33,10 @@
         };
 
       configuration =
-        system:
+        {
+          system,
+          work ? false,
+        }:
         let
           pkgs = self.legacyPackages.${system};
           home-mangler-lib = home-mangler.lib.${system};
@@ -54,7 +57,6 @@
             pkgs.actionlint
             pkgs.bashInteractive
             pkgs.bat
-            pkgs.rbt.beetsWithBeetcamp
             pkgs.broot
             pkgs.cargo-nextest
             pkgs.cargo-watch
@@ -63,7 +65,6 @@
             pkgs.direnv
             pkgs.eza
             pkgs.fd
-            pkgs.ffmpeg-full
             pkgs.fish
             pkgs.fnm
             pkgs.fzf
@@ -113,7 +114,6 @@
             pkgs.rustup
             pkgs.sd # `sed` replacement
             pkgs.shellcheck
-            pkgs.rbt.slsk-batchdl
             pkgs.stylua
             pkgs.tmux
             pkgs.tokei
@@ -126,6 +126,13 @@
             pkgs.watchman
             pkgs.weechat
             pkgs.yaml-language-server
+            # keep-sorted end
+          ]
+          ++ lib.optionals (!work) [
+            # keep-sorted start ignore_prefixes=pkgs,pkgs.rbt
+            pkgs.rbt.beetsWithBeetcamp
+            pkgs.ffmpeg-full
+            pkgs.rbt.slsk-batchdl
             pkgs.yt-dlp
             # keep-sorted end
           ];
@@ -133,9 +140,17 @@
     in
     {
       home-mangler = {
-        grandiflora = configuration "aarch64-darwin";
-        sectra = configuration "aarch64-darwin";
-        helvetica = configuration "aarch64-darwin";
+        grandiflora = configuration {
+          system = "aarch64-darwin";
+        };
+        sectra = configuration {
+          system = "aarch64-darwin";
+          work = true;
+        };
+        helvetica = configuration {
+          system = "aarch64-darwin";
+          work = true;
+        };
       };
 
       overlays.default = lib.composeManyExtensions [
