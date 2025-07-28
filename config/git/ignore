@@ -77,8 +77,11 @@ package-lock.json
 auto
 .vscode
 /.vim
-XXX*
+
 xxx*
+# xxx* files are precious: https://github.com/GitoxideLabs/gitoxide/discussions/1308
+$xxx*
+
 # I don't need this for git, but for fd/rg
 .git
 # For cabal
@@ -92,9 +95,13 @@ result-*
 .luarc.json
 # Direnv cache
 /.direnv
+# Direnv configuration is precious.
+$.envrc
 # Code coverage data
 .coverage
 # Zed editor configuration
 .zed
 # Jujutsu repository
 .jj
+# Jujutsu repositories are precious: https://github.com/GitoxideLabs/gitoxide/discussions/1308
+$.jj
