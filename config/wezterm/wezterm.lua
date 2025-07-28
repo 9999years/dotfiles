@@ -77,6 +77,9 @@ config.quick_select_patterns = {
 
   -- Clock times.
   "[12]?[0-9]:[0-9]{2}(?::[0-9]{2})? ?(:?[aApP][mM])?",
+
+  -- Buck2 target label.
+  "@?[A-Za-z0-9._-]*//[A-Za-z0-9/._-]*:[A-Za-z0-9_/.=,@~+-]+",
 }
 
 -- Show which key table is active in the status area
