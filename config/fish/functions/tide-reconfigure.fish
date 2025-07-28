@@ -17,12 +17,10 @@ function tide-reconfigure
     set -U tide_nix_color 8BB6DE
     set -U tide_nix_bg_color black
     set -U tide_nix_icon ' ' # ❆❄
-    if ! contains nix $tide_left_prompt_items
-        set --prepend tide_left_prompt_items nix
-    end
-    if set -l index (contains --index nix_shell $tide_right_prompt_items)
-        set --erase tide_right_prompt_items[$index]
-    end
+
+    set -U tide_left_prompt_items nix pwd newline character
+    set -U tide_right_prompt_items status cmd_duration jobs direnv time
+
     # I don't need fancy shapes, and my `normal` bg_color hack above plays poorly
     # with them anyways.
     set -U tide_left_prompt_prefix ''
