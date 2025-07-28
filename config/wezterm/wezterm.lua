@@ -80,6 +80,9 @@ config.quick_select_patterns = {
 
   -- Buck2 target label.
   "@?[A-Za-z0-9._-]*//[A-Za-z0-9/._-]*:[A-Za-z0-9_/.=,@~+-]+",
+
+  -- Haskell module name.
+  "[A-Z][a-zA-Z0-9_']*(?:\\.[A-Z][a-zA-Z0-9_']*)+",
 }
 
 -- Show which key table is active in the status area
