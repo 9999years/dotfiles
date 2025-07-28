@@ -79,6 +79,7 @@
             pkgs.git-revise
             pkgs.git-upstream
             pkgs.gitleaks
+            pkgs.gitoxide # `gix`
             pkgs.home-mangler
             pkgs.hub
             pkgs.hyperfine
