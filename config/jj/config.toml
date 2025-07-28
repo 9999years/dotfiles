@@ -3,14 +3,16 @@
 user.name = "Rebecca Turner"
 user.email = "rbt@sent.as"
 
-# Move all bookmarks that are ancestors of `@-` to be at `@-`.
-aliases.tug = ["bookmark", "move", "--from", "heads(::@- & bookmarks())", "--to", "@-"]
-aliases.mut = ["--ignore-immutable"]
-aliases.here = ["bookmark", "set", "--revision", "@-"]
+# keep-sorted start
 aliases.blame = ["file", "annotate"]
 aliases.fetch = ["git", "fetch"]
+aliases.here = ["bookmark", "set", "--revision", "@-"]
 aliases.init = ["git", "init", "--colocate"]
+aliases.mut = ["--ignore-immutable"]
 aliases.push = ["git", "push"]
+# Move all bookmarks that are ancestors of `@-` to be at `@-`.
+aliases.tug = ["bookmark", "move", "--from", "heads(::@- & bookmarks())", "--to", "@-"]
+# keep-sorted end
 
 # Commits starting with `private:` shouldn't be pushed.
 git.private-commits = 'subject(glob:"private:*") & mine()'
