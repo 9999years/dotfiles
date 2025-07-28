@@ -97,6 +97,7 @@ result-*
 /.direnv
 # Direnv configuration is precious.
 $.envrc
+$.envrc.local
 # Code coverage data
 .coverage
 # Zed editor configuration
