@@ -106,3 +106,5 @@ $.envrc.local
 .jj
 # Jujutsu repositories are precious: https://github.com/GitoxideLabs/gitoxide/discussions/1308
 $.jj
+# Buck configuration is precious.
+$.buckconfig.local
