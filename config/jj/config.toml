@@ -5,6 +5,7 @@ user.email = "rbt@sent.as"
 
 # keep-sorted start
 aliases.blame = ["file", "annotate"]
+aliases.clone = ["git", "clone"]
 aliases.fetch = ["git", "fetch"]
 aliases.here = ["bookmark", "set", "--revision", "@-"]
 aliases.init = ["git", "init", "--colocate"]
