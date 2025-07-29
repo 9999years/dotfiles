@@ -159,6 +159,17 @@ extend_key_table("copy_mode", {
       act.CopyMode("ClearSelectionMode"),
     },
   },
+
+  {
+    key = "e",
+    mods = "CTRL",
+    action = act.ScrollByLine(1),
+  },
+  {
+    key = "y",
+    mods = "CTRL",
+    action = act.ScrollByLine(-1),
+  },
 })
 
 extend_key_table("search_mode", {
