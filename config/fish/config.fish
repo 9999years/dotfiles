@@ -82,13 +82,18 @@ abbr --add gst 'git status'
 abbr --add gsw 'git switch'
 
 # Jujutsu.
+abbr --add jc 'jj commit'
 abbr --add jco 'jj restore'
 abbr --add jd 'jj diff'
+abbr --add je 'jj edit'
+abbr --add jf 'jj git fetch'
 abbr --add jg 'jj log --revisions ::@'
-abbr --add jst 'jj st'
-abbr --add jsw 'jj edit'
-abbr --add jp 'jj git fetch'
+abbr --add jn 'jj new'
 abbr --add jpu 'jj git push'
+abbr --add jr 'jj rebase'
+abbr --add jsp 'jj split'
+abbr --add jsq 'jj squash'
+abbr --add jst 'jj status'
 
 # Nix.
 abbr --add nb 'nix build'
