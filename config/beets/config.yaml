@@ -26,6 +26,7 @@ plugins: >-
   fetchart
   fish
   fromfilename
+  info
   lastgenre
   lyrics
   spotify
