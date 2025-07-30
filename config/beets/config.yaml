@@ -30,6 +30,12 @@ logging:
     beets.library.queries: INFO
     musicbrainzngs.mbxml: WARNING
 
+    urllib3: INFO
+    oauthlib: INFO
+    httpcore: INFO
+    pylast: INFO
+    httpx: WARNING
+
 lyrics:
   auto: true
   sources: lrclib genius tekstowo
