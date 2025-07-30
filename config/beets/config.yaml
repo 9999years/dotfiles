@@ -92,3 +92,6 @@ lastgenre:
   force: true
   min_weight: 10
   separator: '; '
+
+spotify:
+  source_weight: 0.5
