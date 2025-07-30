@@ -13,6 +13,7 @@ aliases.here = ["bookmark", "set", "--revision", "@-"]
 aliases.init = ["git", "init", "--colocate"]
 aliases.mut = ["--ignore-immutable"]
 aliases.push = ["git", "push"]
+aliases.remote = ["git", "remote"]
 # Move all bookmarks that are ancestors of `@-` to be at `@-`.
 aliases.tug = ["bookmark", "move", "--from", "heads(::@- & bookmarks())", "--to", "@-"]
 aliases.w = ["workspace"]
