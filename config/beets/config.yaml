@@ -24,6 +24,7 @@ plugins: >-
   edit
   embedart
   fetchart
+  fish
   fromfilename
   lastgenre
   lyrics
