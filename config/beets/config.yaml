@@ -93,8 +93,11 @@ fetchart:
   sources: "itunes *"
 
 duplicates:
-  album: true # ?
-  merge: true
+  keys:
+    - album
+    - albumartist
+    - artist
+    - title
 
 lastgenre:
   force: true
