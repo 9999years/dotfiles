@@ -85,6 +85,14 @@ lib.warnIf (lib.versionAtLeast beets.version "2.3.2")
         url = "https://github.com/beetbox/beets/commit/37728dcc3012ea56bc91300e49924d7c67b838bb.patch";
         hash = "sha256-FK9TYBZk+6QYH1ZHdlzWDO3J6kuZv4nYiIEph3JOtN0=";
       })
+
+      # spotify: Don't crash if a network request fails
+      #
+      # See: https://github.com/beetbox/beets/pull/5910
+      (fetchpatch {
+        url = "https://github.com/beetbox/beets/commit/08b239f350db4a5e47a0625025a70585420ddf98.patch";
+        hash = "sha256-w3aIAvy7rj3Vmif5FUI0L0guMWjghsmTYkDNJ6Xac3w=";
+      })
     ];
 
     disabledTestPaths =
