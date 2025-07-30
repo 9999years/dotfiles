@@ -257,6 +257,8 @@ vim.opt.expandtab = true
 vim.opt.shiftwidth = 4
 vim.opt.tabstop = 4
 vim.opt.exrc = true -- Load `.nvim.lua` when trusted
+-- There's no way to get the `wildmenu` to show dotfiles by default.
+-- https://github.com/neovim/neovim/issues/35111
 vim.opt.wildoptions:append { "fuzzy" } -- Fuzzy completion in command line
 vim.opt.wildignorecase = true
 
