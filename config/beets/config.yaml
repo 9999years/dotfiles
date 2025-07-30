@@ -33,6 +33,7 @@ plugins: >-
   spotify
 
 logging:
+  # TODO: Log file with different levels!
   format: "{name}: {message}"
   levels:
     beets.plugins: INFO
