@@ -41,6 +41,14 @@ buildDotnetModule {
       url = "https://github.com/fiso64/slsk-batchdl/commit/2c43baacaebed0c2f3d7bdf938f2d00dfea5cb47.patch";
       hash = "sha256-VRCSTE4xfZQbwGKo50bhizyg8Tq8WXQCCZBXsmW9QTc=";
     })
+
+    # Add `spotify-albums` input type.
+    #
+    # See: https://github.com/fiso64/slsk-batchdl/pull/124
+    (fetchpatch {
+      url = "https://github.com/fiso64/slsk-batchdl/commit/7ca39ba3963b58e09a38438f43f114bfef99a039.patch";
+      hash = "sha256-9NTnGyCRMAl5sc8+K6cK8l96MwuyXHJv7jsrBzEWmdE=";
+    })
   ];
 
   postPatch = ''
