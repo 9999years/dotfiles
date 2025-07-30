@@ -51,10 +51,10 @@ import:
   group_albums: true
 
 musicbrainz:
-    external_ids:
-        discogs: true
-        spotify: true
-        bandcamp: true
+  external_ids:
+    discogs: true
+    spotify: true
+    bandcamp: true
 
 # Enable fingerprinting.
 chroma:
