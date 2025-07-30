@@ -77,6 +77,14 @@ lib.warnIf (lib.versionAtLeast beets.version "2.3.2")
         url = "https://github.com/beetbox/beets/commit/7e93ce71c93c7abef4e9e98889a37741d0cb8dca.patch";
         hash = "sha256-n3X8WoujIt7sN8NuRwKp49lJi5APr9+GL5vlX24OwcQ=";
       })
+
+      # fromfilename: Don't crash if title is missing
+      #
+      # See: https://github.com/beetbox/beets/pull/5907
+      (fetchpatch {
+        url = "https://github.com/beetbox/beets/commit/37728dcc3012ea56bc91300e49924d7c67b838bb.patch";
+        hash = "sha256-FK9TYBZk+6QYH1ZHdlzWDO3J6kuZv4nYiIEph3JOtN0=";
+      })
     ];
 
     disabledTestPaths =
