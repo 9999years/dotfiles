@@ -27,6 +27,7 @@ logging:
   format: "{asctime} {name} {levelname}: {message}"
   levels:
     beets.plugins: INFO
+    beets.library.queries: INFO
     musicbrainzngs.mbxml: WARNING
 
 lyrics:
