@@ -1,7 +1,15 @@
-# Notes:
+# === Notes ===
+#
+# Docs:
+# - Query language: https://beets.readthedocs.io/en/stable/reference/query.html
+# - CLI reference: https://beets.readthedocs.io/en/stable/reference/cli.html
+#
+# Possible bugs/improvements:
 # - Wayyyy to many queries being parsed, try running `beet move` with
 #   `beets.library.queries` at DEBUG.
 # - Missing tracks penalty WAY too high for a singles girlie like me
+# - Penalties aren't easily adjustable. Sometimes I only want it to care about
+#   the track length.
 # - Maybe use 'as tracks' mode if there's only one track in the directory?
 
 # Hey can someone explain why Apple thinks `~/Music` isn't a good music
