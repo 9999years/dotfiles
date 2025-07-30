@@ -32,8 +32,6 @@ plugins: >-
   lyrics
   spotify
 
-verbose: true
-
 logging:
   format: "{asctime} {name} {levelname}: {message}"
   levels:
