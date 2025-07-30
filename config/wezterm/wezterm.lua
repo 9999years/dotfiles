@@ -39,8 +39,13 @@ local function extend_key_table(name, entries)
   end
 end
 
--- TODO: Fallbacks?
-config.font = wezterm.font("PragmataPro Liga")
+config.font = wezterm.font_with_fallback {
+  "PragmataPro Liga",
+  {
+    family = "Apple Color Emoji",
+    assume_emoji_presentation = true,
+  },
+}
 config.font_size = 16.0
 
 config.window_decorations = "INTEGRATED_BUTTONS|RESIZE"
