@@ -1,5 +1,5 @@
 function sldl --wraps=sldl
-    if test $argv[1] = --help || contains --print $argv
+    if test $argv[1] = --help || contains -- --print $argv
         # No secrets needed and 1Password takes time to fetch them, so skip it.
         command sldl $argv
         return
