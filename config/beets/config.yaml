@@ -33,7 +33,7 @@ plugins: >-
   spotify
 
 logging:
-  format: "{asctime} {name} {levelname}: {message}"
+  format: "{name}: {message}"
   levels:
     beets.plugins: INFO
     beets.library.queries: INFO
