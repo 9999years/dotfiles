@@ -49,6 +49,14 @@ buildDotnetModule {
       url = "https://github.com/fiso64/slsk-batchdl/commit/7ca39ba3963b58e09a38438f43f114bfef99a039.patch";
       hash = "sha256-9NTnGyCRMAl5sc8+K6cK8l96MwuyXHJv7jsrBzEWmdE=";
     })
+
+    # Add `--retry-not-found`
+    #
+    # See: https://github.com/fiso64/slsk-batchdl/pull/126
+    (fetchpatch {
+      url = "https://github.com/fiso64/slsk-batchdl/commit/db6ddf43c01b4477af9ddca43004edb9c037ba36.patch";
+      hash = "sha256-4QrtS7N6S8XdtcvIJi2loxD1aOY/Kex+lCXVR1Qe2cU=";
+    })
   ];
 
   postPatch = ''
