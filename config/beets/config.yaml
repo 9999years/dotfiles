@@ -11,6 +11,7 @@
 # - Penalties aren't easily adjustable. Sometimes I only want it to care about
 #   the track length.
 # - Maybe use 'as tracks' mode if there's only one track in the directory?
+# - `pylast` logs stuff
 
 # Hey can someone explain why Apple thinks `~/Music` isn't a good music
 # directory?
@@ -43,7 +44,7 @@ logging:
     urllib3: INFO
     oauthlib: INFO
     httpcore: INFO
-    pylast: INFO
+    pylast: WARNING
     httpx: WARNING
 
 lyrics:
