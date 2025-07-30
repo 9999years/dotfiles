@@ -97,11 +97,13 @@ duplicates:
   merge: true
 
 lastgenre:
-  canonical: true
-  count: 5
   force: true
-  min_weight: 10
-  separator: '; '
+  keep_existing: false
+  whitelist: false
+  canonical: false
+  # iTunes only supports single genres.
+  count: 1
+  min_weight: 0
 
 spotify:
   source_weight: 0.5
