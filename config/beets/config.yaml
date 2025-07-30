@@ -69,7 +69,9 @@ chroma:
     auto: true
 
 convert:
-  # Surely I will not regret this.
+  # Transcode by default when importing.
+  auto: true
+  # Surely I will not regret this
   delete_originals: true
   formats:
     # Use `libmp3lame` for reencoding MP3s and preserve metadata while doing so.
