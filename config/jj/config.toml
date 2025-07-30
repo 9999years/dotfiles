@@ -30,8 +30,6 @@ ui.diff-editor = ":builtin"
 ui.pager = "delta"
 ui.diff-formatter = ":git"
 
-# TODO: Does this cause problems?
-core.fsmonitor = "watchman"
 core.watchman.register-snapshot-trigger = true
 
 templates.draft_commit_description = '''
@@ -45,3 +43,28 @@ concat(
   diff.git(),
 )
 '''
+
+# Only use `watchman` in large repositories.
+# This may cause issues.
+#
+# Multiple `$TMPDIR`s results in watchman exiting and restarting, multi-second
+# pauses:
+#
+# > Jujutsu connects to watchman at a path based on the temporary directory prefix.
+# > Only on instance of watchman can exist on a system (at least as
+# > configured by jj).
+# > Where there are multiple temporary directory prefixes on a system,
+# > running in a shell with prefix B results in a SIGTERM to the watchman
+# > launched from a shell with prefix A, etc.
+# > The new watchman instance takes a few seconds to launch and crawl the
+# > directories, and this delays the start of execution of the jujutsu
+# > command.
+#
+# See: https://github.com/jj-vcs/jj/issues/5817
+[[--scope]]
+--when.repositories = [
+    "~/mwb",
+    "~/nixpkgs",
+]
+[--scope.core]
+fsmonitor = "watchman"
