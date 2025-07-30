@@ -13,6 +13,7 @@ plugins: >-
   convert
   discogs
   duplicates
+  edit
   embedart
   fetchart
   fromfilename
