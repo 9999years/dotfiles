@@ -1,3 +1,9 @@
+# Notes:
+# - Wayyyy to many queries being parsed, try running `beet move` with
+#   `beets.library.queries` at DEBUG.
+# - Missing tracks penalty WAY too high for a singles girlie like me
+# - Maybe use 'as tracks' mode if there's only one track in the directory?
+
 # Hey can someone explain why Apple thinks `~/Music` isn't a good music
 # directory?
 directory: ~/Music/Music
