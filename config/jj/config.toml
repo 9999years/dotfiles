@@ -21,6 +21,8 @@ aliases.w = ["workspace"]
 
 # Commits starting with `private:` shouldn't be pushed.
 git.private-commits = 'subject(glob:"private:*") & mine()'
+# Set `--allow-new` by default.
+git.push-new-bookmarks = true
 
 ui.default-command = "log"
 ui.diff-editor = ":builtin"
