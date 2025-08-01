@@ -46,6 +46,14 @@ concat(
 )
 '''
 
+templates.log = '''
+builtin_log_compact
+++ if(
+    !description && !empty,
+    diff.summary(),
+)
+'''
+
 # Only use `watchman` in large repositories.
 # This may cause issues.
 #
