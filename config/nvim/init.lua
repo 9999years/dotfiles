@@ -166,6 +166,10 @@ require("lazy").setup {
 
       local lint = require("lint")
 
+      -- It's literally always Bash.
+      local shellcheck = require("lint").linters.shellcheck
+      table.insert(shellcheck.args, "--shell=bash")
+
       -- Display `lastModified` timestamps in `flake.lock` files as human-readable dates.
       lint.linters.flake_lock_unix_timestamps =
         require("rbt.flake_lock_unix_timestamps")
