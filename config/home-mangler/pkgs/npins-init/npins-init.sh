@@ -41,3 +41,15 @@ in
 pkgs.callPackage ./package.nix { }
 EOF
 fi
+
+if [[ ! -e .envrc ]]; then
+    cat << 'EOF' > ~/output
+if [[ "$(type -t nix_direnv_manual_reload)" == function ]]; then
+    nix_direnv_manual_reload
+fi
+
+source_env_if_exists .envrc.local
+
+use nix
+EOF
+fi
