@@ -104,6 +104,7 @@
             pkgs.nixfmt-rfc-style
             pkgs.nodejs_latest
             pkgs.npins
+            pkgs.rbt.npins-init
             pkgs.omnisharp-roslyn
             pkgs.pre-commit
             pkgs.rbt.pywatchman
