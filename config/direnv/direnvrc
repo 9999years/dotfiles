@@ -1,0 +1,7 @@
+# lol hope there's no globs here
+for nix_profile in $NIX_PROFILES; do
+    nix_direnv_rc="$nix_profile/share/nix-direnv/direnvrc"
+    if [ -e "$nix_direnv_rc" ]; then
+        source "$nix_direnv_rc"
+    fi
+done
