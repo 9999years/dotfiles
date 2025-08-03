@@ -15,9 +15,9 @@ function M.config()
       lua = { "stylua" },
       nix = { "nixfmt" },
       python = {
-        "ruff",
         "ruff_format",
-        "isort",
+        "ruff_fix",
+        lsp_format = "never",
       },
       haskell = {
         lsp_format = "never",
