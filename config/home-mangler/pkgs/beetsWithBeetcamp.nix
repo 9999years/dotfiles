@@ -40,6 +40,9 @@ lib.warnIf (lib.versionAtLeast beets.version "2.3.2")
       # These were added after 2.3.1 and aren't reflected in Nixpkgs.
       replace.builtin = true;
       musicbrainz.builtin = true;
+
+      # I added this one :)
+      detectmissing.builtin = true;
     };
   }).overridePythonAttrs
   (prev: {
@@ -92,6 +95,14 @@ lib.warnIf (lib.versionAtLeast beets.version "2.3.2")
       (fetchpatch {
         url = "https://github.com/beetbox/beets/commit/08b239f350db4a5e47a0625025a70585420ddf98.patch";
         hash = "sha256-w3aIAvy7rj3Vmif5FUI0L0guMWjghsmTYkDNJ6Xac3w=";
+      })
+
+      # detectmissing: init
+      #
+      # See: https://github.com/beetbox/beets/pull/5912
+      (fetchpatch {
+        url = "https://github.com/beetbox/beets/commit/e5e3f30e80debdcdec2e282a0ed43f7c08de256a.patch";
+        hash = "sha256-m6578KqQZoTMsLlOTgKOYQoRW0XQ96Gy2JmI7Ufal5g=";
       })
     ];
 
