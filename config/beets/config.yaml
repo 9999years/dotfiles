@@ -44,8 +44,8 @@ logging:
     urllib3: INFO
     oauthlib: INFO
     httpcore: INFO
-    pylast: WARNING
     httpx: WARNING
+    pylast: WARNING
 
 lyrics:
   auto: true
