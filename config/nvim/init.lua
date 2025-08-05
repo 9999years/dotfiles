@@ -394,9 +394,11 @@ batteries.cmd {
 vim.filetype.add {
   extension = {
     -- See: https://buck2.build/docs/bxl/
-    bxl = "bzl",
+    bxl = "bzl.bxl",
   },
   filename = {
     ["gitconfig"] = "gitconfig",
+    ["BUCK"] = "bzl.build",
+    ["PACKAGE"] = "bzl.build",
   },
 }

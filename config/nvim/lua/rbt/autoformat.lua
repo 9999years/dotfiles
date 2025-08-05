@@ -10,7 +10,11 @@ function M.config()
     default_format_opts = {
       lsp_format = "fallback",
     },
+
     formatters_by_ft = {
+      ["bzl.build"] = { "buildifier_build" },
+      bzl = { "buildifier" },
+      ["bzl.bxl"] = { "buildifier_bzl" },
       json = { "jq" },
       lua = { "stylua" },
       nix = { "nixfmt" },
@@ -24,6 +28,7 @@ function M.config()
       },
       ["*"] = { "keep-sorted" },
     },
+
     notify_no_formatters = false,
     format_after_save = function(bufnr)
       if not vim.g.format_after_save then
@@ -35,6 +40,31 @@ function M.config()
       end
       return {}
     end,
+
+    formatters = {
+
+      buildifier_build = {
+        command = "buildifier",
+        args = {
+          "-type",
+          "build",
+          "-path",
+          "$FILENAME",
+          "-",
+        },
+      },
+
+      buildifier_bzl = {
+        command = "buildifier",
+        args = {
+          "-type",
+          "bzl",
+          "-path",
+          "$FILENAME",
+          "-",
+        },
+      },
+    },
   }
 
   local batteries = require("batteries")
