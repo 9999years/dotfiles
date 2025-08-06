@@ -110,6 +110,9 @@ abbr --add tz timedatectl
 abbr --add x 'chmod +x'
 abbr --add tree 'eza --tree --level 2'
 
+abbr --add ffprobe 'ffprobe -hide_banner'
+abbr --add ffmpeg 'ffmpeg -hide_banner'
+
 bind ctrl-w backward-kill-word
 
 # Fish still seems to overwrite user-defined functions for `ls` and `ll`, so these live here.
