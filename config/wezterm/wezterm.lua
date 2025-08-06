@@ -150,6 +150,10 @@ extend_key_table("copy_mode", {
     key = "}",
     action = act.CopyMode("MoveForwardSemanticZone"),
   },
+
+  {
+    key = ".",
+    action = act.CopyMode { SetSelectionMode = "SemanticZone" },
   },
 
   {
