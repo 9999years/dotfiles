@@ -1,5 +1,8 @@
 # See: https://jj-vcs.github.io/jj/latest/config/
 
+# Default values for config items: https://github.com/jj-vcs/jj/blob/main/cli/src/config-schema.json
+# Default values for templates: https://github.com/jj-vcs/jj/blob/main/cli/src/config/templates.toml
+
 user.name = "Rebecca Turner"
 user.email = "rbt@sent.as"
 
