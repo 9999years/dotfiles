@@ -140,29 +140,16 @@ extend_key_table("copy_mode", {
   { key = "N", action = act.CopyMode("PriorMatch") },
   { key = "p", action = act.CopyMode("PriorMatch") },
 
-  -- VERY hacky paragraph movement.
+  -- No paragraph movements yet.
   -- See: https://github.com/wezterm/wezterm/issues/7079
   {
     key = "{",
-    action = act.Multiple {
-      act.Search {
-        Regex = "^\\s*$",
-      },
-      act.CopyMode("PriorMatch"),
-      act.CopyMode("AcceptPattern"),
-      act.CopyMode("ClearSelectionMode"),
-    },
+    action = act.CopyMode("MoveBackwardSemanticZone"),
   },
   {
     key = "}",
-    action = act.Multiple {
-      act.Search {
-        Regex = "^\\s*$",
-      },
-      act.CopyMode("NextMatch"),
-      act.CopyMode("AcceptPattern"),
-      act.CopyMode("ClearSelectionMode"),
-    },
+    action = act.CopyMode("MoveForwardSemanticZone"),
+  },
   },
 
   {
