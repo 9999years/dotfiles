@@ -45,6 +45,11 @@ config.font = wezterm.font_with_fallback {
     family = "Apple Color Emoji",
     assume_emoji_presentation = true,
   },
+  -- I had to download this in `FontBook`, but it helped some CJK characters
+  -- like these render correctly: `変歴変奨雑`.
+  --
+  -- TODO: Find an installed-by-default equivalent.
+  "PingFang SC",
 }
 config.font_size = 16.0
 
