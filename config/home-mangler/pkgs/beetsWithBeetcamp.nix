@@ -104,6 +104,14 @@ lib.warnIf (lib.versionAtLeast beets.version "2.3.2")
         url = "https://github.com/beetbox/beets/commit/e5e3f30e80debdcdec2e282a0ed43f7c08de256a.patch";
         hash = "sha256-m6578KqQZoTMsLlOTgKOYQoRW0XQ96Gy2JmI7Ufal5g=";
       })
+
+      # fish: complete files in more places
+      #
+      # See: https://github.com/beetbox/beets/pull/5927
+      (fetchpatch {
+        url = "https://github.com/beetbox/beets/commit/e352c215aa2e265a1b20429c690818e8b62adffa.patch";
+        hash = "sha256-NXIWFbzEe701Ugi9EHm/sFolTbCZ4kELTVMsViXwiNI=";
+      })
     ];
 
     disabledTestPaths =
