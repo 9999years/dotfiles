@@ -112,6 +112,7 @@ abbr --add tree 'eza --tree --level 2'
 
 abbr --add ffprobe 'ffprobe -hide_banner'
 abbr --add ffmpeg 'ffmpeg -hide_banner'
+abbr --add yt-dlp 'yt-dlp --extract-audio --audio-quality 0'
 
 bind ctrl-w backward-kill-word
 
