@@ -35,7 +35,7 @@ ui.diff-editor = ":builtin"
 ui.pager = "delta"
 ui.diff-formatter = ":git"
 
-core.watchman.register-snapshot-trigger = true
+fsmonitor.watchman.register-snapshot-trigger = true
 
 templates.draft_commit_description = '''
 concat(
