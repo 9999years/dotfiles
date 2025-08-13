@@ -11,6 +11,8 @@ aliases.blame = ["file", "annotate"]
 aliases.clone = ["git", "clone"]
 # `cherry-pick`.
 aliases.cp = ["duplicate"]
+# I keep typing this.
+aliases.dup = ["duplicate"]
 aliases.fetch = ["git", "fetch"]
 aliases.here = ["bookmark", "set", "--revision", "@-"]
 aliases.init = ["git", "init", "--colocate"]
