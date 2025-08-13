@@ -98,7 +98,10 @@ require("lazy").setup {
     "9999years/open-browser-git.nvim",
     config = function()
       require("open_browser_git").setup {
-        command_prefix = "Browse",
+        commands = {
+          open = "Browse",
+          copy = "Copy",
+        },
         flavor_patterns = {
           forgejo = {
             "git.lix.systems",
