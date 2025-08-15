@@ -55,7 +55,7 @@ lyrics:
 import:
   move: true
   copy: false
-  duplicate_action: skip
+  duplicate_action: merge
   log: ~/.cache/beets/beets.log
   languages: ['en']
 
