@@ -230,6 +230,8 @@ require("lazy").setup {
     end,
   },
 
+  require("rbt.session"),
+
   -- Yesod Haskell web framework syntax highlighting.
   { "alx741/yesod.vim" },
 
@@ -268,6 +270,15 @@ vim.opt.exrc = true -- Load `.nvim.lua` when trusted
 -- https://github.com/neovim/neovim/issues/35111
 vim.opt.wildoptions:append { "fuzzy" } -- Fuzzy completion in command line
 vim.opt.wildignorecase = true
+vim.opt.sessionoptions:append {
+  -- We use `vim.g.format_after_save` to toggle autoformatting, but Vim only
+  -- saves "global variables that start with an uppercase letter and contain at
+  -- least one lowercase letter" (???) so maybe we need to change the name...?
+  "globals",
+  "localoptions",
+  -- Unclear if this will override (changed) settings in `init.lua`.
+  "options",
+}
 
 local split_then = require("split-then").split_then
 local vsplit_then = require("split-then").vsplit_then
