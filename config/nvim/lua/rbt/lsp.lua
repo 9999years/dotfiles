@@ -74,7 +74,7 @@ local function for_all_attached_buffers(ctx, callback)
 end
 
 -- Reset options back to what I want. This is needed because the Neovim
--- LSP client will reset these options _after_ calling `on_attach`.
+-- LSP client will reset these options _after_ calling `lsp_attach`.
 --
 -- See: https://github.com/neovim/neovim/issues/31430
 local function reset_defaults(_client, bufnr)
@@ -114,9 +114,17 @@ local function jump_most_severe(opts)
   vim.diagnostic.jump(opts)
 end
 
--- Use an on_attach function to only map the following keys
--- after the language server attaches to the current buffer
-local function lsp_on_attach(client, bufnr)
+-- Use an `LspAttach` function to only create LSP-related key bindings after
+-- the language server attaches to the buffer.
+--
+--- @param args vim.api.keyset.create_autocmd.callback_args
+local function lsp_attach(args)
+  --- @type vim.lsp.Client
+  local client = assert(vim.lsp.get_client_by_id(args.data.client_id))
+
+  --- @type integer
+  local bufnr = args.buf
+
   -- Enable completion triggered by <c-x><c-o>
   vim.api.nvim_set_option_value(
     "omnifunc",
@@ -268,13 +276,18 @@ function M.config()
     },
   }
 
+  -- See: `:h lsp-attach`
+  vim.api.nvim_create_autocmd("LspAttach", {
+    group = vim.api.nvim_create_augroup("rbt.lsp", {}),
+    callback = lsp_attach,
+  })
+
   -- Gross!!!!!
   -- See: https://github.com/neovim/nvim-lspconfig#keybindings-and-completion
   local nvim_lsp = require("lspconfig")
 
   -- See: vim.lsp.ClientConfig
   local lsp_options = {
-    on_attach = lsp_on_attach,
     capabilities = require("cmp_nvim_lsp").default_capabilities(
       require("lsp-status").capabilities
     ),
