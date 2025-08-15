@@ -1,3 +1,5 @@
+--- @require "lint"
+
 ---@type lint.parse
 local function parser(_output, bufnr, _linter_cwd)
   local lines = vim.api.nvim_buf_get_lines(

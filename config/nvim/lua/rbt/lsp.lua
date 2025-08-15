@@ -1,3 +1,4 @@
+--- @require "lazy"
 --- @type LazyPluginSpec
 local M = {
   "neovim/nvim-lspconfig",
