@@ -17,10 +17,7 @@ M.dependencies = {
     end,
   },
 
-  -- Rust inlay hints and extras.
-  --
-  -- Archived, replaced with: https://github.com/mrcjkb/rustaceanvim
-  "simrat39/rust-tools.nvim",
+  "mrcjkb/rustaceanvim",
 
   -- Needed to handle the `omnisharp` LSP's nonsense `$metadata` paths
   -- correctly.
@@ -424,19 +421,6 @@ function M.config()
     })
   end
 
-  -- `rust-tools` initializes `lspconfig`'s `rust_analyzer` as well, so it has to
-  -- go before...
-  require("rust-tools").setup {
-    tools = {
-      inlay_hints = {
-        auto = true,
-        parameter_hints_prefix = "← ",
-        other_hints_prefix = "⇒ ",
-      },
-    },
-  }
-  require("rust-tools").inlay_hints.enable()
-
   -- See: `:h lspconfig-all`
   -- See: https://github.com/neovim/nvim-lspconfig/blob/master/doc/configs.md
   -- keep-sorted start
@@ -452,7 +436,6 @@ function M.config()
   vim.lsp.enable("omnisharp") -- C# https://github.com/dotnet/roslyn
   vim.lsp.enable("pyright")
   vim.lsp.enable("racket_langserver")
-  vim.lsp.enable("rust_analyzer")
   vim.lsp.enable("texlab") -- LaTeX
   vim.lsp.enable("ts_ls")
   vim.lsp.enable("yamlls")
