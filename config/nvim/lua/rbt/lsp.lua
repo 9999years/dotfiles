@@ -37,6 +37,7 @@ M.dependencies = {
       config.have_0_11 = vim.fn.has("nvim-0.11") == 1
 
       local lsp = require("lazydev.lsp")
+      --- @diagnostic disable-next-line: duplicate-set-field
       lsp.update = function(client)
         lsp.assert(client)
         if config.have_0_11 then
@@ -44,6 +45,7 @@ M.dependencies = {
             settings = { Lua = {} },
           })
         else
+          --- @diagnostic disable-next-line: param-type-mismatch
           client.notify("workspace/didChangeConfiguration", {
             settings = { Lua = {} },
           })
