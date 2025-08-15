@@ -282,12 +282,7 @@ function M.config()
     callback = lsp_attach,
   })
 
-  -- Gross!!!!!
-  -- See: https://github.com/neovim/nvim-lspconfig#keybindings-and-completion
-  local nvim_lsp = require("lspconfig")
-
-  -- See: vim.lsp.ClientConfig
-  local lsp_options = {
+  vim.lsp.config("*", {
     capabilities = require("cmp_nvim_lsp").default_capabilities(
       require("lsp-status").capabilities
     ),
@@ -303,25 +298,39 @@ function M.config()
     flags = {
       debounce_text_changes = 150,
     },
-    settings = {
+  })
 
+  vim.lsp.config("hls", {
+    settings = {
       haskell = {
         formattingProvider = "fourmolu",
       },
+    },
+  })
 
+  vim.lsp.config("jsonls", {
+    settings = {
       json = {
         validate = {
           enable = true,
         },
       },
+    },
+  })
 
+  vim.lsp.config("yamlls", {
+    settings = {
       -- The yaml-language-server actually crashes if I do this with nested
       -- tables instead of writing the property name with dots. Incredible.
       -- Anyways this gets me autocomplete for things like GitHub Actions files.
       -- Essential.
       -- https://github.com/redhat-developer/yaml-language-server
       ["yaml.schemaStore.enable"] = true,
+    },
+  })
 
+  vim.lsp.config("rust_analyzer", {
+    settings = {
       -- See: https://rust-analyzer.github.io/book/configuration
       ["rust-analyzer"] = {
         -- Meanwhile, `rust-analyzer` won't recognize `imports.granularity.group`
@@ -358,13 +367,11 @@ function M.config()
           features = "all",
         },
       },
+    },
+  })
 
-      ["nil"] = {
-        formatting = {
-          command = { "nixfmt" },
-        },
-      },
-
+  vim.lsp.config("lua_ls", {
+    settings = {
       Lua = {
         runtime = {
           -- For neovim
@@ -382,19 +389,22 @@ function M.config()
         },
       },
     },
-  }
+  })
 
-  local lsp_server_options = {
-    ["nil"] = {
+  vim.lsp.config("nil", {
+    settings = {
       formatting = {
-        command = { "alejandra" },
+        command = { "nixfmt" },
       },
       nix = {
         autoArchive = true,
         autoEvalInputs = true,
       },
     },
-    omnisharp = {
+  })
+
+  vim.lsp.config("omnisharp", {
+    settings = {
       cmd = {
         "OmniSharp",
         "--zero-based-indices",
@@ -404,14 +414,12 @@ function M.config()
         "--languageserver",
       },
     },
-  }
+  })
 
   if vim.fn.executable("static-ls") == 1 then
-    lsp_server_options.hls = { cmd = { "static-ls" } }
-  end
-
-  local function lsp_server_options_for(server)
-    return vim.tbl_extend("keep", lsp_server_options[server] or {}, lsp_options)
+    vim.lsp.config("hls", {
+      cmd = { "static-ls" },
+    })
   end
 
   -- `rust-tools` initializes `lspconfig`'s `rust_analyzer` as well, so it has to
@@ -424,33 +432,29 @@ function M.config()
         other_hints_prefix = "⇒ ",
       },
     },
-    server = lsp_server_options_for("rust_analyzer"),
   }
   require("rust-tools").inlay_hints.enable()
 
-  -- https://github.com/neovim/nvim-lspconfig/blob/master/doc/configs.md
-  local lsp_servers = {
-    "pyright",
-    "racket_langserver",
-    "rust_analyzer",
-    "ts_ls",
-    "hls",
-    "jsonls",
-    "yamlls",
-    "html",
-    "cssls",
-    "texlab", -- LaTeX
-    "nil_ls", -- Nix: https://github.com/oxalica/nil
-    "lua_ls", -- https://github.com/LuaLS/lua-language-server
-    "gopls", -- https://github.com/golang/tools/tree/master/gopls
-    "clangd", -- https://clangd.llvm.org/
-    "buck2", -- https://buck2.build/docs/users/commands/lsp/
-    "omnisharp", -- C# https://github.com/dotnet/roslyn
-  }
-
-  for _, lsp in ipairs(lsp_servers) do
-    nvim_lsp[lsp].setup(lsp_server_options_for(lsp))
-  end
+  -- See: `:h lspconfig-all`
+  -- See: https://github.com/neovim/nvim-lspconfig/blob/master/doc/configs.md
+  -- keep-sorted start
+  vim.lsp.enable("buck2") -- https://buck2.build/docs/users/commands/lsp/
+  vim.lsp.enable("clangd") -- https://clangd.llvm.org/
+  vim.lsp.enable("cssls")
+  vim.lsp.enable("gopls") -- https://github.com/golang/tools/tree/master/gopls
+  vim.lsp.enable("hls")
+  vim.lsp.enable("html")
+  vim.lsp.enable("jsonls")
+  vim.lsp.enable("lua_ls") -- https://github.com/LuaLS/lua-language-server
+  vim.lsp.enable("nil_ls") -- Nix: https://github.com/oxalica/nil
+  vim.lsp.enable("omnisharp") -- C# https://github.com/dotnet/roslyn
+  vim.lsp.enable("pyright")
+  vim.lsp.enable("racket_langserver")
+  vim.lsp.enable("rust_analyzer")
+  vim.lsp.enable("texlab") -- LaTeX
+  vim.lsp.enable("ts_ls")
+  vim.lsp.enable("yamlls")
+  -- keep-sorted end
 end
 
 return M
