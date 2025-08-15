@@ -300,6 +300,7 @@ function M.config()
     },
   })
 
+  -- keep-sorted start block=yes newline_separated=yes
   vim.lsp.config("hls", {
     settings = {
       haskell = {
@@ -313,58 +314,6 @@ function M.config()
       json = {
         validate = {
           enable = true,
-        },
-      },
-    },
-  })
-
-  vim.lsp.config("yamlls", {
-    settings = {
-      -- The yaml-language-server actually crashes if I do this with nested
-      -- tables instead of writing the property name with dots. Incredible.
-      -- Anyways this gets me autocomplete for things like GitHub Actions files.
-      -- Essential.
-      -- https://github.com/redhat-developer/yaml-language-server
-      ["yaml.schemaStore.enable"] = true,
-    },
-  })
-
-  vim.lsp.config("rust_analyzer", {
-    settings = {
-      -- See: https://rust-analyzer.github.io/book/configuration
-      ["rust-analyzer"] = {
-        -- Meanwhile, `rust-analyzer` won't recognize `imports.granularity.group`
-        -- unless it's formatted *with* nested tables.
-        imports = {
-          granularity = {
-            -- Reformat imports.
-            enforce = true,
-            -- Create a new `use` statement for each import when using the
-            -- auto-import functionality.
-            -- https://rust-analyzer.github.io/manual.html#auto-import
-            group = "item",
-          },
-        },
-        inlayHints = {
-          bindingModeHints = {
-            enable = true,
-          },
-          closureReturnTypeHints = {
-            enable = "always",
-          },
-          expressionAdjustmentHints = {
-            enable = "always",
-          },
-        },
-        files = {
-          excludeDirs = {
-            -- Don't scan nixpkgs on startup -_-
-            -- https://github.com/rust-lang/rust-analyzer/issues/12613#issuecomment-1174418175
-            ".direnv",
-          },
-        },
-        cargo = {
-          features = "all",
         },
       },
     },
@@ -415,6 +364,59 @@ function M.config()
       },
     },
   })
+
+  vim.lsp.config("rust_analyzer", {
+    settings = {
+      -- See: https://rust-analyzer.github.io/book/configuration
+      ["rust-analyzer"] = {
+        -- Meanwhile, `rust-analyzer` won't recognize `imports.granularity.group`
+        -- unless it's formatted *with* nested tables.
+        imports = {
+          granularity = {
+            -- Reformat imports.
+            enforce = true,
+            -- Create a new `use` statement for each import when using the
+            -- auto-import functionality.
+            -- https://rust-analyzer.github.io/manual.html#auto-import
+            group = "item",
+          },
+        },
+        inlayHints = {
+          bindingModeHints = {
+            enable = true,
+          },
+          closureReturnTypeHints = {
+            enable = "always",
+          },
+          expressionAdjustmentHints = {
+            enable = "always",
+          },
+        },
+        files = {
+          excludeDirs = {
+            -- Don't scan nixpkgs on startup -_-
+            -- https://github.com/rust-lang/rust-analyzer/issues/12613#issuecomment-1174418175
+            ".direnv",
+          },
+        },
+        cargo = {
+          features = "all",
+        },
+      },
+    },
+  })
+
+  vim.lsp.config("yamlls", {
+    settings = {
+      -- The yaml-language-server actually crashes if I do this with nested
+      -- tables instead of writing the property name with dots. Incredible.
+      -- Anyways this gets me autocomplete for things like GitHub Actions files.
+      -- Essential.
+      -- https://github.com/redhat-developer/yaml-language-server
+      ["yaml.schemaStore.enable"] = true,
+    },
+  })
+  -- keep-sorted end
 
   if vim.fn.executable("static-ls") == 1 then
     vim.lsp.config("hls", {
