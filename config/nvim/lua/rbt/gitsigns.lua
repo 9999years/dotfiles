@@ -11,7 +11,7 @@ M.opts = {
 }
 
 function M.opts.on_attach(bufnr)
-  local gs = require("gitsigns")
+  local gitsigns = require("gitsigns")
   local batteries = require("batteries")
 
   batteries.map {
@@ -22,64 +22,84 @@ function M.opts.on_attach(bufnr)
       "]c",
       function()
         if vim.wo.diff then
-          return "]c"
+          vim.cmd.normal { "]c", bang = true }
+        else
+          gitsigns.nav_hunk("next")
         end
-        vim.schedule(function()
-          gs.nav_hunk("next")
-        end)
-        return "<Ignore>"
       end,
       "Next diff hunk",
-      expr = true,
     },
     {
       "[c",
       function()
         if vim.wo.diff then
-          return "[c"
+          vim.cmd.normal { "[c", bang = true }
+        else
+          gitsigns.nav_hunk("prev")
         end
-        vim.schedule(function()
-          gs.nav_hunk("prev")
-        end)
-        return "<Ignore>"
       end,
       "Prev diff hunk",
-      expr = true,
     },
 
     -- Text object
-    { "ih", "<Cmd>Gitsigns select_hunk<CR>", "Hunk", mode = { "o", "x" } },
+    {
+      "ih",
+      function()
+        gitsigns.select_hunk()
+      end,
+      "Hunk",
+      mode = { "o", "x" },
+    },
 
     -- Actions
     { prefix = "<Leader>h", group = "hunk" },
     {
       "<Leader>hs",
-      "<Cmd>Gitsigns stage_hunk<CR>",
+      function()
+        gitsigns.stage_hunk()
+      end,
       "Stage hunk",
       mode = { "n", "v" },
     },
     {
       "<Leader>hr",
-      "<Cmd>Gitsigns reset_hunk<CR>",
+      function()
+        gitsigns.reset_hunk()
+      end,
       "Reset (unstage) hunk",
       mode = { "n", "v" },
     },
-    { "<Leader>hS", gs.stage_buffer, "Stage buffer" },
-    { "<Leader>hR", gs.reset_buffer, "Reset buffer" },
-    { "<Leader>hp", gs.preview_hunk, "Preview hunk" },
+    { "<Leader>hS", gitsigns.stage_buffer, "Stage buffer" },
+    { "<Leader>hR", gitsigns.reset_buffer, "Reset buffer" },
+    { "<Leader>hp", gitsigns.preview_hunk, "Preview hunk" },
     {
       "<Leader>hb",
       function()
-        gs.blame_line { full = true }
+        gitsigns.blame_line { full = true }
       end,
       "Blame line",
     },
     {
+      "<Leader>hB",
+      gitsigns.blame,
+      "Blame file",
+    },
+    {
       "<Leader>hd",
-      function()
-        gs.diffthis("~")
-      end,
+      gitsigns.diffthis,
       "Diff",
+    },
+    {
+      "<Leader>hq",
+      gitsigns.setqflist,
+      "File hunks -> qflist",
+    },
+    {
+      "<Leader>hQ",
+      function()
+        gitsigns.setqflist("all")
+      end,
+      "All file hunks -> qflist",
     },
   }
 end
