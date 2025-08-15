@@ -259,7 +259,7 @@ function M.config()
   -- See: https://github.com/neovim/nvim-lspconfig/blob/master/doc/server_configurations.md
 
   -- https://github.com/neovim/neovim/issues/16807#issuecomment-1001618856
-  require("vim.lsp.log").set_format_func(vim.inspect)
+  vim.lsp.log.set_format_func(vim.inspect)
 
   -- When jumping to diagnostics, open floating windows by default.
   vim.diagnostic.config {
