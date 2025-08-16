@@ -39,7 +39,7 @@ EOF
 fi
 
 if [[ ! -e .envrc ]]; then
-    cat << 'EOF' > ~/output
+    cat << 'EOF' > .envrc
 if [[ "$(type -t nix_direnv_manual_reload)" == function ]]; then
     nix_direnv_manual_reload
 fi
