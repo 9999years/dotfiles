@@ -94,6 +94,7 @@ abbr --add jr 'jj rebase'
 abbr --add jsp 'jj split'
 abbr --add jsq 'jj squash'
 abbr --add jst 'jj status'
+abbr --add jt 'jj tug'
 
 # Nix.
 abbr --add nb 'nix build'
