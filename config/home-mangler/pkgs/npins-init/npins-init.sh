@@ -4,10 +4,6 @@ if [[ ! -e npins/sources.json ]]; then
     npins init --bare
 fi
 
-if ! jq --exit-status .pins.nixpkgs npins/sources.json >/dev/null; then
-    npins add github nixos nixpkgs --verbose --branch nixos-unstable
-fi
-
 if [[ ! -e package.nix ]]; then
     cat << EOF > package.nix
 {
@@ -52,4 +48,8 @@ source_env_if_exists .envrc.local
 
 use nix
 EOF
+fi
+
+if ! jq --exit-status .pins.nixpkgs npins/sources.json >/dev/null; then
+    npins add github nixos nixpkgs --verbose --branch nixos-unstable
 fi
