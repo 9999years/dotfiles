@@ -41,6 +41,10 @@ end
 
 config.font = wezterm.font_with_fallback {
   "PragmataPro Liga",
+  -- Support for Symbols for Legacy Computing Supplement and Appendix.
+  -- Thank you Rebecca Bettencourt!!
+  -- See: <https://www.kreativekorp.com/software/fonts/ksquare/>
+  "Kreative Square",
   {
     family = "Apple Color Emoji",
     assume_emoji_presentation = true,
