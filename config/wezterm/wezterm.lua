@@ -56,6 +56,12 @@ config.font = wezterm.font_with_fallback {
 }
 config.font_size = 16.0
 
+-- I would prefer to check `wezterm.gui.screens().main.effective_dpi >= 144`,
+-- but just calling that function from the config crashes wezterm.
+if wezterm.hostname() == "grandiflora" then
+  config.font_size = 18.0
+end
+
 config.window_decorations = "INTEGRATED_BUTTONS|RESIZE"
 config.window_padding = {
   left = "0cell",
