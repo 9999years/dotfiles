@@ -88,6 +88,7 @@
             pkgs.isort # Python import sorter.
             pkgs.jq
             pkgs.jujutsu
+            pkgs.just
             pkgs.keep-sorted
             pkgs.less
             pkgs.lixPackageSets.latest.nix-eval-jobs
