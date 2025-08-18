@@ -105,6 +105,7 @@
             pkgs.nix-update
             pkgs.nix-your-shell
             pkgs.nixfmt-rfc-style
+            pkgs.nmap
             pkgs.nodejs_latest
             pkgs.npins
             pkgs.rbt.npins-init
