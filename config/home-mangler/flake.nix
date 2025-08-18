@@ -53,6 +53,7 @@
             # keep-sorted end
 
             # keep-sorted start ignore_prefixes=pkgs,pkgs.rbt
+            pkgs._7zz # 7-zip.org
             pkgs.rbt.__tmux_window_name
             pkgs.actionlint
             pkgs.bashInteractive
