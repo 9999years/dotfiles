@@ -34,6 +34,10 @@ local function maybe_load_session()
     return
   end
 
+  if vim.g.started_with_stdin then
+    return
+  end
+
   local argv = vim.fn.argv()
   --- @cast argv -string
 
