@@ -112,6 +112,7 @@
             pkgs.omnisharp-roslyn
             pkgs.pandoc
             pkgs.pre-commit
+            pkgs.pyright
             pkgs.rbt.pywatchman
             pkgs.rcm
             pkgs.ripgrep
