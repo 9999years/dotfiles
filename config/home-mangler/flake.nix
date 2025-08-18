@@ -110,6 +110,7 @@
             pkgs.npins
             pkgs.rbt.npins-init
             pkgs.omnisharp-roslyn
+            pkgs.pandoc
             pkgs.pre-commit
             pkgs.rbt.pywatchman
             pkgs.rcm
