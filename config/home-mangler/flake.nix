@@ -117,6 +117,7 @@
             pkgs.rcm
             pkgs.ripgrep
             pkgs.rnr # Batch/regex renamer.
+            pkgs.rsync
             pkgs.ruff # Python formatter.
             pkgs.rust-analyzer
             pkgs.rustup
