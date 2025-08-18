@@ -1,0 +1,31 @@
+{
+  "pins": {
+    "nixpkgs": {
+      "type": "Git",
+      "repository": {
+        "type": "GitHub",
+        "owner": "nixos",
+        "repo": "nixpkgs"
+      },
+      "branch": "master",
+      "submodules": false,
+      "revision": "e41b506abb3ef9a02a23a23cb6228ae6410916d9",
+      "url": "https://github.com/nixos/nixpkgs/archive/e41b506abb3ef9a02a23a23cb6228ae6410916d9.tar.gz",
+      "hash": "072i9c0xcxnh26zffy4pnqk23f9cjid31pd0pxvajc564kdfcr57"
+    },
+    "npingler": {
+      "type": "Git",
+      "repository": {
+        "type": "GitHub",
+        "owner": "9999years",
+        "repo": "npingler"
+      },
+      "branch": "main",
+      "submodules": false,
+      "revision": "9ced013b5e8831fc63893056e7b84a0578e9be71",
+      "url": "https://github.com/9999years/npingler/archive/9ced013b5e8831fc63893056e7b84a0578e9be71.tar.gz",
+      "hash": "1vd54gpv6k3vh0k9qmjik4mmi2kvcq7rj0zz6kw02aszw54c0np5"
+    }
+  },
+  "version": 5
+}

@@ -1,0 +1,6 @@
+log.filter = [
+    "command_error=debug",
+    "info",
+]
+registry.pin_root = true
+channels.pin_root = true
