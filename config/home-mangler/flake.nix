@@ -132,6 +132,7 @@
             pkgs.universal-ctags
             pkgs.uv
             pkgs.vscode-langservers-extracted
+            pkgs.watch
             pkgs.watchman
             pkgs.weechat
             pkgs.yaml-language-server
