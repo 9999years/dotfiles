@@ -93,6 +93,7 @@
             pkgs.less
             pkgs.lixPackageSets.latest.nix-eval-jobs
             pkgs.lua-language-server
+            pkgs.ncdu
             pkgs.neovim
             pkgs.nil
             pkgs.nix-diff
