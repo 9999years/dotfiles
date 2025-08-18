@@ -113,6 +113,7 @@
             pkgs.pandoc
             pkgs.pre-commit
             pkgs.pyright
+            pkgs.rbt.pythonEnv
             pkgs.rbt.pywatchman
             pkgs.rcm
             pkgs.ripgrep
