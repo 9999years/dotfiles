@@ -18,8 +18,6 @@ M.dependencies = {
     end,
   },
 
-  "mrcjkb/rustaceanvim",
-
   -- Needed to handle the `omnisharp` LSP's nonsense `$metadata` paths
   -- correctly.
   "Hoffs/omnisharp-extended-lsp.nvim",
@@ -377,7 +375,7 @@ function M.config()
             enforce = true,
             -- Create a new `use` statement for each import when using the
             -- auto-import functionality.
-            -- https://rust-analyzer.github.io/manual.html#auto-import
+            -- See: https://rust-analyzer.github.io/book/configuration.html#imports.granularity.group
             group = "item",
           },
         },
@@ -439,6 +437,7 @@ function M.config()
   vim.lsp.enable("omnisharp") -- C# https://github.com/dotnet/roslyn
   vim.lsp.enable("pyright")
   vim.lsp.enable("racket_langserver")
+  vim.lsp.enable("rust_analyzer")
   vim.lsp.enable("texlab") -- LaTeX
   vim.lsp.enable("ts_ls")
   vim.lsp.enable("yamlls")
