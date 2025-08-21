@@ -280,6 +280,11 @@ vim.opt.sessionoptions:append {
   "options",
 }
 
+-- See: `:h netrw-variables`
+vim.g.netrw_banner = false
+-- Show a tree-style listing.
+vim.g.netrw_liststyle = 3
+
 local split_then = require("split-then").split_then
 local vsplit_then = require("split-then").vsplit_then
 
