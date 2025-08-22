@@ -141,7 +141,7 @@
           ]
           ++ lib.optionals (!work) [
             # keep-sorted start ignore_prefixes=pkgs,pkgs.rbt
-            pkgs.rbt.beetsWithBeetcamp
+            pkgs.rbt.beets-with-beetcamp
             pkgs.ffmpeg-full
             pkgs.rbt.slsk-batchdl
             pkgs.yt-dlp
