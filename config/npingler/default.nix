@@ -94,6 +94,7 @@ let
         pkgs.nixfmt-rfc-style
         pkgs.nmap
         pkgs.nodejs_latest
+        pkgs.npingler
         pkgs.npins
         pkgs.rbt.npins-init
         pkgs.omnisharp-roslyn
