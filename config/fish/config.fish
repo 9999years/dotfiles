@@ -146,6 +146,11 @@ fish_add_path \
 set -l nix_daemon /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
 if test -e $nix_daemon
     if type -q bass
+        # TODO: I'm not really sure why, but this seems to always insert
+        # duplicate paths. We can work around this by just... removing the
+        # duplicate paths, but this does require we know what they are in
+        # advance, which couples us tightly to the `nix-daemon.sh` script.
+        remove-nix-paths
         bass . $nix_daemon
     else
         echo 'Found `nix-daemon.sh` but `bass` not installed; nix will not be available in this shell.' >&2
