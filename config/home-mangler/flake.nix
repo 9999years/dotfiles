@@ -168,6 +168,7 @@
         (import ./overlays/lix.nix)
         (import ./overlays/broot.nix)
         (import ./overlays/python.nix)
+        (import ./overlays/rcm.nix)
         (import ./overlays/pkgs.nix)
       ];
 
