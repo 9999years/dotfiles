@@ -5,12 +5,14 @@ let
       (final: prev: {
         inherit npins-sources;
       })
-      (import ./overlays/lix.nix)
+      # keep-sorted start
       (import ./overlays/broot.nix)
+      (import ./overlays/lix.nix)
       (import ./overlays/npingler-lib.nix)
+      (import ./overlays/pkgs.nix)
       (import ./overlays/python.nix)
       (import ./overlays/rcm.nix)
-      (import ./overlays/pkgs.nix)
+      # keep-sorted end
     ];
   };
 
