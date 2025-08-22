@@ -17,4 +17,4 @@ disable = [
 ]
 
 [commands]
-home-mangler = "npingler update"
+npingler = "npingler update"
