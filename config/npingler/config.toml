@@ -1,5 +1,6 @@
 log.filter = [
     "command_error=debug",
+    "npingler::app=debug",
     "info",
 ]
 registry.pin_root = true
