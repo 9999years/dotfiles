@@ -9,6 +9,7 @@ let
       (import ./overlays/broot.nix)
       (import ./overlays/lix.nix)
       (import ./overlays/npingler-lib.nix)
+      (import ./overlays/npingler.nix)
       (import ./overlays/pkgs.nix)
       (import ./overlays/python.nix)
       (import ./overlays/rcm.nix)
