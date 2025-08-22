@@ -51,6 +51,7 @@ concat(
 )
 '''
 
+# TODO: Add conflict information here. Needs patch upstream!
 templates.log = '''
 builtin_log_compact
 ++ if(
