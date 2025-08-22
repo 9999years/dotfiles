@@ -132,7 +132,7 @@ let
         # keep-sorted start ignore_prefixes=pkgs,pkgs.rbt
         pkgs.rbt.beets-with-beetcamp
         pkgs.ffmpeg-full
-        pkgs.rbt.slsk-batchdl
+        pkgs.slsk-batchdl
         pkgs.yt-dlp
         # keep-sorted end
       ];
