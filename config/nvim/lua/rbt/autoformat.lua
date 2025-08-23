@@ -27,7 +27,10 @@ function M.config()
       haskell = {
         lsp_format = "never",
       },
-      rust = { "rustfmt" },
+      rust = {
+        "rustfmt",
+        lsp_format = "prefer",
+      },
       ["*"] = { "keep-sorted" },
     },
 
