@@ -380,14 +380,11 @@ function M.config()
           },
         },
         inlayHints = {
-          bindingModeHints = {
-            enable = true,
-          },
           closureReturnTypeHints = {
             enable = "always",
           },
-          expressionAdjustmentHints = {
-            enable = "always",
+          closureCaptureHints = {
+            enable = true,
           },
         },
         files = {
