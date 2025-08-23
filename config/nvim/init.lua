@@ -136,9 +136,8 @@ require("lazy").setup {
     "Shatur/neovim-ayu",
     config = function()
       vim.cmd("colorscheme ayu")
-      -- The colors for inlay hints are too dark, use the comment colors instead.
-      vim.cmd("highlight link LspInlayHint Comment")
-      vim.cmd("highlight link LspCodeLens Comment")
+      -- Line numbers are too dark.
+      vim.cmd("highlight! link LineNr StatusLineNC")
     end,
   },
 
