@@ -72,7 +72,6 @@ let
         pkgs.hub
         pkgs.hyperfine
         pkgs.imagemagickBig
-        pkgs.isort # Python import sorter.
         pkgs.jq
         pkgs.jujutsu
         pkgs.just
