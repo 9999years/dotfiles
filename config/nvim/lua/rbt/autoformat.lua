@@ -16,6 +16,7 @@ function M.config()
       ["bzl.build"] = { "buildifier_build" },
       bzl = { "buildifier" },
       ["bzl.bxl"] = { "buildifier_bzl" },
+      go = { "gofmt" },
       json = { "jq" },
       lua = { "stylua" },
       nix = { "nixfmt" },
