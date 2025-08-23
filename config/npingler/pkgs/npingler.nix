@@ -20,7 +20,7 @@ rustPlatform.buildRustPackage {
     owner = "9999years";
     repo = "npingler";
     rev = "1bee770d581940341378dca023e0bf03b2ef4cdc";
-    hash = "sha256-AL8nBvyOQZ6iT3kUIXmPaxVy084MAYJD73cbx/GNREQ=";
+    hash = "sha256-eVHGRkJYrLtbsvmy1RZNjy9b0y4gUA124EW5R03dRVI=";
   };
 
   cargoHash = "sha256-j54mF1w6e6tmiiRRvKyN2bupeeAIrzWXqD6FM9yYAHM=";
