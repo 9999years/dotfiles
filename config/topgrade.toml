@@ -14,6 +14,11 @@ disable = [
     "uv",
     # I install `node` with Nix.
     "node",
+    # Topgrade tries to run `nix-env --upgrade`, which somehow wipes my entire
+    # Nix profile, and it also tries to run `sudo nix upgrade-nix` without the
+    # proper substituters, so it fails to upgrade Lix. Let's just add a custom
+    # command to do it ourselves.
+    "nix",
 ]
 
 [commands]
