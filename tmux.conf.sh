@@ -20,7 +20,7 @@ elif command -v wl-copy >/dev/null; then
     tmux_bind_copy wl-copy
 fi
 
-# See: `./config/home-mangler/__tmux_window_name.sh`
+# See: `./config/npingler/pkgs/__tmux_window_name/__tmux_window_name.sh`
 if command -v __tmux_window_name > /dev/null
 then
     tmux set-option -g automatic-rename-format "#(__tmux_window_name #{q:pane_current_path})"
