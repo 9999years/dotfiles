@@ -11,7 +11,7 @@ fi
 export SYMLINK_DIRS="\
     config/fish \
     config/nvim \
-    config/home-mangler \
+    config/npingler \
     config/Code/User \
     tmux/plugins/tpm \
 "
