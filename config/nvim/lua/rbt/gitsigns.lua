@@ -1,7 +1,13 @@
 --- @require "lazy"
 --- @type LazyPluginSpec
 local M = {
-  "lewis6991/gitsigns.nvim", -- Git gutter
+  -- Upstream: https://github.com/lewis6991/gitsigns.nvim
+  --
+  -- `actions.blame`: add `BlameOpts` parameter
+  --
+  -- See: https://github.com/lewis6991/gitsigns.nvim/pull/1399
+  "9999years/gitsigns.nvim", -- Git gutter
+  branch = "push-zykuprrtwxwt",
 }
 
 M.opts = {
@@ -81,7 +87,18 @@ function M.opts.on_attach(bufnr)
     },
     {
       "<Leader>hB",
-      gitsigns.blame,
+      function()
+        gitsigns.blame {
+          ignore_whitespace = true,
+          extra_opts = {
+            -- Look for moved or copied lines when blaming.
+            "-M", -- Look within one file.
+            "-C", -- Look at other files modified in the same commit.
+            "-C", -- Look at other files present in the same commit.
+            "-C", -- Look at other files in any commit.
+          },
+        }
+      end,
       "Blame file",
     },
     {
