@@ -5,3 +5,4 @@ log.filter = [
 ]
 registry.pin_root = true
 channels.pin_root = true
+profile.diff_derivations = ["nvd", "diff"]
