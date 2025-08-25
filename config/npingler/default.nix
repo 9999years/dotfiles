@@ -9,7 +9,6 @@ let
       (import ./overlays/broot.nix)
       (import ./overlays/lix.nix)
       (import ./overlays/npingler-lib.nix)
-      (import ./overlays/npingler.nix)
       (import ./overlays/pkgs.nix)
       (import ./overlays/python.nix)
       (import ./overlays/rcm.nix)
@@ -95,7 +94,7 @@ let
         pkgs.nixfmt-rfc-style
         pkgs.nmap
         pkgs.nodejs_latest
-        pkgs.npingler
+        pkgs.rbt.npingler
         pkgs.npins
         pkgs.rbt.npins-init
         pkgs.nvd
