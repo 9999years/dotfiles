@@ -32,7 +32,10 @@ function M.config()
         "rustfmt",
         lsp_format = "prefer",
       },
-      ["*"] = { "keep-sorted" },
+      ["*"] = {
+        "keep-sorted",
+        "treefmt",
+      },
     },
 
     notify_no_formatters = false,
