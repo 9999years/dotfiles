@@ -113,6 +113,7 @@ let
         pkgs.sd # `sed` replacement
         pkgs.shellcheck
         pkgs.stylua
+        pkgs.taplo
         pkgs.tmux
         pkgs.tokei
         pkgs.topgrade
