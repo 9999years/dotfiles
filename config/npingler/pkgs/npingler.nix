@@ -19,17 +19,25 @@ rustPlatform.buildRustPackage {
   src = fetchFromGitHub {
     owner = "9999years";
     repo = "npingler";
-    rev = "1bee770d581940341378dca023e0bf03b2ef4cdc";
-    hash = "sha256-eVHGRkJYrLtbsvmy1RZNjy9b0y4gUA124EW5R03dRVI=";
+    rev = "13781b1ee6a141dfebdaa4d885e153e1147a2312";
+    hash = "sha256-cWWzXsxvsETm3+91PuRnR27hSZZWVKnWU3YiTvB+t6A=";
   };
 
-  cargoHash = "sha256-j54mF1w6e6tmiiRRvKyN2bupeeAIrzWXqD6FM9yYAHM=";
+  cargoHash = "sha256-71uqdWsXBd6qsplwI3cA2TxXoj6JOThEHxnv9u6iraQ=";
+
+  buildFeatures = [ "clap_mangen" ];
 
   nativeBuildInputs = [
     installShellFiles
   ];
 
   postInstall = lib.optionalString emulatorAvailable ''
+    manpages=$(mktemp -d)
+    ${emulator} $out/bin/npingler util generate-man-pages "$manpages"
+    for manpage in "$manpages"/*; do
+      installManPage "$manpage"
+    done
+
     installShellCompletion --cmd npingler \
       --bash <(${emulator} $out/bin/npingler util generate-completions bash) \
       --fish <(${emulator} $out/bin/npingler util generate-completions fish) \
