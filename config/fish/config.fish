@@ -136,35 +136,29 @@ function ll --wraps eza -d 'List files, including hidden files'
 end
 
 # Add extra `$PATH` variables.
-fish_add_path \
+fish_add_path --global \
     /opt/homebrew/bin \
     ~/.ghcup/bin \
     ~/.cabal/bin \
     ~/.cargo/bin
 
+# Why does Nix use space-delimited profiles??
+# These are already in the `$PATH`, but we want them at the front.
+for profile in (string split " " "$NIX_PROFILES")
+    fish_add_path --global "$profile/bin"
+end
+
+
 # Nix support.
-set -l nix_daemon /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
-if test -e $nix_daemon
-    if type -q bass
-        # TODO: I'm not really sure why, but this seems to always insert
-        # duplicate paths. We can work around this by just... removing the
-        # duplicate paths, but this does require we know what they are in
-        # advance, which couples us tightly to the `nix-daemon.sh` script.
-        remove-nix-paths
-        bass . $nix_daemon
-    else
-        echo 'Found `nix-daemon.sh` but `bass` not installed; nix will not be available in this shell.' >&2
-    end
-    set -g --append fish_complete_path \
-        ~/.nix-profile/share/fish/vendor_completions.d \
-        ~/.nix-profile/share/fish/completions
-    set -g --append fish_function_path \
-        ~/.nix-profile/share/fish/vendor_functions.d \
-        ~/.nix-profile/share/fish/functions
-    # https://github.com/fish-shell/fish-shell/issues/10078#issuecomment-1786490675
-    for file in ~/.nix-profile/share/fish/vendor_conf.d/*.fish
-        source $file
-    end
+set -g --append fish_complete_path \
+    ~/.nix-profile/share/fish/vendor_completions.d \
+    ~/.nix-profile/share/fish/completions
+set -g --append fish_function_path \
+    ~/.nix-profile/share/fish/vendor_functions.d \
+    ~/.nix-profile/share/fish/functions
+# https://github.com/fish-shell/fish-shell/issues/10078#issuecomment-1786490675
+for file in ~/.nix-profile/share/fish/vendor_conf.d/*.fish
+    source $file
 end
 
 if command -q nix-your-shell
