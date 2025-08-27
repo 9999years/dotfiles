@@ -40,7 +40,14 @@ local function maybe_load_session()
   local maybe_session = persisted.current()
   if vim.fn.filereadable(maybe_session) == 0 then
     -- No session for this directory; start one.
-    persisted.start()
+    if #argv == 1 then
+      -- One argument, let's check if it's an allowed directory.
+      if persisted.allowed_dir { dir = argv[1] } then
+        persisted.start()
+      end
+    else
+      persisted.start()
+    end
   elseif #argv == 0 then
     -- There's already a session for this directory; load it if there's no CLI
     -- arguments.
@@ -59,6 +66,15 @@ function M.config()
 
   require("persisted").setup {
     autostart = false,
+    ignored_dirs = {
+      -- TODO: We could do our own matching to check if the file is like,
+      -- `/private/var/folders/**/*.jjdescription`, for example. Not sure if
+      -- that's worth it; we'll see if these settings cause annoyance.
+      { "/tmp", exact = true },
+      -- macOS puts `$TMPDIR` under `/private/var/folders`.
+      "/private/var/folders",
+      "/var/folders",
+    },
   }
 end
 
