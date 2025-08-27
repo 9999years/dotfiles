@@ -83,5 +83,4 @@ builtin_log_compact
     "~/mwb",
     "~/nixpkgs",
 ]
-[--scope.fsmonitor]
-backend = "watchman"
+fsmonitor.backend = "watchman"
