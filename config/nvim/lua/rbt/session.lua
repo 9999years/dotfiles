@@ -2,10 +2,6 @@
 --- @type LazyPluginSpec
 local M = {
   "olimorris/persisted.nvim",
-
-  opts = {
-    autostart = false,
-  },
 }
 
 function M.init()
@@ -60,6 +56,10 @@ function M.config()
     nested = true,
     callback = maybe_load_session,
   })
+
+  require("persisted").setup {
+    autostart = false,
+  }
 end
 
 return M
