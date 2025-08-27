@@ -84,3 +84,16 @@ builtin_log_compact
     "~/nixpkgs",
 ]
 fsmonitor.backend = "watchman"
+
+[[--scope]]
+--when.repositories = [
+    "~/mwb/prelude",
+    "~/lix",
+]
+
+templates.commit_trailers = '''
+if(
+  !trailers.contains_key("Change-Id"),
+  format_gerrit_change_id_trailer(self)
+)
+'''
