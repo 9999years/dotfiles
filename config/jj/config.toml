@@ -52,12 +52,31 @@ concat(
 )
 '''
 
-# TODO: Add conflict information here. Needs patch upstream!
+# Notes:
+# - There's no easy way to list/format conflicted files:
+#   https://github.com/jj-vcs/jj/issues/7377
+# - There's no way to write comments in templates:
+#   https://github.com/jj-vcs/jj/issues/5317
+# - Whitespace is not allowed before method calls, so you can't do the normal
+#   method chain syntax: https://github.com/jj-vcs/jj/issues/7378
 templates.log = '''
 builtin_log_compact
 ++ if(
     !description && !empty,
     diff.summary(),
+)
+++ if(
+    conflict,
+    self.files(
+        "all()"
+    ).filter(
+        |file| file.conflict()
+    ).map(
+        |file| label(
+            "conflict",
+            concat("conflict ", file.path())
+        )
+    ).join("\n")
 )
 '''
 
