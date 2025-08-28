@@ -21,6 +21,18 @@ local function insert_all(table_, entries)
   end
 end
 
+-- Filter a table according to a predicate.
+local function tbl_filter(tbl, predicate)
+  local ret = {}
+  for _, item in ipairs(tbl) do
+    if predicate(item) then
+      print(item)
+      table.insert(ret, item)
+    end
+  end
+  return ret
+end
+
 -- Add a series of key bindings to a default key table.
 --
 -- See: https://wezterm.org/config/key-tables.html
@@ -105,6 +117,10 @@ config.quick_select_patterns = {
   -- Haskell module name.
   "[A-Z][a-zA-Z0-9_']*(?:\\.[A-Z][a-zA-Z0-9_']*)+",
 }
+
+config.hyperlink_rules = tbl_filter(wezterm.default_hyperlink_rules(), function(item)
+  return item.format ~= "mailto:$0"
+end)
 
 -- Show which key table is active in the status area
 wezterm.on("update-right-status", function(window, _pane)
