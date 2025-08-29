@@ -275,8 +275,7 @@ vim.opt.sessionoptions:append {
   -- least one lowercase letter" (???) so maybe we need to change the name...?
   "globals",
   "localoptions",
-  -- Unclear if this will override (changed) settings in `init.lua`.
-  "options",
+  -- NOTE: It seems like adding `options` here breaks `tpope/vim-repeat`.
 }
 
 -- See: `:h netrw-variables`
