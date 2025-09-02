@@ -19,7 +19,18 @@ vim.opt.rtp:prepend(lazypath)
 -- Package manager & plugin configuration.
 require("lazy").setup {
   -- Better repeated mappings with plugins.
-  { "tpope/vim-repeat" },
+  {
+    "tpope/vim-repeat",
+    config = function()
+      -- Force `vim-repeat` to load by wrapping a no-op command. If
+      -- `vim-repeat` doesn't load, then the undo mapping points to a
+      -- non-existent command and does nothing. Ugh!
+      --
+      -- This is the closest thing I can find to a no-op command. `::` seems to
+      -- work but it's not documented?
+      vim.fn["repeat#wrap"]('execute ""', 0)
+    end,
+  },
 
   -- Mapping/command utils.
   { "9999years/batteries.nvim" },
@@ -275,7 +286,8 @@ vim.opt.sessionoptions:append {
   -- least one lowercase letter" (???) so maybe we need to change the name...?
   "globals",
   "localoptions",
-  -- NOTE: It seems like adding `options` here breaks `tpope/vim-repeat`.
+  -- Includes key mappings.
+  "options",
 }
 
 -- See: `:h netrw-variables`
