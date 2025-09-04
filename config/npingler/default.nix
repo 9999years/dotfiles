@@ -47,6 +47,7 @@ let
         pkgs.bashInteractive
         pkgs.bat
         pkgs.broot
+        pkgs.cargo-edit # `cargo upgrade`
         pkgs.cargo-nextest
         pkgs.cargo-watch
         pkgs.delta # `git-delta`
