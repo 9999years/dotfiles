@@ -74,6 +74,7 @@ convert:
   auto: true
   # Surely I will not regret this
   delete_originals: true
+  copy_album_art: true
   formats:
     # Use `libmp3lame` for reencoding MP3s and preserve metadata while doing so.
     #
