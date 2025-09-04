@@ -75,6 +75,7 @@ convert:
   # Surely I will not regret this
   delete_originals: true
   copy_album_art: true
+  no_convert: 'path::\.(m4a|wma)$'
   formats:
     # Use `libmp3lame` for reencoding MP3s and preserve metadata while doing so.
     #
