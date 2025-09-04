@@ -262,7 +262,7 @@ end
 function M.config()
   -- Language server / autocomplete configuration
 
-  -- See: https://github.com/neovim/nvim-lspconfig/blob/master/doc/server_configurations.md
+  -- See: https://github.com/neovim/nvim-lspconfig/blob/master/doc/configs.md
 
   -- https://github.com/neovim/neovim/issues/16807#issuecomment-1001618856
   vim.lsp.log.set_format_func(vim.inspect)
