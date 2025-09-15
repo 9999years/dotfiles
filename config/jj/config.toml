@@ -19,7 +19,7 @@ aliases.init = ["git", "init", "--colocate"]
 aliases.mut = ["--ignore-immutable"]
 aliases.push = ["git", "push"]
 aliases.remote = ["git", "remote"]
-aliases.rev-parse = ["show", "--template", "commit_id", "--no-patch"]
+aliases.rev-parse = ["log", "--no-graph", "--template", 'commit_id ++ "\n"', "--revisions"]
 # Move all bookmarks that are ancestors of `@-` to be at `@-`.
 aliases.tug = ["bookmark", "move", "--from", "heads(::@- & bookmarks())", "--to", "@-"]
 aliases.w = ["workspace"]
