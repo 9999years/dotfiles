@@ -95,7 +95,7 @@ let
         pkgs.nixfmt-rfc-style
         pkgs.nmap
         pkgs.nodejs_latest
-        pkgs.rbt.npingler
+        pkgs.npingler
         pkgs.npins
         pkgs.rbt.npins-init
         pkgs.nvd

@@ -9,9 +9,9 @@
       },
       "branch": "master",
       "submodules": false,
-      "revision": "adbb27e1356b93a06003f8e1598bc98294030cbe",
-      "url": "https://github.com/nixos/nixpkgs/archive/adbb27e1356b93a06003f8e1598bc98294030cbe.tar.gz",
-      "hash": "0kyd35djd5pr6pp3cdy17xdfbz3wawpsd199g177qmz0h3v5yf80"
+      "revision": "c860cbfbd6f484565fb3f423861d21f7b1bb2c23",
+      "url": "https://github.com/nixos/nixpkgs/archive/c860cbfbd6f484565fb3f423861d21f7b1bb2c23.tar.gz",
+      "hash": "0wy5vp4gsi0759f8rgsak8xb8q5s7lbdg6lcj1hhb6abrn6b4aqy"
     },
     "npingler": {
       "type": "Git",
@@ -22,9 +22,9 @@
       },
       "branch": "main",
       "submodules": false,
-      "revision": "f75a1cb3e8f61b7b4ac15cf0ef318225decd1ed7",
-      "url": "https://github.com/9999years/npingler/archive/f75a1cb3e8f61b7b4ac15cf0ef318225decd1ed7.tar.gz",
-      "hash": "0sw9an0n8ilj1a9r8snwrph81i9nah5q592nclqd500qh1nsfgw0"
+      "revision": "c7617e405faf19c1f7d1b5ae2cb1050e25265e70",
+      "url": "https://github.com/9999years/npingler/archive/c7617e405faf19c1f7d1b5ae2cb1050e25265e70.tar.gz",
+      "hash": "0c7r6qmprfy0lq1vsgjl7ha68xknfyrv99wcfbx2bxafds3w8jjw"
     }
   },
   "version": 5
