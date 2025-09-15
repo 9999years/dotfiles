@@ -98,7 +98,6 @@ let
         pkgs.npins
         pkgs.rbt.npins-init
         pkgs.nvd
-        pkgs.omnisharp-roslyn
         pkgs.pandoc
         pkgs.pre-commit
         pkgs.pyright
