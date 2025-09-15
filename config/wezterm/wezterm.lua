@@ -112,7 +112,9 @@ config.quick_select_patterns = {
   "[12]?[0-9]:[0-9]{2}(?::[0-9]{2})? ?(:?[aApP][mM])?",
 
   -- Buck2 target label.
-  "@?[A-Za-z0-9._-]*//[A-Za-z0-9/._-]*:[A-Za-z0-9_/.=,@~+-]+",
+  -- Note: `bxl` targets can have multiple `:name` components at the end, e.g.
+  -- `//haskell:module_target_map.bxl:best_effort`.
+  "@?[A-Za-z0-9._-]*//[A-Za-z0-9/._-]*(?::[A-Za-z0-9_/.=,@~+-]+)*",
 
   -- Haskell module name.
   "[A-Z][a-zA-Z0-9_']*(?:\\.[A-Z][a-zA-Z0-9_']*)+",
