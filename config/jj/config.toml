@@ -41,7 +41,18 @@ ui.diff-formatter = ":git"
 fsmonitor.watchman.register-snapshot-trigger = true
 
 revset-aliases.T = "trunk()"
-revset-aliases.M = "latest(merges() & mine() & mutable() & fork_point(trunk() | @)::, 1)"
+revset-aliases.M = '''
+latest(
+    mine()
+    & mutable()
+    & fork_point(trunk() | @)::
+    & (
+        merges()
+        | subject(exact:"private: merge")
+    ),
+    1
+)
+'''
 
 templates.git_push_bookmark = '''
 "wiggles/push-" ++ change_id.short()
