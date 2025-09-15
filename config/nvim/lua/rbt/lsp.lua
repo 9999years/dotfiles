@@ -18,10 +18,6 @@ M.dependencies = {
     end,
   },
 
-  -- Needed to handle the `omnisharp` LSP's nonsense `$metadata` paths
-  -- correctly.
-  "Hoffs/omnisharp-extended-lsp.nvim",
-
   -- Neovim Lua setup.
   {
     "folke/lazydev.nvim",
@@ -144,14 +140,6 @@ local function lsp_attach(args)
   local type_definition = vim.lsp.buf.type_definition
   local references = vim.lsp.buf.references
   local implementation = vim.lsp.buf.implementation
-
-  if vim.bo["filetype"] == "cs" then
-    local omnisharp = require("omnisharp_extended")
-    definition = omnisharp.lsp_definition
-    type_definition = omnisharp.lsp_type_definition
-    references = omnisharp.lsp_references
-    implementation = omnisharp.lsp_implementation
-  end
 
   -- See `:help vim.lsp.*` for documentation on any of the below functions
   require("batteries").map {
@@ -350,19 +338,6 @@ function M.config()
     },
   })
 
-  vim.lsp.config("omnisharp", {
-    settings = {
-      cmd = {
-        "OmniSharp",
-        "--zero-based-indices",
-        "DotNet:enablePackageRestore=false",
-        "--encoding",
-        "utf-8",
-        "--languageserver",
-      },
-    },
-  })
-
   vim.lsp.config("rust_analyzer", {
     settings = {
       -- See: https://rust-analyzer.github.io/book/configuration
@@ -431,7 +406,6 @@ function M.config()
   vim.lsp.enable("jsonls")
   vim.lsp.enable("lua_ls") -- https://github.com/LuaLS/lua-language-server
   vim.lsp.enable("nil_ls") -- Nix: https://github.com/oxalica/nil
-  vim.lsp.enable("omnisharp") -- C# https://github.com/dotnet/roslyn
   vim.lsp.enable("pyright")
   vim.lsp.enable("racket_langserver")
   vim.lsp.enable("rust_analyzer")
