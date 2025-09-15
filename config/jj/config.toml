@@ -40,6 +40,10 @@ ui.diff-formatter = ":git"
 
 fsmonitor.watchman.register-snapshot-trigger = true
 
+templates.git_push_bookmark = '''
+"wiggles/push-" ++ change_id.short()
+'''
+
 templates.draft_commit_description = '''
 concat(
   coalesce(description, default_commit_description, "\n"),
