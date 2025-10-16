@@ -32,6 +32,7 @@ git.push-new-bookmarks = true
 
 ui.default-command = "log"
 ui.diff-editor = ":builtin"
+ui.merge-editor = "mergiraf"
 
 # Note: Doesn't support `colorMoved`, but neither does the builtin diff formatter.
 # See: https://github.com/jj-vcs/jj/issues/76
