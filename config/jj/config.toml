@@ -78,6 +78,9 @@ template-aliases."jira_issue_prefix(description)" = """
 #
 # See: https://github.com/jj-vcs/jj/discussions/6891#discussioncomment-14585371
 templates.git_push_bookmark = """
+coalesce(
+  local_bookmarks
+    .map(|commit_ref| commit_ref.name()),
   truncate_end(
     244,
     separate(
@@ -87,6 +90,7 @@ templates.git_push_bookmark = """
       change_id.shortest(4)
     ),
   )
+)
 """
 
 templates.draft_commit_description = '''
