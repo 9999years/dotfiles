@@ -70,9 +70,10 @@ template-aliases."jira_issue_prefix(description)" = """
   description
     .match(regex:"^[[:upper:]]+-[[:digit:]]+[[:blank:]]+")
     .replace(regex:"[[:blank:]]+", "")
+    .lower()
 """
 
-# Give us push bookmarks like `wiggles/lwls` or `wiggles/DUX-1234/lwls`.
+# Give us push bookmarks like `wiggles/lwls` or `wiggles/dux-1234/lwls`.
 # Not sure how I feel about this.
 #
 # See: https://github.com/jj-vcs/jj/discussions/6891#discussioncomment-14585371
