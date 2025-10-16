@@ -151,8 +151,6 @@ concat(
 #   https://github.com/jj-vcs/jj/issues/7377
 # - There's no way to write comments in templates:
 #   https://github.com/jj-vcs/jj/issues/5317
-# - Whitespace is not allowed before method calls, so you can't do the normal
-#   method chain syntax: https://github.com/jj-vcs/jj/issues/7378
 templates.log = '''
 builtin_log_compact
 ++ if(
@@ -161,16 +159,16 @@ builtin_log_compact
 )
 ++ if(
     conflict,
-    self.files(
-        "all()"
-    ).filter(
-        |file| file.conflict()
-    ).map(
-        |file| label(
-            "conflict",
-            concat("conflict ", file.path())
+    self
+        .files("all()")
+        .filter(|file| file.conflict())
+        .map(|file|
+            label(
+                "conflict",
+                concat("conflict ", file.path())
+            )
         )
-    ).join("\n")
+        .join("\n")
 )
 '''
 
