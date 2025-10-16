@@ -66,10 +66,12 @@ template-aliases."first_line_suffix(description)" = """
     .replace(regex:"^-|-$", "")
 """
 
+# Extract `[DUX-1234]` or `DUX-1234` at the start of a description into
+# `dux-1234`.
 template-aliases."jira_issue_prefix(description)" = """
   description
-    .match(regex:"^[[:upper:]]+-[[:digit:]]+[[:blank:]]+")
-    .replace(regex:"[[:blank:]]+", "")
+    .match(regex:"^\\\\[?[[:upper:]]+-[[:digit:]]+\\\\]?[[:blank:]]+")
+    .replace(regex:"[[:blank:]\\\\[\\\\]]+", "")
     .lower()
 """
 
