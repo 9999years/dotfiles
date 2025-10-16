@@ -75,6 +75,19 @@ template-aliases."jira_issue_prefix(description)" = """
     .lower()
 """
 
+# Get a named commit trailer by name from a `List<Trailer>` value.
+#
+# These are lines like `Closes: DUX-1234` at the end of a commit description.
+template-aliases."get_trailer(trailers, key)" = """
+stringify(
+    coalesce(
+        trailers
+            .map(|trailer| if(trailer.key() == key, trailer.value()))
+            .join("")
+    )
+)
+"""
+
 # Give us push bookmarks like `wiggles/lwls` or `wiggles/dux-1234/lwls`.
 # Not sure how I feel about this.
 #
