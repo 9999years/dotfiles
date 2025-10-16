@@ -72,8 +72,8 @@ template-aliases."jira_issue_prefix(description)" = """
     .replace(regex:"[[:blank:]]+", "")
 """
 
-# Give us push bookmarks like `wiggles/npingler-omnisharp-roslyn` or
-# `wiggles/dux-1234-commit-subject`. Not sure how I feel about this.
+# Give us push bookmarks like `wiggles/lwls` or `wiggles/DUX-1234/lwls`.
+# Not sure how I feel about this.
 #
 # See: https://github.com/jj-vcs/jj/discussions/6891#discussioncomment-14585371
 templates.git_push_bookmark = """
@@ -83,7 +83,7 @@ templates.git_push_bookmark = """
       "/",
       "wiggles",
       jira_issue_prefix(description),
-      first_line_suffix(description),
+      change_id.shortest(4)
     ),
   )
 """
