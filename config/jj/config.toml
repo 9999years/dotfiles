@@ -109,6 +109,23 @@ stringify(
     .replace(regex:"[[:^alnum:]&&[^_-]]", "")
 """
 
+# When we do `jj push -c ...`, give us nice bookmarks like `wiggles/ukzu` or
+# `wiggles/dux-1234/ukzu`.
+#
+# - If there's already a local bookmark for that commit, use that bookmark.
+#   - If there's multiple, I have no clue how the bookmark that's used is
+#     chosen. Once I run into that I'll probably patch this ;)
+# - Otherwise, give us short bookmarks like `wiggles/ukzu`.
+#   - The default is way too long, we really only need a couple characters to
+#     disambiguate, especially with the prefix.
+# - If the commit subject starts with a Jira-style ticket like `DUX-1234`,
+#   incorporate that into the bookmark name, e.g. `wiggles/dux-1234/ukzu`.
+# - If there's a `Closes:` or `Fixes:` commit trailer, incorporate that.
+#   E.g. `Closes: #1234` turns into `wiggles/1234/ukzu`.
+#   - Also, anything in a trailer up to the first `/` is deleted, which turns
+#     URLs like `Closes: https://github.com/jj-vcs/jj/issues/7749` into
+#     `wiggles/7749/ukzu`.
+#
 # Give us push bookmarks like `wiggles/lwls` or `wiggles/dux-1234/lwls`.
 # Not sure how I feel about this.
 #
