@@ -67,12 +67,11 @@ template-aliases."first_line_suffix(description)" = """
 """
 
 # Extract `[DUX-1234]` or `DUX-1234` at the start of a description into
-# `dux-1234`.
+# `DUX-1234`.
 template-aliases."jira_issue_prefix(description)" = """
   description
     .match(regex:"^\\\\[?[[:upper:]]+-[[:digit:]]+\\\\]?[[:blank:]]+")
     .replace(regex:"[[:blank:]\\\\[\\\\]]+", "")
-    .lower()
 """
 
 # Get a named commit trailer by name from a `List<Trailer>` value.
@@ -91,7 +90,7 @@ stringify(
 # Get a `Closes:` or `Fixes:` trailer at the end of a commit and format it for
 # a branch name.
 #
-# E.g. `Closes: #1234` becomes `1234` and `Fixes: DUX-1234` becomes `dux-1234`.
+# E.g. `Closes: #1234` becomes `1234` and `Fixes: DUX-1234` becomes `DUX-1234`.
 #
 # Also, sometimes these are regular links, so anything until the last slash
 # gets deleted, e.g.
@@ -108,7 +107,6 @@ stringify(
 )
     .replace(regex:"^.*/", "")
     .replace(regex:"[[:^alnum:]&&[^_-]]", "")
-    .lower()
 """
 
 # Give us push bookmarks like `wiggles/lwls` or `wiggles/dux-1234/lwls`.
@@ -129,7 +127,7 @@ coalesce(
               jira_issue_prefix(description),
               closes_or_fixes(trailers),
           )
-      ),
+      ).lower(),
       change_id.shortest(4)
     ),
   )
