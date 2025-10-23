@@ -43,6 +43,14 @@ final: prev: {
         # false` here.
         installCheckPhase = "";
       });
+
+      kaleido = pyPrev.kaleido.overridePythonAttrs (prev: {
+        # Oh, who even gives a shit anymore.
+        #
+        # See: https://github.com/NixOS/nixpkgs/pull/454818
+        postInstall = "";
+        buildInputs = [ ];
+      });
     })
   ];
 }
