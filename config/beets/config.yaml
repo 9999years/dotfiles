@@ -84,7 +84,7 @@ convert:
     mp3: "ffmpeg -y -i $source -c:a libmp3lame -q:a 0 -map_metadata 0 -map_metadata 0:s:0 $dest"
 
 bandcamp:
-  source_weight: 0.5
+  data_source_mismatch_penalty: 0.5
   art: true
   comments_separator: "\n———\n"
   genre:
@@ -112,4 +112,4 @@ lastgenre:
   min_weight: 0
 
 spotify:
-  source_weight: 0.5
+  data_source_mismatch_penalty: 0.5
