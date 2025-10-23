@@ -42,7 +42,7 @@ let
         # keep-sorted start ignore_prefixes=pkgs.,pkgs.rbt.
         pkgs._7zz # 7-zip.org
         pkgs.rbt.__tmux_window_name
-        # pkgs.actionlint # Broken by https://github.com/NixOS/nixpkgs/pull/444862
+        pkgs.actionlint
         pkgs.bashInteractive
         pkgs.bat
         pkgs.broot
