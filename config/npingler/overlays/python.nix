@@ -35,6 +35,14 @@ final: prev: {
               })
             ];
           });
+
+      gst-python = pyPrev.gst-python.overrideAttrs (prev: {
+        # Tests are flaky and timeout.
+        #
+        # Also, `gst-python` is built with Meson, so we can't set `doCheck =
+        # false` here.
+        installCheckPhase = "";
+      });
     })
   ];
 }
