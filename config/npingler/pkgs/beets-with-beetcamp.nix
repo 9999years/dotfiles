@@ -1,6 +1,5 @@
 {
   beets,
-  chromaprint,
   rbt,
   fetchpatch,
   lib,
@@ -8,21 +7,10 @@
 
 (beets.override {
   pluginOverrides = {
-    # See: https://github.com/NixOS/nixpkgs/pull/428173
-    chroma = {
-      wrapperBins = [
-        chromaprint
-      ];
-    };
-
     beetcamp = {
       enable = true;
       propagatedBuildInputs = [ rbt.beetcamp ];
     };
-
-    # These were added after 2.3.1 and aren't reflected in Nixpkgs.
-    replace.builtin = true;
-    musicbrainz.builtin = true;
 
     # I added this one :)
     detectmissing.builtin = true;
