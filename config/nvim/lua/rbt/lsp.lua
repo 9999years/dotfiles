@@ -299,6 +299,13 @@ function M.config()
   })
 
   -- keep-sorted start block=yes newline_separated=yes
+  vim.lsp.config("buck2", {
+    filetypes = {
+      "bzl",
+      "bzl.build",
+    },
+  })
+
   vim.lsp.config("hls", {
     settings = {
       haskell = {
