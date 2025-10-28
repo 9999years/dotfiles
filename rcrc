@@ -3,7 +3,7 @@
 export EXCLUDES=README.md
 
 if [ "$(uname)" != Darwin ]; then
-    EXCLUDES="Library:* $EXCLUDES"
+    EXCLUDES="Library $EXCLUDES"
 else
     export UNDOTTED=Library
 fi
