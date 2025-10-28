@@ -137,7 +137,7 @@ function ll --wraps eza -d 'List files, including hidden files'
 end
 
 switch "$SSH_AUTH_SOCK"
-    case /private/tmp/com.apple.launchd.*/Listeners
+    case "/private/tmp/com.apple.launchd.*/Listeners"
         set --export --global SSH_AUTH_SOCK \
             "$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
     case ""
