@@ -1,3 +1,4 @@
+# vim: ft=sshconfig
 # See: `man ssh_config`
 #
 # Since the first obtained value for each parameter is used, more host-specific
