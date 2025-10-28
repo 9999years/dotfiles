@@ -30,7 +30,17 @@ git.private-commits = 'subject(glob:"private:*") & mine()'
 # Set `--allow-new` by default.
 git.push-new-bookmarks = true
 
-ui.default-command = "log"
+# `jj` shows a log in reverse order, non-paginated. Thanks to Jana for this
+# idea!
+# This puts the most recent commits closest to the next shell prompt and makes
+# the rest visibile in the scrollback without putting you in 'pager-mode'.
+# See: https://github.com/jdonszelmann/nix-home-configs/blob/816c61985d48f367928872d50c6588ac9a87c5be/programs/jj/default.nix#L19-L23
+ui.default-command = [
+  "log",
+  "--reversed",
+  "--no-pager",
+]
+
 ui.diff-editor = ":builtin"
 ui.merge-editor = "mergiraf"
 
