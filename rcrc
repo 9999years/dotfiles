@@ -1,11 +1,12 @@
 # shellcheck shell=sh
 # vim: ft=sh
+uname=$(uname)
+
 export EXCLUDES=README.md
 
-if [ "$(uname)" != Darwin ]; then
+export UNDOTTED=Library
+if [ "$uname" != Darwin ]; then
     EXCLUDES="Library $EXCLUDES"
-else
-    export UNDOTTED=Library
 fi
 
 export SYMLINK_DIRS="\
