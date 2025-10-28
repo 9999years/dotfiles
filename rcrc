@@ -2,7 +2,11 @@
 # vim: ft=sh
 uname=$(uname)
 
-export EXCLUDES=README.md
+export EXCLUDES="\
+    README.md \
+    macos \
+    linux \
+"
 
 export UNDOTTED=Library
 if [ "$uname" != Darwin ]; then
@@ -19,3 +23,13 @@ export SYMLINK_DIRS="\
 export DOTFILES_DIRS="\
     ~/.dotfiles \
 "
+
+case "$uname" in
+    Darwin)
+        DOTFILES_DIRS="$DOTFILES_DIRS ~/.dotfiles/macos"
+        ;;
+
+    Linux)
+        DOTFILES_DIRS="$DOTFILES_DIRS ~/.dotfiles/linux"
+        ;;
+esac
