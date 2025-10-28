@@ -18,9 +18,4 @@ export SYMLINK_DIRS="\
 "
 export DOTFILES_DIRS="\
     ~/.dotfiles \
-    ~/.dotfiles-corp \
 "
-
-if [ -e ~/.dotfiles-corp/rcrc ]; then
-    . ~/.dotfiles-corp/rcrc
-fi
