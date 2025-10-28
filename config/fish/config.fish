@@ -157,8 +157,10 @@ fish_add_path --global \
 
 # Why does Nix use space-delimited profiles??
 # These are already in the `$PATH`, but we want them at the front.
-for profile in (string split " " "$NIX_PROFILES")
-    fish_add_path --global "$profile/bin"
+if not test -f /etc/NIXOS
+    for profile in (string split " " "$NIX_PROFILES")
+        fish_add_path --global "$profile/bin"
+    end
 end
 
 
