@@ -52,7 +52,9 @@ ui.diff-formatter = ":git"
 fsmonitor.watchman.register-snapshot-trigger = true
 
 revset-aliases.T = "trunk()"
-revset-aliases.M = '''
+revset-aliases.M = "megamerge()"
+
+revset-aliases."megamerge()" = '''
 latest(
     mine()
     & mutable()
