@@ -2,6 +2,7 @@
   "LuaSnip": { "branch": "master", "commit": "5a1e39223db9a0498024a77b8441169d260c8c25" },
   "batteries.nvim": { "branch": "main", "commit": "6e084514ecc1a5ae7c4f4caab45cb9bc68832050" },
   "broot.nvim": { "branch": "main", "commit": "c2e593bd45dddd0d5120d04604fa9bcb1417c73f" },
+  "buck2.nvim": { "branch": "main", "commit": "4a3ff61f5d471b1400f56750897a91621b31e107" },
   "cmp-async-path": { "branch": "main", "commit": "9d581eec5acf812316913565c135b0d1ee2c9a71" },
   "cmp-buffer": { "branch": "main", "commit": "b74fab3656eea9de20a9b8116afa3cfc4ec09657" },
   "cmp-nvim-lsp": { "branch": "main", "commit": "bd5a7d6db125d4654b50eeae9f5217f24bb22fd3" },

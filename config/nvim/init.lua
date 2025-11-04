@@ -244,6 +244,13 @@ require("lazy").setup {
 
   -- Yesod Haskell web framework syntax highlighting.
   { "alx741/yesod.vim" },
+  -- `:BuckOpen`, `:BuckTarget`.
+  {
+    "lf-/buck2.nvim",
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+    },
+  },
 
   -- LSP configuration
   require("rbt.lsp"),
