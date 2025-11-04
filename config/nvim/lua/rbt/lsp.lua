@@ -202,6 +202,13 @@ local function lsp_attach(args)
       vsplit_then(vim.lsp.buf.type_definition),
       "Go to symbol's type in vsplit",
     },
+    {
+      "gvv",
+      function()
+        vim.cmd("normal! gv")
+      end,
+      "Reselect previous",
+    },
 
     {
       "<C-k>",
