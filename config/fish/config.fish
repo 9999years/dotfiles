@@ -136,6 +136,18 @@ function ll --wraps eza -d 'List files, including hidden files'
     end
 end
 
+switch "$SSH_AUTH_SOCK"
+    case /private/tmp/com.apple.launchd.*/Listeners
+        set --export --global SSH_AUTH_SOCK \
+            "$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
+    case ""
+        switch (uname)
+            case Linux
+                set --export --global SSH_AUTH_SOCK \
+                    "$HOME/.1password/agent.sock"
+        end
+end
+
 # Add extra `$PATH` variables.
 fish_add_path --global \
     /opt/homebrew/bin \
