@@ -26,7 +26,6 @@ local function tbl_filter(tbl, predicate)
   local ret = {}
   for _, item in ipairs(tbl) do
     if predicate(item) then
-      print(item)
       table.insert(ret, item)
     end
   end
