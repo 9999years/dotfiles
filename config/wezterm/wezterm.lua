@@ -84,6 +84,7 @@ config.window_padding = {
 config.scrollback_lines = 2000000 -- 2 million
 config.bypass_mouse_reporting_modifiers = "CMD"
 
+config.quick_select_remove_styling = true
 config.quick_select_patterns = {
   -- Nix SRI hash syntax, seen in Nix build hash mismatch outputs.
   "sha256-[a-zA-Z0-9+/=]{44}",
