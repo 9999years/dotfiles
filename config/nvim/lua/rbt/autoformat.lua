@@ -4,6 +4,52 @@ local M = {
   "stevearc/conform.nvim",
 }
 
+--- Always format with these formatters, even if others are specified or an LSP
+--- formatter is being used.
+local always_formatters = {
+  "keep-sorted",
+  "treefmt",
+}
+
+local function has_lsp_format(bufnr)
+  local lsp_format_clients = require("conform.lsp_format").get_format_clients {
+    bufnr = bufnr,
+  }
+  return #lsp_format_clients > 0
+end
+
+--- What we want:
+--- - Always format with `always_formatters`, e.g. `treefmt`, `keep-sorted`.
+--- - Sometimes format with other formatters, e.g. `stylua` for Lua.
+--- - Sometimes format with an LSP.
+--- - If an LSP isn't available, sometimes use a backup formatter instead (e.g.
+---   format with `rust-analyzer` by default or `rustfmt` if the LSP isn't
+---   available).
+---
+--- If we set formatters for a filetype, `conform.nvim` won't use the
+--- formatters for `*` (`treefmt`, `keep-sorted`). This function works around
+--- that to return the correct set of formatters.
+local function formatters(opts)
+  local lsp_format = opts.lsp_format
+  local lsp_format_fallback = opts.lsp_format_fallback
+
+  -- This is a shallow copy.
+  local other_formatters = vim.list_slice(opts)
+  vim.list_extend(other_formatters, always_formatters)
+
+  return function(bufnr)
+    -- Note: We don't want to mutate `opts` so we make a shallow copy here.
+    local ret = vim.list_slice(other_formatters)
+    ret.lsp_format = lsp_format
+
+    if not has_lsp_format(bufnr) then
+      table.insert(ret, lsp_format_fallback)
+    end
+
+    return ret
+  end
+end
+
 function M.config()
   vim.g.format_after_save = true
 
@@ -13,29 +59,26 @@ function M.config()
     },
 
     formatters_by_ft = {
-      ["bzl.build"] = { "buildifier_build" },
-      bzl = { "buildifier" },
-      ["bzl.bxl"] = { "buildifier_bzl" },
-      go = { "gofmt" },
-      json = { "jq" },
-      lua = { "stylua" },
-      nix = { "nixfmt" },
-      python = {
+      ["bzl.build"] = formatters { "buildifier_build" },
+      bzl = formatters { "buildifier" },
+      ["bzl.bxl"] = formatters { "buildifier_bzl" },
+      go = formatters { "gofmt" },
+      json = formatters { "jq" },
+      lua = formatters { "stylua" },
+      nix = formatters { "nixfmt" },
+      python = formatters {
         "ruff_format",
         "ruff_fix",
         lsp_format = "never",
       },
-      haskell = {
+      haskell = formatters {
         lsp_format = "never",
       },
-      rust = {
-        "rustfmt",
-        lsp_format = "prefer",
+      rust = formatters {
+        lsp_format_fallback = "rustfmt",
+        lsp_format = "first",
       },
-      ["*"] = {
-        "keep-sorted",
-        "treefmt",
-      },
+      ["*"] = formatters {},
     },
 
     notify_no_formatters = false,
