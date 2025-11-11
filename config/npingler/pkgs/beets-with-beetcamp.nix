@@ -1,23 +1,27 @@
 {
-  beets,
-  rbt,
+  python3,
   fetchpatch,
   lib,
 }:
 
-(beets.override {
-  pluginOverrides = {
-    beetcamp = {
-      enable = true;
-      propagatedBuildInputs = [ rbt.beetcamp ];
+(python3.pkgs.toPythonApplication (
+  python3.pkgs.beets.override {
+    pluginOverrides = {
+      beetcamp = {
+        enable = true;
+        propagatedBuildInputs = [ python3.pkgs.beetcamp ];
+      };
+
+      # I added this one :)
+      #
+      # Can't put this in `pluginOverrides`.
+      # See: https://github.com/NixOS/nixpkgs/pull/471166
+      detectmissing = {
+        builtin = true;
+      };
     };
 
-    # I added this one :)
-    detectmissing.builtin = true;
-  };
-}).overridePythonAttrs
-  (prev: {
-    patches = (prev.patches or [ ]) ++ [
+    extraPatches = [
       # NB: Dropped a patch to make logging levels/format configurable here
       # because it was too hard to rebase.
       #
@@ -47,18 +51,15 @@
         hash = "sha256-UNc51I6UH7L+w4Y5S9vV0logmRroCMFqpXn9NxVV1iM=";
       })
     ];
-
-    disabledTestPaths =
-      lib.subtractLists [
-        # Renamed to `test_bpd.py`.
-        "test/plugins/test_player.py"
-      ] (prev.disabledTestPaths or [ ])
-      ++ [
-        "test/plugins/test_bpd.py"
-      ];
-
+  }
+)).overridePythonAttrs
+  (prev: {
     # No way to configure this?
     # It doesn't like that `beetcamp` is built against the previous
     # `beets` which doesn't include `beetcamp` lol.
     dontUsePythonCatchConflicts = true;
+
+    # lol lmao
+    # See: https://github.com/NixOS/nixpkgs/pull/471166
+    doCheck = false;
   })
