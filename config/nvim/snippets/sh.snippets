@@ -133,7 +133,7 @@ snippet lines Iterate over program stdout as lines
 
 snippet scriptdir The directory the script is stored in
 	# https://stackoverflow.com/a/246128
-	${1:SCRIPT_DIR}="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+	${1:SCRIPT_DIR}="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 
 snippet heredocfile Write a multiline string to a file
 	cat << EOF > ${1:~/output}
