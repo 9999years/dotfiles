@@ -60,6 +60,9 @@ snippet iterarr Iterate over array elements
 		echo "\$${1}"
 	done
 
+snippet emptyarr Check if array is empty
+    (( \${#${1:ARRAY}[@]} != 0 ))
+
 snippet join Join an array variable by a delimiter string
 	( IFS=${1:\$'\n'}; echo "\${${2:ARRAY}[*]}" )
 
