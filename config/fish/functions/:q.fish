@@ -1,0 +1,3 @@
+function :q
+    :w
+end
