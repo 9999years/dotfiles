@@ -124,6 +124,8 @@ config.hyperlink_rules = tbl_filter(wezterm.default_hyperlink_rules(), function(
   return item.format ~= "mailto:$0"
 end)
 
+config.mux_enable_ssh_agent = false
+
 -- Show which key table is active in the status area
 wezterm.on("update-right-status", function(window, _pane)
   local name = window:active_key_table()
