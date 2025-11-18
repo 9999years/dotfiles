@@ -4,6 +4,7 @@
 -- - Drag to reorder tabs: https://github.com/wezterm/wezterm/issues/549
 -- - Get entire key table stack: https://github.com/wezterm/wezterm/issues/3460
 -- - Spawn tab next to current tab: https://github.com/wezterm/wezterm/issues/909
+--   - Workaround: https://github.com/wezterm/wezterm/issues/909#issuecomment-2481926947
 -- - Resize panes to equal sizes: https://github.com/wezterm/wezterm/issues/2972
 -- - Switch pane layouts: https://github.com/wezterm/wezterm/issues/3516
 -- - Inspect/mutate pane layouts from Lua: https://github.com/wezterm/wezterm/issues/7083
@@ -146,6 +147,21 @@ config.colors = {
   compose_cursor = "orange",
 }
 
+-- Like `act.SpawnTab`, but next to the current tab.
+--
+-- See: https://github.com/wezterm/wezterm/issues/909
+-- Via: https://github.com/wezterm/wezterm/issues/909#issuecomment-2481926947
+local spawn_tab_adjacent = wezterm.action_callback(function(win, pane)
+  local mux_win = win:mux_window()
+  for _, item in ipairs(mux_win:tabs_with_info()) do
+    if item.is_active then
+      mux_win:spawn_tab {}
+      win:perform_action(wezterm.action.MoveTab(item.index + 1), pane)
+      return
+    end
+  end
+end)
+
 config.leader = {
   key = "b",
   mods = "CTRL",
@@ -251,7 +267,7 @@ config.keys = {
   -- Tabs.
   { key = "p", mods = "LEADER", action = act.ActivateTabRelative(-1) },
   { key = "n", mods = "LEADER", action = act.ActivateTabRelative(1) },
-  { key = "c", mods = "LEADER", action = act.SpawnTab("CurrentPaneDomain") },
+  { key = "c", mods = "LEADER", action = spawn_tab_adjacent },
   { key = "1", mods = "LEADER", action = act.ActivateTab(0) },
   { key = "2", mods = "LEADER", action = act.ActivateTab(1) },
   { key = "3", mods = "LEADER", action = act.ActivateTab(2) },
