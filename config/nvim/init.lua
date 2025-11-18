@@ -317,6 +317,15 @@ vim.opt.sessionoptions:append {
   "localoptions",
   -- Includes key mappings.
   "options",
+  -- Don't save the `runtimepath` or `packpath` options; these seem to confuse
+  -- `lazy.nvim` and cause strange errors:
+  --
+  --     Error executing vim.schedule lua callback: ...ovim-unwrapped-0.11.5/share/nvim/runtime/lua/vim/lsp.lua:258: module 'vim.
+  --     lsp.client' not found:
+  --             no field package.preload['vim.lsp.client']
+  --             cache_loader: module 'vim.lsp.client' not found
+  --             cache_loader_lib: module 'vim.lsp.client' not found
+  "skiprtp",
 }
 
 -- See: `:h netrw-variables`
