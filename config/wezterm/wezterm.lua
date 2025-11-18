@@ -2,6 +2,7 @@
 --
 -- Wishlist:
 -- - Drag to reorder tabs: https://github.com/wezterm/wezterm/issues/549
+--   - PR: https://github.com/wezterm/wezterm/pull/6527
 -- - Get entire key table stack: https://github.com/wezterm/wezterm/issues/3460
 -- - Spawn tab next to current tab: https://github.com/wezterm/wezterm/issues/909
 --   - Workaround: https://github.com/wezterm/wezterm/issues/909#issuecomment-2481926947
