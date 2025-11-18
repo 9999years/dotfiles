@@ -178,6 +178,7 @@ extend_key_table("copy_mode", {
       act.CopyMode("Close"),
     },
   },
+
   {
     key = "?",
     action = act.Search("CurrentSelectionOrEmptyString"),
@@ -191,7 +192,7 @@ extend_key_table("copy_mode", {
   { key = "N", action = act.CopyMode("PriorMatch") },
   { key = "p", action = act.CopyMode("PriorMatch") },
 
-  -- No paragraph movements yet.
+  -- No paragraph movements upstream yet.
   -- See: https://github.com/wezterm/wezterm/issues/7079
   {
     key = "{",
@@ -199,6 +200,15 @@ extend_key_table("copy_mode", {
   },
   {
     key = "}",
+    action = act.CopyMode("MoveForwardSemanticZone"),
+  },
+
+  {
+    key = "[",
+    action = act.CopyMode("MoveBackwardSemanticZone"),
+  },
+  {
+    key = "]",
     action = act.CopyMode("MoveForwardSemanticZone"),
   },
 
@@ -218,6 +228,26 @@ extend_key_table("copy_mode", {
     action = act.ScrollByLine(-1),
   },
 })
+
+-- We have feature detection at home.
+-- See: https://github.com/wezterm/wezterm/issues/7450
+-- We have feature detection at home.
+-- See: https://github.com/wezterm/wezterm/issues/7450
+if pcall(act.CopyMode, { MoveToBlankLine = "Up" }) then
+  -- `MoveToBlankLine` requires a PR I wrote.
+  -- See: https://github.com/wezterm/wezterm/issues/7079
+  -- See: https://github.com/wezterm/wezterm/pull/7140
+  extend_key_table("copy_mode", {
+    {
+      key = "{",
+      action = act.CopyMode { MoveToBlankLine = "Up" },
+    },
+    {
+      key = "}",
+      action = act.CopyMode { MoveToBlankLine = "Down" },
+    },
+  })
+end
 
 extend_key_table("search_mode", {
   {
