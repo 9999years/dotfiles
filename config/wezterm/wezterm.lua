@@ -231,6 +231,29 @@ extend_key_table("copy_mode", {
 
 -- We have feature detection at home.
 -- See: https://github.com/wezterm/wezterm/issues/7450
+if pcall(function()
+  return act.ExtendedSearch
+end) then
+  -- We can search relative to the cursor.
+  -- Requires: https://github.com/wezterm/wezterm/pull/6999
+  extend_key_table("copy_mode", {
+    {
+      key = "?",
+      action = act.ExtendedSearch {
+        pattern = "CurrentSelectionOrEmptyString",
+        activate_match = "BeforeCursor",
+      },
+    },
+    {
+      key = "/",
+      action = act.ExtendedSearch {
+        pattern = "CurrentSelectionOrEmptyString",
+        activate_match = "AfterCursor",
+      },
+    },
+  })
+end
+
 -- We have feature detection at home.
 -- See: https://github.com/wezterm/wezterm/issues/7450
 if pcall(act.CopyMode, { MoveToBlankLine = "Up" }) then
