@@ -23,8 +23,12 @@ disable = [
 
 [commands]
 npingler = "npingler update"
-lix = """
-sudo nix upgrade-nix \
-    --extra-substituters https://cache.lix.systems \
-    --extra-trusted-public-keys 'cache.lix.systems:aBnZUw8zA7H35Cz2RyKFVs3H4PlGTLawyY5KRbvJR8o='
-"""
+
+# As of Lix 2.94, `nix upgrade-nix` seems broken. :(
+# See: https://git.lix.systems/lix-project/lix/issues/1060
+#
+# lix = """
+# sudo nix upgrade-nix \
+#   --extra-substituters https://cache.lix.systems \
+#   --extra-trusted-public-keys 'cache.lix.systems:aBnZUw8zA7H35Cz2RyKFVs3H4PlGTLawyY5KRbvJR8o='
+# """
