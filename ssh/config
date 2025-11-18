@@ -17,6 +17,11 @@ Host steamdeck  # Steam Deck
     User deck
     ForwardAgent yes
 
+Host fraktur-locked
+    HostName fraktur.local
+    User root
+    HostKeyAlias fraktur-locked
+
 Host fraktur  # Linux work laptop
     HostName fraktur.local
     User wiggles
