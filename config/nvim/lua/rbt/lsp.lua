@@ -450,6 +450,7 @@ function M.config()
   vim.lsp.enable("racket_langserver")
   vim.lsp.enable("rust_analyzer")
   vim.lsp.enable("taplo") -- TOML schemas: https://taplo.tamasfe.dev/
+  vim.lsp.enable("terraformls")
   vim.lsp.enable("texlab") -- LaTeX
   vim.lsp.enable("ts_ls")
   vim.lsp.enable("yamlls")
