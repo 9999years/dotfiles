@@ -96,7 +96,29 @@ require("lazy").setup {
     end,
   },
 
-  { "folke/which-key.nvim", config = true },
+  {
+    "folke/which-key.nvim",
+    opts = {
+      plugins = {
+        -- When attempting to display register values over SSH, this causes
+        -- Neovim to emit an OSC-52 sequence to get the keyboard from the SSH
+        -- host. Wezterm doesn't support this, so it stalls forever, making the
+        -- attempted paste or yank fail.
+        --
+        -- See: https://github.com/wezterm/wezterm/issues/2050
+        --
+        -- It would be nice if we could only toggle displaying system clipboard
+        -- registers and keep the internal registers displayed, but alas.
+        --
+        -- I'm not going to report this upstream because folke insta-closes
+        -- most issues with no resolution and generally does not seem to view
+        -- issue trackers as a place to track issues.
+        --
+        -- See: https://github.com/folke/lazy.nvim/issues/2084
+        registers = false,
+      },
+    },
+  },
 
   -- Fuzzy finder
   require("rbt.telescope"),
