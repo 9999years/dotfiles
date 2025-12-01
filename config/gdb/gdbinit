@@ -1,0 +1,5 @@
+add-auto-load-safe-path /nix/store
+set history save on
+set history size 1000000
+set logging enabled
+set trace-commands on
