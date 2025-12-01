@@ -105,6 +105,7 @@ abbr --add nr 'nix run'
 abbr --add ns 'nix shell'
 abbr --add np 'nix path-info'
 abbr --add nd 'nix derivation show'
+abbr --add ndr 'direnv reload && nix-direnv-reload'
 
 abbr --add v nvim
 abbr --add s 'sudo systemctl'
