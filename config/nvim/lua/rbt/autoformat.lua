@@ -62,6 +62,8 @@ function M.config()
       ["bzl.build"] = formatters { "buildifier_build" },
       bzl = formatters { "buildifier" },
       ["bzl.bxl"] = formatters { "buildifier_bzl" },
+      c = formatters { "clang-format" },
+      cpp = formatters { "clang-format" },
       go = formatters { "gofmt" },
       json = formatters { "jq" },
       lua = formatters { "stylua" },
