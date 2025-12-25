@@ -1,7 +1,6 @@
 {
   python3,
   fetchpatch,
-  lib,
 }:
 
 (python3.pkgs.toPythonApplication (
