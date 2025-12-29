@@ -108,3 +108,5 @@ $.envrc.local
 $.jj
 # Buck configuration is precious.
 $.buckconfig.local
+# AI crap.
+**/.claude/settings.local.json
