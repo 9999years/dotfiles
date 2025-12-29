@@ -458,6 +458,17 @@ batteries.cmd {
   "Search for Git merge conflict markers",
 }
 
+batteries.cmd {
+  complete = "file",
+  nargs = "?", -- 0 or 1.
+  range = true, -- Default current line.
+  "CopyContext",
+  function(args)
+    require("rbt.context").copy_range_context(args)
+  end,
+  "Copy a reference to the file as context for an LLM",
+}
+
 vim.filetype.add {
   extension = {
     -- See: https://buck2.build/docs/bxl/
