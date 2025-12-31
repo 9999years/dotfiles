@@ -1,5 +1,5 @@
 function nsn --description "`nix shell` helper for nixpkgs entries"
-    set --local pkgs nix shell
+    set --local pkgs
     for arg in $argv
         if string match --quiet -- "*#*" $arg
             # Unqualified installables pass through unchanged.
