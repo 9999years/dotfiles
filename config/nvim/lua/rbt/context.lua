@@ -9,6 +9,7 @@ local M = {}
 ---@param path string
 ---@param line1 number?
 ---@param line2 number?
+--- @return string
 function M.format_range_context(path, line1, line2)
   local ret = "`" .. path .. "`"
   if line1 ~= nil and line2 ~= nil then
