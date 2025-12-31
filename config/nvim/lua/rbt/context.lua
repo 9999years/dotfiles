@@ -2,6 +2,21 @@
 
 local M = {}
 
+--- Normalize a path to be relative to the current working directory.
+---
+---@param path string
+---@return string
+function M.normalize_path(path)
+  -- TODO: Should we look for like `vim.fs.root(path, ".git")` or something?
+  local relativized = vim.fs.relpath(vim.fn.getcwd(), path)
+  if relativized ~= nil then
+    -- `cwd` is not an ancestor of `path`.
+    return relativized
+  else
+    return path
+  end
+end
+
 --- Format a range for the given path and lines.
 ---
 --- Returns (e.g.) "`puppy.lua` at lines 112-113".
@@ -11,6 +26,7 @@ local M = {}
 ---@param line2 number?
 --- @return string
 function M.format_range_context(path, line1, line2)
+  path = M.normalize_path(path)
   local ret = "`" .. path .. "`"
   if line1 ~= nil and line2 ~= nil then
     if line1 == line2 then
