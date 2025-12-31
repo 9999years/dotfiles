@@ -120,7 +120,7 @@ abbr --add yt-dlp 'yt-dlp --extract-audio --audio-quality 0'
 if command -q trash
     abbr --add rm trash
     # `trash` is recursive by default.
-    abbr --command trash -- -rf ''
+    abbr --add --command trash -- -rf ''
 end
 
 bind ctrl-w backward-kill-word
