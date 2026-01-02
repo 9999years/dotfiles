@@ -19,7 +19,7 @@ end
 
 --- Format a range for the given path and lines.
 ---
---- Returns (e.g.) "`puppy.lua` at lines 112-113".
+--- Returns (e.g.) `@puppy.lua:112-113`
 ---
 ---@param path string
 ---@param line1 number?
@@ -27,20 +27,22 @@ end
 --- @return string
 function M.format_range_context(path, line1, line2)
   path = M.normalize_path(path)
-  local ret = "`" .. path .. "`"
+  local ret = "@" .. path
   if line1 ~= nil and line2 ~= nil then
+    ret = ret .. "#L"
     if line1 == line2 then
-      ret = ret .. " at line " .. line1
+      ret = ret .. line1
     else
-      ret = ret .. " at lines " .. line1 .. "-" .. line2
+      ret = ret .. line1 .. "-" .. line2
     end
   end
   return ret
 end
 
---- Copy a range for the current file and options.
+--- Copy a context reference for the current file and range to the system
+--- clipboard.
 ---
---- Copies (e.g.) "`puppy.lua` at lines 112-113".
+--- Copies (e.g.) `@puppy.lua:112-113`
 ---
 ---@param args vim.api.keyset.create_user_command.command_args
 function M.copy_range_context(args)
