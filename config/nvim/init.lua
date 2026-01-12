@@ -440,7 +440,7 @@ batteries.cmd {
   "EditFtplugin",
   function(opts)
     local filetype = opts.fargs[1]
-    if filetype == "" then
+    if not filetype then
       filetype = vim.opt.filetype:get()
     end
     vim.cmd(
