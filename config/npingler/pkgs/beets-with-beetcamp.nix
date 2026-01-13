@@ -1,10 +1,15 @@
 {
   python3,
   fetchpatch,
+  beets-with-beetcamp,
 }:
 
 (python3.pkgs.toPythonApplication (
   python3.pkgs.beets.override {
+    # Needed until we have https://github.com/NixOS/nixpkgs/pull/477084
+    # Ughhhhh.
+    beets = beets-with-beetcamp;
+
     pluginOverrides = {
       beetcamp = {
         enable = true;
@@ -53,11 +58,6 @@
   }
 )).overridePythonAttrs
   (prev: {
-    # No way to configure this?
-    # It doesn't like that `beetcamp` is built against the previous
-    # `beets` which doesn't include `beetcamp` lol.
-    dontUsePythonCatchConflicts = true;
-
     # lol lmao
     # See: https://github.com/NixOS/nixpkgs/pull/471166
     doCheck = false;
