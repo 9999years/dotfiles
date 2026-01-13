@@ -31,7 +31,6 @@ plugins: >-
   info
   lastgenre
   lyrics
-  spotify
 
 logging:
   # TODO: Log file with different levels!
