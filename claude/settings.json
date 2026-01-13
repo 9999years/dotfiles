@@ -5,8 +5,10 @@
     ],
     "defaultMode": "default"
   },
+  "model": "opus",
   "enabledPlugins": {
-    "clangd-lsp@claude-plugins-official": true
-  },
-  "model": "opus"
+    "clangd-lsp@claude-plugins-official": true,
+    "rust-analyzer-lsp@claude-plugins-official": true,
+    "github@claude-plugins-official": true
+  }
 }
