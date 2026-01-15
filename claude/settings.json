@@ -1,7 +1,21 @@
 {
   "permissions": {
     "allow": [
-      "WebFetch(domain:github.com)"
+      "Fetch(*)",
+      "Web Search(*)",
+      "Bash(cargo build:*)",
+      "Bash(cargo check:*)",
+      "Bash(cargo clippy:*)",
+      "Bash(cargo add:*)",
+      "Bash(cargo remove:*)",
+      "Bash(cargo run:*)",
+      "Bash(cargo test:*)",
+      "Bash(cargo nextest list:*)",
+      "Bash(cargo nextest run:*)",
+      "Bash(nix build:*)",
+      "Bash(nix shell:*)",
+      "Bash(nix derivation show:*)",
+      "Bash(jq:*)"
     ],
     "defaultMode": "default"
   },
