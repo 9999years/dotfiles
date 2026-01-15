@@ -14,4 +14,4 @@
 
 # Buck files have many extensions.
 --type-add
-buck:{BUCK,BUCK.v2,*.bzl,*.bxl}
+buck:{PACKAGE,BUCK,BUCK.v2,*.bzl,*.bxl}
