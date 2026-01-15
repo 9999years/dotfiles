@@ -490,4 +490,8 @@ vim.filetype.add {
     ["BUCK"] = "bzl.build",
     ["PACKAGE"] = "bzl.build",
   },
+  pattern = {
+    -- NB: Lua patterns!
+    ["%.buckconfig.*"] = "ini",
+  },
 }
