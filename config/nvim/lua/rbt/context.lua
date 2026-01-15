@@ -17,6 +17,9 @@ function M.normalize_path(path)
   end
 end
 
+--- @class FormatRangeContextOpts
+--- @field normalize_path? boolean
+
 --- Format a range for the given path and lines.
 ---
 --- Returns (e.g.) `@puppy.lua:112-113`
@@ -24,9 +27,17 @@ end
 ---@param path string
 ---@param line1 number?
 ---@param line2 number?
+---@param options FormatRangeContextOpts?
 --- @return string
-function M.format_range_context(path, line1, line2)
-  path = M.normalize_path(path)
+function M.format_range_context(path, line1, line2, options)
+  options = vim.tbl_extend("keep", options or {}, {
+    normalize_path = true,
+  })
+
+  if options.normalize_path then
+    path = M.normalize_path(path)
+  end
+
   local ret = "@" .. path
   if line1 ~= nil and line2 ~= nil then
     ret = ret .. "#L"
@@ -39,13 +50,14 @@ function M.format_range_context(path, line1, line2)
   return ret
 end
 
---- Copy a context reference for the current file and range to the system
---- clipboard.
----
---- Copies (e.g.) `@puppy.lua:112-113`
----
----@param args vim.api.keyset.create_user_command.command_args
-function M.copy_range_context(args)
+--- @class FormatRangeContextArgs
+--- @field path string
+--- @field line1 number?
+--- @field line2 number?
+
+--- @param args vim.api.keyset.create_user_command.command_args
+--- @return FormatRangeContextArgs
+local function get_format_range_context_args(args)
   local line1 = nil
   local line2 = nil
   if args.range > 0 then
@@ -60,9 +72,48 @@ function M.copy_range_context(args)
     path = args.args
   end
 
-  local ret = M.format_range_context(path, line1, line2)
+  return {
+    path = path,
+    line1 = line1,
+    line2 = line2,
+  }
+end
+
+--- Copy a context reference for the current file and range to the system
+--- clipboard.
+---
+--- Copies (e.g.) `@puppy.lua:112-113`
+---
+---@param args vim.api.keyset.create_user_command.command_args
+---@param opts FormatRangeContextOpts?
+function M.copy_range_context_inner(args, opts)
+  local context_args = get_format_range_context_args(args)
+
+  local ret = M.format_range_context(
+    context_args.path,
+    context_args.line1,
+    context_args.line2,
+    opts
+  )
   vim.notify(ret)
   vim.fn.setreg("+", ret)
+end
+
+--- Copy a context reference for the current file and range to the system
+--- clipboard.
+---
+--- Copies (e.g.) `@puppy.lua:112-113`
+---
+---@param args vim.api.keyset.create_user_command.command_args
+function M.copy_range_context(args)
+  M.copy_range_context_inner(args, { normalize_path = true })
+end
+
+--- Like `copy_range_context` but copies an absolute path.
+---
+---@param args vim.api.keyset.create_user_command.command_args
+function M.copy_range_context_absolute(args)
+  M.copy_range_context_inner(args, { normalize_path = false })
 end
 
 return M

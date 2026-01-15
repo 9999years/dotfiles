@@ -469,6 +469,17 @@ batteries.cmd {
   "Copy a reference to the file as context for an LLM",
 }
 
+batteries.cmd {
+  complete = "file",
+  nargs = "?", -- 0 or 1.
+  range = true, -- Default current line.
+  "CopyContextAbsolute",
+  function(args)
+    require("rbt.context").copy_range_context_absolute(args)
+  end,
+  "Copy a reference to the file as context for an LLM",
+}
+
 vim.filetype.add {
   extension = {
     -- See: https://buck2.build/docs/bxl/
