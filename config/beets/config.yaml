@@ -60,6 +60,9 @@ import:
   languages: ['en']
 
 musicbrainz:
+  # The defualt MusicBrainz ratelimiting is broken and leads to `[Errno 54]
+  # Connection reset by peer`
+  ratelimit_interval: 2
   external_ids:
     discogs: true
     spotify: true
