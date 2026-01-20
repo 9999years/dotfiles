@@ -489,6 +489,7 @@ vim.filetype.add {
     ["gitconfig"] = "gitconfig",
     ["BUCK"] = "bzl.build",
     ["PACKAGE"] = "bzl.build",
+    [".envrc.local"] = "sh",
   },
   pattern = {
     -- NB: Lua patterns!
