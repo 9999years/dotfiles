@@ -19,7 +19,8 @@ M.dependencies = {
       require("treesitter-context").setup {
         -- Only show a couple lines.
         max_lines = "10%",
-        min_window_height = 30,
+        -- Don't show context on small windows.
+        min_window_height = 5,
         patterns = {
           nix = {
             "binding",
