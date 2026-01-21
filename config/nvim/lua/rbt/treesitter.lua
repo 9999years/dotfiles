@@ -21,6 +21,8 @@ M.dependencies = {
         max_lines = "10%",
         -- Don't show context on small windows.
         min_window_height = 5,
+        -- Show context on non-focused windows.
+        multiwindow = true,
         patterns = {
           nix = {
             "binding",
