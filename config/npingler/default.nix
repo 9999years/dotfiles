@@ -92,7 +92,7 @@ let
         pkgs.nix-tree
         pkgs.nix-update
         pkgs.nix-your-shell
-        pkgs.nixfmt-rfc-style
+        pkgs.nixfmt
         pkgs.nmap
         pkgs.nodejs_latest
         pkgs.npingler
