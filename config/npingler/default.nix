@@ -133,7 +133,7 @@ let
         # keep-sorted start ignore_prefixes=pkgs,pkgs.rbt
         pkgs.rbt.beets-with-beetcamp
         pkgs.ffmpeg-full
-        pkgs.slsk-batchdl
+        # pkgs.slsk-batchdl # Broken because of dotnet-sdk: https://github.com/NixOS/nixpkgs/pull/486108
         pkgs.yt-dlp
         # keep-sorted end
       ];
