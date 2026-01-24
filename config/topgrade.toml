@@ -21,6 +21,11 @@ disable = [
     "nix",
 ]
 
+[git]
+# Don't try to update `~/.dotfiles`, it's a `jj` repo with a detached `HEAD` so
+# `git pull` fails.
+pull_predefined = false
+
 [commands]
 npingler = "npingler update"
 
