@@ -99,9 +99,9 @@ let
         pkgs.npins
         pkgs.rbt.npins-init
         pkgs.nvd
-        pkgs.omnisharp-roslyn
+        # pkgs.omnisharp-roslyn # Depends on `dotnet-sdk`.
         pkgs.pandoc
-        pkgs.pre-commit
+        # pkgs.pre-commit # Depends on `dotnet-sdk`, `swift`. See: https://github.com/NixOS/nixpkgs/issues/483584
         pkgs.pyright
         pkgs.rbt.python-env
         pkgs.rbt.pywatchman
