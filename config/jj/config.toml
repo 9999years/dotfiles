@@ -227,6 +227,7 @@ fsmonitor.backend = "watchman"
 [[--scope]]
 --when.repositories = [
     "~/mwb/prelude",
+    "~/mwb/buck2-haskell",
     "~/lix",
 ]
 
