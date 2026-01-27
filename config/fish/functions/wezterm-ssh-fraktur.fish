@@ -1,4 +1,4 @@
-function fraktur-wezterm-ssh --description 'SSH into `fraktur` in a new Wezterm window'
+function wezterm-ssh-fraktur --description 'SSH into `fraktur` in a new Wezterm window'
     # This needs two PRs.
     #
     # The `--assume-shell` argument was added here:
