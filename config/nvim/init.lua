@@ -132,8 +132,8 @@ require("lazy").setup {
     config = function()
       require("open_browser_git").setup {
         commands = {
-          open = "Browse",
-          copy = "Copy",
+          open = "BrowseGitUrl",
+          copy = "CopyGitUrl",
         },
         flavor_patterns = {
           forgejo = {
