@@ -46,6 +46,7 @@ let
         pkgs.bashInteractive
         pkgs.bat
         pkgs.broot
+        pkgs.cacert
         pkgs.cargo-autoinherit
         pkgs.cargo-edit # `cargo upgrade`
         pkgs.cargo-nextest
