@@ -167,6 +167,17 @@ fish_add_path --global \
 if not test -f /etc/NIXOS
     for profile in (string split " " "$NIX_PROFILES")
         fish_add_path --global "$profile/bin"
+
+        # Honestly I don't _really_ know why these are needed, but they seem to
+        # be needed (along with `pkgs.cacert` in my _user_ profile which
+        # provides `~/.nix-profile/etc/ssl/certs/ca-bundle.crt`).
+        set --local profile_d "$profile/etc/profile.d"
+        if test -e "$profile_d/nix.fish"
+            source "$profile_d/nix.fish"
+        end
+        if test -e "$profile_d/nix-daemon.fish"
+            source "$profile_d/nix-daemon.fish"
+        end
     end
 end
 
