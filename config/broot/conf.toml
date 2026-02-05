@@ -1,3 +1,7 @@
+# See: https://github.com/Canop/broot
+# See: https://dystroy.org/broot/conf_file/
+# See: https://dystroy.org/broot/conf_verbs/
+
 imports = [
     "skins/dark-blue.hjson",
 ]
