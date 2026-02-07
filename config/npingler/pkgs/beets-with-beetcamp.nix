@@ -16,6 +16,11 @@
         propagatedBuildInputs = [ python3.pkgs.beetcamp ];
       };
 
+      copyartifacts = {
+        enable = true;
+        propagatedBuildInputs = [ python3.pkgs.beets-copyartifacts3 ];
+      };
+
       # I added this one :)
       #
       # Can't put this in `pluginOverrides`.

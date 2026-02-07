@@ -1,6 +1,10 @@
 final: prev: {
   pythonPackagesExtensions = (prev.pythonPackagesExtensions or [ ]) ++ [
     (pyFinal: pyPrev: {
+      # keep-sorted start
+      beets-copyartifacts3 = pyFinal.callPackage ./beets-copyartifacts3.nix { };
+      # keep-sorted end
+
       musicbrainzngs =
         final.lib.warnIf (final.lib.versionAtLeast pyPrev.musicbrainzngs.version "0.7.2")
           ''

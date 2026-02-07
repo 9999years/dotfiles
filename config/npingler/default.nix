@@ -9,7 +9,7 @@ let
       (import ./overlays/lix.nix)
       (import ./overlays/npingler-lib.nix)
       (import ./overlays/pkgs.nix)
-      (import ./overlays/python.nix)
+      (import ./overlays/python)
       (import ./overlays/rcm.nix)
       # keep-sorted end
     ];
