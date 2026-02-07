@@ -3,6 +3,8 @@
 # Docs:
 # - Query language: https://beets.readthedocs.io/en/stable/reference/query.html
 # - CLI reference: https://beets.readthedocs.io/en/stable/reference/cli.html
+# - Config: https://beets.readthedocs.io/en/stable/reference/config.html
+# - Plugins: https://beets.readthedocs.io/en/stable/plugins/index.html
 #
 # Possible bugs/improvements:
 # - Wayyyy to many queries being parsed, try running `beet move` with
