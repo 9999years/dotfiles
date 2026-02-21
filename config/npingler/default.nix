@@ -75,7 +75,7 @@ let
         pkgs.hyperfine
         pkgs.imagemagickBig
         pkgs.jq
-        pkgs.jujutsu
+        pkgs.rbt.jujutsu
         pkgs.just
         pkgs.keep-sorted
         pkgs.less
