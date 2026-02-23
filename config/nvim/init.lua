@@ -485,6 +485,14 @@ batteries.cmd {
   "Copy a reference to the file as context for an LLM",
 }
 
+batteries.cmd {
+  "CopyVimErrorMessage",
+  function(_opts)
+    vim.fn.setreg("+", vim.v.errmsg)
+  end,
+  "Copy the last Vim error message to the system clipboard",
+}
+
 vim.filetype.add {
   extension = {
     -- See: https://buck2.build/docs/bxl/
