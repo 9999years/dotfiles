@@ -5,9 +5,9 @@ function fish_greeting
 
     switch (date +%H)
         case 00 01 02 # midnight-2am
-            echo -sn (set_color --bold yellow) "Time for bed, puppy! 🛌  "
+            echo -sn (set_color --bold yellow) "Time for bed, ma’am! 🛌  "
         case 03 04 05 06 # 3am-6am
-            echo -sn (set_color --bold red) "Please go to sleep immediately, puppy! 🛑 💤 😠  "
+            echo -sn (set_color --bold red) "Please go to sleep immediately, miss! 🛑 💤 😠  "
         case 13 14 15 16 17 # 1pm-5pm
             echo -sn (set_color --bold green) "Good afternoon, miss! 🌞  "
         case 18 19 # 6pm-7pm
@@ -17,7 +17,7 @@ function fish_greeting
         case 23 24 # 11pm-midnight
             echo -sn (set_color --bold blue) "Go brush your teeth, puppy! 🪥 ❤  "
         case '*' # nominally 7am-noon
-            echo -sn (set_color --bold cyan) "Good morning, puppy! 🌄  "
+            echo -sn (set_color --bold cyan) "Good morning, ma’am! 🌄  "
     end
 
     echo -s (set_color normal)(set_color green)"It's "(date '+%l:%M %P')", " \
