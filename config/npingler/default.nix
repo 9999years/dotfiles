@@ -51,7 +51,7 @@ let
         pkgs.cargo-edit # `cargo upgrade`
         pkgs.cargo-nextest
         pkgs.cargo-watch
-        pkgs.rbt.claude-mergetool
+        pkgs.claude-mergetool
         pkgs.delta # `git-delta`
         pkgs.dig
         pkgs.direnv
