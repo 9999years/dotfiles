@@ -150,6 +150,23 @@ require("lazy").setup {
     end,
   },
 
+  -- More GitHub integration lol
+  {
+    "pwntester/octo.nvim",
+    cmd = "Octo",
+    opts = {
+      -- or "fzf-lua" or "snacks" or "default"
+      picker = "telescope",
+      -- bare Octo command opens picker of commands
+      enable_builtin = true,
+    },
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+      "nvim-telescope/telescope.nvim",
+      "nvim-tree/nvim-web-devicons",
+    },
+  },
+
   -- Snippets
   require("rbt.snippet"),
 
