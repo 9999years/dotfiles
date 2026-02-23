@@ -111,3 +111,5 @@ $.jj
 $.buckconfig.local
 # AI crap.
 **/.claude/settings.local.json
+# `conform.nvim` writes these.
+.conform.*
