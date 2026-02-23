@@ -186,20 +186,56 @@ templates.log = '''
 builtin_log_compact
 ++ if(
     !description && !empty,
-    diff.summary(),
+    if(
+        diff.files().len() > 10,
+        concat(
+            diff.files()
+                .take(10)
+                .map(|file|
+                    label(
+                        "diff " ++ file.status(),
+                        concat(
+                                file.status_char(),
+                            " ",
+                            file.display_diff_path(),
+                        ),
+                    ),
+                )
+                .join("\n"),
+            "\n... and ",
+            diff.files().len() - 10,
+            " more",
+        ),
+        diff.summary(),
+    )
 )
 ++ if(
     conflict,
-    self
-        .files("all()")
-        .filter(|file| file.conflict())
-        .map(|file|
-            label(
-                "conflict",
-                concat("conflict ", file.path())
+    if(
+        self.conflicted_files().len() > 5,
+        concat(
+            self.conflicted_files()
+                .take(5)
+                .map(|file|
+                    label(
+                        "conflict",
+                        concat("conflict ", file.path())
+                    )
+                )
+                .join("\n"),
+            "\n... and ",
+            self.conflicted_files().len() - 5,
+            " more",
+        ),
+        self.conflicted_files()
+            .map(|file|
+                label(
+                    "conflict",
+                    concat("conflict ", file.path())
+                )
             )
-        )
-        .join("\n")
+            .join("\n")
+    )
 )
 '''
 
