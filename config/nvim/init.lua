@@ -493,6 +493,8 @@ batteries.cmd {
   "Copy the last Vim error message to the system clipboard",
 }
 
+require("rbt.github_review").define_cmd()
+
 vim.filetype.add {
   extension = {
     -- See: https://buck2.build/docs/bxl/
