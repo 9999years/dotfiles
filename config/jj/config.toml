@@ -50,6 +50,9 @@ ui.diff-formatter = ":git"
 
 fsmonitor.watchman.register-snapshot-trigger = true
 
+merge-tools.claude.program = "claude-mergetool"
+merge-tools.claude.merge-args = ["merge", "$base", "$left", "$right", "-o", "$output", "-p", "$path"]
+
 revset-aliases.T = "trunk()"
 revset-aliases.M = "megamerge()"
 
