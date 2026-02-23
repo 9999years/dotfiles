@@ -79,11 +79,43 @@ function M.apply_to_all_buffers()
   end
 end
 
---- Parse paginated gh api JSON output into a list of comments.
+-- stylua: ignore
+local GRAPHQL_QUERY = [[
+query($owner: String!, $repo: String!, $pr: Int!, $endCursor: String) {
+  repository(owner: $owner, name: $repo) {
+    pullRequest(number: $pr) {
+      reviewThreads(first: 100, after: $endCursor) {
+        pageInfo { hasNextPage endCursor }
+        nodes {
+          isResolved
+          comments(first: 100) {
+            nodes { body path line startLine author { login } }
+          }
+        }
+      }
+    }
+  }
+}]]
+
+--- Parse GraphQL response into a flat list of unresolved review comments.
 local function parse_comments(stdout)
-  -- --paginate concatenates JSON arrays, so fix the seam
-  local json_str = stdout:gsub("%]\n%[", ",")
-  return vim.json.decode(json_str, { luanil = { object = true, array = true } })
+  local data = vim.json.decode(stdout, { luanil = { object = true, array = true } })
+  local threads = data.data.repository.pullRequest.reviewThreads.nodes
+  local comments = {}
+  for _, thread in ipairs(threads) do
+    if not thread.isResolved then
+      for _, comment in ipairs(thread.comments.nodes) do
+        table.insert(comments, {
+          path = comment.path,
+          line = comment.line,
+          start_line = comment.startLine,
+          body = comment.body,
+          user = comment.author and { login = comment.author.login },
+        })
+      end
+    end
+  end
+  return comments
 end
 
 --- Group comments by their file path.
@@ -116,9 +148,24 @@ function M.fetch(pr_number)
   end
   M.git_root = git_root
 
-  local endpoint = "repos/{owner}/{repo}/pulls/" .. pr_number .. "/comments"
+  local repo_result = vim.system(
+    { "gh", "repo", "view", "--json", "owner,name" },
+    { cwd = git_root, text = true }
+  ):wait()
+  if repo_result.code ~= 0 then
+    vim.notify("failed to get repo info: " .. (repo_result.stderr or ""), vim.log.levels.ERROR)
+    return
+  end
+  local repo = vim.json.decode(repo_result.stdout)
+
   vim.system(
-    { "gh", "api", "--paginate", endpoint },
+    {
+      "gh", "api", "graphql", "--paginate",
+      "-F", "owner=" .. repo.owner.login,
+      "-F", "repo=" .. repo.name,
+      "-F", "pr=" .. pr_number,
+      "-f", "query=" .. GRAPHQL_QUERY,
+    },
     { cwd = git_root, text = true },
     function(result)
       vim.schedule(function()
