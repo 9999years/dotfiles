@@ -493,6 +493,28 @@ batteries.cmd {
   "Copy the last Vim error message to the system clipboard",
 }
 
+batteries.cmd {
+  "CopyPath",
+  function(_args)
+    local path = vim.fn.expand("%")
+    path = vim.fs.relpath(vim.fn.getcwd(), path) or path
+    vim.notify(path)
+    vim.fn.setreg("+", path)
+  end,
+  "Copy the current file's path",
+}
+
+batteries.cmd {
+  "CopyPathAbsolute",
+  function(_args)
+    local path = vim.fn.expand("%")
+    path = vim.fs.abspath(path)
+    vim.notify(path)
+    vim.fn.setreg("+", path)
+  end,
+  "Copy the current file's (absolute) path",
+}
+
 require("rbt.github_review").define_cmd()
 
 vim.filetype.add {
