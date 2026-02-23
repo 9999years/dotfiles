@@ -17,7 +17,7 @@
       "Bash(nix derivation show:*)",
       "Bash(jq:*)"
     ],
-    "defaultMode": "default"
+    "defaultMode": "auto"
   },
   "hooks": {
     "PermissionRequest": [
@@ -47,4 +47,5 @@
   },
   "outputStyle": "Rebus",
   "effortLevel": "medium"
+  "skipAutoPermissionPrompt": true
 }
