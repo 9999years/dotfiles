@@ -157,7 +157,12 @@ require("lazy").setup {
   require("rbt.autocomplete"),
 
   { "lukas-reineke/indent-blankline.nvim" }, -- Indentation guides
-  { "tpope/vim-fugitive" }, -- Git wrapper
+
+  -- Include the commit hash in the default commit view.
+  --
+  -- See: https://github.com/tpope/vim-fugitive/pull/2240
+  { "wookayin/vim-fugitive", branch = "default-format" }, -- Git wrapper
+
   require("rbt.gitsigns"),
 
   -- `diff3` conflict highlighting
