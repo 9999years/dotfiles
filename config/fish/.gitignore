@@ -1,5 +1,5 @@
 /fish_variables
-/fish_variables.*
+/fish_variables*
 /functions/fundle.fish
 /fundle/**/*
 /fishd.tmp.*
