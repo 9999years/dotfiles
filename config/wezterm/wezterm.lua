@@ -88,6 +88,11 @@ config.bypass_mouse_reporting_modifiers = "CMD"
 
 config.quick_select_remove_styling = true
 config.quick_select_patterns = {
+  -- Commit hashes and other hashes.
+  -- Note that we're greedy with the length here; the default pattern is
+  -- optimized for Git commit hashes (40 chars?) so it cuts off longer hashes early.
+  "[0-9a-fA-F]{8,}",
+
   -- Nix SRI hash syntax, seen in Nix build hash mismatch outputs.
   "sha256-[a-zA-Z0-9+/=]{44}",
 
