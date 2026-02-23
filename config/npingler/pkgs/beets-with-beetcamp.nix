@@ -18,6 +18,12 @@ python3.pkgs.callPackage (
       # Ughhhhh.
       beets = beets-with-beetcamp;
 
+      # The `musicbrainzngs` API client was replaced with a custom one in
+      # `beets`.
+      #
+      # See: https://github.com/beetbox/beets/blob/13e978ca0e91d68b002257e45b06904976f82936/docs/changelog.rst#L193-L203
+      musicbrainzngs = null;
+
       pluginOverrides = {
         beetcamp = {
           enable = true;
