@@ -29,6 +29,7 @@ end
 function M.clear()
   vim.diagnostic.reset(M.namespace)
   M.comments_by_path = {}
+  M.head_sha = nil
   vim.api.nvim_clear_autocmds { group = M.augroup }
 end
 
@@ -36,6 +37,51 @@ local function format_comment(comment)
   local author = comment.user and comment.user.login or "unknown"
   local body = comment.body:gsub("\r", "")
   return "@" .. author .. ": " .. body
+end
+
+local function parse_diff_hunks(diff_output)
+  local hunks = {}
+  for old_start, old_count, new_start, new_count in
+    diff_output:gmatch("@@ %-(%d+),?(%d*) %+(%d+),?(%d*) @@")
+  do
+    table.insert(hunks, {
+      old_start = tonumber(old_start),
+      old_count = tonumber(old_count ~= "" and old_count or "1"),
+      new_start = tonumber(new_start),
+      new_count = tonumber(new_count ~= "" and new_count or "1"),
+    })
+  end
+  return hunks
+end
+
+local function adjust_line(line, hunks)
+  local offset = 0
+  for _, h in ipairs(hunks) do
+    if line < h.old_start then
+      return line + offset
+    end
+    if line < h.old_start + h.old_count then
+      -- line falls inside this hunk's old range; best-effort clamp
+      local rel = line - h.old_start
+      return math.min(h.new_start + rel, h.new_start + math.max(h.new_count - 1, 0))
+    end
+    offset = offset + (h.new_count - h.old_count)
+  end
+  return line + offset
+end
+
+local function get_hunks_for_file(path)
+  if not M.head_sha or not M.git_root then
+    return nil
+  end
+  local result = vim.system(
+    { "git", "diff", M.head_sha, "--", path },
+    { cwd = M.git_root, text = true }
+  ):wait()
+  if result.code ~= 0 or result.stdout == "" then
+    return nil
+  end
+  return parse_diff_hunks(result.stdout)
 end
 
 function M.apply_to_buffer(bufnr)
@@ -54,12 +100,21 @@ function M.apply_to_buffer(bufnr)
   if not comments then
     return
   end
+  local hunks = get_hunks_for_file(relative_path)
   local diagnostics = {}
   for _, comment in ipairs(comments) do
     if comment.line then
+      local line = comment.line
+      local start_line = comment.start_line
+      if hunks then
+        line = adjust_line(line, hunks)
+        if start_line then
+          start_line = adjust_line(start_line, hunks)
+        end
+      end
       local diag = {
-        lnum = (comment.start_line or comment.line) - 1,
-        end_lnum = comment.start_line and (comment.line - 1) or nil,
+        lnum = (start_line or line) - 1,
+        end_lnum = start_line and (line - 1) or nil,
         col = 0,
         severity = vim.diagnostic.severity.INFO,
         message = format_comment(comment),
@@ -84,6 +139,7 @@ local GRAPHQL_QUERY = [[
 query($owner: String!, $repo: String!, $pr: Int!, $endCursor: String) {
   repository(owner: $owner, name: $repo) {
     pullRequest(number: $pr) {
+      headRefOid
       reviewThreads(first: 100, after: $endCursor) {
         pageInfo { hasNextPage endCursor }
         nodes {
@@ -100,7 +156,8 @@ query($owner: String!, $repo: String!, $pr: Int!, $endCursor: String) {
 --- Parse GraphQL response into a flat list of unresolved review comments.
 local function parse_comments(stdout)
   local data = vim.json.decode(stdout, { luanil = { object = true, array = true } })
-  local threads = data.data.repository.pullRequest.reviewThreads.nodes
+  local pr = data.data.repository.pullRequest
+  local threads = pr.reviewThreads.nodes
   local comments = {}
   for _, thread in ipairs(threads) do
     if not thread.isResolved then
@@ -115,7 +172,7 @@ local function parse_comments(stdout)
       end
     end
   end
-  return comments
+  return comments, pr.headRefOid
 end
 
 --- Group comments by their file path.
@@ -177,7 +234,7 @@ function M.fetch(pr_number)
           return
         end
 
-        local ok, comments = pcall(parse_comments, result.stdout)
+        local ok, comments, head_sha = pcall(parse_comments, result.stdout)
         if not ok then
           vim.notify(
             "failed to parse JSON: " .. tostring(comments),
@@ -186,6 +243,7 @@ function M.fetch(pr_number)
           return
         end
 
+        M.head_sha = head_sha
         M.comments_by_path = group_by_path(comments)
         M.apply_to_all_buffers()
 
