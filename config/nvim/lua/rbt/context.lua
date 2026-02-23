@@ -2,23 +2,8 @@
 
 local M = {}
 
---- Normalize a path to be relative to the current working directory.
----
----@param path string
----@return string
-function M.normalize_path(path)
-  -- TODO: Should we look for like `vim.fs.root(path, ".git")` or something?
-  local relativized = vim.fs.relpath(vim.fn.getcwd(), path)
-  if relativized ~= nil then
-    -- `cwd` is not an ancestor of `path`.
-    return relativized
-  else
-    return path
-  end
-end
-
 --- @class FormatRangeContextOpts
---- @field normalize_path? boolean
+--- @field path? "relative" | "absolute"
 
 --- Format a range for the given path and lines.
 ---
@@ -34,8 +19,10 @@ function M.format_range_context(path, line1, line2, options)
     normalize_path = true,
   })
 
-  if options.normalize_path then
-    path = M.normalize_path(path)
+  if options.path == "relative" then
+    path = vim.fs.relpath(vim.fn.getcwd(), path) or path
+  elseif options.path == "absolute" then
+    path = vim.fs.abspath(path)
   end
 
   local ret = "@" .. path
@@ -106,14 +93,14 @@ end
 ---
 ---@param args vim.api.keyset.create_user_command.command_args
 function M.copy_range_context(args)
-  M.copy_range_context_inner(args, { normalize_path = true })
+  M.copy_range_context_inner(args, { path = "relative" })
 end
 
 --- Like `copy_range_context` but copies an absolute path.
 ---
 ---@param args vim.api.keyset.create_user_command.command_args
 function M.copy_range_context_absolute(args)
-  M.copy_range_context_inner(args, { normalize_path = false })
+  M.copy_range_context_inner(args, { path = "absolute" })
 end
 
 return M
