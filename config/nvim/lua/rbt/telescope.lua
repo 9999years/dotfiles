@@ -6,6 +6,7 @@ local M = {
   dependencies = {
     "nvim-lua/popup.nvim",
     "nvim-lua/plenary.nvim",
+    "nvim-tree/nvim-web-devicons",
     "nvim-telescope/telescope-fzy-native.nvim",
     "nvim-telescope/telescope-ui-select.nvim",
     "nvim-telescope/telescope-github.nvim",
