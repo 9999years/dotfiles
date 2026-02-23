@@ -46,6 +46,7 @@
     ],
     "defaultMode": "auto"
   },
+  "model": "opus[1m]",
   "hooks": {
     "PermissionRequest": [
       {
@@ -73,6 +74,6 @@
     "gopls-lsp@claude-plugins-official": true
   },
   "outputStyle": "Rebus",
-  "effortLevel": "medium"
+  "effortLevel": "high",
   "skipAutoPermissionPrompt": true
 }
