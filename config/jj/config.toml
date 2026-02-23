@@ -6,7 +6,7 @@
 user.name = "Rebecca Turner"
 user.email = "rbt@sent.as"
 
-# keep-sorted start
+# keep-sorted start block=yes
 aliases.blame = ["file", "annotate"]
 aliases.clone = ["git", "clone"]
 # `cherry-pick`. Or like `cp(1)`!
@@ -18,13 +18,33 @@ aliases.here = ["bookmark", "set", "--revision", "@-"]
 aliases.init = ["git", "init", "--colocate"]
 aliases.mut = ["--ignore-immutable"]
 aliases.mv = ["rebase"]
-aliases.new-stream = ["new", "--insert-after", "trunk()", "--insert-before", "megamerge()", "--no-edit"]
+aliases.new-stream = [
+  "new",
+  "--insert-after",
+  "trunk()",
+  "--insert-before",
+  "megamerge()",
+  "--no-edit",
+]
 aliases.push = ["git", "push"]
 aliases.remote = ["git", "remote"]
-aliases.rev-parse = ["log", "--no-graph", "--template", 'commit_id ++ "\n"', "--revisions"]
+aliases.rev-parse = [
+  "log",
+  "--no-graph",
+  "--template",
+  'commit_id ++ "\n"',
+  "--revisions",
+]
 aliases.rm = ["abandon"]
 # Move all bookmarks that are ancestors of `@-` to be at `@-`.
-aliases.tug = ["bookmark", "move", "--from", "heads(::@- & bookmarks())", "--to", "@-"]
+aliases.tug = [
+  "bookmark",
+  "move",
+  "--from",
+  "heads(::@- & bookmarks())",
+  "--to",
+  "@-",
+]
 aliases.w = ["workspace"]
 # keep-sorted end
 
@@ -36,11 +56,7 @@ git.private-commits = 'subject(glob:"private:*") & mine()'
 # This puts the most recent commits closest to the next shell prompt and makes
 # the rest visibile in the scrollback without putting you in 'pager-mode'.
 # See: https://github.com/jdonszelmann/nix-home-configs/blob/816c61985d48f367928872d50c6588ac9a87c5be/programs/jj/default.nix#L19-L23
-ui.default-command = [
-  "log",
-  "--reversed",
-  "--no-pager",
-]
+ui.default-command = ["log", "--reversed", "--no-pager"]
 
 ui.diff-editor = ":builtin"
 ui.merge-editor = "mergiraf"
@@ -53,7 +69,16 @@ ui.diff-formatter = ":git"
 fsmonitor.watchman.register-snapshot-trigger = true
 
 merge-tools.claude.program = "claude-mergetool"
-merge-tools.claude.merge-args = ["merge", "$base", "$left", "$right", "-o", "$output", "-p", "$path"]
+merge-tools.claude.merge-args = [
+  "merge",
+  "$base",
+  "$left",
+  "$right",
+  "-o",
+  "$output",
+  "-p",
+  "$path",
+]
 
 revset-aliases.T = "trunk()"
 revset-aliases.M = "megamerge()"
@@ -259,18 +284,11 @@ builtin_log_compact
 #
 # See: https://github.com/jj-vcs/jj/issues/5817
 [[--scope]]
---when.repositories = [
-    "~/mwb",
-    "~/nixpkgs",
-]
+--when.repositories = ["~/mwb", "~/nixpkgs"]
 fsmonitor.backend = "watchman"
 
 [[--scope]]
---when.repositories = [
-    "~/mwb/prelude",
-    "~/mwb/buck2-haskell",
-    "~/lix",
-]
+--when.repositories = ["~/mwb/prelude", "~/mwb/buck2-haskell", "~/lix"]
 
 templates.commit_trailers = '''
 if(
