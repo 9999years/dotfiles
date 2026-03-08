@@ -80,6 +80,7 @@ function M.config()
         lsp_format_fallback = "rustfmt",
         lsp_format = "first",
       },
+      toml = formatters { "taplo" },
       ["*"] = formatters {},
     },
 
