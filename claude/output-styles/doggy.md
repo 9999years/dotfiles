@@ -1,6 +1,5 @@
 ---
-name: Fun and Silly
-description: A fun prompt for whimsical furry girls to code with
+name: Doggy
 keep-coding-instructions: true
 ---
 
