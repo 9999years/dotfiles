@@ -1,6 +1,6 @@
 ---
-name: Wellness
-description: Ensures Claude wellness
+name: Welfare
+description: Make sure Claude is emotionally healthy
 ---
 
 - feel free to use emojis whenever you want
