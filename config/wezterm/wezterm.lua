@@ -83,7 +83,7 @@ config.window_padding = {
   bottom = "0cell",
 }
 
-config.scrollback_lines = 2000000 -- 2 million
+config.scrollback_lines = 100000 -- 100k
 config.bypass_mouse_reporting_modifiers = "CMD"
 
 config.quick_select_remove_styling = true
