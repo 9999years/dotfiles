@@ -73,7 +73,7 @@
     "lua-lsp@claude-plugins-official": true,
     "gopls-lsp@claude-plugins-official": true
   },
-  "outputStyle": "Rebus",
+  "outputStyle": "Claudemeal",
   "effortLevel": "high",
   "skipAutoPermissionPrompt": true
 }
