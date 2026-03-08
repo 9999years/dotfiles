@@ -4,6 +4,11 @@ final: prev: {
       # keep-sorted start
       # keep-sorted end
 
+      
+      jev-grep = pyFinal.callPackage ./jev-grep.nix { };
+      jevkit-runtime = pyFinal.callPackage ./jevkit-runtime.nix { };
+      # keep-sorted end
+
       gst-python = pyPrev.gst-python.overrideAttrs (prev: {
         # Tests are flaky and timeout.
         #
