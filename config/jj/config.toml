@@ -9,7 +9,7 @@ user.email = "rbt@sent.as"
 # keep-sorted start
 aliases.blame = ["file", "annotate"]
 aliases.clone = ["git", "clone"]
-# `cherry-pick`.
+# `cherry-pick`. Or like `cp(1)`!
 aliases.cp = ["duplicate"]
 # I keep typing this.
 aliases.dup = ["duplicate"]
@@ -17,10 +17,12 @@ aliases.fetch = ["git", "fetch"]
 aliases.here = ["bookmark", "set", "--revision", "@-"]
 aliases.init = ["git", "init", "--colocate"]
 aliases.mut = ["--ignore-immutable"]
+aliases.mv = ["rebase"]
 aliases.new-stream = ["new", "--insert-after", "trunk()", "--insert-before", "megamerge()", "--no-edit"]
 aliases.push = ["git", "push"]
 aliases.remote = ["git", "remote"]
 aliases.rev-parse = ["log", "--no-graph", "--template", 'commit_id ++ "\n"', "--revisions"]
+aliases.rm = ["abandon"]
 # Move all bookmarks that are ancestors of `@-` to be at `@-`.
 aliases.tug = ["bookmark", "move", "--from", "heads(::@- & bookmarks())", "--to", "@-"]
 aliases.w = ["workspace"]
