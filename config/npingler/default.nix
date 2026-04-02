@@ -121,6 +121,7 @@ let
         pkgs.tmux
         pkgs.tokei
         pkgs.topgrade
+        pkgs.tree-sitter
         pkgs.typescript-language-server
         pkgs.units
         pkgs.universal-ctags

@@ -2,21 +2,19 @@
 --- @type LazyPluginSpec
 local M = {
   "nvim-treesitter/nvim-treesitter",
-  branch = "master",
+  branch = "main",
   build = ":TSUpdate",
 }
 
 M.dependencies = {
-  "nvim-treesitter/playground",
-
-  "nvim-treesitter/nvim-treesitter-textobjects",
-  "RRethy/nvim-treesitter-textsubjects",
+  -- Disabled until updated for nvim-treesitter main (0.12) API:
+  -- "nvim-treesitter/nvim-treesitter-textobjects",
+  -- "RRethy/nvim-treesitter-textsubjects",
 
   -- Show "context" at the top of the window.
   {
     "nvim-treesitter/nvim-treesitter-context",
     config = function()
-      -- TODO: This doesn't work with the treesitter 'module' system?
       require("treesitter-context").setup {
         -- Only show a couple lines.
         max_lines = "10%",
@@ -40,66 +38,47 @@ M.dependencies = {
 }
 
 function M.config()
-  -- See: https://github.com/nvim-treesitter/nvim-treesitter#available-modules
-  ---@diagnostic disable-next-line: missing-fields
-  require("nvim-treesitter.configs").setup {
-    matchup = {
-      enable = true,
-      disable = {},
-    },
-    ensure_installed = { "diff", "git_rebase" },
-    auto_install = true,
-    highlight = {
-      enable = true,
-      additional_vim_regex_highlighting = false,
-      disable = {
-        "markdown",
-        "gitcommit",
-        "make",
-      },
-    },
-    indent = {
-      -- maybe this sucks? (2025-06-20)
-      enable = false,
-      disable = {
-        "markdown",
-      },
-    },
-    textobjects = {
-      select = {
-        enable = true,
-        lookahead = true,
-        keymaps = {
-          ["ia"] = "@parameter.inner",
-          ["aa"] = "@parameter.outer",
-          ["ic"] = "@class.inner",
-          ["ac"] = "@class.outer",
-          ["if"] = "@function.inner",
-          ["af"] = "@function.outer",
-          ["as"] = {
-            query = "@local.scope",
-            query_group = "locals",
-            desc = "Select language scope",
-          },
-        },
-      },
-    },
-    -- Visual mappings for selecting.
-    textsubjects = {
-      enable = true,
-      -- All only in visual mode!
-      prev_selection = ",",
-      keymaps = {
-        -- `v.` Select "the current thing".
-        -- `.`  Select "more".
-        ["."] = "textsubjects-smart",
-        -- Select the "outer" container.
-        [";"] = "textsubjects-container-outer",
-        -- Select the "inner" container.
-        ["i;"] = "textsubjects-container-inner",
-      },
-    },
-  }
+  -- NB: Auto-install was removed.
+
+  -- Text objects: re-enable when nvim-treesitter-textobjects supports the new API.
+  -- Restore dependency: "nvim-treesitter/nvim-treesitter-textobjects"
+  --
+  -- require("nvim-treesitter-textobjects").setup {
+  --   select = {
+  --     enable = true,
+  --     lookahead = true,
+  --     keymaps = {
+  --       ["ia"] = "@parameter.inner",
+  --       ["aa"] = "@parameter.outer",
+  --       ["ic"] = "@class.inner",
+  --       ["ac"] = "@class.outer",
+  --       ["if"] = "@function.inner",
+  --       ["af"] = "@function.outer",
+  --       ["as"] = {
+  --         query = "@local.scope",
+  --         query_group = "locals",
+  --         desc = "Select language scope",
+  --       },
+  --     },
+  --   },
+  -- }
+
+  -- Text subjects: re-enable when nvim-treesitter-textsubjects supports the new API.
+  -- Restore dependency: "RRethy/nvim-treesitter-textsubjects"
+  --
+  -- require("nvim-treesitter-textsubjects").configure {
+  --   -- All only in visual mode!
+  --   prev_selection = ",",
+  --   keymaps = {
+  --     -- `v.` Select "the current thing".
+  --     -- `.`  Select "more".
+  --     ["."] = "textsubjects-smart",
+  --     -- Select the "outer" container.
+  --     [";"] = "textsubjects-container-outer",
+  --     -- Select the "inner" container.
+  --     ["i;"] = "textsubjects-container-inner",
+  --   },
+  -- }
 
   -- https://neovim.discourse.group/t/git-diff-highlighting-are-not-working-anymore-in-gitcommit-filetype/3547/5
   vim.cmd([[
