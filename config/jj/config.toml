@@ -284,7 +284,7 @@ builtin_log_compact
 #
 # See: https://github.com/jj-vcs/jj/issues/5817
 [[--scope]]
---when.repositories = ["~/mwb", "~/nixpkgs"]
+--when.repositories = ["~/mwb", "~/mwb2", "~/mwb3", "~/nixpkgs"]
 fsmonitor.backend = "watchman"
 
 [[--scope]]
