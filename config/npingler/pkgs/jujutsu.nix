@@ -14,7 +14,7 @@
 
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "jujutsu";
-  version = "0.39.0";
+  version = "0.40.0";
 
   # workspace: CLI support for colocated workspaces
   #
@@ -22,11 +22,11 @@ rustPlatform.buildRustPackage (finalAttrs: {
   src = fetchFromGitHub {
     owner = "jj-vcs";
     repo = "jj";
-    rev = "786234cca0ac6cf1dd6ced597416d52f71c691a5";
-    hash = "sha256-giIn5D1q/famUXE6rDNIB94l3AySPZuJVI6obEjumHc=";
+    rev = "0b6c357b4f32e77cde3390e4b8852f48c38d70e6";
+    hash = "sha256-PAih1JobVBMA4cN3f0/KtFl+LM+9x9d9alUIt30L5sk=";
   };
 
-  cargoHash = "sha256-QlXwFVvSaIOd/GRUtSM/lshMo6iit+WvRl0KNWF9gG0=";
+  cargoHash = "sha256-AsGJ5G7KcsCV1HFXfay9+IOwrcUguRIZelVrPkOD8FE=";
 
   nativeBuildInputs = [
     installShellFiles
