@@ -288,9 +288,6 @@ function M.config()
   })
 
   vim.lsp.config("*", {
-    capabilities = require("cmp_nvim_lsp").default_capabilities(
-      require("lsp-status").capabilities
-    ),
     handlers = {
       -- See: https://github.com/neovim/neovim/issues/31430
       ["client/registerCapability"] = function(err, result, ctx, config)
