@@ -7,6 +7,7 @@ let
       })
       # keep-sorted start
       (import ./overlays/direnv.nix)
+      (import ./overlays/ffmpeg.nix)
       (import ./overlays/lix.nix)
       (import ./overlays/npingler-lib.nix)
       (import ./overlays/pkgs.nix)
