@@ -93,7 +93,7 @@ let
         pkgs.nix-init
         pkgs.nix-top
         pkgs.nix-tree
-        pkgs.nix-update
+        # pkgs.nix-update  # `error: attribute 'nix-store' missing`
         pkgs.nix-your-shell
         pkgs.nixfmt
         pkgs.nmap
