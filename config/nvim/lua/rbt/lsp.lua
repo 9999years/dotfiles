@@ -427,6 +427,14 @@ function M.config()
   if vim.fn.executable("static-ls") == 1 then
     vim.lsp.config("hls", {
       cmd = { "static-ls" },
+
+      on_init = function(client)
+        -- static-ls (via the `lsp` Haskell library) falsely advertises
+        -- semanticTokensProvider but registers no handler, producing a
+        -- "no handler for: textDocument/semanticTokens/full" message on
+        -- every cursor move. Strip it.
+        client.server_capabilities.semanticTokensProvider = nil
+      end,
     })
   end
 
