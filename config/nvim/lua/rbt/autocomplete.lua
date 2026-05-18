@@ -35,12 +35,20 @@ function M.config()
 
       ["<C-Space>"] = { "show", "show_documentation", "hide_documentation" },
 
-      -- Confirm with `<CR>` only if there is an explicitly selected item;
-      -- otherwise insert a literal newline. This preserves my old "don't eat
-      -- my newline if I haven't picked anything" behaviour.
+      -- Confirm with `<CR>` only if I have *explicitly* selected an item
+      -- (i.e. navigated to it with `<Tab>`/`<C-n>`); otherwise insert a
+      -- literal newline. Just having an item *preselected* by the LSP
+      -- shouldn't eat my newline — that matches nvim-cmp's old behaviour,
+      -- where `cmp.get_selected_entry()` returned nil until you navigated,
+      -- even with `PreselectMode.Item`.
+      --
+      -- blink's public API only exposes `cmp.get_selected_item()`, which
+      -- returns the preselected item too — so we reach into the internal
+      -- `is_explicitly_selected` flag on the completion list module to
+      -- distinguish "highlighted by preselect" from "user picked this".
       ["<CR>"] = {
         function(cmp)
-          if cmp.get_selected_item() ~= nil then
+          if require("blink.cmp.completion.list").is_explicitly_selected then
             return cmp.accept()
           end
         end,
@@ -122,6 +130,34 @@ function M.config()
     fuzzy = {
       -- Use the prebuilt Rust matcher shipped with the tagged release.
       implementation = "prefer_rust_with_warning",
+    },
+
+    cmdline = {
+      -- Start from the built-in `cmdline` preset and override the few keys
+      -- whose default behaviour is awkward when the first item is already
+      -- preselected.
+      keymap = {
+        preset = "cmdline",
+
+        -- The default cmdline preset maps `<Tab>` to
+        -- `show_and_insert_or_accept_single` → `select_next`. With item 1
+        -- already preselected by `auto_insert = true`, that means `<Tab>`
+        -- *advances past* the visually-highlighted item instead of accepting
+        -- it — VS Code's `<Tab>` accepts. Make `<Tab>` accept whatever is
+        -- selected (first item, by default), falling back to the preset's
+        -- show/accept-single behaviour if the menu isn't up yet.
+        ["<Tab>"] = {
+          "select_and_accept",
+          "show_and_insert_or_accept_single",
+          "fallback",
+        },
+
+        -- The default preset also routes `<Right>`/`<Left>` through
+        -- `select_next`/`select_prev`. In the cmdline I want those keys to
+        -- just move the cursor — let them fall through to vim's default.
+        ["<Right>"] = {},
+        ["<Left>"] = {},
+      },
     },
   }
 
