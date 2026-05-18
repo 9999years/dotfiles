@@ -8,6 +8,7 @@ user.email = "rbt@sent.as"
 
 # keep-sorted start block=yes
 aliases.blame = ["file", "annotate"]
+aliases.cat = ["show"]
 aliases.clone = ["git", "clone"]
 # `cherry-pick`. Or like `cp(1)`!
 aliases.cp = ["duplicate"]
@@ -36,6 +37,8 @@ aliases.rev-parse = [
   "--revisions",
 ]
 aliases.rm = ["abandon"]
+aliases.simp = ["simplify-parents"]
+aliases.touch = ["metaedit", "--update-author-timestamp"]
 # Move all bookmarks that are ancestors of `@-` to be at `@-`.
 aliases.tug = [
   "bookmark",
