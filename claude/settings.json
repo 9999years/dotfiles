@@ -58,7 +58,7 @@
           },
           {
             "type": "command",
-            "command": "afplay /System/Library/Sounds/Frog.aiff"
+            "command": "sh -c \"afplay ~/.claude/i-need-attention.mp3\""
           }
         ]
       }
