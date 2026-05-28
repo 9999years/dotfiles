@@ -35,20 +35,21 @@ function M.config()
 
       ["<C-Space>"] = { "show", "show_documentation", "hide_documentation" },
 
-      -- Confirm with `<CR>` only if I have *explicitly* selected an item
-      -- (i.e. navigated to it with `<Tab>`/`<C-n>`); otherwise insert a
-      -- literal newline. Just having an item *preselected* by the LSP
-      -- shouldn't eat my newline — that matches nvim-cmp's old behaviour,
-      -- where `cmp.get_selected_entry()` returned nil until you navigated,
-      -- even with `PreselectMode.Item`.
+      -- `<CR>` accepts the currently-selected item (preselected or
+      -- explicitly chosen) whenever the menu is open; otherwise inserts a
+      -- literal newline. To insert a newline while the menu is up, dismiss
+      -- it first with `<C-l>` / `<C-z>`.
       --
-      -- blink's public API only exposes `cmp.get_selected_item()`, which
-      -- returns the preselected item too — so we reach into the internal
-      -- `is_explicitly_selected` flag on the completion list module to
-      -- distinguish "highlighted by preselect" from "user picked this".
+      -- This is VS Code style and *more aggressive* than my old nvim-cmp
+      -- setup, which only accepted on `<CR>` when the LSP server flagged
+      -- an item as preselect (since blink's `preselect = true` always
+      -- preselects item 1, while nvim-cmp's `PreselectMode.Item` only
+      -- preselected server-flagged items). Going with this because the
+      -- "only accept after explicit Tab" variant felt unnatural — I kept
+      -- hitting Enter expecting it to accept.
       ["<CR>"] = {
         function(cmp)
-          if require("blink.cmp.completion.list").is_explicitly_selected then
+          if cmp.get_selected_item() ~= nil then
             return cmp.accept()
           end
         end,
@@ -62,29 +63,56 @@ function M.config()
       ["<A-n>"] = { "snippet_forward", "fallback" },
       ["<A-p>"] = { "snippet_backward", "fallback" },
 
-      -- `<Tab>` accepts the currently-selected item (which is item 1 by
-      -- default, thanks to `preselect = true`). VS-Code-style; also matches
-      -- what the cmdline keymap does below. Falls back to snippet-forward
-      -- when the menu isn't open, and then to the default `<Tab>` (indent).
+      -- `<Tab>` tentatively selects the next completion item — it does NOT
+      -- accept (so e.g. snippet items don't expand until I explicitly
+      -- confirm with `<CR>`). With `auto_insert = true`, the selected item's
+      -- text appears in the buffer as a preview as I tab through.
       --
-      -- Note: this means `<Tab>` can no longer be used to navigate within
-      -- the menu — use `<C-n>` / `<C-p>` (or `<Down>` / `<Up>`) for that.
-      ["<Tab>"] = { "select_and_accept", "snippet_forward", "fallback" },
+      -- The wrinkle: blink opens the menu with item 1 already preselected
+      -- but with `is_explicitly_selected = false`, and `select_next` reads
+      -- the current index and advances — so the first `<Tab>` would skip
+      -- past item 1 to item 2. Instead, on first press we *re-select* item
+      -- 1 with `is_explicit_selection = true`, which applies the auto_insert
+      -- preview and arms `<CR>` for accept. Subsequent presses advance.
+      --
+      -- Uses internal API (`is_explicitly_selected`, `list.select`); see
+      -- comment on the `<CR>` mapping above.
+      ["<Tab>"] = {
+        function(cmp)
+          if not cmp.is_menu_visible() then return end
+          local list = require("blink.cmp.completion.list")
+          if list.is_explicitly_selected then
+            return cmp.select_next()
+          end
+          -- Wrap in `vim.schedule` because `list.select` ultimately applies a
+          -- text edit (the auto_insert preview), and direct buffer mutation
+          -- isn't allowed from a keymap callback (nvim's textlock). All of
+          -- blink's public API actions schedule for the same reason.
+          vim.schedule(function()
+            list.select(list.selected_item_idx or 1, { is_explicit_selection = true })
+          end)
+          return true
+        end,
+        "snippet_forward",
+        "fallback",
+      },
       ["<S-Tab>"] = { "select_prev", "snippet_backward", "fallback" },
     },
 
     completion = {
       list = {
         selection = {
-          -- nvim-cmp had `preselect = cmp.PreselectMode.Item` (respect the
-          -- server's `preselect` flag) together with `SelectBehavior.Select`
-          -- on `<C-n>`/`<C-p>` (don't write the highlighted entry into the
-          -- buffer until I confirm). The blink equivalent is `preselect = true,
-          -- auto_insert = false`. blink's default is `auto_insert = true`,
-          -- which would write text into the buffer just from navigating —
-          -- override that.
+          -- Preselect the LSP-preferred item visually, and use blink's
+          -- `auto_insert` mode so navigating with `<Tab>`/`<C-n>` writes a
+          -- *preview* of the selected item into the buffer (gives concrete
+          -- feedback while I'm browsing the menu). For snippet items the
+          -- preview is just the prefix before any placeholder — full snippet
+          -- expansion only happens at `accept` time, on `<CR>`.
+          --
+          -- This is different from my old nvim-cmp setup, which used
+          -- `SelectBehavior.Select` (highlight-only, no buffer change).
           preselect = true,
-          auto_insert = false,
+          auto_insert = true,
         },
       },
       menu = {
