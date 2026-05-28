@@ -62,12 +62,14 @@ function M.config()
       ["<A-n>"] = { "snippet_forward", "fallback" },
       ["<A-p>"] = { "snippet_backward", "fallback" },
 
-      -- CHANGED: nvim-cmp `<Tab>` used to auto-confirm when exactly one entry
-      -- was visible, otherwise select the next item. blink.cmp doesn't expose
-      -- an entry count in its public API, so this falls back to the standard
-      -- "select next item, or jump to next snippet placeholder, else fallthrough"
-      -- behaviour.
-      ["<Tab>"] = { "select_next", "snippet_forward", "fallback" },
+      -- `<Tab>` accepts the currently-selected item (which is item 1 by
+      -- default, thanks to `preselect = true`). VS-Code-style; also matches
+      -- what the cmdline keymap does below. Falls back to snippet-forward
+      -- when the menu isn't open, and then to the default `<Tab>` (indent).
+      --
+      -- Note: this means `<Tab>` can no longer be used to navigate within
+      -- the menu — use `<C-n>` / `<C-p>` (or `<Down>` / `<Up>`) for that.
+      ["<Tab>"] = { "select_and_accept", "snippet_forward", "fallback" },
       ["<S-Tab>"] = { "select_prev", "snippet_backward", "fallback" },
     },
 
