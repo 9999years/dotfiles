@@ -3,6 +3,8 @@
 	email = rbt@sent.as
 [include]
 	path = ~/.gitconfig_local
+[include]
+	path = ~/.config/git/config-corporate
 [core]
 	editor = nvim
 	autocrlf = false

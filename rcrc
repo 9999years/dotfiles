@@ -33,3 +33,10 @@ case "$uname" in
         DOTFILES_DIRS="$DOTFILES_DIRS ~/.dotfiles/linux"
         ;;
 esac
+
+hostname=$(hostname -s 2>/dev/null || hostname)
+case "$hostname" in
+    sectra|fraktur)
+        DOTFILES_DIRS="$DOTFILES_DIRS ~/.dotfiles/corporate"
+        ;;
+esac
