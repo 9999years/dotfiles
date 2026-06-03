@@ -52,6 +52,7 @@ let
         pkgs.cargo-edit # `cargo upgrade`
         pkgs.cargo-nextest
         pkgs.cargo-watch
+        pkgs.rbt.cc-token
         pkgs.rbt.claude-mergetool
         pkgs.delta # `git-delta`
         pkgs.dig
