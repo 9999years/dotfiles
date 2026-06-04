@@ -13,3 +13,8 @@ The user expects to be able to review _all_ code you write before squashing or c
 If the user asks you to fix issues in a particular commit, you are expected to make those fixes in the working copy, leaving them for the user to review and squash manually once you're done.
 
 Never interact publicly on GitHub unless explicitly asked (do not post comments, create PRs, etc.).
+
+# Documentation / comments
+
+Use double dashes to indicate a long dash (`--`) instead of em or en dashes (`—` or `–`), which look odd in source code.
+Similarly, prefer `...` to an ellipsis character (`…`).
