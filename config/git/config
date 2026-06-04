@@ -2,7 +2,10 @@
 	name = Rebecca Turner
 	email = rbt@sent.as
 [include]
+    # Legacy; delete this when the file is removed on all computers.
 	path = ~/.gitconfig_local
+[include]
+	path = ~/.config/git/config-local
 [include]
 	path = ~/.config/git/config-corporate
 [core]
