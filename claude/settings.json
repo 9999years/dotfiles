@@ -39,10 +39,8 @@
     "deny": [
       "Edit(.github/workflows/claude-beta.yml)",
       "Write(.github/workflows/claude-beta.yml)",
-      "MultiEdit(.github/workflows/claude-beta.yml)",
       "Edit(.github/workflows/claude.yml)",
-      "Write(.github/workflows/claude.yml)",
-      "MultiEdit(.github/workflows/claude.yml)"
+      "Write(.github/workflows/claude.yml)"
     ],
     "defaultMode": "auto"
   },
