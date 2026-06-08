@@ -163,28 +163,33 @@ function M.config()
     },
 
     cmdline = {
-      -- Start from the built-in `cmdline` preset and override the few keys
-      -- whose default behaviour is awkward when the first item is already
-      -- preselected.
+      -- Use the built-in `cmdline` preset, whose `<Tab>` is
+      -- `{ "show_and_insert_or_accept_single", "select_next" }`:
+      --
+      -- - With the menu hidden, `<Tab>` shows it with item 1 selected
+      --   (auto_insert puts a preview of item 1 in the cmdline).
+      -- - With the menu visible, the show call no-ops and falls through to
+      --   `select_next`, so subsequent `<Tab>`s cycle through items.
+      -- - `<S-Tab>` is symmetric (shows with the last item selected, then
+      --   `select_prev` on later presses).
+      --
+      -- That matches the vanilla / old nvim-cmp feel: `<Tab>` navigates the
+      -- menu while leaving it open. The preset has no `<CR>` mapping, so
+      -- `<CR>` falls through to vim's default cmdline submit -- it executes
+      -- whatever text is currently in the cmdline (including any previewed
+      -- selection from `<Tab>`), rather than "accepting" a menu item without
+      -- executing.
+      --
+      -- This file previously overrode `<Tab>` to `select_and_accept` to get
+      -- VS Code style accept-on-tab. That made an auto-shown menu hard to
+      -- navigate because the first `<Tab>` would accept and close it before
+      -- it could be used to cycle.
       keymap = {
         preset = "cmdline",
 
-        -- The default cmdline preset maps `<Tab>` to
-        -- `show_and_insert_or_accept_single` → `select_next`. With item 1
-        -- already preselected by `auto_insert = true`, that means `<Tab>`
-        -- *advances past* the visually-highlighted item instead of accepting
-        -- it — VS Code's `<Tab>` accepts. Make `<Tab>` accept whatever is
-        -- selected (first item, by default), falling back to the preset's
-        -- show/accept-single behaviour if the menu isn't up yet.
-        ["<Tab>"] = {
-          "select_and_accept",
-          "show_and_insert_or_accept_single",
-          "fallback",
-        },
-
-        -- The default preset also routes `<Right>`/`<Left>` through
+        -- The default preset routes `<Right>`/`<Left>` through
         -- `select_next`/`select_prev`. In the cmdline I want those keys to
-        -- just move the cursor — let them fall through to vim's default.
+        -- just move the cursor -- let them fall through to vim's default.
         ["<Right>"] = {},
         ["<Left>"] = {},
       },
