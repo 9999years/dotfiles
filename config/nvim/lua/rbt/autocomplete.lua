@@ -79,7 +79,9 @@ function M.config()
       -- comment on the `<CR>` mapping above.
       ["<Tab>"] = {
         function(cmp)
-          if not cmp.is_menu_visible() then return end
+          if not cmp.is_menu_visible() then
+            return
+          end
           local list = require("blink.cmp.completion.list")
           if list.is_explicitly_selected then
             return cmp.select_next()
@@ -89,7 +91,10 @@ function M.config()
           -- isn't allowed from a keymap callback (nvim's textlock). All of
           -- blink's public API actions schedule for the same reason.
           vim.schedule(function()
-            list.select(list.selected_item_idx or 1, { is_explicit_selection = true })
+            list.select(
+              list.selected_item_idx or 1,
+              { is_explicit_selection = true }
+            )
           end)
           return true
         end,
