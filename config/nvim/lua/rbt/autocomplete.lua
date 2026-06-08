@@ -165,6 +165,30 @@ function M.config()
     fuzzy = {
       -- Use the prebuilt Rust matcher shipped with the tagged release.
       implementation = "prefer_rust_with_warning",
+
+      -- blink's default is `{ "score", "sort_text" }`. When two items both
+      -- match the query as a tight prefix (e.g. `:CopyC` matches both
+      -- `CopyContext` and `CopyContextAbsolute`), their fuzzy scores tie and,
+      -- with no `sort_text` on either, the order falls to whatever the source
+      -- enumerated them in -- which can put the longer name first.
+      --
+      -- nvim-cmp's default comparator chain included a length tiebreaker
+      -- (shorter wins) after score/sort_text. Add blink's built-in `label`
+      -- sort as the final tiebreaker: it compares characters case-flippedly
+      -- (lowercase before uppercase, then alphabetical) and, when one label
+      -- is a prefix of the other, falls through to `#a.label < #b.label`
+      -- (see `blink/cmp/fuzzy/sort.lua`'s `sort.label`).
+      --
+      -- This is global, not cmdline-only -- blink doesn't expose `fuzzy.sorts`
+      -- as a per-mode override. That's fine: `label` only runs as a tiebreaker
+      -- after `score`, so LSP fuzzy ranking is unaffected. It only changes
+      -- behavior when two LSP items get identical scores, where "shorter /
+      -- alphabetically-earlier wins" is the same default cmp.nvim used.
+      sorts = {
+        "score",
+        "sort_text",
+        "label",
+      },
     },
 
     cmdline = {
