@@ -88,11 +88,10 @@ revset-aliases.M = "megamerge()"
 
 revset-aliases."megamerge()" = '''
 latest(
-    mutable()
-    & fork_point(trunk() | @)::
+    fork_point(trunk() | @)::
     & coalesce(
-        merges(),
-        subject("") | empty()
+        mutable() & merges(),
+        mutable() & (subject("") | empty())
     ),
     1
 )
