@@ -2,3 +2,4 @@ log.filter = ["command_error=debug", "info"]
 registry.pin_root = true
 channels.pin_root = true
 profile.diff_derivations = ["nvd", "diff"]
+nix.extra_args."nix build" = ["--log-format", "multiline"]
