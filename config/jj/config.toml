@@ -90,9 +90,9 @@ revset-aliases."megamerge()" = '''
 latest(
     mutable()
     & fork_point(trunk() | @)::
-    & (
-        merges()
-        | subject(exact:"private: merge")
+    & coalesce(
+        merges(),
+        subject("") | empty()
     ),
     1
 )
