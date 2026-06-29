@@ -88,6 +88,10 @@ config.bypass_mouse_reporting_modifiers = "CMD"
 
 config.quick_select_remove_styling = true
 config.quick_select_patterns = {
+  -- UUID v4.
+  -- Listed before commit hashes because they share a prefix (8 hex chars).
+  "[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}",
+
   -- Commit hashes and other hashes.
   -- Note that we're greedy with the length here; the default pattern is
   -- optimized for Git commit hashes (40 chars?) so it cuts off longer hashes early.
