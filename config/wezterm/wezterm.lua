@@ -105,8 +105,11 @@ config.quick_select_patterns = {
   -- > A change ID is a unique identifier for a change. [...] These are
   -- > actually hexadecimal numbers that use "digits" z-k instead of 0-9a-f.
   --
+  -- But also changes can be divergent, in which case they look like
+  -- `qvvwykls/1` with a suffixed disambiguating integer.
+  --
   -- See: https://jj-vcs.github.io/jj/latest/glossary/#change-id
-  "[k-z]{8,32}",
+  "[k-z]{8,32}(?:/[0-9]+)?",
 
   -- ISO 8601 dates.
   --
