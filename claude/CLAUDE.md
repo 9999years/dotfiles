@@ -18,3 +18,7 @@ Never interact publicly on GitHub unless explicitly asked (do not post comments,
 
 Use double dashes to indicate a long dash (`--`) instead of em or en dashes (`—` or `–`), which look odd in source code.
 Similarly, prefer `...` to an ellipsis character (`…`).
+
+# Notes / plans
+
+Filenames starting with `xxx` are gitignored, so feel free to take notes in files named `xxx-*.md`.
