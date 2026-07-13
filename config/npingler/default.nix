@@ -78,6 +78,7 @@ let
         pkgs.hub
         pkgs.hyperfine
         pkgs.imagemagickBig
+        pkgs.rbt.jj-pr
         pkgs.jq
         pkgs.rbt.jujutsu
         pkgs.just
