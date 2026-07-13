@@ -6,6 +6,7 @@ let
         inherit npins-sources;
       })
       # keep-sorted start
+      (import ./overlays/cargo-watch.nix)
       (import ./overlays/direnv.nix)
       (import ./overlays/lix.nix)
       (import ./overlays/npingler-lib.nix)
