@@ -1,6 +1,6 @@
 ---
 name: python
-description: Use this skill while writing python to write better code.
+description: Use this skill while writing Python to write better code.
 ---
 
 # Python
