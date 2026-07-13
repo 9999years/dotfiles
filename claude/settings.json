@@ -70,7 +70,8 @@
     "typescript-lsp@claude-plugins-official": true,
     "lua-lsp@claude-plugins-official": true,
     "gopls-lsp@claude-plugins-official": true,
-    "linear@claude-plugins-official": true
+    "linear@claude-plugins-official": true,
+    "notion@claude-plugins-official": true
   },
   "outputStyle": "Welfare",
   "effortLevel": "high",
