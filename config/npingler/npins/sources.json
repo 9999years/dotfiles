@@ -9,9 +9,9 @@
       },
       "branch": "master",
       "submodules": false,
-      "revision": "fec2e6d5f31cface71f9091ade22f987c4c684f2",
-      "url": "https://github.com/nixos/nixpkgs/archive/fec2e6d5f31cface71f9091ade22f987c4c684f2.tar.gz",
-      "hash": "sha256-7nrY9gpEATYbJK4ZlpRVyO1iyiz5/sH8dIfHsfGHnrA="
+      "revision": "3aad50c7227efcf401958cda3182bfb6e35d8f31",
+      "url": "https://github.com/nixos/nixpkgs/archive/3aad50c7227efcf401958cda3182bfb6e35d8f31.tar.gz",
+      "hash": "sha256-OioBCH80MocaweX/OOny5cJB4iIqJams7GH8pgYwNB8="
     },
     "npingler": {
       "type": "Git",
