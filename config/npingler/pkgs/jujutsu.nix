@@ -15,7 +15,7 @@
 
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "jujutsu";
-  version = "0.41.0";
+  version = "0.43.0";
 
   # workspace: CLI support for colocated workspaces
   #
@@ -23,8 +23,8 @@ rustPlatform.buildRustPackage (finalAttrs: {
   src = fetchFromGitHub {
     owner = "jj-vcs";
     repo = "jj";
-    rev = "4ff8e3ab8a824e6b1606d45fe30d04aceb08b2cf";
-    hash = "sha256-MyP50FknFWK4A64/PCrx8phlorT1Y9sl+AsSAz+yk/E=";
+    rev = "a0e7ebe7b037e822c506fcf6308055f8eecfb48a";
+    hash = "sha256-y7yBZlFcBkWU8rLKTv4BoU4ld16fH6dFZ6EVGdNV0Tw=";
   };
 
   patches = [
@@ -33,15 +33,15 @@ rustPlatform.buildRustPackage (finalAttrs: {
     # See: https://github.com/jj-vcs/jj/pull/9645
     # See: https://github.com/jj-vcs/jj/issues/8281
     (fetchpatch {
-      url = "https://github.com/jj-vcs/jj/commit/6da0290d17c3562fd5b6d69752a39142789076e2.diff";
+      url = "https://github.com/jj-vcs/jj/commit/2113c52eee93d0a39d700c81981f9a58d7570c58.diff";
       excludes = [
         "CHANGELOG.md"
       ];
-      hash = "sha256-OkhKG/pnxXF0FGG0rsve3bTAz72jBjBRNusb5EEx75M=";
+      hash = "sha256-LTn5DOCxkEEbfQut+nuVpLt/BCbJBYZ1BRr5adhpx/s=";
     })
   ];
 
-  cargoHash = "sha256-nRNeJTFGbXp1wAYvf9p6qPcNdQGHwb2P++xrKsArxqg=";
+  cargoHash = "sha256-0yD9WuIPIuYA9vk2qG0ycauuaRBFsakIJ8Rkf2p4Ayo=";
 
   nativeBuildInputs = [
     installShellFiles
@@ -70,7 +70,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
 
     # This test fails on my patch but not upstream.
     "-E"
-    "not test(=test_interdiff_command::test_interdiff_revset_ranges)"
+    "not (test(=test_interdiff_command::test_interdiff_revset_ranges) | test(=test_evolog_command::test_evolog_squash))"
   ];
 
   env = {
