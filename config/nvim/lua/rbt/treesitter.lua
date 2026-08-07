@@ -40,6 +40,14 @@ M.dependencies = {
 function M.config()
   -- NB: Auto-install was removed.
 
+  -- Actually start the highlighter. lol, lmao
+  vim.api.nvim_create_autocmd("FileType", {
+    group = vim.api.nvim_create_augroup("rbt_treesitter_start", {}),
+    callback = function(args)
+      pcall(vim.treesitter.start, args.buf)
+    end,
+  })
+
   -- Text objects: re-enable when nvim-treesitter-textobjects supports the new API.
   -- Restore dependency: "nvim-treesitter/nvim-treesitter-textobjects"
   --
