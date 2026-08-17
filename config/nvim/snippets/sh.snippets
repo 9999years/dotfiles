@@ -56,7 +56,7 @@ snippet usearr Use an array variable as arguments
 	"\${${1:ARRAY}[@]}"
 
 snippet iterarr Iterate over array elements
-	for ${1:i} in "\${${2:ARRAY}[@]}"; do
+	for ${1:element} in "\${${2:ARRAY}[@]}"; do
 		echo "\$${1}"
 	done
 
