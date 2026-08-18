@@ -1,10 +1,16 @@
 import argparse
 import re
+import shlex
 import subprocess
 from dataclasses import dataclass
 from typing import Self
 
 GH_USER_REGEX = re.compile(r"^(https://github\.com/|git@github\.com:)([^/]+)/.*")
+GH_REPO_REGEX = re.compile(
+    r"^(?P<prefix>https://github\.com/|git@github\.com:)"
+    r"(?P<owner>[^/]+)/(?P<repo>[^/]+?)(?:\.git)?$"
+)
+DEFAULT_BRANCH_REGEX = re.compile(r"^ref: refs/heads/(.+)\tHEAD$")
 
 
 def jj_log(template: str, rev: str) -> list[str]:
@@ -45,6 +51,34 @@ def jj_remotes() -> dict[str, str]:
             ).splitlines()
         )
     }
+
+
+def get_default_branch(owner: str) -> str:
+    remotes = jj_remotes()
+    github_remotes = [
+        match for url in remotes.values() if (match := GH_REPO_REGEX.match(url))
+    ]
+    if not github_remotes:
+        raise ValueError("Can't determine the GitHub repository from jj remotes")
+
+    match = next(
+        (
+            match
+            for match in github_remotes
+            if match.group("owner").casefold() == owner.casefold()
+        ),
+        github_remotes[0],
+    )
+    target_url = f"{match.group('prefix')}{owner}/{match.group('repo')}.git"
+    stdout = subprocess.check_output(
+        ["git", "ls-remote", "--symref", target_url, "HEAD"],
+        text=True,
+    )
+    for line in stdout.splitlines():
+        if match := DEFAULT_BRANCH_REGEX.match(line):
+            return match.group(1)
+
+    raise ValueError(f"Can't determine the default branch for {target_url}")
 
 
 @dataclass
@@ -97,7 +131,7 @@ class MakePrOpts:
             return self.base
 
         if self.owner:
-            return f"{self.owner}:{self.base or ''}"
+            return f"{self.owner}:{self.base or get_default_branch(self.owner)}"
 
         return self.base
 
