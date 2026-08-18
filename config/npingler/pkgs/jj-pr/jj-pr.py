@@ -87,6 +87,7 @@ class MakePrOpts:
     editor: bool
     fill: bool
     web: bool
+    push: bool
     owner: str | None
     base: str | None
     extra_gh_args: list[str]
@@ -132,16 +133,39 @@ class MakePrOpts:
 def make_pr(rev: str, opts: MakePrOpts):
     bookmarks = jj_log("local_bookmarks", rev)
     remote_bookmarks = jj_log("remote_bookmarks", rev)
-    if len(bookmarks) != 1:
-        raise ValueError(f"Wrong number of bookmarks there buddy: {bookmarks}")
-
-    # find current pr
     candidate_remote_bookmarks = Bookmark.from_remote_bookmarks(remote_bookmarks)
 
+    if len(bookmarks) > 1:
+        raise ValueError(f"Wrong number of bookmarks there buddy: {bookmarks}")
+
+    if len(bookmarks) != 1 or not candidate_remote_bookmarks:
+        if not opts.push:
+            if len(bookmarks) != 1:
+                raise ValueError(
+                    f"Wrong number of bookmarks there buddy: {bookmarks}. "
+                    "Try again with --push to create a bookmark."
+                )
+            raise ValueError(
+                f"No candidate remote bookmarks for revision {rev!r}. "
+                "Try again with --push to push the local bookmark."
+            )
+
+        if bookmarks:
+            subprocess.check_call(["jj", "git", "push", "--bookmark", bookmarks[0]])
+        else:
+            subprocess.check_call(["jj", "git", "push", "--change", rev])
+
+        remote_bookmarks = jj_log("remote_bookmarks", rev)
+        candidate_remote_bookmarks = Bookmark.from_remote_bookmarks(remote_bookmarks)
+
+    # find current pr
     if len(candidate_remote_bookmarks) > 1:
         raise ValueError(
             f"More bookmarks on this commit than there should be: {candidate_remote_bookmarks}"
         )
+
+    if not candidate_remote_bookmarks:
+        raise ValueError(f"No candidate remote bookmarks for revision {rev!r}")
 
     # find the pr then
     github_branch = candidate_remote_bookmarks[0].get_github_branch()
@@ -189,6 +213,11 @@ def main():
         help="Finish creating the PR in your web browser; implies `--no-editor`",
     )
     ap.add_argument(
+        "--push",
+        action="store_true",
+        help="Push revisions that don't have a remote bookmark",
+    )
+    ap.add_argument(
         "--owner", default=None, help="Open the PR against a non-default owner"
     )
     ap.add_argument(
@@ -210,6 +239,7 @@ def main():
         editor=args.editor,
         fill=args.fill,
         web=args.web,
+        push=args.push,
         owner=args.owner,
         base=args.base,
         extra_gh_args=args.gh_args,
