@@ -9,7 +9,10 @@
 
 let
   unwrapped = writers.writePython3Bin "jj-pr" {
-    flakeIgnore = [ "E501" ];
+    flakeIgnore = [
+      "E501" # "line too long"
+      "W503" # "line break before binary operator" (????)
+    ];
   } (builtins.readFile ./jj-pr.py);
 in
 runCommand "jj-pr"
