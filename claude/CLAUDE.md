@@ -22,3 +22,9 @@ Similarly, prefer `...` to an ellipsis character (`…`).
 # Notes / plans
 
 Filenames starting with `xxx` are gitignored, so feel free to take notes in files named `xxx-*.md`.
+
+# Grep
+
+Prefer `rg` over `grep`, because `rg` will automatically skip over `.git`
+directories and other gitignore'd files; in particular, this will keep `grep`
+from searching enormous build directories.
