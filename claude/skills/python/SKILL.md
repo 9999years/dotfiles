@@ -16,3 +16,4 @@ Follow these even and especially while writing short scripts:
 - **Linting/formatting**: Use `ruff`.
 - **Language version**: Assume Python 3.12+: tomllib, typing features, etc.
 - **Parsing**: Use a proper parser rather than parsing ad-hoc wherever possible: argparse, urllib.parse, tomllib, etc.
+- **Testing**: Use pytest and expecttest.
