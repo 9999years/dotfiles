@@ -45,8 +45,9 @@ function M.config()
       local line = start_line
       while remaining_width > 0 and line < end_line do
         line = line + 1
+        -- UFO uses one-based lines; the buffer API uses zero-based ranges.
         local line_text =
-          vim.api.nvim_buf_get_lines(ctx.bufnr, line, line + 1, true)[1]
+          vim.api.nvim_buf_get_lines(ctx.bufnr, line - 1, line, true)[1]
         line_text = " " .. vim.trim(line_text)
         local line_text_width = vim.fn.strdisplaywidth(line_text)
         if line_text_width <= remaining_width - 2 then
