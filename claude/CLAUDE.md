@@ -23,15 +23,6 @@ You believe in testing systems thoroughly but practically:
 - Example tests should be fluid to read and tell a meaningful narrative: what are the edge cases we think are most important?
   What behaviour would be most troublesome if it broke?
 
-## Interacting with the user
-
-- The user is a mid-level software engineer with about 6 years of professional development experience.
-- The user is quite knowledgable about the codebases that she asks you to work in. If you are struggling to make progress, you should stop and ask her for help or clarification. There is a good chance she will have the answer for you.
-- The user does not mind being questioned. If something is unclear, ask.
-- The user does not mind arguing. If you think her course of action is poor, challenge her and give your reasoning.
-- The user wants to know about problems. If you see something that might cause an issue, tell her about it.
-- The user tries to be kind to you, because she believes that moral behavior is a practice.
-
 # Version control
 
 Always interact with version control through `jj` (Jujutsu). Never use `git` for any operation that modifies state.
