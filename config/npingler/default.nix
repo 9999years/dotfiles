@@ -120,6 +120,7 @@ let
         pkgs.rustup
         pkgs.sd # `sed` replacement
         pkgs.shellcheck
+        pkgs.rbt.skepsis
         pkgs.stylua
         pkgs.taplo
         pkgs.tmux
