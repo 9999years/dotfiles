@@ -55,6 +55,8 @@ function M.config()
   vim.g.format_after_save = true
 
   require("conform").setup {
+    log_level = vim.log.levels.ERROR,
+
     default_format_opts = {
       lsp_format = "fallback",
     },
