@@ -55,6 +55,7 @@ let
         pkgs.cargo-watch
         pkgs.rbt.cc-token
         pkgs.rbt.claude-mergetool
+        pkgs.rbt.crespo-ai
         pkgs.delta # `git-delta`
         pkgs.dig
         pkgs.direnv
