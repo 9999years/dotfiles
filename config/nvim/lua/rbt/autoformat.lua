@@ -9,6 +9,7 @@ local M = {
 local always_formatters = {
   "keep-sorted",
   "treefmt",
+  "merc",
 }
 
 local function has_lsp_format(bufnr)
@@ -118,6 +119,17 @@ function M.config()
           "$FILENAME",
           "-",
         },
+      },
+
+      merc = {
+        command = "merc",
+        args = {
+          "fix",
+          "$FILENAME",
+        },
+        stdin = false,
+        require_cwd = true,
+        cwd = require("conform.util").root_file { ".git" },
       },
     },
   }
