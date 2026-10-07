@@ -19,6 +19,7 @@ export SYMLINK_DIRS="\
     config/npingler \
     config/Code/User \
     tmux/plugins/tpm \
+    agents/skills \
 "
 export DOTFILES_DIRS="\
     ~/.dotfiles \
