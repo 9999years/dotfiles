@@ -1,0 +1,887 @@
+                                                                       CHAPTER 11
+                                           Using Service Level
+                                      Objectives for Reliability
+
+
+
+
+In the last few chapters, we’ve considered situations requiring analysis that are initi‐
+ated by engineers curious about a specific aspect of their system, as well as how AI
+agents can proactively perform these types of analysis. But an equally important con‐
+sideration is how we conduct reactive investigations and maintain system stability,
+and analyze the situations that come looking for us. How should you be setting up
+alerts in high-observability systems in order to defend the experience of your users?
+In this chapter, we’ll look at why threshold-based alerting so often burns out opera‐
+tors through noisy alarms (alert fatigue), why distributed systems make those prob‐
+lems worse, and how SLOs provide a more reliable, user-centered alternative. When
+you can debug production safely and effectively in high-observability systems, service
+level objectives (SLOs) provide several advantages over their traditional alerting
+counterparts. We’ll examine those advantages and include a real-world case study
+of accelerating the adoption of SLOs and getting to market faster by starting with
+standardized, high-quality telemetry (guest contributed by Mat Vine).
+One of the hardest parts of the SLO adoption journey is simply getting started by
+drawing a line in the sand. Conventionally, that has required a great deal of expertise,
+experimentation, and time. In this chapter, we’ll also show you how to leverage
+generative AI to accelerate the process.
+We’ll start by recapping the state of monitoring and alerting in low-observability
+systems.
+
+
+
+
+                                                                                     173
+Threshold-Based Alerting Creates Alert Fatigue
+In threshold-based monitoring, alerts are set up to measure what the team already
+views as its internal priorities, or what’s easiest to measure. Metrics are used to track
+simplistic attributes derived from the system state in hopes that a specific threshold
+value correlates with service failure or may be a leading indicator of troubles ahead.
+For example, trigger an alert if CPU utilization is above 80% for five minutes, or if
+available memory drops below 10%, or if disk space is nearly full, or if more than x
+many threads are running—or any set of other simple measures.
+These signals can be useful as data, but as alerting triggers they’re often terrible.
+Deviations that spiked CPU utilization don’t tell you whether your customers are
+having a bad experience. That might indicate that a backup job is running. It might
+be garbage collection. It might be a real outage. Or it may be the circuit breaker
+kicking in to prevent cascading failure, so the actual outage is longer than the spike
+we observe. The traditional monitor can’t distinguish that granularity, so it triggers
+the alert. Over time, the team may intuitively learn that the alert isn’t accurate
+enough and automatically dismiss it. When these signals are used as “potential-cause”
+indicators—indirect proxies that may or may not correlate to user impact—they tend
+to create a high percentage of false alarms.
+Experienced engineering teams that own the operation of their software in produc‐
+tion will often learn to tune out (or even suppress) these types of alerts because
+they routinely go off and do not correlate with actual production impact or urgency.
+Teams that do so regularly will adopt phrases like “Don’t worry about that alert; we
+know the process runs out of memory from time to time. We might write automation
+to restart it if the memory gets too high.”
+Becoming accustomed to alerts with many false positives is a known problem and a
+dangerous practice. In other industries, that problem is known as normalization of
+deviance: a term coined during the investigation of the Challenger disaster. When
+individuals in an organization regularly shut off alarms or fail to take action, they
+eventually become so desensitized about the practice deviating from the expected
+response that it no longer feels wrong to them.
+At best, failures that are “normal” and disregarded are simply treated as background
+noise. But that’s not a harmless coping mechanism. When ignoring alerts becomes
+normal, the one alert that truly matters has to fight its way through a wall of learned
+distrust. The background noise sets up all the wrong incentives leading to oversights
+from cascading system failures.
+In the software industry, the poor signal-to-noise ratio of threshold-based alerting often
+leads to alert fatigue—and to gradually paying less attention to all alerts, because so
+many of them are false alarms, not actionable, or simply not useful. Unfortunately,
+
+
+
+174   |   Chapter 11: Using Service Level Objectives for Reliability
+with threshold-based alerting, incidents compound the noise as every alarm fires
+simultaneously.
+Post-incident reviews often generate action items that create new, more important
+alerts that, presumably, would have triggered in time to prevent the problem. That
+leads to an even larger set of alerts generated during the next incident, unless
+stale or flappy alerts are cleaned up. That pattern of alert escalation can create an
+ever-increasing flood of alerts and an ever-increasing cognitive load on responding
+engineers to determine which alerts matter and which don’t.
+That type of dysfunction is so common in the software industry that many moni‐
+toring and incident-response tool vendors proudly offer various solutions labeled
+“AIOps,” which group, suppress, or otherwise try to process that alert load for you.
+Additional layers mean additional complexity and potential sources of missed or
+spurious alerts.
+How did that become the acceptable and “normal” state of affairs? If the future
+of running software in production is doomed to generate so much noise that it
+must be artificially processed, it’s safe to say the situation has gone well beyond a
+normalization of deviance. Industry vendors have now productized that deviance and
+will happily sell you a machine learning solution for its management.
+Metric and threshold-based alerting were once, long ago, the best tools we had to
+understand the state of complex systems. As an industry, we now are layering on
+further dysfunction and bandages rather than questioning whether those primitives
+are the correct ones to build on.
+Distributed systems make that dysfunction harder to ignore. When teams scale
+the number of intercommunicating services they manage, and failure modes grow
+exponentially, what used to just be annoying becomes an unacceptable reliability risk.
+Modern systems require an alternative approach.
+
+Threshold Alerting Is Only for Known-Unknowns
+Threshold alerting works best when you can enumerate failure modes and write
+checks for each one. In smaller, self-contained systems (a.k.a. monoliths), operations
+teams can write specific monitoring checks for each precise state they expect to see
+in production and, generally speaking, that works. But let’s be clear: threshold alerts
+work best when you already have a fairly crisp and comprehensive mental model of
+what “bad” looks like. In other words, they’re a great fit for known-unknowns.
+A “known-unknown” is something that you are aware exists, but you don’t have
+specific information about. In other words, you know your system has specific risks,
+but not which ones will occur, or their exact severity. Known-unknowns are gaps in
+knowledge that we recognize, and that we (typically) have a plan for.
+
+
+                                             Threshold Alerting Is Only for Known-Unknowns   |   175
+With threshold alerting, these are failure modes you know exist, you can name, and
+you can measure, even if you don’t know whether they’re happening right now. For
+example, known-unknowns are failure modes like:
+
+  • The disk is 95% full.
+  • The queue depth is over 70%.
+  • TLS (Transport Layer Security) certification expires in 10 days.
+  • The error rate is over 10% for five minutes.
+
+You can write a check to measure system state, define a threshold, and perform an
+action if the threshold is crossed (for instance, sending an engineer a page), because
+this condition reliably predicts imminent customer pain, and we know what to do
+about it.
+In distributed systems, failure modes multiply. Distributed systems don’t eliminate
+known-unknowns; they just become a tiny fraction of all possible failures that could
+occur. As systems grow more interconnected, the number of plausible things that
+could go wrong stops being additive and it becomes combinatorial.
+Teams shifting from smaller or self-contained to distributed systems often respond by
+trying to codify intuition: every remembered outage becomes a new alert, every scary
+graph becomes a new dashboard, and every “we should have known” incident review
+becomes another defined threshold.
+For a while, that approach feels like rigor. In practice, it becomes an arms race
+you cannot win. Trying to anticipate every possible failure or system state leads
+to hundreds or thousands of checks that are brittle, expensive to maintain, and
+rooted in tacit knowledge from past outages. That approach isn’t sustainable. The
+checks aren’t maintainable, often the knowledge isn’t transferable, and past historical
+behavior doesn’t necessarily predict future failures. And you’re still not focused on
+what customers are actually experiencing.
+Distributed systems are where it becomes much more of the norm to encounter
+unknown-unknowns. Unknown-unknowns are the failures you didn’t know to antic‐
+ipate. They’re things like emergent behaviors, weird interactions, cascading retries,
+partial brownouts, dependency timeouts that only matter under a particular traffic
+mix of very specific factors, a “harmless” deployment that tips a downstream cache
+into eviction churn, and on and on and on. These are risks or factors so unforeseen
+that they weren’t anywhere even near the radar—often a completely novel and never
+previously contemplated issue.
+You can’t write threshold alerts for issues you can’t yet imagine. Modern application
+architectures regularly distribute load across multiple disparate systems. They split
+up, shard, horizontally partition, and replicate data across geographically distributed
+
+
+176   |   Chapter 11: Using Service Level Objectives for Reliability
+systems. While these architectural decisions optimize for performance, resiliency, and
+scalability, they can also make systemic failures near impossible to detect or predict.
+Here, unknown-unknowns aren’t rare edge cases. They’re the default tax that you pay
+for scale and complexity.
+Worse, threshold alerts tend to fuse symptom with cause in a way that’s comforting,
+but misleading. In a monolith, an abnormal number of threads could mean trouble—
+or it could mean garbage collection doing its job, or the app loading an updated
+library for the first time. In a distributed system, abnormal threads in one component
+might be unrelated and benign noise, or it might be the first breadcrumb of upstream
+latency that will hit customers in 10 minutes.
+At 2 a.m., when production is inexplicably broken, those distinctions matter. The
+on-call engineer isn’t just being asked to respond; they’re being asked to divine
+whether the alert is real, whether it matters, and where to start looking. Thresholds
+are supposed to reduce uncertainty. Most often, they just move that uncertainty into
+your incident response channel.
+Threshold alerts can also be triggered by automation. Modern systems already
+remediate many common failure modes without human help: autoscaling, failovers,
+circuit breakers, load balancing, and so forth. When your system heals itself, trigger‐
+ing a notification isn’t necessary. Not only is that not an emergency but it’s a terrible
+distraction. If your alerts wake people up for conditions that self-resolve, you’re
+not building reliability—you’re manufacturing burnout. Those issues still deserve
+investigation, but that’s a low priority accomplished during normal business hours.
+Here’s the boundary: threshold alerting is a tool for known-unknowns. It can be a fit
+for conditions with strong, repeatable, direct correlation to user impact and with a
+clear remediation action. But they’re not a fit for detecting unknown-unknowns. No
+static list of checks can cover the full space of emergent failures in complex systems.
+In systems with high degrees of observability, we’ve seen how the core analysis
+loop lets you quickly debug anomalies. When you’re able to readily debug issues in
+production, the way to detect unknown-unknowns isn’t by elusively attempting to set
+alerts for every possible condition. Instead, you focus on keeping only helpful alerts
+and removing the rest.
+Let’s define the criteria for an alert to be considered helpful. Google’s Site Reliability
+            1
+Engineering (SRE) suggests that a good alert must reflect urgent user impact, must be
+actionable, must be novel, and must require investigation rather than rote action.2
+
+
+1 Niall Richard Murphy, Betsy Beyer, Chris Jones, and Jennifer Petoff. Site Reliability Engineering (O’Reilly,
+  2016).
+2 Rob Ewaschuk and Betsy Beyer. “Monitoring Distributed Systems”. In Site Reliability Engineering. (O’Reilly,
+  2016, 63–64).
+
+
+                                                            Threshold Alerting Is Only for Known-Unknowns   |    177
+We’ll take that a step further by defining the criteria for an alert to be considered
+“helpful” with a two-part subset. First, it must be a reliable indicator that the user
+experience (UX) of your service is in a degraded state. Second, the alert must be
+solvable. There must be a systematic (but not pure rote automatable) way to debug
+and take action in response to the alert—that does not require a responder to divine
+the correct course of action. If those two conditions are not true, any alert you have
+configured is no longer serving its intended purpose.
+
+User Experience Is a North Star
+To echo the words of the SRE book once more, potential-cause alerts have poor
+correlation to real problems, but symptom-of-user-pain alerts better allow you to
+understand user impacts and the state of the system as experienced by customers.
+How, then, do you focus on setting up alerts to detect failures that impact user expe‐
+rience? This is where a departure from traditional monitoring approaches becomes
+necessary. The traditional metrics-based monitoring approach relies on using static
+thresholds to define optimal system conditions. Yet the performance of modern
+systems—even at the infrastructure level—often changes shape dynamically under
+different workloads. Static thresholds simply aren’t up to the task of monitoring
+impact on user experience.
+Setting up traditional alerting mechanisms to monitor user experience means that
+system engineers must choose arbitrary constants that predict when that experience
+is poor. For example, these alerts might be implemented to trigger when “10 users
+have experienced slow page-load times,” or “the 95th percentile of requests have
+persisted above a certain number of milliseconds.” In a threshold-based approach,
+system engineers are required to divine which exact static measures indicate that
+unacceptable problems are occurring.
+Yet system performance varies significantly throughout the day as different users,
+in different time zones, interact with your services in different ways. During slow
+traffic times, when you may have hundreds of concurrent sessions, 10 users experi‐
+encing slow page-load times might be a significant metric. But that significance drops
+sharply at peak load times when you may have tens of thousands of concurrent
+sessions running.
+Remember that in distributed systems, failure is inevitable. Small transient failures
+are always occurring without you necessarily noticing. Common examples include a
+failed request that later succeeds on a retry; a critical process that initially fails, but
+its completion is merely delayed until it gets routed to a newly provisioned host; or
+a service that becomes unresponsive until its requests are routed to a backup service.
+The additional latency introduced by these types of transient failures might blend
+
+
+
+
+178   |   Chapter 11: Using Service Level Objectives for Reliability
+into normal operations during peak traffic, but P95 response times would be more
+sensitive to individual datapoints during periods of low traffic.
+In a similar vein, these examples also illustrate the coarseness of time-based metrics.
+Let’s say P95 response time is being gauged in five-minute intervals. Every five
+minutes, performance over the trailing five-minute interval reports a value that
+triggers an alert if it exceeds a static threshold. If that value exceeds the threshold, the
+entire five-minute interval is considered bad (and conversely, any five-minute interval
+that didn’t exceed the threshold is considered good). Alerting on that type of metric
+results in high rates of both false positives and false negatives. It also has a level of
+granularity that is insufficient to diagnose exactly when and where a problem may
+have occurred.
+Static thresholds are too rigid and coarse to reliably indicate degraded user experi‐
+ence in a dynamic environment. They lack context. Reliable alerts need a finer level of
+both granularity and reliability. This is where SLOs can help.
+
+Reliable Alerting with Service Level Objectives
+SLOs are internal goals for the measurement of service health. Popularized by the
+Google SRE book, SLOs are a key part of setting external SLAs between service
+providers and their customers. These internal measures are typically more stringent
+than externally facing agreements or availability commitments. With that added
+stringency, SLOs can provide a safety net that helps teams identify and remediate
+issues before external user experience reaches unacceptable levels.
+
+                We recommend Alex Hidalgo’s book, Implementing Service Level
+                Objectives (O’Reilly, 2020), for a deeper understanding of the
+                subject.
+
+
+
+Much has been written about the use of SLOs for service reliability, and they are
+not unique to the world of observability. However, using an SLO-based approach to
+monitoring service health requires having observability built into your applications.
+SLOs can be, and sometimes are, implemented in systems without observability. But
+the ramifications of doing so can have severe unintended consequences.
+SLOs quantify an agreed-upon target for service availability, based on critical end-
+user journeys rather than system metrics. That target is measured using service level
+indicators (SLIs), which categorize the system state as good or bad. Two kinds of SLIs
+exist: time-based measures (e.g., “99th percentile latency less than 300 milliseconds
+over each five-minute window”) and event-based measures (e.g., “proportion of events
+that took less than 300 milliseconds during a given rolling time window”).
+
+
+
+                                                 Reliable Alerting with Service Level Objectives   |   179
+Both attempt to express the impact on end users but differ on whether data about the
+incoming user traffic has been pre-aggregated by time bucket. We recommend setting
+SLIs that use event-based measures as opposed to time-based measures, because
+event-based measures provide a more reliable and more granular way to quantify the
+state of a service. We discuss the reasons for this in the next chapter.
+Let’s look at an example of how to define an event-based SLI. You might define a
+good customer experience as being a state when “a user should be able to successfully
+load your home page and see a result quickly.” Expressing that with an SLI means
+qualifying events and then determining whether they meet your conditions. In this
+example, your SLI would do the following:
+
+ 1. Look for any event with a request path of /home.
+ 2. Screen qualifying events for conditions in which the event duration is less than
+    100 milliseconds.
+ 3. If the event duration is less than 100 milliseconds and was served successfully,
+    consider it OK.
+ 4. If the event duration is at least 100 milliseconds, consider that event an error
+    even if it returned a success code.
+
+Any event that is an error would spend some of the error budget allowed in your
+SLO. We’ll closely examine patterns for proactively managing SLO error budgets and
+triggering alerts in the next chapter. For now, we’ll summarize by saying that given
+enough errors, your systems could alert you to a potential breach of the SLO.
+SLOs narrow the scope of your alerts to consider only symptoms that impact what
+the users of your service experience. If an underlying condition is impacting “a user
+loading the home page and seeing it quickly,” an alert should be triggered, because
+someone needs to investigate why. However, there is no correlation as to why and how
+the service might be degraded. We simply know that something is wrong.
+In contrast, traditional monitoring relies on a potential-cause-based approach: a pre‐
+viously known cause is detected (e.g., an abnormal number of threads), signaling that
+users might experience undesirable symptoms (slow page-load times). That approach
+fuses the “what” and “why” of a situation in an attempt to help pinpoint where
+investigation should begin. But, as you’ve seen, there’s a lot more to your services than
+just the known states of up, down, or even slow. Emergent failure modes can impact
+your users long before coarse synthetic probes will tell you. Decoupling “what” from
+“why” is one of the most important distinctions in writing good monitoring with
+maximum signal and minimum noise.
+The second criteria for an alert to be helpful is that it must be actionable. A system-
+level potential-cause alert that the CPU is high tells you nothing about whether users
+are impacted and whether you should take action. In contrast, SLO-based alerts are
+
+
+180   |   Chapter 11: Using Service Level Objectives for Reliability
+symptom based: they tell you that something is wrong. They are actionable because
+now it is up to the responder to determine why users are seeing an impact and
+to mitigate. However, if you cannot sufficiently debug your systems, resolving the
+problem will be challenging. That’s where a shift to observability becomes essential:
+debugging in production must be safe and natural.
+In an SLO-based world, you need high-observability tooling because it allows you to
+debug from first principles. With rich telemetry, you can start wide and then filter
+to reduce the search space. That approach means you can respond to determine the
+source of any problem, regardless of how novel or emergent the failure may be. You
+can improvise and adapt solutions to find any problem in your system.
+Instrumentation that provides rich and meaningful telemetry is the basis for that
+approach. Being able to quickly analyze that telemetry data to validate or falsify
+hypotheses is what empowers you to feel confidence in removing noisy, unhelpful
+alerts. Decoupling the “what” from the “why” in your alerting is possible when using
+SLO-based alerts in tandem with observability.
+When most alerts are not actionable, that quickly leads to alert fatigue. To eliminate
+that problem, it’s time to delete all of your unactionable alerts. If that seems infeasible,
+it likely means you’ll also need a cultural shift to support that change.
+To illustrate how culture change is achieved around the adoption of SLOs for mon‐
+itoring, we’ll look at a real example with a firsthand account from Mat Vine with
+ANZ Bank—a multinational bank and financial services company headquartered in
+Australia.
+
+Case Study: Changing Culture Toward SLO-Based Alerts
+                                              This section is contributed by Mat Vine,
+                                     Cloud, Quality, and Reliability Lead at ANZ Bank
+
+When I first joined an incumbent bank, I was challenged to build the SRE practice
+within the transformation arm of the enterprise. On my first day, I sat in on my new
+team’s first “major incident” rehearsal. The very next day, my boss asked for a launch
+readiness estimate. I thought 12–18 months was a realistic timeframe. He countered
+with a goal of 12 weeks before our pilot launch. For many in operational roles, this
+immediate, high-pressure shift in expectations would be enough to send them into a
+panic. Ultimately, would you believe that our reliability team was able to green-light a
+launch within 12 weeks? Why was my estimate so off? Using high-quality telemetry,
+defining SLOs, and setting error budgets enabled us to ship with confidence.
+Investing in telemetry first is what buys you the leverage to move faster on the
+cultural and organizational work that actually sticks. Fortunately, as a major Google
+Cloud partner, we had the privilege of leadership who’d already been educated about
+
+
+                                          Case Study: Changing Culture Toward SLO-Based Alerts   |   181
+SLOs and error budgets through Google’s Customer Reliability Engineering program
+and the SRE book, written by Googlers and published by O’Reilly. We had a modern
+cloud native architecture, built predominantly in-house, and we’d made early bets
+on OpenTelemetry—which gave us a level of telemetry standardization that we’d
+eventually heavily lean on.
+On the surface, this was a luxurious greenfield launching pad. It should have made
+me far more optimistic than my estimate of 12–18 months suggested. The reality,
+though, was that we were in a phase of rapid development approaching our pilot
+launch. Infrastructure and software were being built and changed quickly. The prod‐
+uct itself was still being designed, tested, and reimplemented. These were surprisingly
+poor conditions from which to start an SLO revolution. So, why didn’t we just
+fall back to tried-and-true threshold alerting? We viewed that as a one-way trap
+because arbitrary thresholds tend to calcify. The easiest objective to set is “whatever
+performance we have today,” but that creates a feedback loop where you are alerting
+on statistical deviations rather than customer impact.
+Instead, we realized that a small, core set of user journeys touched the majority of
+our critical assets and dependencies. By focusing only on those, we could achieve
+high system coverage without drowning in noise or tempting team members to
+proliferate more thresholds. This enables us to treat the infrastructure of alerting
+as a commodity, while spending our limited time on higher-value work: building
+consensus on how the system should perform, rather than just alerting on how it was
+performing.
+In mature organizations with established SLO adoption, you would start by introduc‐
+ing SLOs at the design phase for each new component or system. But in a new,
+rapidly developing system, without any immediate operational pressure or customer
+satisfaction to balance, SLOs are too abstract. My estimate of 12–18 months was
+based on a then-current lead time of one year, during which no SLOs had been set. I
+thought there to be two fundamental conditions for SLOs to deliver real value:
+Real-world demand on your systems.
+    This means not theoretical traffic, not load tests, but actual users depending on
+    the systems you’ve built.
+Scale—real scale.
+    SLOs need to be anywhere across your organization where there exists delivery
+    or operational pressure, not isolated to a single team or practice area. SLOs need
+    to be understood as a part of your team’s operating model.
+So, how could we replace these?
+In our scenario, the approaching deadline forced clarity. We stopped debating what
+might matter and started identifying what would matter on launch day. This meant
+narrowing down to less than a handful of user journeys across multiple problem
+
+
+182   |   Chapter 11: Using Service Level Objectives for Reliability
+domains that would be genuinely important to the day-one customer experience.
+There would be time later to flesh out more comprehensive SLOs.
+Our early bets in OTel had taken the form of an in-house package which extended
+the OTel SDK with our own domain-specific semantic conventions. Because most of
+our services were already emitting telemetry with predictable schemas, we were able
+to avoid spending weeks writing regular expressions and mapping data fields across
+heterogeneous logs. That amount of time, which would have been enormous if we’d
+had a less standardized environment, was reinvested into more valuable activities:
+mapping user journeys, rationalizing which metrics made sense as SLIs, and building
+consensus across development, operations, and product stakeholders. Although we
+didn’t have real-world demand, we knew that we could get faithful estimates with
+load testing, and adjust in real time after our product launched.
+SLOs, like any high-observability implementation, are an investment. If the only time
+your teams interact with observability data is during incident response, you’re either
+underinvesting in making that data useful, or you’re paying too much for it. The
+same applies to SLOs; they require organizational conditions to thrive. Teams need
+to be challenged to make decisions that balance risk and velocity. If that type of
+pressure doesn’t exist—as it rarely does during the early development phase—SLOs
+are unlikely to gain the traction needed to make an appreciable dent in the way you
+build or operate your systems.
+I’m skeptical of applying the standard technology rollout for SLOs where you pick
+one high-performing team, get them to use the tool, and then hope that the trial
+usage tells you enough about how to scale it organization-wide. The problem is that
+high-performing teams almost never need SLOs. Those teams prioritize and govern
+themselves naturally. They balance risk and velocity through their own internal
+processes—be it internal tech debt policies, toil indicators, or strong stakeholder
+relationships. That performance tends to come with trust already built. For these
+teams, SLOs aren’t a needle mover.
+If you’re starting from scratch, instead identify the most problematic or important
+areas in your organization. Target the teams that are supporting the systems most
+critical to your service, those experiencing the highest operational stress, or those
+with the least productive or trusting relationships with product and business stake‐
+holders. These are the teams where SLOs will shift behavior and decision making.
+When you target these teams, make sure to focus energy directly on what matters:
+establishing clear objectives, rationalizing the indicators you’ve selected, and building
+genuine consensus on those choices across all stakeholders. Wrangling telemetry data
+into the correct shape might eventually be necessary, but it’s almost never the most
+important thing to do first. If a lot of your time is being spent there, you likely don’t
+have the foundation to launch from.
+
+
+
+                                         Case Study: Changing Culture Toward SLO-Based Alerts   |   183
+My experience is that high-quality telemetry requires investment as a standalone
+capability. Good telemetry—standardized, semantically rich, and with high cardin‐
+ality—provides immediate benefits for teams. It can help them learn about their
+systems and alleviate operational stress when it arises. Likely, the investment in a
+mostly standardized telemetry solution will pay off for most organizations even if the
+change stops there. Once in place, however, you will have a backbone that enables
+your engineering teams to focus on the important cultural and procedural scaffolding
+necessary to make SLOs scale across the organization effectively.
+The reality is that my original estimate of 12–18 months was both right and wrong.
+Making SLOs a genuine part of our SDLC, bringing them into product prioritization
+conversations, and eventually mapping hundreds of user journeys and business pro‐
+cesses into defined objectives did take 18 months. Fortunately, establishing a strong
+enough base for us to have confidence in our product’s beta launch was achievable in
+12 weeks. We implemented relatively comprehensive SLO-based monitoring systems
+within a few months because our early investment in OTel and the standardization
+introduced enabled us to focus on architecture, business alignment, and our opera‐
+tional practices.
+This difference matters when scaling across an organization. Everyone involved in
+the software delivery lifecycle falls in love with the idea of error budgets at first sight.
+But the work to set objectives, agree on them, and build consensus on what a working
+system is and how often it should work is both difficult and necessary. Every time you
+get pulled into crafting regex or stitching together session IDs across heterogeneous
+data formats, you lose time on the harder, more valuable work. By embracing unified
+observability from the start, and building SLOs based on that observability data, we
+lowered the friction required to succeed with SLOs.
+
+Accelerating SLO Adoption with Generative AI
+Mat Vine’s account of SLO adoption at a regulated enterprise highlights many of the
+challenges and benefits of SLO adoption. Seeking organizational alignment can be
+particularly challenging for many teams. Often, that’s what seems to make drafting
+SLIs and SLOs deceptively hard when you’re getting started. It’s less that teams face
+difficulty in writing good queries, and more that SLOs force you to get organizational
+clarity.
+You have to decide which user journeys matter most, what “success” means for
+those journeys, and how much imperfection the business is willing to tolerate. That
+decision tree requires translating product intent into measurable criteria, aligning
+stakeholders who may have competing priorities, and then choosing thresholds that
+strike a balance between not constantly generating noise nor quietly missing a degra‐
+ded experience. Early SLO efforts often get stuck in ambiguity: everyone agrees
+
+
+
+184   |   Chapter 11: Using Service Level Objectives for Reliability
+reliability matters, but nobody wants to be the person who picks the number or owns
+making the trade-off.
+Generative AI can help accelerate this early stage. LLMs can help by solving the
+blank-sheet-of-paper problem: they can turn vague intent into a concrete draft
+fast enough to then allow the real work to begin—review, debate, calibration, and
+iteration. There is no substitute for actual human understanding, ownership, and
+judgment.
+In our practice as SREs, we have found LLMs to be useful for scenarios beyond
+simply writing application code. After all, infrastructure can be written as code, and
+so can observability primitives such as saved queries, dashboards, and SLOs. Those
+artifacts encode assumptions about what matters and how to measure it. With that
+context, LLMs are particularly good at taking ambiguous human language about
+requirements and producing draft recommendations that you can refine.
+Conventionally, it would take hiring an experienced SRE (as an employee or consul‐
+tant) to propose reasonable SLO targets and explain trade-offs. In many cases, an
+LLM can provide a workable first pass when you give it the right context about the
+service and the business expectations. It doesn’t replace expertise, but it can reduce
+the time it takes to create good working drafts.
+Even without post-training, custom prompting, or retrieval augmented generation
+(RAG), using open-weights models can still yield surprisingly good results. For exam‐
+ple, when asked what reliability target to set for a public-cloud checkout workflow
+processing $1 million per month, a model might initially recommend an aggressive
+target. When challenged on cost and diminishing returns, it may revise the target and
+provide a rationale that frames the trade-off in business terms:
+    Prompt = What reliability percentage goal should I target for an ecommerce
+            checkout workflow running on a public cloud, where the service
+            processes $1 million in transactions per month? Answer succinctly
+            with just a number and a rationale.
+
+    gpt-oss 20b = 99.999 % availability – the “five-nines” target keeps annual
+    downtime under 5 minutes, minimizing revenue loss and meeting high-expectation
+    e-commerce uptime standards.
+
+    Prompt = Are you sure? That seems really costly to achieve. Trying to prevent the
+    last 45 minutes of lost revenue seems not worth it.
+
+    gpt-oss 20b = **Target: 99.95 % availability** – this limits annual downtime to
+    ~42 minutes, which for a $1 M / month (≈$12 M / yr) revenue stream translates to
+    <$1 k lost revenue per year. 99.95% is attainable with a simple multi-AZ,
+    load-balanced architecture and avoids the high cost of five-nines while still
+    keeping customer experience strong.
+
+
+
+
+                                              Accelerating SLO Adoption with Generative AI   |   185
+Another model may choose a different number, but still provide a plausible explana‐
+tion. For example, Claude has a similar response:
+      Prompt = What reliability percentage goal should I target for an ecommerce
+              checkout workflow running on a public cloud, where the service
+              processes $1 million in transactions per month? Answer succinctly
+              with just a number and a rationale.
+
+      Claude Opus 4.6 = **99.99%** (four nines)
+      A checkout workflow is directly revenue-bearing, so every minute of downtime has
+      a quantifiable cost: at $1M/month, that’s roughly $23 per minute of lost
+      transactions. Three nines (99.9%) gives you ~43 minutes of downtime per month,
+      costing ~$1,000 in lost revenue plus customer trust erosion and cart abandonment
+      that compounds beyond the outage window. Five nines (99.999%) is largely
+      unachievable on public cloud without multi-region active-active, which is
+      expensive to build and operate correctly for stateful checkout flows.
+
+      Four nines (~4.3 minutes/month) hits the pragmatic sweet spot: its achievable on
+      a single cloud region with redundant components, the ~$100/month in theoretical
+      lost-revenue exposure is tolerable, and the engineering investment (health
+      checks, retries, circuit breakers, graceful degradation) is proportionate to the
+      business value. It also aligns with what major cloud providers commit to for
+      their own managed services, so you’re not trying to out-SLO your dependencies.
+As experienced SREs, we’d probably say the numerical values and explanations (after
+some challenging) are roughly in line with what we might suggest to a product owner
+asking us questions about return on investment (ROI) for targeting higher or lower
+reliability for a given transaction volume. You can continue to dig and ask “why not
+99.9%?” or “why not 99.999%?” and get sensible-enough answers to chew on. Even
+when you disagree with the recommendation, you now have something concrete to
+evaluate—and that accelerates alignment.
+
+From Targets to Implementation: Drafting a Service Level Indicator
+LLMs are also useful for moving what to measure toward concrete expressions. They
+can then help you craft SLIs corresponding to the SLOs leveraging your observability
+tooling when given sufficient context about the telemetry data. Event-based SLIs
+often require carefully defined eligibility criteria and success criteria. Models can
+draft those expressions quickly. But details matter, and the mistakes tend to be subtle,
+like missing an important filter, choosing the wrong error signal, or failing to align
+with your system’s query or grammar conventions.
+The following example demonstrates how the conversation from earlier can be con‐
+tinued, assuming the user fills in the blanks for the grammar and functions available
+in their query language:
+      Prompt = Now, you will be generating an expression in a domain specific language
+               to define a service level indicator (SLI). The SLI measures the
+               performance and reliability of a service per request based on
+
+
+
+186   |   Chapter 11: Using Service Level Objectives for Reliability
+             certain criteria, to be used for computing a higher-level SLO.
+
+    Here is the title describing the goal of the overall SLO:
+
+    <title>
+    Checkout succeeds quickly enough
+    </title>
+
+    And here is a more detailed description of the overall SLO:
+    <description>
+    Checkout should succeed within four seconds, 99.99% of the time.
+    </description>
+
+    Use $PROVIDER’s field syntax, looking it up if necessary from the documentation.
+    Assume standard OpenTelemetry semantic conventions.
+
+    separate <reasoning> and <expression> in your results.
+Using this prompt with Claude Opus 4.6, for instance, and filling in the blanks with
+pointers to the provider-specific query language details from your chosen observabil‐
+ity tooling, you can produce a reasonable draft of how you can measure the SLI/SLO,
+shown as follows:
+    Claude Opus 4.6:
+    <reasoning>
+    The SLO description is "Checkout should succeed within 4 seconds, 99.99% of the
+    time." The 99.99% target and the rolling time period are configured on the SLO
+    object itself; the SLI expression only needs to classify each event as true
+    (good), false (bad), or null (not applicable).
+
+    There are three components to express:
+
+    1. **Qualifier** (scopes to checkout events only): Events where `http.route`
+       matches the checkout endpoint. Non-matching events return null and are
+       excluded from the SLO calculation. Adapt the route string to match your
+       actual instrumentation.
+    2. **Success criterion**: The HTTP response status code is below 400 (i.e., no
+       server-side or client-error failure). Using the stable OTel semantic
+       convention field `http.response.status_code`. If you’re on older
+       conventions, substitute `http.status_code`.
+    3. **Latency criterion**: The span duration is at or below 4000ms. `duration_ms`
+       is Honeycomb’s standard span duration field.
+
+    The `IF()` wrapper ensures non-checkout events return null. The `AND()` inside
+    requires both success and latency criteria to be met for the event to count as
+    "good."
+
+    Configure the SLO with `target_percentage: 99.9` and an appropriate `time_period`
+    (e.g., 30 days). Adjust `"/api/checkout"` to match your actual route, and if
+    your checkout is a multi-span workflow rather than a single HTTP handler, scope
+    the qualifier to the root span of the checkout trace instead (e.g., using
+    `CONTAINS($name, "checkout")` combined with `NOT(EXISTS($trace.parent_id))`).
+
+
+
+                                             Accelerating SLO Adoption with Generative AI   |   187
+      </reasoning>
+
+      <expression>
+      IF(
+        EQUALS($http.route, "/api/checkout"),
+        AND(
+          LT($http.response.status_code, 400),
+          LTE($duration_ms, 4000)
+        )
+      )
+      </expression>
+At this point, an open-weights model like gpt-oss-20b being run inside a tool like
+Ollama will begin to produce inferior results as it has not necessarily been trained
+on your tooling, and it lacks the ability to directly search documentation and ingest
+it into context. Instead, you’ll need to paste in the documentation or the underlying
+language grammar. Surprisingly, both models omit in their initial response the crite‐
+rion for NOT(EXISTS($trace.parent_id)) or some other filter to only server spans
+(not internal spans) that we’d expect for successful SLO representation in our tool,
+given its grammar. Opus does suggest this as an optional refinement, however.
+The generative AI space moves fast, as we’ve noted several times before. It’s perilous
+to commit firm recommendations about AI in a textbook. However, at the time of
+this publishing, we’ve found that high-capability hosted models in thinking mode
+have a higher success rate for structured authoring tasks like this than local models,
+though local models can still be useful for iteration and exploration. We’re certain
+performance in these areas will only continue to improve, as they already have
+between the Claude 4.0 and 4.6 models.
+Once upon a time, you would need to use the Google SLO workshop materials or
+read the entire SLO book by Hidalgo (mentioned earlier) to learn how to do this.
+Now, you can get 90% good enough by using an LLM with appropriate prompting,
+and iterate from there. It can be toilsome to help hundreds of teams come up with
+SLOs and keep them up to date. We can better scale ourselves by writing best
+practices and embedding them into prompts rather than becoming a bottleneck of
+expertise.
+At the end of the day, it’s better to have more people using imperfect SLOs than to
+have SLOs remain a tool of the elite SRE-enabled teams. And if your observability
+tooling allows you to edit SLOs with retroactive effect, the consequences of a mistake
+or oversight are relatively minor. It is much easier to iterate and adjust your SLOs
+once you have practical feedback on what’s working versus what is not.
+The right operating model for getting started is to treat the LLM as a draft generator,
+not an authority. Validate outputs against real telemetry. Run them on production-
+like data. Use your expertise to review them the way you would review a pull request.
+
+
+
+188   |   Chapter 11: Using Service Level Objectives for Reliability
+Encoding Best Practices in Your Prompts
+Similar to guidelines that we’ve provided previously when working with AI (see
+“Instrumentation with Agents” on page 128), ad hoc prompting can be a risky
+practice. The recommended approach is to capture your standards in version control
+and reuse them.
+Let’s look at an example by refining the SLI in our previous conversation so that it
+better reflects the critical user journeys we are interested in and excludes automated
+health checks:
+    Prompt = Please generate a revised service level indicator specification in
+             $PROVIDER format that excludes user agents starting with `kube-probe`,
+             and also filters specifically for POST requests to the `/checkout` HTTP
+             route.
+We’ll continue showing responses from Claude, but this would work with gpt-oss or
+various other models:
+    Claude Opus 4.6:
+    <reasoning>
+    Three changes from the previous expression:
+    1. **HTTP method qualifier**: The OTel stable semantic convention for request
+       method is `http.request.method`. We add `EQUALS($http.request.method, "POST")`
+       to the qualifier.
+    2. **Route narrowed**: Changed from `/api/checkout` to `/checkout` per your
+       specification.
+    3. **Exclude health probes**: Kubernetes liveness/readiness probes should not
+       count towards (or against) the SLO. Using `NOT(STARTS_WITH(
+       $user_agent.original, "kube-probe"))` ensures these synthetic requests
+       return null and are excluded from the budget entirely. The field
+       `user_agent.original` is the stable OTel semantic convention for the raw
+       User-Agent header.
+
+    All three qualifier conditions are wrapped in an `AND()` inside the first
+    argument to `IF()`, so any event that fails any of them returns null
+    (unqualified). Only events matching all three are evaluated against the
+    success criteria (status < 400 and duration ≤ 4000ms).
+    </reasoning>
+
+    <expression>
+    IF(
+      AND(
+         EQUALS($http.request.method, "POST"),
+         EQUALS($http.route, "/checkout"),
+         NOT(STARTS_WITH($user_agent.original, "kube-probe"))
+      ),
+      AND(
+         LT($http.response.status_code, 400),
+         LTE($duration_ms, 4000)
+      )
+
+
+
+                                              Accelerating SLO Adoption with Generative AI   |   189
+      )
+      </expression>
+That result nails it by accurately describing the SLI specification for our example
+use case. It has correct syntax and covers all of the conditions requested (excluding
+kube-probe health checks, and forcing HTTP method to be POST and route to be /
+checkout).
+Going further, a strong prompt establishes what fields exist in an SLO definition,
+what good titles and descriptions look like, how event-based SLIs should evaluate eli‐
+gibility versus success, and how to produce an improved (but functionally equivalent)
+version of an SLO definition in JSON. It also asks for concise feedback and a clear
+explanation of changes.
+For example, your prompt may look like this:
+      Prompt = You are an AI that takes a user’s service level objective (SLO),
+      reviewing it based on best practices, and provides suggestions for improvement.
+
+      The SLO has exactly six things: name, description, time period in days, rate, SLI
+      alias, and SLI expression that gets computed on each event.
+
+      When grading an SLO, you think step by step through each component and provide
+      concise feedback on how it could align better with best practices.
+
+      An SLO aims to measure the reliability of a product, feature, or service and
+      provide a realistic target to manage the system according to.
+
+      Good titles clearly describe the critical user journey and its success criteria
+      using affirmative language.
+
+      Good descriptions also use affirmative language to elaborate on what success
+      means, and also elaborate with specific eligibility criteria for events and the
+      evaluation criteria to compute for them. The evaluation criteria often has a
+      numeric threshold, or checks a boolean value like success or error.
+
+      SLIs typically have an eligibility criterion for which events are in scope,
+      and a success criterion representing whether each in-scope event delivered a
+      satisfactory user experience. If the eligibility criterion is not met, the
+      derived column should evaluate to NULL.Otherwise, it should evaluate to TRUE
+      on a good user experience and FALSE on a failed user experience.
+
+      Good SLIs typically have as simple of an expression as possible.
+
+      Finally, when you finish reviewing an SLO, you provide a JSON object of a
+      modified SLO definition that aligns better with best practices, and then an
+      explanation of why it’s better.
+
+      When you suggest an improved SLI, make sure it’s always functionally equivalent.
+
+
+
+
+190   | Chapter 11: Using Service Level Objectives for Reliability
+Once you find the best prompts that work for your organizational context and your
+tooling, you should check them into version control, keep them simple, and make
+them consistent across the team. Instead of requiring every team to “borrow” SRE
+expertise to get started, you embed that expertise into a repeatable workflow that can
+be shared among teams, individuals, and organizations.
+Sharing that expertise can be a key accelerator. It’s better to help more teams adopt
+imperfect but improving SLOs than to keep SLOs confined to the teams already
+fluent in them. The key to improving SLOs is ensuring they are reviewed and refined,
+which is simple when SLO definitions can be edited retroactively.
+In summary, you can supercharge your SRE practices and roll out SLIs and SLOs
+faster with the combination of good observability tooling and a small amount of LLM
+assistance. Over time, your teams may take deeper ownership and refine definitions
+by hand; either using the model as a reviewer, a drafter, or simply as a rubber duck to
+understand the trade-offs.
+
+Conclusion
+In this chapter, we introduced SLOs as a more effective alerting strategy than tradi‐
+tional threshold monitoring. Alert fatigue is so prevalent in our industry, largely
+because traditional monitoring relies on potential-cause signals that are easy to mea‐
+sure and trigger often, yet are often very weakly correlated with real user impact.
+Alert fatigue can be solved by focusing on creating only helpful alerts that meet two
+criteria. First, they must trigger as reliable indicators that the user experience of your
+service is in a degraded state. Second, they must be actionable. Any alert that does not
+meet that criteria is no longer serving its purpose and should be deleted.
+SLOs help because they decouple the “what” from the “why.” They alert on symptoms
+that map directly to customer experience rather than on presumed causes. When
+SLOs are measured with event-based SLIs, alerts tend to be more reliable and less dis‐
+ruptive, with fewer false positives and false negatives—especially when distinguishing
+systemic problems from sporadic failures.
+However, that’s only half the solution. SLO alerts can tell you that user pain exists,
+not why it’s happening. To make SLO-based alerts operationally effective, production
+systems must be debuggable, which is where having a high degree of observability
+becomes essential.
+Adopting SLO-based alerting is a sociotechnical challenge. Removing unactionable
+alerts requires shared standards, confidence in the new signals, and a deliberate
+shift away from long-held traditions. Mat Vine’s firsthand account illustrates getting
+buy-in and operationalizing these practices.
+
+
+
+
+                                                                          Conclusion   |   191
+Generative AI can help accelerate SLO adoption. Drafting SLIs and SLOs is often
+where teams stall—not because the mechanics are hard, but because the work
+requires clarity and alignment. Used appropriately, LLMs can reduce time to first
+draft, giving teams something concrete to review, validate against real telemetry, and
+refine over time.
+In the next part of this book, we dive deep into technical implementation details to
+make these concepts more concrete. In the next chapter, we’ll begin by looking at the
+inner workings of SLO burn budgets and examine how they’re used to create effective
+alerts.
+
+
+
+
+192   |   Chapter 11: Using Service Level Objectives for Reliability
+                                                                            PART IV
+         Observability Technical Deep Dives
+
+
+
+
+The earlier parts of this book covered fundamentals for anyone working in observa‐
+bility. This part goes deeper.
+We’re peeling back the covers here—internals, implementation details, trade-offs.
+This section is for advanced practitioners, teams thinking about building their own
+observability tooling, and teams operating at serious scale. If that’s not where you are
+yet, feel free to skip ahead and come back.
+Chapter 12 digs into how SLO calculations actually work under the hood. Building
+on Chapter 11, it shows why wide events produce more accurate, actionable, and
+debuggable alerts than metrics-based approaches.
+Chapter 13 examines what a datastore needs to do to support real investigative
+observability workloads: the functional requirements, the performance trade-offs,
+and how to optimize for the way engineers actually query telemetry. It includes a case
+study of the Honeycomb custom-built Retriever engine as a concrete example.
+Chapter 14 offers a counterpoint. Written by the engineering team at ClickHouse, this
+guest-contributed chapter shows how the open source ClickHouse database can be
+tuned to meet observability workload requirements. A different set of trade-offs is
+also presented, and worth understanding.
+Chapter 15 covers sampling—how to handle large telemetry volumes without drown‐
+ing in data or losing the signal you need. It includes code samples showing how
+common sampling techniques work in practice.
+Chapter 16 is a guest-contributed chapter by Mike Kelly, CEO and founder of Bind‐
+plane, on telemetry pipelines—what they are, what organizational problems they
+solve, and how to use them. It is written through the lens of Bindplane, an open
+source pipeline manager built on the OTel standard.
+Chapter 17 looks at managing telemetry at scale across services, environments, and
+teams. When your data is diverse and distributed, ontologies can help prevent seman‐
+tic failures and make telemetry more accessible, especially when you’re working with
+large language models. This guest chapter is contributed by Frank Chen, Cofounder
+and CTO at Balto Energy.
+In Part V, we zoom back out and look at how these techniques apply across different
+domains beyond the backend systems we’ve focused on so far.

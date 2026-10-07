@@ -1,0 +1,872 @@
+                                                                                  Index
+
+
+
+
+A                                                   interaction models, 461-462
+activities, 183, 481                                prompts, 189-191
+agent + gateway deployment pattern, 302         AI agents, 128
+agent-only deployment, 302                          (see also agentic AI)
+agentic AI, 145, 157-159                            alert audits, 167
+    (see also AI agents)                            constraints, 161
+    autonomy, 147                                   context necessary, 169-171
+    hallucinations, 146                             data errors, 166
+    personas, 145-146                               data patterns, 166
+    use cases, 146-147                              definition, 128
+agentic investigations, 16-17                       for observability, 162-164
+agents                                              incident response, 166
+    redirection, telemetry pipelines, 305-306       instrumentation, 128-129
+    telemetry pipelines, 300                        instrumentation and
+aggregation                                             quality, 166-167
+    averages, 67                                    LLMs, 128, 162
+    log-aggregation service, 10                     OTel and, 127-131
+    metrics, 66-68                                  prompts, 189-191
+        TSDBs, 218                                  queries, 164-165
+    mobile and web apps, 344                        rules, 130
+    pre-aggregation, 14                             SLOs, 168
+    raw events, 44                                  strategies, 130-131
+    telemetry pipelines, 298                        traces, 166
+AI (artificial intelligence), 46-47, 144        AI sandwich architecture, 321
+    adoption sabotage, 426-427                      deterministic workflow, 321
+    agentic, 157-159 (see agentic AI)               dynamic AI workflow, 322
+    application development                     alert fatigue, 173
+        observability data, 398-400                 threshold-based alerting, 174-175
+    applications                                alerts
+        telemetry for, 396-398                      auditing with AI agents, 167
+    economics of software development, 461          error budget, 195-197
+    future of observability, 574-576                SLOs and, 179-181
+    generative (see generative AI)                      case study, 181-184
+    instrumentation and, 157                        threshold-based, 136, 174-175
+
+
+
+                                                                                        581
+         known-unknowns, 175-178               metric attributes, 107-108
+    zero-level, 198-199                        metrics, 66
+         predictive burn, 201-208              orchestration attributes, 88
+         relative burn, 200-201                PaaS orchestration attributes, 88
+         thresholds, 199-200                   rate limit attributes, 103-105
+Amazon Cloudwatch, 380                         route information attributes, 96-97
+amplifying feedback loops, 439                 service attributes, 86-87
+    confidence loop, 442                       specific applications, 110
+    learning accumulation loop, 442-443        timing attributes, 97
+    system quality loop, 444                   uptime attributes, 106-107
+APM (application performance monitoring),      user agent attributes
+    129, 451                                       custom, 95
+    routing and, 298                           user and customer attributes, 101-103
+    unified storage model and, 460             user-agent attributes, 94-95
+ASOF JOIN, 252                                 versioning attributes, 92
+async requests, 98-99                       automatic instrumentation, 29, 54, 118
+    attributes, 98-99                          attributes, 95
+attribute capture                              context management, 116
+    async requests, 98-99                      RPCs (remote procedure calls), 382
+    build information, 89-90                   serverless and, 122
+    caching, 105                               versus custom, 55-56
+    customer information, 101-103           averages, 67
+    errors, 99-101
+    feature flags, 91
+    filtering attributes, 110
+                                            B
+                                            balancing loops, 439-440
+    HTTP information, 93-95                    cost, 444-446
+         route parameters, 96-97               incident involvement, 444
+    localization attributes, 105               usage, 444-446
+    metric attributes, 107-108              behavioral patterns, 420-421
+    rate limits, 103-105                    Bigtable, 221, 222-223
+    service metadata, 86-89                 Bindplane, 293, 294
+    specific applications, 110                 OTel Collector, 301
+    timings, 97-98                             resilience, 299
+    uptime attributes, 106-107                 scaling, 302
+    user information, 101-103                  telemetry adoption phases, 304
+    versioning attributes, 92               blackfield code, 461
+attributes                                  Bloom filters, 256
+    async request attributes, 98-99         blue-green deployments, 32
+    build attributes, 89-90                 bottlenecks, 254
+    caching attributes, 105                    fleet-wide profiling, 376
+    custom header attributes, 95               removing, 338
+    error information attributes, 100       brownfield code, 461
+    feature flag attributes, 91             build attributes, 89-90
+    filtering attributes, 110               build observability ROI, 328
+    HTTP information, 93                    build system attributes, 89-90
+    infrastructure attributes, 87-88        build times case study
+    localization attributes, 105               bottlenecks, 338
+    map, 77-79                                 data transfers, 338
+
+
+
+
+582   |   Index
+   Docker Bake, 338                               cost growth caps, 46
+   network fetches, caching, 339                  events, 216
+   parallel builds, 338                           explosions, 218, 445
+   steps, 338                                     high cardinality, 14, 26, 29, 41, 234
+building                                              ClickHouse, 240-241
+   benefits, 522                                      data, 44
+   biases, 508-509                                    event data, 215
+   business value, 511                                Honeycomb, 397
+   buy and build option, 528-530                  metric, 60
+   commercial software                            shared attribute keys, 561
+       hidden costs, 524-527                      tagging, 152
+       risks, 527-528                             tracing data, 385
+   costs, free software, 521-522                  TSDBs, 218
+   framework for evaluation, 510                  unified storage model, 460, 470
+       build quadrant, 512                     CAS (Cluster Autoscaler), 378
+       business value (horizontal axis), 511   case studies
+       buy quadrant, 512                          build times at Honeycomb, 336-340
+       decide quadrant, 513-514                   Fin, 404-415
+       examples, 515-517                          Retriever implementation, 224-237
+       patterns, 517                              SLO-based alerts culture change, 181-184
+       should not exist quadrant, 512          Cassandra, 220, 237
+       ubiquity (vertical axis), 511           CD (continuous deployment), signal parity,
+   hate money path, 508                           319-321
+   hate time path, 508                         change actions, 429
+   open source code, 517                          observability as a platform, 430
+       framework, 518-520                         observability as investment, 430
+   risks, 523-524                                 tools, 430
+   staff+ engineering incentives, 513             workflow engineering, 430
+   versus buy, 507                             CI (continuous integration), 333
+burn alerts                                       deterministic layer, 318
+   acting on, 210-212                             incrementality, 335-336
+   linear extrapolation, 203                      ontologies, team workflow, 319
+buy and build option, 528-530                     semantic layer, 319
+                                                  simulation layer, 319
+C                                              CI/CD (continuous integration/continuous
+                                                  deployment), 327
+caching
+   attribute caching, 105                         pipelines
+   ClickHouse cache, 247                              constraints, 333
+Callaghan, Mark, 535                                  developer feedback, 328
+canary deployments, 33                                instrumentation and, 330-331
+Cantrill, Bryan, 40                                   need for, 328
+capabilities, observability teams, 567-569            ontologies, 329-330
+capital expenditure purchasing model, 373             reproducibility, 334-335
+capture/replay, 35                                    SLIs, 331
+cardinality, 8                                 CircleCI, DLC (Docker layer caching), 338
+   arbitrary, 236-237                          ClickHouse, 215, 221
+   caps, 40                                       as backend, 240
+   cost, 355                                      caching, 247
+
+
+
+
+                                                                                Index   |   583
+   Cloud, 271                         ColumnIO, 221, 223
+   clusters                           columns
+       multiregion, 269-270               materializing, 257-258
+       single-region, 268-269             scanning, 244
+   data collection                    compaction, 222, 241, 459
+       exporter, 248                  complex joins, ClickHouse, 252-254
+       Kafka, 249                     compliance
+       OpenTelemetry collector, 248       instrumentation and, 566-569
+       S3Queue, 249                       SLO, 196
+   data modeling                          telemetry pipelines, 297-309
+       vertical scaling, 255-261      compute platforms, 373-375
+   HyperDX, 250                       confidence loop, 442
+   Keeper, 263                        constant-probability sampling, 277
+   MergeTree, 240-243                 Container Storage Interface (CSI), 379
+   overview, 239                      context propagation, 119
+   primary keys                           interprocess propagation, 115
+       design, 246-247                    intraprocess propagation, 115
+   queries                            context, AI agents and, 169-171
+       complex joins, 252-254         context-aware burn alerts, 206-208
+       log event filtering, 243-244   contract tests, 28
+       Map datatype, 245-246          control plane, 299
+       simple queries, 250-251            real-time, 356
+       structured logs, 245               telemetry pipelines, 300
+   replication, 263-267               controllability, 4
+   scaling                            Conway's law, 118
+       horizontal, 263-271            core analysis loop, debugging from, 139-140
+       vertical, 254-262                  brute-force, 141-144
+   sharding, 267-268                  cost centers, 475, 480
+   SharedMergeTree, 270-271           cost optimization
+   skip indexes, 255-257                  applications and, 382-388
+   visualization, 272                     cloud providers, 380-381
+   workloads, 272                         fleet-wide, 375-376
+cloud computing, 41                       infrastructure purchasing models, 373-375
+   cold starts, 380                       Kubernetes, 376-380
+   Google Cloud, 181, 232                 signal types, 385-388
+Cluster Autoscaler (CAS), 378         costs, 46-47
+clusters                                  free software, 521-522
+   multiregion, 269-270                   software cost model, 572-573
+   single-region, 268                 CPU profiling tools
+code                                      cost optimization and, 383-385
+   deletion test, 574                 critical path, 23-24
+   disposable, 22                     critical user journeys, 57-58
+   durable, 21-22                     CSI (Container Storage Interface), 379
+   instrumentation, 29-30             CTOs (chief technology officer) open letter,
+   maintenance horizon, 22-23             420-431
+   production quality, 23-24          custom header attributes, 95
+   testing, 28
+column-based storage, 221
+
+
+
+
+584   |   Index
+D                                                debugging
+DAG (directed acyclic graph), 79, 331-332, 384       core analysis loop, 139-140
+dashboards                                               brute-force, 141-144
+   static, 14                                        first principles, 138-144
+   visibility and, 299                               hypothesis-driven, 139-140
+data                                                 known conditions, 136-138
+   high-cardinality, 44                              microservices and, 152-153
+   high-dimensionality, 44                           mobile and web apps, 344
+data collection                                      runbooks, 136
+   ClickHouse, 248                                   samples and, 276
+        Kafka, 249                                   tracing, 73-74
+        S3Queue, 249                                 visualizations and, 140
+data lifecycle management, ClickHouse,           deduplication, 297
+   261-262                                       defined capacity purchasing models, 373
+data modeling                                    dependencies, 22
+   column materialization, 257-258               deploys
+   merge tables, 259-261                             agent + gateway, 302
+   projections, 258                                  agent-only, 302
+   skip indexes, 255-257                             blue-green, 32
+   views, materialized, 258-259                      canary, 33
+data normalization, telemetry pipelines,             feature flags and, 30-31
+   296-297                                           Kubernetes and, 377
+data patterns, AI agents and, 166                    rolling, 33
+data refinement, sampling and, 275-276               telemetry pipelines, 301-302
+data resilience, telemetry pipelines, 295, 298   developer feedback loops, working investment,
+data sampling, 60-62                                 482
+data storage, 12                                 developer intent, 16
+   (see also unified storage model)                  validating, 19-36
+   Bigtable, 221                                 developer learning loops, 480
+   column-based, 221                                 agentic workflow, 462
+   ColumnIO, 221, 223                                business case, 469-474
+   Dremel, 221, 223                                  external measures, 471-473
+   mobile and web apps, 354-357                      internal measures, 473-474
+   partitioning by timestamp, 224-226            developers
+   raw events, 44                                    future of, 571
+   row-based, 221                                    testing loop, 423-424
+        Bigtable, 222-223                        development cycle
+   segmentation, 226                                 AI application data, 398-400
+   sharding, 223                                     observability in, 150
+   tiering, 232                                  dimensionality, 15
+databases (see TSDB (time-series database))      directed acyclic graph (DAG), 79, 331-332, 384
+datastores, 237                                  disposable code, 22
+   (see also data storage)                       distributed tracing (see tracing)
+   building, 237                                 DLC (Docker layer caching), 338
+datatypes                                        Docker Bake, 338
+   for telemetry, 53                             Docker layer caching (DLC), 338
+   three pillars model, 64                       Dremel, 221, 223
+DAU (daily active users), 345                    durability, 234-237
+
+
+
+
+                                                                                   Index   |   585
+durable code, 21-22                                 testing and, 32
+dynamic rate sampling, 288-290                 feedback loops, 14, 35
+dynamic sampling, 279                               amplifying, 439
+                                                        confidence loop, 442
+E                                                       learning accumulation loop, 442-443
+                                                        system quality loop, 444
+eBPF (extended Berkeley Packet Filters),
+    123-124, 384                                    balancing, 439-440
+elastic capacity purchasing models, 373                 cost, 444-446
+Elasticsearch, 220, 237                                 incident involvement, 444
+ELK (Elasticsearch, Logstash, and Kibana)               usage, 444-446
+    stack, 521, 529                                 building, 428-429
+end-to-end tests, 28                                developer learning loops, 480
+enrichment, telemetry pipelines, 297                    business case, 469-474
+error budget                                            external measures, 471-473
+    alerts, 195-197                                     internal measures, 473-474
+    over expenditures, 198                              working investment, 482
+    predictive burn alerts, 201                     developers and production, 26-27
+        baseline window, 209-210                    negative, 439-440
+        context-aware, 206-208                      operational, 453-455
+        lookahead window, 202-208                   operational loops, 480
+        short-term, 204-206                             business case, 467-469
+    relative burn alerts, 200-201                       firefighting trap, 480-481
+    threshold-crossing alerts, 199-200                  operational instability and, 468-469
+error information attributes, 100                       three pillars model, 467
+errors                                                  unified model, 468
+    AI agents and, 166                                  working investment, 482
+    attribute capture, 99-101                       partial, 446-448
+events                                              prioritizing, 465-467
+    as database record, 64                          software delivery systems, 441-448
+    JSON objects, 64                                software development, 452-453
+    sampling, 276                                   systems thinking and, 438-441
+    sampling and, 278-279                           value creation and, 456-459
+    structured, 64                             filesystem cache, 248
+extended Berkeley Packet Filters (eBPF) (see   filters
+    eBPF (extended Berkeley Packet Filters))        attributes, 110
+                                                    Bloom filters, 256
+                                                    eBPF (extended Berkeley Packet Filters),
+F                                                       123-124
+failure modes, 97, 164                              telemetry pipelines, 297
+    AI agents, 401                             Fin (AI agent), 404
+    distributed systems, 176                        empathy, 413-415
+    known-unknowns, 176                             resolution rate, 404-405
+fault detection, 7                                  speed, 405-406
+feature flag attributes, 91                         speed increase, 409-411
+feature flags                                       time to first token, 406-408
+    attribute capture, 91                      firefighting trap, operational loops, 480-481
+    deploys, 30-31                             first principles, debugging from, 138-144
+    releases, 31                               fixed-rate sampling, 281
+
+
+
+
+586   |   Index
+fleet-wide cost optimization, 375-376              I
+fleet-wide profiling, 376                          incident response
+                                                       AI agents, 166
+G                                                      operational information, 105-110
+GDPR (General Data Protection Regulation),             questions for, 58
+   539                                             incrementing
+General Data Protection Regulation (GDPR),             CI (continuous integration), 335-336
+   539                                                 materialized views, 258
+generative AI                                      index scanning, 244
+   analysis automation, 144-147                    InfluxDB, 220
+   SLOs and, 184-191                               infrastructure attributes, 87-88
+golden data, 393                                   instrumentation
+Google Cloud, 232                                      agentic AI and, 157
+governance                                             AI agents, 128-131
+   self-governance, 449                                automatic, 55-56, 118
+   telemetry pipelines, 297                            CI/CD process, 330-331
+Grafana Tempo, 220                                     cost, 60
+greenfield app, telemetry pipeline adoption, 304       custom, 55-56
+guardrails, 17                                             critical user journeys, 57-58
+                                                       manual, 347
+                                                       mobile and web apps, 346-348, 350
+H                                                          architecture, 351-352
+hallucinations in AI, 146
+                                                       observability teams, 557
+head sampling, 126
+                                                           frameworks, 562-563
+heroics, 33, 199, 502-504
+                                                           identifiers, 561
+    honoring heroes, 495
+                                                           secure environments, 565-569
+    legacy observability, 489
+                                                           security teams, 561
+    required, 499
+                                                           semconv (semantic conventions), 559
+Hidalgo, Alex, 179, 188, 199, 210
+                                                           telemetry schemas, 559-562
+high-cardinality data, 44
+                                                           tools, 562-563
+Honeycomb, 39-48
+                                                       OTel, 54
+    BubbleUp, 97, 141-142
+                                                       overview, 52
+    build times case study, 336-340
+                                                       ownership, 56-57
+    debugging, 137
+                                                       pipelines, 59
+    MCP (Model Context Protocol), 397
+                                                       POC (proof of concept) and, 551
+    Query Assistant, 399
+                                                       quality, 153-155, 166-167
+horizontal scaling
+                                                       scaling and, 59
+    multiregion cluster, 269-270
+                                                       serverless architecture, 122
+    replication, 263-267
+                                                       volume, 60
+    sharding, 267-268
+                                                   integration test, 28
+    SharedMergeTree, 270-271
+                                                   interprocess propagation, 115
+    single-region cluster, 268-269
+                                                   intraprocess propagation, 115
+HTTP information attributes, 93
+                                                   investment, diagnosing, 479-484
+    route parameters, 96-97
+                                                   investments versus cost centers, 475
+HyperDX, 250, 272
+hypothesis-driven debugging, 139-140
+                                                   J
+                                                   Jaeger, 220
+
+
+
+
+                                                                                    Index   |    587
+JFR (Java Flight Recorder), 384                     task evals, 393
+joins                                               telemetry design, 395-396
+    complex, ClickHouse, 252-254                localization attributes, 105
+    Retriever, 231                              log files, 68
+JSON                                            log-structured merge-tree (LSM tree), 241
+    ClickHouse, 246                             logs, 10, 53, 68
+    object events, 64                               as structured data, 69
+    structured events, 81                           converting to distributed traces, 76-81
+    structured logs, 70                             parsers, 70
+                                                    structured, 70-71
+K                                                   timestamps, 76
+                                                    tracking operations, 71-72
+Kafka, 249
+keys                                            LSM tree (log-structured merge-tree), 241
+   sampling and, 278-279
+   sampling by, 287-290                         M
+known-unknowns, 45                              maintenance horizon, 22-23
+   threshold-based alerting, 175-178            Majors, Charity, 39-48
+Kubernetes                                      manual instrumentation, 347
+   CAS (Cluster Autoscaler), 378                MCP (Model Context Protocol), Honeycomb,
+   cost optimization, 376-380                      397
+   deploying with, 377                          mean time to detect (MTTD), 469
+   logging data, 378                            mean time to repair (MTTR), 253
+   resources consumed, 379                      measurement, 66
+                                                mental model of production, 168-170
+L                                               MergeTree, 240
+                                                   inserts, 241-243
+large language models (LLMs) (see LLMs (large
+    language models))                              ReplicatedMergeTree, 263
+layered telemetry, 125-127                         SharedMergeTree, 270-271
+learning, 481                                      table engines, 241
+learning accumulation loop, 442-443                tables, 240
+legacy observability, 12                           user-defined keys, 241
+    testing                                     metric attributes, 107-108
+        arbitrary question test, 490            metrics, 10, 53
+        deployment confidence test, 490-491        aggregation, 66-68
+        mystery test, 489-490                          TSDBs, 218
+        ownership, 488-489                         attributes, 66
+        two or three people, 489                   definition, 65
+linear extrapolation, burn alerts, 203             exemplars, 120
+LLMs (large language models), 128, 391             measurements, 66
+    AI agents and, 162                             names, 65
+    auto-instrumentation and, 29                   overview, 65-66
+    evaluations, 393-395                           span metrics, 126
+    golden data, 393                               timestamps, 65
+    observability importance, 392-393              type, 66
+    prompts, 392                                microservices, debugging and, 152-153
+    question evals, 393                         mobile and web apps
+    SLI crafting, 186-188                          aggregation, 344
+                                                   debugging and, 344
+
+
+
+
+588   |   Index
+  domains and, 348-353                          overview, 3
+  food delivery app, 363-366                    shifting left, 155
+  instrumentation, 346-348, 350                 software dependability and, 6-7
+       architecture, 351-352                    terminology, 4
+  performance tests, 345                        traditional, 12
+  production analytics, 345                  Observe Inc., 220
+  real-time control, 354-357                 OCB (OpenTelemetry Collector Builder), 563
+  sandboxes, 352-353                         ontologies
+  storage, 354-357                              AI proposal, 323
+  user-focused observability, 359-363           AI sandwich architecture, 321
+       iterative analysis, 363-366              CD (continuous deployment)
+  UX (user experience) quantification,              signal parity, 319-321
+       361-362                                  CI (continuous integration)
+Model Context Protocol (MCP), Honeycomb,            deterministic layer, 318
+  397                                               semantic layer, 319
+modern observability                                simulation layer, 319
+  testing                                           team workflow, 319
+       arbitrary question test, 490             CI/CD process, 329-330
+       deployment confidence test, 490-491      designing, 313-318
+       mystery test, 489-490                    deterministic comparison, 323
+       ownership, 488-489                       deterministic core, 316-317
+       two or three people, 489                 entities, 314
+Monitorama, 41                                      defining, 314
+monolithic systems, 7                           invariants, 314
+Morrell, Jeremy, 64                                 defining, 314-315
+MTTD (mean time to detect), 469                 metadata, 316-317
+MTTR (mean time to repair), 253                 observability role, 312-313
+multi-tier topology, 302                        schema, 316-317
+                                                semantic conventions, 314
+N                                               semantic grammar, 315
+                                             open source code, 517
+negative loops, 439-440
+nondeterminism, 42                              framework, 518
+NoSQL databases, 220                                acquire quadrant, 520
+                                                    adopt quadrant, 519
+                                                    avoid quadrant, 519
+O                                                   commission quadrant, 520
+OBI (OpenTelemetry eBPF Instrumentation),           create quadrant, 519
+   124                                       OpenTelemetry (OTel) (see OTel (OpenTeleme‐
+observability                                   try))
+   applications, 4-7                         OpenTelemetry Collector Builder (OCB), 563
+   as a platform, 430                        OpenTelemetry eBPF Instrumentation (OBI),
+   as investment, 430                           124
+   as property of software system, 5         operational feedback loops, 453-455
+   control theory definition, 44-45          operational information, 105-110
+   defining, 41-42                           operational loops, 480
+   future of, 571-579                           business case, 467-469
+   investment (see investment)                  choosing best one, 462
+   legacy, 12                                   firefighting trap, 480-481
+
+
+
+
+                                                                            Index   |   589
+   three pillars model, 460, 467                     building a practice, 372-373
+   unified model, 468                                infrastructure purchasing models, 373-375
+   working investment, 482                       persistent data, 24
+optimization                                     pipelines (see telemetry pipelines)
+   tables, 255-261                                   instrumentation and, 59
+orchestration attributes, 88                     platform as a service (PaaS), orchestration
+organizational shift                                 attributes, 88
+   coalition formation, 494-496                  POC (proof of concept), 550-556
+   expansion, 501                                positive loops, 439
+   mandate, 496-498                              pre-aggregation, 14
+   observability team, 502-505                   predictive burn alerts, 201
+   platform engineering, 500                         baseline window, 209-210
+   resistance, 491-494                               lookahead window, 202-208
+   strategies, 499-502                                   context aware, 206-208
+   testing legacy versus modern observability,           short-term alerts, 204-206
+       488-491                                   product analytics, 345
+   wins, 500                                     production complexity, 42-43
+OTel (OpenTelemetry), 51, 54-55                  production quality code, 23-24
+   AI agents and, 127-131                        profiling
+   collection step, 296                              DAG (directed acyclic graph), 384
+   Collector, 248, 301                               eBPF (extended Berkeley Packet Filters),
+       as DaemonSet, 377                                 384
+   design, 125-127                                   Go binaries, 383
+   instrumentation, 54                               JFR (Java Flight Recorder), 384
+   layered telemetry, 116                            scaling, 384
+   metric exemplars, 120                         progressive delivery, 32-34
+   modeling for LLMs, 395                            blue-green deployments, 32
+   semantics, 125-127                                canary deployments, 33
+   trace-first telemetry, 115-124                    rolling deployments, 33
+   Weaver, 559                                   prompts (LLMs), 392
+                                                 proportional extrapolation, 205
+P
+P99 latency metric time series, 81-83            Q
+parallel builds, 338                             queries
+parallelism, 233-234                                AI agents, 164-165
+parent-child spans, 74                              ClickHouse
+parsers, 70                                             complex joins, 252-254
+parsing                                                 log event filtering, 243-244
+   normalization, 296                                   Map data type, 245-246
+   payload parsing, 97                                  profiling, 254
+partial feedback, 446-448                               simple queries, 250-251
+partitioning                                            structured logs, 245
+   by timestamp, 224-226                            Retriever, 228-230
+   segment partitioning, 225                            ad hoc values, 230
+partitions                                              real-time queries, 232
+   Kafka partitions, 234                                traces, 230
+   pruning, 244                                  Query Assistant (Honeycomb), 399
+performance engineering, 369-372                 query cache, 247
+
+
+
+
+590   | Index
+query condition cache, 247                           data refinement, 275-276
+question evals, LLMs, 393                            debugging and, 276
+                                                     dynamic, 279
+R                                                    dynamic rates, 288-290
+                                                     event content (keys), 278-279
+RAG (retrieval augmented generation), 185
+Rasmussen safety model, 413-414                      events, 276
+rate limits, 103-105                                 fixed-rate, 281
+rate, error, duration (RED) metrics, 118             head sampling, 126
+real user monitoring (RUM), 344                      rate
+reciprocity principle, vendors, 544                      recording, 281-282
+RED (rate, error, duration) metrics, 118                 static, multiple, 286-287
+reinforcing loops, 439                               target-rate, 284-286, 287-288
+relative burn alerts, 200-201                        telemetry pipelines, 298
+replication, 263-267                                 trace spans, 279-280
+    Keeper, 264                                      traffic volume, 278
+request and execution flow, 92-101               scaling, 234-237, 376-378
+reserved capacity purchasing models, 373             horizontal
+retrieval augmented generation (RAG), 185                multiregion cluster, 269-270
+Retriever, 215                                           replication, 263-267
+    cardinality, 234                                     sharding, 267-268
+    durability, 234-237                                  SharedMergeTree, 270-271
+    implementation case study, 224-237                   single-region cluster, 268-269
+    joins, 231                                       instrumentation and, 59
+    partitioning by timestamp, 224-226               telemetry pipelines, 302
+    queries                                          vertical, 254
+        ad hoc values, 230                               data lifecycle management, 261-262
+        real-time, 232                                   data modeling, 255-261
+        traces, 230                                      profiling queries, 254
+    query workloads, 228-230                     schemas, 126
+    scaling, 234-237                                 telemetry schemas, 559-562
+    segmentation, 226                            Scuba, 43, 220
+rolling deployments, 33                          ScyllaDB, 220
+root spans, 74                                   SDLC (software development lifecycle), 16
+route information attributes, 96-97                  SLOs and, 184
+row-based storage, 221                           security
+RUM (real user monitoring), 344                      instrumentation and, 565-569
+runbooks, 136-137                                    telemetry pipelines, 296-297
+                                                 segment partitioning, 225
+                                                 semantic conventions (semconv), 313, 314 (see
+S                                                    semconv)
+S3 (Simple Storage Service), 41, 232-234, 236,       metadata, 316-317
+    249, 338                                     semantic failures, 311
+S3Queue, 249                                     semconv (semantic conventions), instrumenta‐
+sampling, 60-62                                      tion and, 559
+    by key, 287-290                              serverless architecture
+    coding for, 280-291                              cost optimization and, 380-381
+    consistency, 283-284                             traces, 122-123
+    constant-probability, 277                    service attributes, 86-87
+
+
+
+
+                                                                                  Index   |   591
+service level indicators (SLIs), 179-180             observability as property, 6-7
+service level objectives (SLOs), 9               software development feedback loops, 452-453
+sharding, 223, 267-268                           software development lifecycle (SDLC), 16
+SharedMergeTree, 270-271                         Software Observability, 40
+shifting left, 155                               span metrics, 126
+short-term burn alerts, 204-206                  spans, 74
+signals                                              creation, 117
+    CD (continuous deployment), 319-321              traces, 79
+    cost optimization and, 385-388               stakeholders
+simultaneous multithreading (SMT), 375               communications to higher ups, 540-541
+skip indexes, 255-257                                engineering, 538
+SLAs (service level agreements), 546                 external
+SLIs (service level indicators), 179-180                 reciprocity principle, 544
+    CI/CD process, 331                                   relationship building, 542-543
+    LLMs and, 186-188                                    SLAs and, 546
+SLOs (service level objectives), 9                       vendor trust coefficient, 543-544
+    AI agents and, 168                               finance, 539
+    alerting and, 179-181                            internal
+        case study, 181-184                              credibility, 541
+    compliance, 196                                      trust, 541-542
+    error budget alerts, 195-197                     IT/Ops, 539
+    fixed windows, 197-198                           management, 539
+    generative AI and, 184-191                       procurement, 540
+    SDLC (software development lifecycle) and,       security, 539
+        184                                      stateless Lambda tracing, 123
+    sliding windows, 197-198                     storage (see data storage)
+SMT (simultaneous multithreading), 375           strace for microservices, 153
+SNMP (Simple Network Management Proto‐           strangler fig pattern, 35
+    col), 65                                     streaming architecture
+Snowflake, 220                                       traces and, 119-121
+sociotechnical debt, 421-426                     structured event data versus time-series data,
+sociotechnical systems, 435-438                      212-214
+    leverage points, 448-449                     structured events, 64
+    Trist system, 436                                logs, 68-72
+software                                             metrics, 65-68
+    buying versus vendor engineering, 536            structured log comparison, 71
+    commercial                                       traces, 72-81
+        benefits, 527                                wide, 85
+        financial costs, 524-525                 structured logs, 70-71
+        nonfinancial costs, 526-527                  ClickHouse, 245
+        risks, 527-528                                   Map datatype, 245-246
+    delivery, 20                                     structured events comparison, 71
+        ecosystem, 25                            system quality loop, 444
+    delivery speed, 156-157                      system views, 81-83
+    purpose, 20                                  systems thinking
+software delivery systems                            feedback loops, 438-441
+    feedback loops, 441-448                          information flows, 437-438
+software dependability, 5-6                          sociotechnical systems, 435-438
+
+
+
+
+592   | Index
+    virtuous cycles, 441                            enrichment and, 297
+                                                    filtering, 297
+T                                                   gateways, 300
+                                                    governance, 297
+tables
+    merge tables, 259-261                           lookups, 297
+    MergeTree, 240                                  normalization and security step, 296-297
+    optimization, 255-261                           pipeline control, 299-300
+    views, materialized, 258-259                    reduce step, 297-298
+target-rate sampling, 284-286, 287-288              route step, 298
+task evals, LLMs, 393                               sampling, 298
+task functions, evaluations, 393                    scaling, 302
+TDD (test-driven development), 149-150              stages, 295
+telemetry                                           standardization, 295
+    aggregation                                     use cases, 307-308
+        pre-aggregation, 14                     test-driven development (TDD) (see TDD
+    AI applications, 396-398                        (test-driven development))
+    as infrastructure versus product, 424-425   testing
+    as trainable skill, 559                         code, 28
+    business context, 101-105                       contract tests, 28
+    datatypes for, 53                               end-to-end tests, 28
+    layered, 116, 125-127                           feature flags and, 32
+    LLMs                                            integration tests, 28
+        designing for, 395-396                      legacy observability
+    logs, 10, 53                                         arbitrary question test, 490
+    metrics, 10, 53                                      deployment confidence test, 490-491
+    sampling and, 60-62                                  mystery test, 489-490
+    schemas, 559-562                                     ownership, 488-489
+    signals, 9                                           two or three people, 489
+    three pillars model, 9-12                       modern observability
+    traces, 10, 53                                       arbitrary question test, 490
+    unified storage model, 12-15                         deployment confidence test, 490-491
+    user context, 101-105                                mystery test, 489-490
+telemetry pipelines                                      ownership, 488-489
+    adoption phases, 304                                 two or three people, 489
+        agent redirection, 305-306                  performance tests
+        greenfield app, 304                              mobile and web apps, 345
+    agents, 300                                     unit testing, 28
+    aggregation, 298                            three pillars model, 460-460
+    build versus buy, 303                           operational loops, 467
+    business case, 308-309                      three pillars telemetry model, 9-12
+    collection step, 296                        threshold-based alerts, 136
+    control, 295                                    alert fatigue, 174-175
+    control plane, 300                              known-unknowns, 175-178
+    core functions, 295, 300                        threshold crossing, 199-200
+    cost, 295                                   tiered storage, 232
+    data resilience and, 295, 298               time series generation, 81-83
+    deduplication, 297                          time to first token, 406-408
+    deployment patterns, 301-302
+
+
+
+
+                                                                                  Index   |    593
+time-series data versus structured event data,   U
+    212-214                                      unified storage model, 460-461
+time-series database (TSDB) (see TSDB (time-        operational loops, 468
+    series database))                               telemetry, 12-15
+timestamps, 65                                   unit testing, 28
+    logs, 76                                     units, burn alerts, 204
+    partitioning by, 224-226                     unknown-unknowns, 45
+timing attributes, 97-98                         uptime attributes, 106-107
+tools, 25                                        user and customer attributes, 101-103
+    change actions, 430                          user experience, 178-179
+topology                                         user-agent attributes, 94-95
+    multi-tier, 302                                 custom, 95
+    service topology, 169                        userspace page cache, 248
+trace contexts, 79-81                            UX (user experience), 346
+trace-first correlation, 125-127                    mobile and web apps, 361-362
+trace-first telemetry, 113
+    interprocess propagation, 115
+    intraprocess propagation, 115                V
+                                                 value, measuring, 428
+traces, 10, 53
+                                                 variability, 150
+    AI agents, 166
+                                                 vendor engineering, 534-536
+    asynchronous architecture, 121-122
+                                                    company roadmap influence, 544-546
+    converting to from logs, 76-81
+                                                    POC (proof of concept, 550-556
+    eBPF (extended Berkeley Packet Filters),
+                                                    preparing for, 537-538
+        123-124
+                                                    reciprocity principle, 544
+    HTTP information, 93-95
+                                                    relationship building, 542-543
+        route parameters, 96-97
+                                                    skill building, 536-537
+    queries, Retriever, 230
+                                                    SLAs, 546
+    sampling and, 279-280
+                                                    stakeholders
+    serverless architecture, 122-123
+                                                        communications to higher ups, 540-541
+    spans, 79
+                                                        credibility, 541
+    stateless Lambda tracing, 123
+                                                        engineering, 538
+    trace spans, 74
+                                                        external, 542-546
+    waterfall visualization, 74
+                                                        finance, 539
+tracing
+                                                        IT/Ops, 539
+    ad hoc relationships, 252
+                                                        management, 539
+    async requests, 98-99
+                                                        procurement, 540
+    debugging and, 73-74
+                                                        security, 539
+    interdependencies and, 73
+                                                        trust, 541-542
+    libraries, 72
+                                                    transformation
+    streaming architecture, 119-121
+                                                        executive sponsor, 548
+traditional observability, 12
+                                                        OTel and, 550
+traffic splitters, 35
+                                                        scope, defining, 548
+traffic volume sampling, 278
+                                                        success criteria, 549
+Trist principle, 436
+                                                        threat perceptions, 549-550
+TSDB (time-series database), 10, 216, 217-218
+                                                    transformation scenarios, 547-550
+    aggregated metrics, 218
+                                                    vendor trust coefficient, 543-544
+                                                    versus buying software, 536
+
+
+
+
+594   |   Index
+versioning attributes, 92                   traces, 74
+vertical scaling, 254                    Weaver, 559
+    data modeling                        wide structured events, 85
+       column materialization, 257-258   windows of time
+       lifecycle management, 261-262        SLOs, 197-198
+       merge tables, 259-261             workloads, 272
+       projections, 258
+       skip indexes, 255-257
+       views, materialized, 258-259
+                                         Y
+                                         Yen, Christine, 39
+    profiling queries, 254
+virtuous cycles, 441
+visualization                            Z
+    ClickHouse, 272                      zero-level alerts, 198-199
+    debugging and, 140                      predictive burn, 201
+    HyperDX, 240, 250, 272                      baseline window, 209-210
+    Kubernetes cluster data, 377                lookahead window, 202-208
+                                            relative burn, 200-201
+                                            thresholds and, 199-200
+W
+waterfall visualizations
+
+
+
+
+                                                                        Index   |   595
+About the Authors
+Charity Majors is the cofounder and CTO of honeycomb.io. She pioneered the
+concept of modern observability, drawing on her years of experience building and
+managing massive distributed systems at Parse (acquired by Facebook), Facebook,
+and Linden Lab building Second Life. She is the coauthor of Observability Engineering
+(O’Reilly, 2022) and Database Reliability Engineering (O’Reilly, 2017). She loves free
+speech, free software, and single malt scotch.
+Liz Fong-Jones is a developer advocate, labor and ethics organizer, and site reliability
+engineer (SRE) with over two decades of experience. She is currently a technical
+fellow at honeycomb.io, and previously was an SRE working on products ranging
+from the Google Cloud Load Balancer to Google Flights. She lives in Vancouver, BC,
+with her wife Elly and partners, and in Sydney, NSW.
+George Miranda is the VP of marketing at InsightFinder AI. His devtools career
+includes Honeycomb, PagerDuty, Chef Software, and others. Previously, he spent
+15+ years building large-scale distributed systems in the finance and video game
+industries.
+Austin Parker is director of AI strategy at Honeycomb, where he works on AI-driven
+observability products and explores how AI is reshaping the way engineers under‐
+stand production systems. A cofounder of the OpenTelemetry project and member
+of its Governance Committee, Austin has spent over two decades building cloud
+native platforms and developer tooling. He is the author of Learning OpenTelemetry
+(O’Reilly, 2024), coauthor of Distributed Tracing in Practice (O’Reilly, 2020), and
+cochair of Observability Day at KubeCon. When he’s not writing or speaking, he’s
+probably cooking.
+
+Colophon
+The animal on the cover of Observability Engineering is a maned wolf (Chrysocyon
+brachyurus). Maned wolves are the largest canids in South America and can be found
+in Argentina, Brazil, Paraguay, Bolivia, and parts of Peru. Their habitat includes
+the Cerrado biome, which is made up of wet and dry forests, grasslands, savannas,
+marshes, and wetlands. Despite the name, maned wolves are not actually wolves but a
+separate species entirely.
+Maned wolves have narrow bodies, large ears, and long black legs that allow them to
+see above tall grasses as they run. They stand nearly 3 feet tall at the shoulder and
+weigh around 50 pounds. Much of their bodies are covered in a mix of black and
+long, golden-red hairs that stand straight up when danger is near. Unlike gray wolves
+and most other canid species that form packs, the maned wolf is solitary and often
+hunts alone. They are omnivorous and crepuscular, venturing out during dusk and
+dawn to prey on small mammals, rabbits, birds, and insects, and to scavenge for fruit
+and vegetables like lobeira, a small berry whose name means “fruit of the wolf.”
+Maned wolves live in monogamous pairs sharing a territory of 10 miles during the
+breeding season, which lasts from April to June in the wild. In captivity, maned
+wolves give birth to litters of one to five pups. Both parents have been known to
+groom, feed, and defend their young in captivity, but they are rarely seen with their
+pups in the wild. Pups develop quickly; they are usually considered fully grown and
+ready to leave their parents’ territory after one year. The maned wolf is classified as
+“near threatened” by the IUCN, mostly due to loss of habitat. Many of the animals on
+O’Reilly covers are endangered; all of them are important to the world.
+The cover illustration is by Karen Montgomery, based on an antique line engraving
+from Brockhaus Lexicon. The series design is by Edie Freedman, Ellie Volckhausen,
+and Karen Montgomery. The cover fonts are Gilroy Semibold and Guardian Sans.
+The text font is Adobe Minion Pro; the heading font is Adobe Myriad Condensed;
+and the code font is Dalton Maag’s Ubuntu Mono.
+

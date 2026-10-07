@@ -1,0 +1,761 @@
+                                                                          CHAPTER 28
+                                        The Organizational Shift
+
+
+                                    This chapter is contributed by Rick Clark,
+                                      Global Head of Cloud Advisory at UST
+
+
+                 A Note from Charity, Liz, George, and Austin
+ In the previous chapter, we looked at strategies for diagnosing your observability
+ investment.
+ If finance is pressuring you to justify your spending on observability, that’s not a bad
+ thing. Constraints are healthy. If your observability spend is a good investment, you
+ should be able to see results. If it’s not a good investment, you want to know this so
+ you can make a change.
+ The rest of this chapter is written from Rick Clark’s perspective.
+
+
+You’ve invested in observability. Dashboards are everywhere. All three pillars,
+checked: metrics, logs, traces. You’ve paid your vendors and staffed your teams. But
+when you look at your organization, the reality doesn’t match the promise.
+War rooms still happen. Correlation is still manual. Engineers ship code and have no
+idea if it works. You never deploy on Fridays. When something breaks, the same three
+people get pulled in because nobody else can figure out the tools. Customers discover
+bugs before you do. Mysteries persist so long that they become folklore.
+You spent millions. You hired and trained all the people. Your dashboards proudly
+display green. Why?
+Here is the uncomfortable truth: you have legacy observability masquerading as
+modern observability. You bought “observability” tools. You renamed teams from
+“monitoring” to “observability.” But the outcomes have not changed. You still cannot
+
+
+                                                                                        487
+trace a single user’s experience, debug problems you have never seen before, or
+answer a novel question from leadership.
+The label does not change the capability.
+This chapter is about recognizing that gap and building a path to close it. It demands
+a strategic dismantling of the status quo. In the sections that follow, I’ll define the
+tests to separate genuine observability from legacy monitoring that’s masquerading as
+modern tooling. I’ll then map out the human landscape, exploring how to neutralize
+the resistance response, recruit a coalition of allies, and secure the executive mandate
+for change. Finally, I’ll provide a tactical roadmap for building a dedicated team to
+establish a permanent organizational capability that can withstand the complexity of
+the AI-augmented future.
+
+Recognizing Legacy Masquerading
+as Modern Observability
+Before organizational change can happen, you need to see clearly where you actually
+stand. Not where the vendor says you stand. Not where your dashboards say you
+stand. Where the evidence says you stand. You need a clear diagnosis: do you have
+legacy monitoring masquerading as modern observability, or do you have the real
+thing? Not feelings or suspicions. Evidence.
+In this section, I’ll take you through five tests that can help reveal where you actually
+stand. Not feelings or suspicions. Evidence.
+
+The Ownership Test
+Ask any engineer, “After you merge code, how do you know whether it is working in
+production?” The responses reveal one of two realities:
+Legacy observability
+    Code goes into a black hole. You have no idea when it deployed. You have no
+    visibility into whether it is working. If it was terrible, someone might get paged
+    hours or days later. A customer might discover the bug months from now. The
+    news may eventually make its way back to you. Or not.
+Modern observability
+   Code goes live within minutes. You get a notification with a link showing your
+   build being canaried out. You watch key metrics in real time. If something
+   regresses, you see it immediately. If everything looks good, you watch your
+   change roll out with confidence.
+
+
+
+
+488   | Chapter 28: The Organizational Shift
+The real question this test asks: how much energy, prior knowledge, and creativity
+do you demand of every engineer just to understand the code they shipped? In
+organizations with legacy observability, understanding your own changes requires
+heroic effort. In organizations with strong observability, it is effortless.
+If the feedback loop does not exist, it does not matter how much software you build or
+buy. You are pouring water into a leaky bucket.
+
+The Two-or-Three People Test
+When an engineer needs to answer a question about production, do they pull up their
+tools, or do they turn and ask one of the two or three people who know how to use
+the tools? The responses reveal one of two realities:
+Legacy observability
+    Only a handful of senior engineers can effectively investigate production prob‐
+    lems. Everyone else is helpless. The tools are so complex, limited, or poorly
+    designed that only specialists with years of accumulated knowledge can use them.
+    When those specialists leave, the knowledge leaves with them.
+Modern observability
+   Sixty to eighty percent of engineers can independently investigate issues. The
+   tools make investigation accessible. Knowledge is encoded in the system rather
+   than in people’s heads.
+In large enterprises, this test reveals something worse than a skills gap. It reveals a
+structural vulnerability. Those two or three people are single points of failure across
+hundreds of engineers and thousands of services. They get pulled into every incident.
+They become bottlenecks for the entire organization. Then, they burn out.
+If your observability requires a firefighter, you do not have observability. You have a
+dependency on humans who will eventually leave.
+
+The Mystery Test
+Ask engineers directly: “What’s something weird about production that we just
+accept?” The responses reveal one of two realities:
+Legacy observability
+    Engineers accept shallow mysteries that persist for months. “We have a load spike
+    around midnight and do not know where it comes from.” “That job just fails
+    sometimes.” “Latency is higher on Tuesdays for some reason.” After spending
+    two days investigating without resolution, they learned to stop investigating odd
+    patterns. The mysteries become folklore. Nobody bothers asking why anymore.
+
+
+
+
+                                     Recognizing Legacy Masquerading as Modern Observability   |   489
+Modern observability
+   Mysteries become specific and investigable. Engineers will say, “We have a load
+   spike,” which becomes “The batch analytics job triggers 40,000 database queries
+   because the query plan changed.” Mysteries get solved, not accepted.
+You can surface this question in a team meeting, during an incident retrospective, or
+in one-on-ones. You could also search your chat history for phrases like “just does
+that sometimes” or “we never figured out.” Look at recent postmortems and count
+how many of them list the root cause as unknown or indeterminate. Check your
+runbooks for procedures that amount to “restart and hope.”
+The mystery test is particularly revealing in enterprises with long histories. Accumu‐
+lated folklore is a symptom of accumulated failure. Every mystery your organization
+has stopped investigating is evidence that your observability could not answer a
+question that mattered.
+Mysteries that persist are not mysteries. They are the shape of your blindness.
+
+The Arbitrary Question Test
+Give an engineer a question they have never been asked before. Something that
+requires slicing data by dimensions you did not preconfigure. For example, “Show me
+all failed checkout attempts from mobile users in California using version 2.3.1 of the
+app during lunch hour over the past week.” The responses reveal one of two realities:
+Legacy observability
+    They need to check if those dimensions were indexed. Probably not. They wait
+    for new indexes to build. Hours or days. They resort to manual log analysis.
+    Painfully slow. They give up and say, “We don’t track that combination.”
+Modern observability
+   They answer in under 60 seconds. The data exists. The query runs. The answer
+   appears. No one had to anticipate this question for it to be answerable.
+This test separates monitoring from observability. Monitoring answers questions you
+predicted. Observability answers questions you did not. In a world where novel
+problems are the norm, the ability to ask novel questions is not optional.
+If you can only investigate what you predicted, you cannot debug the unexpected.
+
+The Deployment Confidence Test
+Ask engineering leadership: “How much fear is there around deployments?” The
+responses reveal one of two realities:
+
+
+
+
+490   |   Chapter 28: The Organizational Shift
+Legacy observability
+    Deployments happen weekly or less. They require war rooms. Engineers are
+    genuinely afraid of breaking things. “Read-only Fridays” ban deployments before
+    weekends. Junior engineers are not allowed to deploy. Change Advisory Boards
+    exist to slow things down because slowing down is the only safety mechanism
+    anyone trusts.
+Modern observability
+   Deployments happen multiple times daily. They are automated and routine.
+   Engineers deploy confidently because they can see the impact of changes. Prob‐
+   lems are detected quickly. Rollbacks are fast. Fear is replaced by evidence.
+Fear is a signal. This test tells you that engineers do not trust their ability to see
+what their changes will do. They are not afraid of deploying. They are afraid of not
+knowing.
+If your engineers are afraid to ship, they are telling you they are operating in the dark.
+Listen to them.
+
+After the Tests
+The results of these five tests are not a scorecard. When an engineer cannot tell you
+whether their code is working, when the same three people get pulled into every
+incident, when midnight load spikes become folklore, you’re seeing evidence. You’re
+seeing failures that can be named.
+Closing those gaps is not about buying more tools or hiring more people. It is about
+changing how your organization thinks about production, who owns what, and what
+“good” actually looks like. That is organizational change.
+You will face resistance. Vendors will fight to keep their contracts. Existing teams will
+fight to keep their identities. Leadership will fight to avoid admitting that millions
+were spent on the wrong things. The test results are your answer to all of it. Evidence
+that cannot be dismissed as opinion. Language for a fight that is already underway.
+
+Understanding the Resistance
+The pushback you will face is not born of obstinacy. People resist because they have
+real incentives to protect, deep professional identities at stake, and legitimate fears
+about what change means for them. Any significant shift in how an organization
+operates triggers an automatic response designed to protect the status quo.
+The resistance has two dimensions. First, there is the organization itself (a system
+that reflexively protects its current state regardless of who is pushing for change), and
+second, there are the specific groups whose incentives make them natural sources of
+friction. Understanding both is the first step to navigating either.
+
+
+                                                            Understanding the Resistance   |   491
+The Organizational Immune Response
+Committees will form to “evaluate options” and slow-walk decisions until the initia‐
+tive loses momentum. Pilot programs will be quietly starved of resources, and then
+declared failures. Success criteria will be redefined so the current state qualifies.
+Someone will produce a report showing that everything is fine, actually.
+People aren’t being difficult for the sake of being difficult; it’s the organization’s
+subconscious attempt to protect its current state.
+Call attention to this dynamic, this antibody response, when you see it. “I notice
+we’re forming a committee to evaluate something we already know doesn’t work” is
+a sentence you may need to say out loud. The immune response defeats initiatives
+silently. By naming it, you transform a silent, automatic response into a visible,
+addressable problem. Naming it is how you fight back.
+The immune response takes different forms depending on where it originates. Know‐
+ing where it comes from makes it possible to address it.
+
+Why Legacy Vendors Fight
+Your legacy observability vendor is a business responding to the incentives of their
+own market. Their contracts renew automatically. Their sales teams are compensated
+for selling dashboards, storage tiers, and seat licenses, not for whether you can
+actually debug production. Their product roadmap was built around the legacy three
+pillars model because that is what the market bought for 15 years.
+To navigate this resistance, you must recognize their “hard sells.” They might offer a
+new AI feature as a magic bullet to fix the gaps in their underlying model. They might
+suggest that your lack of insight is a tier problem, not an architectural one (and you
+need their premium tier). They might suggest that you need professional services to
+“optimize your implementation.” They say the tools are fine; you are just using them
+wrong.
+They are not evil. (They are not even wrong.) Their incentives are simply misaligned
+with your goals. While they make money when you buy more, you succeed when you
+understand more. Those are not the same thing, and sometimes they are opposites.
+
+Why Existing Teams Resist
+The people who built and maintain your current observability infrastructure have
+rational reasons to be skeptical of change.
+Their identities are wrapped up in current tools. “I’m the Splunk person” is not
+just a job description. It is years of accumulated expertise, certifications, conference
+talks, and professional reputation. Asking someone to abandon that in favor of a
+brand-new tool is asking them to start over. It can feel like an existential threat.
+
+492   |   Chapter 28: The Organizational Shift
+This is vendor-silo alignment: when someone’s professional identity becomes insepa‐
+rable from a specific tool. It is not a character flaw. It is a rational response to how
+organizations reward and recognize people. Breaking it requires offering something
+better, not just demanding they abandon what they know.
+Their headcount is tied to maintaining current systems. If those systems go away,
+what happens to them? “Unified observability” sounds a lot like “fewer jobs” if you
+are not careful about how you talk about it.
+Existing teams have seen this before. The last modernization initiative. The one
+before that. Grand plans that stalled, got defunded, or declared victory without
+changing anything. Why should this time be different?
+And here is the thing: they are often right to be skeptical. Most tool consolidation
+efforts fail. Most transformation initiatives die quietly in committee. Their skepticism
+is earned through experience.
+Your job is not to overcome their resistance. It is to show them something different.
+Acknowledge that the odds are against you: most of these efforts have failed before,
+and they know it. Be honest that their jobs will change. Then be specific about what
+that means: their tool expertise does not become worthless, it becomes portable.
+Their headcount does not disappear, it shifts toward work that does not require
+heroics to sustain. The current effort is different not because you say so, but because
+you can show them evidence they helped gather.
+
+Why Leadership Is Skeptical
+Executives remember writing large checks for the existing observability stack. “We
+already invested millions in this stack” is not an excuse for not replacing it. It is
+a sunk cost that feels very real when someone proposes spending more money
+to replace what was supposed to solve this problem. For executives, replacing the
+current stack may feel like admitting a multimillion-dollar mistake.
+A vendor might suggest, “You just need to upgrade to the enterprise tier.” Executives
+can see the option as being cheaper and easier than admitting the whole approach
+was wrong. They also remember the last consolidation attempt. The one that was
+supposed to rationalize the tool sprawl and ended up adding three more tools to the
+pile.
+They are not wrong to be cautious. Your job is to show them that modern observabil‐
+ity is about capability—the ability to understand production—not about consolida‐
+tion or cost savings. Those might come later, but they are not why you are advocating
+for change. Connect observability to the outcomes they are already accountable for.
+Find the business results that are bleeding:
+
+
+
+
+                                                          Understanding the Resistance   |   493
+  • Revenue lost to outages in critical transaction flows
+  • Customer churn tied to reliability incidents
+  • Senior engineer salaries consumed by war rooms instead of product development
+  • Bugs discovered by customers instead of caught internally
+  • Release cycles slowed by deployment fear instead of accelerated by confidence
+
+When you can show that the current state is costing them something they’re already
+measured on, the conversation stops being about tools and starts being about risks
+they can’t afford to ignore.
+
+Why You Cannot Fight It Alone
+Since the immune response operates on an organization-wide scale, you cannot
+overcome it alone. You must transform individual frustration into collective power by
+recruiting others who recognize that the status quo is no longer sustainable.
+
+Building the Coalition
+To bypass the collective resistance to organizational change, you need allies, not
+supporters in principle, but people who feel the failure personally and have the
+standing to do something about it. The difference matters. Passive agreement doesn’t
+survive the first difficult meeting. What you need are people with skin in the game,
+credibility in the organization, and the willingness to spend political capital when it
+counts. So, where do you find them?
+
+Find the People Whose Pain Is Immediate
+Look for engineers who dread being on-call, not because they dislike responsibility,
+but because they know that only two people can actually debug anything. When they
+get paged, they are not responders; they are dispatchers, escalating to the same two
+seniors every time.
+Look for SREs who spend hours in war rooms doing correlation by hand: “Check the
+database dashboard. Now check the API dashboard. Now check the customer service
+tickets. Does anyone see a pattern?”
+Look for security teams that cannot trace access patterns across services, platform
+teams that cannot answer “What broke after that deploy?”, customer support that
+cannot explain to users what happened, and engineering managers whose teams
+refuse to ship on Fridays.
+These people already know something is wrong. They live it. You are giving them
+language and a path forward.
+
+
+494   | Chapter 28: The Organizational Shift
+Honor the Heroes Who Held It Together
+Before you successfully transition to modern observability, someone is keeping pro‐
+duction running. Probably several someones. They wrote the scripts that still execute
+at 3 a.m. They know which dashboard lies and which one tells the truth. They
+remember why that one service restarts every Tuesday and what happens if you let it
+skip.
+These people are not obstacles. They are organizational memory. The knowledge in
+their heads is not written anywhere, and you cannot buy it from a vendor.
+So it’s imperative that you include them in your transformation plans early. Not as
+an afterthought once you have your mandate, but during coalition building. Ask for
+their perspective. Learn what they have tried before and why it failed. Understand the
+constraints they navigate that nobody documented.
+I learned this the hard way. During a cloud modernization effort, I failed to include
+the principal network architect in early planning. In my head, he was a dinosaur
+attached to legacy. The champion of the old way. He represented everything I was
+trying to change, so I worked around him.
+This was a mistake.
+He controlled IP address allocation. When the work needed network resources,
+requests that should have taken hours took weeks. Approvals stalled. Questions
+multiplied. Everything ground to a halt.
+I had to go back, acknowledge my error, and give him the respect I should have
+offered from the start. Once he was genuinely included, once his expertise was valued
+rather than bypassed, the obstacles disappeared. He became an asset.
+It’s easy to cast the keepers of legacy systems as opponents. They slow things down.
+They ask hard questions. They keep raising failures you’ve never heard of. But that
+framing says more about your assumptions than their capabilities.
+The heroes who held things together have standing in the organization. They have
+relationships, institutional credibility, and control over resources you may not even
+know you need. If you exclude them, they can slow your work to a crawl without ever
+saying “no” directly. If you include them, their credibility becomes yours.
+This is not manipulation. It is recognition. They earned their standing by solving
+hard problems with inadequate tools. Honor that. The transformation you are plan‐
+ning does not erase what they built. It builds on it.
+
+
+
+
+                                                               Building the Coalition   |   495
+What Makes a Good Ally
+Pain is necessary but not sufficient. A good ally feels the pain personally, not
+abstractly. They are in the war rooms, not reading reports about them. They have
+credibility in the organization, which means people listen when they speak. They are
+willing to spend political capital, which is rarer than you think. And they will stay
+engaged through setbacks, because there will be setbacks.
+One committed ally beats 10 passive supporters. You need people who will show up
+to the difficult meetings and say the difficult things.
+
+Building the Case Together
+Once assembled, your coalition has one job: build the case that cannot be dismissed.
+This is evidence-gathering, not consensus-building. You are not trying to get every‐
+one to agree.
+Run the five tests together. Document the results. When the ownership test reveals
+that engineers have no idea if their code works, write that down. When the two-or-
+three people test shows that the same three seniors get pulled into every incident,
+write that down.
+Collect stories: the incident that took four hours because only two people could query
+the logs, the customer escalation where support had no way to see what happened,
+the deployment that went wrong and nobody knew for three days.
+Measure the burden: how many on-call escalations per week, how many hours spent
+in war rooms per month, what percentage of bugs are discovered by customers versus
+engineering.
+The point is to collect real stories that have meaning in your organization. When
+someone says, “I don’t think we have a problem,” the evidence says otherwise, and
+that is what converts your vision for change into the leverage needed to secure a
+formal mandate.
+
+Securing the Mandate
+Allies and evidence are necessary, but they are not enough to successfully change an
+organization. You need authority—the organizational power to make the new way
+mandatory, not optional. You need a mandate.
+A mandate means that new services get instrumented in the new way. This is not
+optional. New teams onboard to new standards; they aren’t grandfathered into legacy
+approaches. Legacy systems migrate on a published timeline, not “someday when we
+have time.”
+
+
+
+496   | Chapter 28: The Organizational Shift
+This makes the change a policy, not a suggestion. Without it, you are just adding
+another tool to the pile. Without it, teams will naturally default to whatever’s easiest,
+which is usually the legacy approach they already know. You need an organizational
+forcing function to change that.
+
+Sponsorship Versus Authority
+There is a difference between sponsorship and authority. Sponsorship means an exec‐
+utive says “I support this initiative” in meetings. Authority means that an executive
+can say “New services must use this approach,” and make it stick.
+Sponsorship without authority is theater. You will get polite attention in steering
+committees while nothing actually changes. Teams will nod along and then do what‐
+ever is easiest, which is whatever they were already doing.
+You need someone who can make the new way mandatory for new work. That is the
+minimum viable mandate.
+
+Finding the Right Executive
+The right sponsor is not necessarily the CTO. It is often the person who owns the
+pain most directly.
+It might be a VP of engineering who is tired of explaining incident costs to the board.
+It might be the head of SRE who owns MTTR and on-call burden metrics that are not
+improving despite years of investment. It might be a business leader who keeps asking
+“what happened?” and getting unsatisfying answers.
+Follow the pain upstream until you find someone with budget authority and organi‐
+zational patience. This is a multiyear journey; you need someone who will still care in
+year two.
+
+The Pitch That Works
+Securing a mandate requires more than a list of technical requirements; it requires a
+narrative that resonates with your leadership’s strategic goals. When you walk into the
+room, you are not pitching a tool; you are pitching risk reduction, capability building,
+and operational velocity:
+As risk reduction
+    “We cannot reliably debug production problems, and that risk is growing.”
+As capability building
+    “Only three people in the organization can effectively investigate incidents. That
+    is a single point of failure across hundreds of engineers.”
+
+
+
+
+                                                                 Securing the Mandate   |   497
+As burden reduction
+    “Our best engineers spend 30% of their time in war rooms. That is expensive
+    talent fighting fires instead of improving our products.”
+Do not frame it as tool consolidation, even if consolidation is a benefit. Consolidation
+efforts have a bad reputation because most of them fail. This is not about consolida‐
+tion, but about capability building.
+Do not lead with cost savings, even if savings will come. Cost-driven initiatives
+get cut when budgets tighten. Capability-focused work survives because it addresses
+problems that do not go away.
+If leadership fears writing another check that leads nowhere, open standards are
+the answer. Vendor-neutral instrumentation means the work your teams do today
+remains valuable regardless of which backend you choose tomorrow.
+If the executive cares about connecting system behavior to business outcomes, note
+that modern observability makes that possible. Legacy observability does not. You
+cannot measure what you cannot see.
+To succeed, your pitch must use the evidence you’ve gathered to prove that the
+current state is no longer an acceptable business risk.
+
+The AI Forcing Function
+Here is something leadership may not see yet: the transition to AI-assisted develop‐
+ment will break legacy observability entirely.
+AI coding assistants generate code faster than humans can instrument it. AI-driven
+systems make decisions that are difficult to trace with traditional logging. The
+volume, velocity, and complexity of AI-augmented software development will over‐
+whelm approaches built for human-speed workflows.
+Organizations that lack real observability, the ability to ask novel questions about
+production, will find AI acceleration makes them more fragile, not more productive.
+They will ship faster and understand less. That is not a competitive advantage; it is a
+liability.
+This is not a pitch for AI observability tools. It is a warning that the pressure on your
+current approach is about to increase dramatically. The sooner you build genuine
+observability capability, the better positioned you are for what is coming.
+Securing the mandate is the final piece that transforms your technical vision for
+change into an institutional priority. You are now in a phase where progress is
+measured by adoption rather than permission. Next, you need a plan to make the
+new way a reality.
+
+
+
+
+498   | Chapter 28: The Organizational Shift
+The Roadmap
+You have the diagnosis, the coalition, and now the mandate. The mandate creates the
+organizational authority that makes the new way required. But a mandate alone is
+not enough. Organizations that rely only on enforcement get compliance at best and
+sabotage at worst. Organizations that pair authority with a product mindset get gen‐
+uine adoption. Your goal is enthusiastic adoption. Engineers instrument thoroughly
+because you treated them like customers and listened to their needs, not because they
+were mandated to.
+You need a roadmap that provides the strategy for success and doesn’t collapse under
+its own weight. Approach implementation with a product mindset, focusing on depth
+over breadth and enthusiasm over compliance. Use the roadmap to build momentum
+incrementally by proving the value of observability.
+
+Start Small: One Domain, Full Depth
+Pick one business domain with a willing team. Not the most critical system, because
+you do not want that pressure. Not the most neglected system, because you do not
+want to fight technical debt while proving a concept. Pick something in the middle:
+important enough to matter, functional enough to instrument cleanly, with a team
+that wants to try something new.
+Instrument it completely. Wide events with full context. Request identifiers that flow
+across every service boundary. Enough cardinality to ask arbitrary questions.
+Do not do shallow instrumentation everywhere. Instead, do deep instrumentation
+somewhere. Your proof point needs to be undeniable, not broad.
+For success criteria, pay attention to whether questions that previously required a
+war room can now be answered with a query. If you can demonstrate that, you have
+something real. Protect this team and this proof point. It’s your ammunition for
+expansion.
+
+Pave the Path: Make the New Way Easier
+Adoption that requires heroics will fail. If instrumenting correctly takes a week of
+work per service, engineers will not do it. If the libraries are confusing, they will use
+them wrong or not at all.
+Build instrumentation libraries that developers actually want to use: golden paths
+where a few lines of code give you context that flows automatically across service
+boundaries, and defaults that are correct for 90% of cases.
+
+
+
+
+                                                                       The Roadmap   |   499
+The goal is to make the new way the path of least resistance. When the right thing is
+also the easy thing, adoption happens. When the right thing requires extra effort, it
+does not.
+
+Platform Engineering Principles
+Platform engineering thinking is critical to success here. Without it, observability
+teams become order-takers or, worse, enforcers. Both fail.
+The core principle: you have customers, and you must serve them. Developers. SREs
+who respond to incidents at 3 a.m. The security team tracing access patterns. Cus‐
+tomer support trying to understand what a user experienced. Leadership connecting
+system health to business outcomes.
+Each customer has different needs. Developers need fast feedback on their changes.
+SREs need quick paths to root cause. Security needs audit trails. Support needs cus‐
+tomer context. Leadership needs to understand how system behavior affects revenue,
+retention, and reputation. Your instrumentation and tooling must serve all of them,
+not just the loudest or most technical.
+This means your observability team operates like a product team. You research what
+your customers actually need, not what you assume they need. You build for their
+workflows, not dictate new ones. You gather feedback continuously and treat com‐
+plaints as data, not ingratitude. You measure success by adoption and satisfaction, not
+by features shipped or standards published.
+When any of these customers struggle with your tools, that is not resistance. That
+is a product failure. When teams find workarounds, that is feedback. The market is
+telling you something.
+One last principle: build as little custom software as possible. Your competitive
+advantage is not a better tracing library. It is making observability work for your
+organization. Use open standards and open source tools, like OpenTelemetry, where
+you can. Buy commodity capabilities. Build only what’s actually necessary, does
+not exist, or is a unique requirement of your business. Focus your energy on the
+integration, the developer experience, and the organizational change. That is where
+you add value.
+
+Demonstrate Wins: Rerun the Tests
+Remember those tests that reveal whether you have real observability or just moni‐
+toring with a new label? Run them again after six months into the transition:
+The ownership test
+    Do engineers now get feedback on their changes, or does code still disappear into
+    a black hole?
+
+
+500   |   Chapter 28: The Organizational Shift
+The two-or-three people test
+    Has the fire brigade expanded, or is it still the same three people?
+The mystery test
+    Are old mysteries getting solved, or just accumulating?
+The arbitrary question test
+    Can more engineers answer novel questions without escalating?
+The deployment confidence test
+    Are engineers less afraid to ship?
+These are the metrics that matter. Track them visibly. When they improve, make sure
+leadership sees the improvement.
+You can also track business-adjacent metrics if they apply: time to resolve customer-
+reported issues, hours spent in war rooms per incident, percentage of bugs discovered
+internally versus by customers. These are things organizations already measure. Con‐
+necting observability improvement to existing metrics makes the value concrete.
+Celebrate milestones. Do not declare victory. This is a long journey, and premature
+celebration invites complacency.
+
+Expand Deliberately
+With the mandate in place, new initiatives have modern instrumentation built in.
+Legacy migrates domain by domain, not as a big bang.
+Stop the bleeding before you heal the wounds. Every new service instrumented
+correctly is one fewer service you need to migrate later. Every team onboarded to new
+standards is one fewer team resisting change.
+Set expectations clearly. This is a multiyear journey, so treat it as an operational
+capability, not a project. Projects end; capabilities evolve. Organizations that try
+to transform everything at once usually transform nothing. But organizations that
+commit to sustained, incremental progress actually get somewhere.
+If you can influence budget, structure the transition as an incremental replacement.1
+Each year, a planned percentage shifts from legacy to modern. Year one might be
+10%. Year three might be 40%. This creates momentum that compounds and makes
+the transition inevitable rather than aspirational.
+Use your early wins to evangelize. Engineers who have benefited from modern
+observability become your best advocates. Let them tell their stories. Their credibility
+with peers exceeds yours.
+
+
+1 This is sometimes referred to as the “strangler pattern,” a violent but visceral (and memorable) turn of phrase.
+
+
+
+                                                                                           The Roadmap     |   501
+You will know you are done when the war rooms stop, when the mysteries get solved
+instead of named, or when engineers ship on Fridays without a second thought. The
+outcome is not about “better tools.” It is about comprehensively healthier sociotech‐
+nical systems that can execute swiftly with confidence.
+
+Building the Team
+The coalition got you the mandate. Now you need a team to make it real. Transfor‐
+mation requires people. Not just executive sponsors and coalition allies, but a team
+dedicated to making observability work. Their role is not to do observability for the
+organization. It is to make observability possible for everyone in it.
+
+What the Observability Team Owns
+The observability team does not exist to build dashboards for other people; they
+exist to build the platform that makes manual dashboarding obsolete. They own the
+platform. They build and maintain instrumentation libraries and SDKs. They define
+standards for what good telemetry looks like. They manage vendor relationships and
+tool selection. They own the developer experience for observability.
+What they do not own is instrumenting every service themselves. That does not scale.
+It is the quickest way to become a bottleneck. Their job is to make instrumentation
+easy enough that product teams can do it correctly without heroic effort.
+
+Capabilities of the Observability Team
+Effective observability teams require a mix of skills that span the full lifecycle of code,
+from commit to production incident. This is not a comprehensive list, and every
+company might implement this differently:
+Pipeline integration knowledge
+    Someone needs to understand CI/CD systems, deployment infrastructure, and
+    where telemetry gets injected automatically. This is the plumbing work that
+    makes instrumentation happen without requiring heroics from every product
+    team.
+Production expertise
+    Someone needs to have felt the pain of debugging at 3 a.m. They understand
+    which information actually helps during incidents, which queries answer real
+    questions, and which failure modes matter. Without this perspective, teams build
+    instrumentation that looks complete but misses what operators actually need.
+
+
+
+
+502   |   Chapter 28: The Organizational Shift
+Developer experience
+   Someone needs to care deeply about how engineers interact with observability
+   tools and libraries. Confusing SDKs get misused. Bad defaults propagate every‐
+   where. This is product work applied to internal tooling.
+Customer understanding
+    Someone needs to stay close to every audience the platform serves. Developers,
+    SREs, security, support, and leadership all have distinct needs and workflows.
+    The team that builds only for engineers will leave half its stakeholders under‐
+    served.
+Standards and architecture
+    Someone needs to define what good telemetry looks like across the organiza‐
+    tion: naming conventions, context propagation patterns, cardinality guidelines.
+    Without this, every team invents their own approach and nothing correlates.
+Vendor and tool strategy
+   Someone needs to own relationships with vendors, evaluate alternatives, and
+   make build-versus-buy decisions. The bias should be toward buying commodity
+   capabilities and adopting open standards. Custom code should be reserved for
+   genuinely unique requirements.
+Integration
+     Someone needs to make all the pieces work together in your specific environ‐
+     ment: connecting tools to workflows, adapting generic capabilities to local con‐
+     straints, and building the connective tissue that makes everything function as
+     a system rather than a pile of parts. This work is easy to undervalue but often
+     determines whether the platform succeeds or just exists.
+These capabilities do not map one-to-one to job titles. A single senior engineer
+might cover three of them, a larger team might have specialists in each, and a
+large enterprise may choose to have a small team of observability specialists backed
+by a multidisciplinary virtual team. The point is that all of these capabilities must
+exist somewhere. Gaps in any one will limit the success of your observability
+transformation.
+
+Bringing the Existing Team Along
+If you honored the heroes early, some of these engineers may already be in your
+coalition. They believed in the transformation before it had momentum. Now you
+need to define their roles in the new world. For the rest of the legacy monitoring and
+observability team, this is your best chance to convert them into supporters rather
+than detractors.
+
+
+
+
+                                                                 Building the Team   |   503
+Here is where most transformations fail: they treat existing monitoring teams as
+obstacles instead of assets.
+These engineers have skills you need. They understand production systems. They
+know where the bodies are buried. They have relationships across the organization.
+The question is not whether they are valuable; the question is what role fits their skills
+and interests in the new world.
+Simon Wardley’s model of pioneers, settlers, and town planners is useful here:
+Some engineers are pioneers.
+   They love greenfield work, new technologies, and building things that did not
+   exist before. These people will thrive in the early phases of transformation: build‐
+   ing new instrumentation, experimenting with approaches, and proving concepts.
+   Give them the uncharted territory.
+Some engineers are settlers.
+   They take what pioneers create and make it robust, scalable, and production
+   ready. Once your proof point exists, settlers make it real. They build the libraries,
+   harden the infrastructure, and create the documentation. They turn experiments
+   into platforms.
+Some engineers are town planners.
+   They optimize mature systems, reduce costs, improve efficiency, and keep things
+   running. As your new observability approach matures, town planners ensure
+   it stays reliable and cost-effective. They may also continue maintaining legacy
+   systems during the long migration, which is valuable work that keeps the organi‐
+   zation running.
+The failure mode is forcing pioneers to be town planners, or expecting town planners
+to be pioneers. Match people to phases of work that fit their skills and temperament.
+
+Breaking the Vendor Identity Trap
+Remember the identity problem? “I’m the Splunk person” felt like an identity because
+it was. Vendor-silo alignment is not just an organizational obstacle; It is a career trap.
+When someone’s expertise is bound to a proprietary tool, their value depends on that
+tool’s continued relevance.
+You break that attachment by offering something better: skills that are not trapped
+inside one vendor’s ecosystem.
+Open standards make this concrete. Engineers who learn OpenTelemetry are learning
+industry-wide patterns, not your organization’s idiosyncratic tooling. “I’m the Splunk
+person” becomes “I’m a telemetry architect,” a skill that travels with them regardless
+of which vendor comes next.
+
+
+
+504   |   Chapter 28: The Organizational Shift
+What Not to Promise
+When building the observability team, do not promise “No one’s job changes.” That
+is not true, and saying it destroys trust. Jobs will change. Some people will thrive
+in new roles. Some will find better opportunities elsewhere. Pretending otherwise
+insults everyone’s intelligence.
+Do promise: “We need your expertise, and here is how.” Be specific about paths
+forward: pioneers get new territory, settlers get scaling challenges, and town planners
+get optimization work. Everyone gets a path that uses their strengths.
+The goal is an organization where every engineer can see what their code does. The
+observability team exists to make that possible.
+
+Conclusion
+This is organizational change. It’s slow. It’s political. It’s worth doing anyway.
+You will face setbacks. Initiatives will stall when sponsors change roles. Budget cycles
+will squeeze your timeline. Champions will leave for other opportunities. Some pilot
+programs will fail, and skeptics will treat those failures as proof that transformation
+was never possible.
+Keep going.
+The organizations that succeed treat observability as a foundational capability, not
+a project. Projects end; capabilities evolve. Projects have deadlines; capabilities have
+roadmaps. Projects get funded once; capabilities get sustained investment.
+The goal is an organization that learns from production, not just survives it. That
+capability compounds over time. Teams with modern observability debug faster, ship
+more confidently, and burn out less. They spend their energy building instead of
+firefighting. That difference accumulates.
+Teams without modern observability have to hold war rooms, accept mysteries, and
+learn about problems from customers. They move cautiously because they cannot
+see. They exhaust their best engineers on incident response instead of product devel‐
+opment.
+This chapter helped you recognize the gaps. You now have the tests to diagnose them,
+the framework to understand resistance, and the roadmap to close these gaps. What
+remains is the commitment to sustained effort and the patience to see it through.
+In the next chapter, you will learn about how to decide which tools to use. Should you
+build your own, buy from a vendor, use open source, or use a custom mix of all three?
+
+
+
+
+                                                                            Conclusion   |   505

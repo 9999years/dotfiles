@@ -1,0 +1,1347 @@
+                                        2nd
+
+                                             ition
+
+
+Observability
+                                           Ed
+
+
+
+
+Engineering
+Achieving Production Excellence
+
+
+
+
+                                  Charity Majors,
+                                 Liz Fong-Jones
+                              & George Miranda
+                               with Austin Parker
+“This is as close to a guide to the software future we’re rushing toward as
+ you’ll get in a book without ‘AI’ in the title. It’s authentic, authoritative, and
+ literally covers everything—past, present, and future. Recommended.”
+    Niall Murphy, CEO, Site Reliability Engineering Limited
+
+“As AI accelerates software creation, production becomes the only place
+ where intent meets reality. This book shows how to build the feedback loops
+ that make that reality legible.”
+    Chad Fowler, general partner & CTO, BlueYard Capital
+
+
+
+    Observability Engineering
+    Production is not what happens after development ends; it’s a            Charity Majors is the
+    stage of development, and the most important one. The only way           cofounder and CTO of
+    to move swiftly with confidence is by building observability into        honeycomb.io and writes
+    every step, at every stage, and by validating your changes along         about software, systems, and
+    the way. As AI continues to radically reshape how software gets          management at charity.wtf.
+    built, that need has never been more urgent. In this second edition,
+    which is twice as long as the original and mostly new or rewritten,      Liz Fong-Jones is a technical
+    authors Charity Majors, Liz Fong-Jones, George Miranda, and              fellow at honeycomb.io, where
+    Austin Parker make the case for observability as a foundational          she’s an advocate for the SRE
+    practice of software development.                                        and observability communities.
+
+    This is a book for builders and technical decision-makers. Ten new       George Miranda is VP of
+    chapters for staff+ engineers, architects, and technical leaders cover   marketing at InsightFinder AI.
+    the strategic and organizational side. Four more chapters tackle         He has a strong background in
+    LLMs and AI agents, frontend observability, and open source tooling.     systems engineering, developer
+                                                                             relations, and marketing.
+    • Learn how to develop with observability,
+      whether you’re using AI or not                                         Austin Parker is director of
+    • Implement modern observability practices                               AI strategy at honeycomb.io and
+      across your organization                                               serves on the OpenTelemetry
+    • Make the business case and navigate                                    Governance Committee.
+      build versus buy decisions
+    • Maximize the cost-effectiveness of your
+      observability tooling
+    • Find answers fast when reliability is on the line
+
+
+    DEVOPS / SYSTEMS ENGINEERING
+
+
+
+    ISBN: 979-8-341-60841-2
+
+
+
+9    798341 608412
+                                                                   Let’s investigate
+
+                                                       How are my frontend services performing?
+
+
+
+
+   Observability for
+  what comes next_
+Honeycomb gives you all the context, speed and scale you need to
+       understand and debug your code at the pace of AI.
+
+
+
+                          START FOR FREE
+    Praise for Observability Engineering, Second Edition
+
+
+       Most enterprises still mistake observability for a monitoring dashboard. This book
+     proves it is a production intelligence layer. By tying telemetry to business outcomes,
+it explains why the dashboards stay green while the mysteries become folklore, and helps
+                     those who sign the checks understand exactly what they’re paying for.
+                                        —Rick Clark, Global Head of Cloud Advisory, UST
+
+
+             The best engineers understand what’s actually happening in production, not
+                   just the code they wrote. This matters more than ever in an AI-driven
+                              world, and this book is a treasure trove of guidance on how.
+                                                              —Darragh Curran, CTO, Fin
+
+
+ Observability gives our systems a voice, and as we hand the building over to agents, that
+   signal from production becomes the truest context for making sense of our creations.
+                  This book teaches it completely and humanely, from first principles up.
+                             —Annie Vella, Distinguished Engineer, Westpac New Zealand
+
+
+    This book! I feel seen. Observability Engineering is packed with battle-tested tools and
+    methodologies for building and implementing an effective observability program. If it
+   stopped there, it would be a great reference tome, but the last section—focusing on the
+  socio-technical barriers to implementing a clear-eyed observability program in existing
+organizations—is pure gold. Any SRE or Principal Engineer suffering in a broken, siloed,
+  or observability-starved organization will recognize the patterns Charity et al. describe.
+      When you are living it, it can be difficult to understand what is going on. This book
+            names the problem and gives you practical advice on how to face it together!
+                                    —Todd Beckett, Principal Software Engineer, Microsoft
+         Reliability of complex sociotechnical systems is as much a cultural movement as
+                 it is a systemic one. This book captures an accurate picture of the path to
+                             building solid systems, with teams that own the accountability.
+                                               —Alex Ewerlöf, CTO, Service Level Toolbox
+
+
+          Observability Engineering is audacious: it tackles the entire observability space.
+                         No matter what part of the tech stack you focus on, or where in
+                                              the org chart you sit, you’ll find value here.
+                                    —Lorin Hochstein, Staff Software Engineer—Reliability
+
+
+ This book was already a great reference for what observability is and how to implement
+      it. The second edition adds new chapters that dig deeper into the business case for
+observability, and the organizational changes that will allow you to be successful. Love it!
+                                  —Sarah Wells, technical engineering leader and author of
+                                                           Enabling Microservice Success
+
+
+    “The rise of LLMs has been polarizing: some (loudly!) proclaim the End of Software
+    Engineering, while others dismiss them as slop generators. The truth lies somewhere
+         in the middle. LLMs are an extraordinarily powerful tool, but one that must be
+  wielded carefully. That care requires observability of our software systems. This timely
+   second edition provides an expanded, updated foundation and also shows how LLMs
+        can be leveraged to enhance our systems for observability. The future is weirder
+                      than ever, but with the guidance in this book, it needn’t be opaque!”
+                                                    —Bryan Cantrill, cofounder and CTO,
+                                                             Oxide Computer Company
+                                         SECOND EDITION
+
+
+          Observability Engineering
+               Achieving Production Excellence
+
+
+
+
+Charity Majors, Liz Fong-Jones, and George Miranda
+                                  with Austin Parker
+Observability Engineering
+by Charity Majors, Liz Fong-Jones, and George Miranda, with Austin Parker
+Copyright © 2026 Hound Technology, Inc. All rights reserved.
+Published by O’Reilly Media, Inc., 141 Stony Circle, Suite 195, Santa Rosa, CA 95401.
+O’Reilly books may be purchased for educational, business, or sales promotional use. Online editions are
+also available for most titles (http://oreilly.com). For more information, contact our corporate/institutional
+sales department: 800-998-9938 or corporate@oreilly.com.
+
+Acquisitions Editor: Louise Corrigan                      Indexer: nSight, Inc.
+Development Editor: Rita Fernando                         Cover Designer: Susan Brown
+Production Editor: Beth Kelly                             Cover Illustrator: Karen Montgomery
+Copyeditor: Piper Content Partners                        Interior Designer: David Futato
+Proofreader: Sonia Saruba                                 Interior Illustrator: Kate Dullea
+
+May 2022:                First Edition
+June 2026:               Second Edition
+
+Revision History for the Second Edition
+2026-06-16:     First Release
+
+See http://oreilly.com/catalog/errata.csp?isbn=9781098179922 for release details.
+
+The O’Reilly logo is a registered trademark of O’Reilly Media, Inc. Observability Engineering, the cover
+image, and related trade dress are trademarks of O’Reilly Media, Inc.
+The views expressed in this work are those of the authors and do not represent the publisher’s views.
+While the publisher and the authors have used good faith efforts to ensure that the information and
+instructions contained in this work are accurate, the publisher and the authors disclaim all responsibility
+for errors or omissions, including without limitation responsibility for damages resulting from the use
+of or reliance on this work. Use of the information and instructions contained in this work is at your
+own risk. If any code samples or other technology this work contains or describes is subject to open
+source licenses or the intellectual property rights of others, it is your responsibility to ensure that your use
+thereof complies with such licenses and/or rights.
+This work is part of a collaboration between O’Reilly and Honeycomb. See our statement of editorial
+independence.
+
+
+
+
+979-8-341-60841-2
+[LSI]
+                                                                                        Table of Contents
+
+
+Foreword. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . xxiii
+
+Preface. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . xxv
+
+
+Part I.          Introduction to Observability
+  1. What Is Observability?. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 3
+       The Origins of Observability                                                                                                             4
+       Applying Observability to Software Systems                                                                                               4
+        Properties of Software Dependability                                                                                                    5
+        Observability Is a Property of Dependable Software                                                                                      6
+       How Observable Is Your Software?                                                                                                         7
+       Two Competing Models for Telemetry: Three Pillars Versus Unified Data                                                                    9
+        The Three Pillars Model                                                                                                                 9
+        The Unified Storage Model                                                                                                              12
+       Observability Is the Validation of Developer Intent                                                                                     16
+       The Agentic Incursion Has Just Begun                                                                                                    16
+       Guardrails Are Having a Moment                                                                                                          17
+       Conclusion                                                                                                                              18
+
+  2. How Code Crosses Over: Validating Developer Intent in Production. . . . . . . . . . . 19
+       What Makes Software Good?                                                                                                               20
+         Good Software Serves Its Purpose                                                                                                      20
+         Good Software Delivers Efficiently Over Time                                                                                          20
+       The Maintenance Horizon: Disposable Code Versus Durable Code                                                                            21
+         Durable Code Is a Model for Mutating and Maintaining Code in Place                                                                    21
+         Disposable Code Is a Model for Avoiding Maintenance Costs                                                                             22
+         The Maintenance Horizon Is Not Always Knowable Up Front                                                                               22
+       Production Quality Code Is a Function of Dependability                                                                                  23
+         Identifying the Critical Path                                                                                                         23
+         The Closer You Get to Persisting Data, the More Cautious You Should Be                                                                24
+
+
+                                                                                                                                                 vii
+       Development to Production: Tools for Crossing Over                                                        25
+        Practice 0: Give Yourself the Gift of Rich Data and Precision Tooling                                    25
+        Practice 1: Build a Feedback Loop Between Developers and Production                                      26
+        Practice 2: Test Your Code Before You Deploy It                                                          28
+        Practice 3: Instrument Your Code and Validate in Production                                              29
+        Practice 4: Decouple Deploys from Releases Using Feature Flags                                           30
+        Practice 5: Invest in Progressive Delivery, Canaries, Automated Rollbacks                                32
+        Bonus Practices: Traffic Splitters, Capture/Replay, Strangler Figs                                       35
+       Observability Is the Feedback Loop of Feedback Loops                                                      35
+       The Work of Development Is Not Done Until It’s Working in Production                                      36
+       Conclusion                                                                                                36
+
+  3. The Origins of Observability in Software. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 39
+       An Introduction from Charity                                            39
+       The Dominant Model of “Observability” Is Just Monitoring, Rebranded     40
+       We Lost the Fight to Define Observability                               41
+       Production Has Become Too Complex for Us to Debug Via Intuition         42
+       The Facebook Experience That Showed Us What’s Possible                  43
+       The Control Theory Definition Made It All Click                         44
+       The Modern Observability Landscape Is Confusing and Continues to Expand 45
+       Costs Are Driving the Need to Change, and AI Is Enabling That Change    46
+       Distilling the Lessons That Matter                                      47
+       Conclusion                                                              48
+
+
+Part II.        Instrumentation Fundamentals
+  4. Getting Started with Instrumentation. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 51
+       Instrumentation Basics                                                                                    52
+       The Vocabulary of Telemetry: Logs, Metrics, and Traces                                                    52
+       OpenTelemetry: The Universal Language for Observability                                                   54
+       Automatic Instrumentation Versus Custom Instrumentation                                                   55
+       Ownership of Instrumentation                                                                              56
+       Building a Custom Instrumentation Strategy                                                                57
+       Cost Considerations, Volume Management, and Processing                                                    59
+         Processing and Pipelines                                                                                59
+         Cost Considerations and Volume                                                                          59
+         Essential Concepts for Sampling                                                                         60
+       Conclusion                                                                                                62
+
+  5. Structured Events Are the Building Blocks of Observability. . . . . . . . . . . . . . . . . . 63
+       What Is a Structured Event?                                                                               64
+
+
+viii   |   Table of Contents
+    The Limitations of Metrics                                                                                 65
+      What Is a Metric?                                                                                        65
+      Metrics Are Typically Aggregated                                                                         66
+    The Inner Workings of Logs                                                                                 68
+      Turning Traditional Logs Into Structured Logs                                                            70
+      Is a Structured Log the Same as a Structured Event?                                                      71
+      Tracking a Single Operation                                                                              71
+    The Inner Workings of Distributed Traces                                                                   72
+      A Brief Introduction to Distributed Tracing                                                              73
+      The Components of Tracing                                                                                74
+    Turning Logs Into Distributed Traces                                                                       76
+      Traces Are Collections of Spans                                                                          79
+      Trace Context                                                                                            79
+    Dynamically Generating the Right System Views                                                              81
+    Conclusion                                                                                                 83
+
+6. Making Structured Events Arbitrarily Wide. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 85
+    Service and Code Context                                                                                86
+      Service Metadata                                                                                      86
+      Build Information                                                                                     89
+      Feature Flags                                                                                         91
+      Versions of Important Things                                                                          92
+    Request and Execution Flow                                                                              92
+      HTTP Information                                                                                      93
+      Route Information                                                                                     96
+      Timings                                                                                               97
+      Async Request Summaries                                                                               98
+      Errors                                                                                                99
+    User and Business Context                                                                              101
+      User and Customer Information                                                                        101
+      Rate Limits                                                                                          103
+      Caching                                                                                              105
+      Localization Information                                                                             105
+    Operational Information                                                                                105
+      Uptime                                                                                               106
+      Metrics                                                                                              107
+      A Convention to Filter Out Everything Else                                                           110
+    Attributes Important to Your Specific Application                                                      110
+    Conclusion                                                                                             111
+
+7. Instrumenting Your Code with OpenTelemetry. . . . . . . . . . . . . . . . . . . . . . . . . . . . 113
+    What It Means to Use OpenTelemetry                                                                     114
+
+
+                                                                                       Table of Contents   |   ix
+        Effective Instrumentation With OpenTelemetry                                                               115
+          Trace-First Telemetry                                                                                    115
+          Traces for Common Architectural Patterns                                                                 118
+          Metrics, Spans, Logs, Events—Oh My?                                                                      125
+        Using AI Agents to Instrument Your Code                                                                    127
+          What Is an Agent, Anyway?                                                                                128
+          Instrumentation with Agents                                                                              128
+          Useful Strategies for Agents                                                                             130
+        Conclusion                                                                                                 131
+
+
+Part III.        Analysis Workflows
+    8. Getting Started with Observability Analysis. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 135
+        Debugging from Known Conditions                                                                            136
+        Debugging from First Principles                                                                            138
+         Using the Core Analysis Loop                                                                              139
+         Automating the Brute-Force Portion of the Core Analysis Loop                                              141
+        Automating Analysis with Generative AI                                                                     144
+         Agentic AI Personas                                                                                       145
+         Using Agentic AI for Observability in Practice                                                            146
+        Conclusion                                                                                                 147
+
+    9. Observability-Driven Development. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 149
+        Test-Driven Development                                                                                    149
+        Observability in the Development Cycle                                                                     150
+        Determining Where to Debug                                                                                 151
+        Debugging in the Time of Microservices                                                                     152
+        How Instrumentation Drives Modern Observability                                                            153
+        Shifting Observability Left                                                                                155
+        Using Observability to Speed Up Software Delivery                                                          156
+        Observability-Driven Development with AI                                                                   157
+        Conclusion                                                                                                 159
+
+10. The Role of AI Agents for Observability. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 161
+        What Is an AI Agent for Observability?                                                                     162
+        The Pitfalls of Querying Without Context                                                                   164
+        Proven Use Cases for Observability Agents                                                                  165
+          Incident Response                                                                                        166
+          Explaining Errors and Patterns in Telemetry Data                                                         166
+          Improving Instrumentation Quality                                                                        166
+        Observability-Adjacent Use Cases for Agents                                                                167
+
+
+x     | Table of Contents
+      The Production Problem: The Mental Model That’s Disappearing                                               168
+      The Need for Context                                                                                       171
+      Conclusion                                                                                                 171
+
+11. Using Service Level Objectives for Reliability. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 173
+      Threshold-Based Alerting Creates Alert Fatigue                                                             174
+      Threshold Alerting Is Only for Known-Unknowns                                                              175
+      User Experience Is a North Star                                                                            178
+      Reliable Alerting with Service Level Objectives                                                            179
+      Case Study: Changing Culture Toward SLO-Based Alerts                                                       181
+      Accelerating SLO Adoption with Generative AI                                                               184
+       From Targets to Implementation: Drafting a Service Level Indicator                                        186
+       Encoding Best Practices in Your Prompts                                                                   189
+      Conclusion                                                                                                 191
+
+
+Part IV.       Observability Technical Deep Dives
+12. Acting On and Debugging SLO-Based Alerts. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 195
+      Alerting Before Your Error Budget Is Empty                                                                 195
+      Framing Time as a Sliding Window                                                                           197
+      Forecasting to Create a Predictive Burn Alert                                                              198
+        Threshold-Crossing Alerts                                                                                199
+        Relative Burn Alerts                                                                                     200
+        Predictive Burn Alerts                                                                                   201
+        The Baseline Window                                                                                      209
+        Acting on SLO Burn Alerts                                                                                210
+      Using Structured Event Data for SLOs Versus Time-Series Data                                               212
+      Conclusion                                                                                                 214
+
+13. Efficient Data Storage with Retriever. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 215
+      The Functional Requirements for Observability                                                              216
+       Time-Series Databases Are Inadequate for Unified Observability                                            217
+       Other Possible Datastores                                                                                 219
+       Data Storage Strategies                                                                                   221
+      Case Study: The Implementation of Retriever                                                                224
+       Partitioning Data by Time                                                                                 224
+       Storing Data by Column Within Segments                                                                    226
+       Performing Query Workloads                                                                                228
+       Queries on Parts of Fields and Aggregated Fields                                                          230
+       Querying for Traces                                                                                       230
+       Joins                                                                                                     231
+
+
+                                                                                            Table of Contents   |   xi
+           Querying Data in Real Time                                                                         232
+           Making It Affordable with Tiering                                                                  232
+           Making It Fast with Parallelism                                                                    233
+           Dealing with High Cardinality                                                                      234
+           Scaling and Durability Strategies                                                                  234
+          Notes on Building Your Own Efficient Datastore                                                      237
+          Conclusion                                                                                          238
+
+14. Efficient Data Storage with ClickHouse. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 239
+          ClickHouse Core Concepts                                                                            240
+            MergeTree Fundamentals                                                                            241
+            Query Execution                                                                                   243
+          Collecting Data                                                                                     248
+            The OpenTelemetry Collector and ClickHouse Exporter                                               248
+            Alternate Ingestion Approaches                                                                    249
+          Querying Data                                                                                       249
+            Simple Queries                                                                                    250
+            Complex Joins                                                                                     252
+          Scaling Vertically                                                                                  254
+            Profiling Your Queries                                                                            254
+            Practical Data Modeling and Optimization                                                          255
+            Data Lifecycle Management                                                                         261
+          Scaling Horizontally                                                                                263
+            Replication                                                                                       263
+            Sharding                                                                                          267
+            Single-Region Observability Cluster                                                               268
+            Multiregion Observability Cluster                                                                 269
+            SharedMergeTree                                                                                   270
+          Visualizing Your Data                                                                               272
+          Using ClickHouse for Observability Workloads                                                        272
+          Conclusion                                                                                          273
+
+15. Cheap and Accurate Enough Sampling. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 275
+          Sampling to Refine Your Data Collection                                                             275
+          Using Different Approaches to Sampling                                                              277
+            Constant-Probability Sampling                                                                     277
+            Sampling on Recent Traffic Volume                                                                 278
+            Sampling Based on Event Content (Keys)                                                            278
+            Combining per Key and Historical Methods                                                          279
+            Choosing Dynamic Sampling Options                                                                 279
+            When to Make a Sampling Decision for Traces                                                       279
+          Translating Sampling Strategies into Code                                                           280
+
+
+xii   |    Table of Contents
+      The Base Case                                                                                           281
+      Fixed-Rate Sampling                                                                                     281
+      Recording the Sample Rate                                                                               281
+      Consistent Sampling                                                                                     283
+      Target-Rate Sampling                                                                                    284
+      Having More Than One Static Sample Rate                                                                 286
+      Sampling by Key and Target Rate                                                                         287
+      Sampling with Dynamic Rates on Arbitrarily Many Keys                                                    288
+      Putting It All Together: Head and Tail per Key Target-Rate Sampling                                     290
+     Conclusion                                                                                               291
+
+16. Telemetry Management with Pipelines. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 293
+     An Introduction to Telemetry Pipelines                                                                   294
+       The Telemetry Pipeline Solution                                                                        294
+       Why This Matters Now                                                                                   295
+     Core Functions of a Modern Telemetry Pipeline                                                            295
+       Collect                                                                                                296
+       Normalize and Secure                                                                                   296
+       Enrich                                                                                                 297
+       Reduce                                                                                                 297
+       Route                                                                                                  298
+       Data Resilience                                                                                        298
+       Pipeline Control and Observability                                                                     299
+       What You Should Remember About Core Functions                                                          300
+     Pipeline Architecture in Practice                                                                        300
+       Core Components                                                                                        300
+       Deployment Patterns                                                                                    301
+       Scaling and Performance in Practice                                                                    302
+       Build-Versus-Buy Considerations                                                                        303
+       What You Should Remember About Pipeline Architecture                                                   304
+     Adoption and Migration                                                                                   304
+       A Phased Path to Adoption                                                                              304
+       What You Should Remember About Adoption and Migration                                                  306
+     Use Cases: Collect and Reduce, Combined                                                                  307
+     Business Case                                                                                            308
+       Cost Control                                                                                           308
+       Vendor Neutrality                                                                                      308
+       Telemetry as a Strategic Asset                                                                         309
+     The Role of Telemetry Pipelines                                                                          309
+     Conclusion                                                                                               310
+
+
+
+
+                                                                                      Table of Contents   |    xiii
+17. Ontologies as a Shared Language for Humans and AI. . . . . . . . . . . . . . . . . . . . . . . 311
+          Ontologies and Their Role in Observability                                                                312
+          Design the Ontology                                                                                       313
+            Define the Core Entities (the Nouns)                                                                    314
+            Define the Invariants (the Rules)                                                                       314
+            Visualize the Semantic Grammar of the Domain                                                            315
+            Glue the Schema Through Metadata                                                                        316
+            Schematize Intent with the ActionPlan                                                                   317
+          Validate the Contract: Continuous Integration                                                             318
+            Layer Three Gates for Defense                                                                           318
+            Establish the Team Workflow                                                                             319
+          Create Signal Parity in Production: Continuous Deployment                                                 319
+            Understand the Hierarchy of Signals                                                                     320
+            Create Shared Instrumentation: The Universal Payload                                                    320
+          Implement the AI Sandwich Architecture                                                                    321
+          Close the Loop: Production Driving Tests                                                                  322
+            Putting Ontologies into Practice                                                                        323
+          Conclusion                                                                                                324
+
+
+Part V.          Observability Use Cases
+18. Observability for CI/CD Pipelines. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 327
+          Why Reliable and Fast CI/CD Matters                                                                       328
+          Build Observability Has the Best ROI of All Observability Applications                                    328
+          CI/CD Through the Lens of Observability                                                                   329
+           The Ontology of Continuous Integration and Deployment                                                    329
+           Instrumentation Basics                                                                                   330
+           Defining Service Level Indicators and Achieving Predictability                                           331
+           From Jobs, to Directed Acyclic Graphs and Traces                                                         331
+          Making Improvements and Measuring Them                                                                    332
+           Understanding Performance: Treating Continuous
+              Integration Like Production                                                                           333
+           Predictability: Real-World Trade-Offs                                                                    334
+           (The Lack of) Incrementality: The Bane
+              of Continuous Integration’s Existence                                                                 335
+           Keeping Your Build Performance Tight and Your Developers Happy                                           336
+          Case Study: The Importance of Quick Build Times at Honeycomb                                              336
+           History of Improving Build Times at Honeycomb                                                            337
+           Applying These Lessons to Your Build System                                                              339
+          Conclusion                                                                                                341
+
+
+
+xiv   |     Table of Contents
+19. Observability for Mobile and Frontend. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 343
+     Status Quo for Mobile and Frontend                                                                           344
+     Instrumentation Limitations                                                                                  346
+     Overcoming Domain Challenges                                                                                 348
+       Recognizing the Problem                                                                                    348
+       Instrumentation Difficulties                                                                               350
+     Applying Local Storage and Real-Time Control to Mobile Observability                                         354
+     What to Observe and Why                                                                                      358
+     Opportunities for Improvement                                                                                359
+       Making Observability User-Focused                                                                          359
+       Quantifying User Experience                                                                                361
+       Adapting Existing Approaches                                                                               362
+     Applying User-Focused Observability                                                                          363
+       Iterative Analysis Process                                                                                 363
+       Example: Food Delivery App                                                                                 363
+     Mobile and Frontend Applications Deserve Observability                                                       366
+     Conclusion                                                                                                   367
+
+20. Performance Engineering with Observability. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 369
+     The Case for Performance Engineering                                                                         369
+     Building a Performance Engineering Practice                                                                  372
+     Optimizing Cost Without Modifying Application Code                                                           373
+      Infrastructure Purchasing Models                                                                            373
+      Fleet-Wide Optimization                                                                                     375
+      Cost Optimizing Kubernetes                                                                                  376
+      Cost Optimizing Serverless                                                                                  380
+      Observing the Costs                                                                                         381
+     How Application Observability Reduces Cost                                                                   382
+      Using CPU Profiling Tools                                                                                   383
+      Using the Correct Observability Signals, Together                                                           385
+     Conclusion                                                                                                   388
+
+21. Observability for Large Language Models. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 391
+     Why Observability Matters for LLMs                                                                           392
+     Using Evaluations for LLM Reliability                                                                        393
+     Designing Telemetry for LLM Applications                                                                     395
+     Analyzing Telemetry for AI Applications                                                                      396
+     Feeding Observability Data Into AI Application Development                                                   398
+     Using Evaluations and Observability Together                                                                 400
+     Conclusion                                                                                                   402
+
+
+
+
+                                                                                          Table of Contents   |    xv
+22. Fin’s Case Study in Modern Engineering. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 403
+          Increasing Resolution Rate                                                                                                     404
+          Speeding Up Without Losing Efficiency                                                                                          405
+          And Thus, “Time to First Token” Was Born                                                                                       406
+          Speeding Fin Up                                                                                                                409
+          Finance Enters the Chat                                                                                                        411
+          Empathy                                                                                                                        413
+          Conclusion                                                                                                                     415
+
+
+Part VI.          Observability Governance
+23. Organizational Learning Speed Is Now Your Biggest Constraint: An Open Letter
+    to CTOs. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 419
+          An Open Letter to CTOs                                                                                                         420
+          The Sociotechnical Debts That Will Hold You Back                                                                               421
+            When Developers Live In a World of Tests, Not Reality                                                                        423
+            When Telemetry Gets Treated Like Infrastructure, Not Product                                                                 424
+            When Developer Tools Were Never Designed as Products                                                                         425
+          These Debts Will Sabotage Your Adoption of AI                                                                                  426
+          Turning the Ship Around                                                                                                        428
+            Measuring Value                                                                                                              428
+            Build Good Feedback Loops                                                                                                    428
+            Change Actions That Drive This Strategy                                                                                      429
+          A Letter from a CTO: How Fin Engineering Optimizes for Learning                                                                432
+          Conclusion                                                                                                                     434
+
+24. Systems Thinking for Software Delivery. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 435
+          Sociotechnical Systems                                                                                                         435
+            You Must Optimize Both the Social and Technical at the Same Time                                                             436
+            Changing Information Flows                                                                                                   437
+          How Feedback Loops Drive Change                                                                                                438
+            Amplifying Feedback Loops Accelerate Change                                                                                  439
+            Balancing Feedback Loops Create Stability and Equilibrium                                                                    439
+            Small Shifts Can Trigger Massive Changes                                                                                     440
+            The Difference Between a Virtuous Cycle and
+              a Death Spiral Is the Ability to Self-Correct                                                                              441
+          Feedback Loops in Software Delivery Systems                                                                                    441
+            Observability in Amplifying Loops                                                                                            442
+            Observability in Balancing Loops                                                                                             444
+            Partial Feedback Creates Systemic Distortions                                                                                446
+          Leverage Points in Sociotechnical Systems                                                                                      448
+
+
+xvi   |     Table of Contents
+       Leverage Points and the Limits of Observability                                                              448
+       Push in the Right Direction                                                                                  449
+      Conclusion                                                                                                    450
+
+25. The Observability Landscape Through a Systems Lens. . . . . . . . . . . . . . . . . . . . . . 451
+      The Landscape Feels Noisy Because the Labels Are Noisy                                                        451
+      The Loops Most Organizations Run Today (and What Is Missing)                                                  452
+        Development Feedback Loops                                                                                  452
+        Operational Feedback Loops                                                                                  453
+        The Missing Loop                                                                                            455
+      The Feedback Loop for Value Creation                                                                          456
+        Shipping Is Your Heartbeat                                                                                  456
+        How to Build the Loop and Close the Gap                                                                     458
+        Why Closing the Gap Is Rare: The Economics of Cognitive Load                                                459
+      Two Observability Models, Two Feedback Loops                                                                  459
+        Three Pillars Model (Built for Operational Outcomes)                                                        460
+        Unified Storage Model (Built for Developer Learning)                                                        460
+      AI Changes the Game and Opens New Interaction Models                                                          461
+      Both Feedback Loops Matter: Lead with the Right One                                                           462
+      Align on the Outcomes You’re Building Toward                                                                  463
+      Conclusion                                                                                                    464
+
+26. The Business Case for Observability. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 465
+      Identifying Your Priorities                                                                                   465
+        Complementary Roles of the Two Feedback Loops                                                               466
+        Read the Fire Codes                                                                                         466
+      The Business Case for Operational Loops                                                                       467
+        Mapping Observability Models to Operational Outcomes                                                        467
+        The Operational Mandate                                                                                     468
+      The Business Case for Developer Learning Loops                                                                469
+        Estimating the Value of Developer Learning                                                                  470
+        The Developer Mandate Has Two Halves                                                                        471
+      Strategic Investment or Cost Center Optimization?                                                             475
+      Observability as Organizational Investment                                                                    476
+      Conclusion                                                                                                    477
+
+27. Diagnosing Your Observability Investment. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 479
+      Don’t Pay Observability Prices for Monitoring Outcomes                                                        480
+       The Firefighting Trap                                                                                        480
+       An Investment Posture Mismatch                                                                               481
+       Activities Versus Learning                                                                                   481
+      How to Know If Your Investment Is Working (or Not)                                                            482
+
+
+                                                                                            Table of Contents   |   xvii
+        Advice for Observability Investments                                                                               483
+        Conclusion                                                                                                         484
+
+28. The Organizational Shift. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 487
+        Recognizing Legacy Masquerading as Modern Observability                                                            488
+          The Ownership Test                                                                                               488
+          The Two-or-Three People Test                                                                                     489
+          The Mystery Test                                                                                                 489
+          The Arbitrary Question Test                                                                                      490
+          The Deployment Confidence Test                                                                                   490
+          After the Tests                                                                                                  491
+        Understanding the Resistance                                                                                       491
+          The Organizational Immune Response                                                                               492
+          Why Legacy Vendors Fight                                                                                         492
+          Why Existing Teams Resist                                                                                        492
+          Why Leadership Is Skeptical                                                                                      493
+          Why You Cannot Fight It Alone                                                                                    494
+        Building the Coalition                                                                                             494
+          Find the People Whose Pain Is Immediate                                                                          494
+          Honor the Heroes Who Held It Together                                                                            495
+          What Makes a Good Ally                                                                                           496
+          Building the Case Together                                                                                       496
+        Securing the Mandate                                                                                               496
+          Sponsorship Versus Authority                                                                                     497
+          Finding the Right Executive                                                                                      497
+          The Pitch That Works                                                                                             497
+          The AI Forcing Function                                                                                          498
+        The Roadmap                                                                                                        499
+          Start Small: One Domain, Full Depth                                                                              499
+          Pave the Path: Make the New Way Easier                                                                           499
+          Platform Engineering Principles                                                                                  500
+          Demonstrate Wins: Rerun the Tests                                                                                500
+          Expand Deliberately                                                                                              501
+        Building the Team                                                                                                  502
+          What the Observability Team Owns                                                                                 502
+          Capabilities of the Observability Team                                                                           502
+          Bringing the Existing Team Along                                                                                 503
+          Breaking the Vendor Identity Trap                                                                                504
+          What Not to Promise                                                                                              505
+        Conclusion                                                                                                         505
+
+
+
+
+xviii   |   Table of Contents
+29. Build Versus Buy (Versus Open Source). . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 507
+     Which Do You Hate More: Your Money or Your Time?                                                             508
+     Surfacing Our Biases                                                                                         508
+     Observability Is Not Like Other Software                                                                     509
+     A Simple Framework for Evaluating “Build Versus Buy”                                                         510
+       The Four Quadrants: Build, Buy, Should Not Exist, or Decide                                                512
+       Mapping Examples to Quadrants                                                                              515
+       The Generalized Pattern                                                                                    517
+     What About Open Source?                                                                                      517
+     A Framework That Includes Open Source                                                                        518
+       The Four Quadrants: Avoid, Create, Adopt, Acquire                                                          519
+       There’s Always Vibe Coding                                                                                 520
+     The Real Costs of Building Your Own                                                                          520
+       The Hidden Costs of “Free” Software                                                                        521
+       The Benefits of Building Your Own                                                                          522
+       The Risks of Building Your Own                                                                             523
+     The Real Costs of Buying Software                                                                            524
+       The Hidden Financial Costs of Commercial Software                                                          524
+       The Hidden Nonfinancial Costs of Commercial Software                                                       526
+       The Benefits of Buying Commercial Software                                                                 527
+       The Risks of Buying Commercial Software                                                                    527
+     Build Versus Buy Is Not a Binary Choice                                                                      528
+       This Is Where Your Observability Team Comes In                                                             529
+       Get the Best of Both Worlds                                                                                529
+     Important Caveats                                                                                            530
+     Conclusion                                                                                                   531
+
+30. The Art and Science of Vendor Partnerships. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 533
+     Does Buying Software Even Count as Engineering?                                                              534
+       The Difference Between Vendor Engineering and Buying Software                                              536
+       Training Grounds for Executive Skills                                                                      536
+     What to Know Before You Start                                                                                537
+       Find Local Guidance                                                                                        537
+       Understand Your Role                                                                                       538
+     Mapping Your Stakeholders                                                                                    538
+       Engineering                                                                                                538
+       Management                                                                                                 539
+       Finance                                                                                                    539
+       IT/Ops and Security                                                                                        539
+       Procurement                                                                                                540
+       Communicating Up the Ladder                                                                                540
+     Trust and Credibility with Internal Stakeholders                                                             541
+
+
+                                                                                          Table of Contents   |    xix
+        Credibility Versus Trust                                                                           541
+        Building Trust with Stakeholders                                                                   541
+        Breaking Trust with Stakeholders                                                                   542
+      Trust and Reciprocity with External Stakeholders                                                     542
+        Building Vendor Relationships                                                                      542
+        The Vendor Trust Coefficient                                                                       543
+        The Reciprocity Principle                                                                          544
+        How to Influence Another Company’s Roadmap                                                         544
+        SLAs Encode the Vendor–Customer Relationship                                                       546
+      Early-Stage Considerations                                                                           546
+        Define the Scope of Work                                                                           548
+        Identify Your Executive Sponsor                                                                    548
+        Define Success Criteria Before You Start                                                           549
+        What to Do When Your Coworkers Perceive You as a Threat                                            549
+        The OpenTelemetry Decision                                                                         550
+      Design and Run a Meaningful Proof of Concept                                                         550
+        What Does a Good Proof of Concept Look Like?                                                       551
+        Structure Your Technical Evaluation                                                                552
+        Validate Pricing at Scale (If Cost Is a Concern)                                                   552
+        Build Champions and Advertise Your Wins                                                            553
+        Maintain Momentum Through Procurement                                                              553
+      Migration and Follow-Through                                                                         554
+        Handing Off to Another Team                                                                        554
+        Most Migrations Have Three Steps                                                                   554
+        You Aren’t Done Until You Decommission                                                             555
+        Plan for the Next Transition                                                                       555
+      Conclusion                                                                                           556
+
+31. Instrumentation for Observability Teams. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 557
+      What Observability Teams Need To Know                                                                558
+        Semantic Conventions                                                                               559
+        Telemetry Schemas in Practice                                                                      559
+      Tooling, Migrations, and Paved Paths                                                                 562
+        Tools and Frameworks                                                                               562
+        Paved Paths and Special Hats                                                                       564
+      Instrumentation in Highly Secure Environments                                                        565
+        Use Compliance Tiers to Your Advantage                                                             566
+        A Minimal Set of Capabilities for Observability Teams                                              567
+        Valuable Capabilities in a Regulated Environment                                                   568
+        This Is Hard Work, But Work Worth Doing                                                            569
+      Conclusion                                                                                           569
+
+
+
+xx   | Table of Contents
+32. Where Do We Go From Here?. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 571
+        Developers Must Return to Production                                                                                                     571
+        The Changing Cost Model of Software                                                                                                      572
+        The Most Important Parts of Our System Have Never Been Specified                                                                         573
+        The Great Unbundling                                                                                                                     574
+        The Human Cost of Compressed Change                                                                                                      574
+        The Claim: “AI Is Unprecedented”                                                                                                         575
+        This Moment Has Many Precedents                                                                                                          576
+        The Sysadmins Went Through This                                                                                                          576
+        From Software Code to Software Systems                                                                                                   577
+        Value Must Be Backed by Durability                                                                                                       578
+        The Tools to Build Durable Systems Will Come                                                                                             578
+        Conclusion                                                                                                                               579
+
+Index. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 581
+
+
+
+
+                                                                                                                    Table of Contents        |    xxi
+                                                                      Foreword
+
+
+
+
+Remember when we used to be able to predict the upcoming tech trends, the emerg‐
+ing architectural evolutions, and what the software world would be like in five years?
+I mean, we were never able to actually do so accurately, but it sure felt like we could.
+The first edition of this book came out in 2022, which somehow feels like it was only
+yesterday, yet it also feels like an entirely separate era of history.
+Since the first edition came out, we’ve learned how to apply observability to mobile
+and the web, we’ve seen the rise of agentic AI, we’ve dug into vendor relationships,
+we’ve explored instrumenting regulated environments, and so much more. Every year
+has seen the momentum around observability increase. It’s been so exciting to watch
+it happen in real time!
+But that momentum isn’t without a cost. The extraordinarily wide range of topics
+in observability has made the second edition of this book far longer (and also far
+better, in my opinion). It’s almost an entirely new book! From behind the scenes, I
+saw all of the hard work that Charity, Liz, George, and Austin put into this book;
+their efforts, along with those of numerous other contributors, have shaped this into
+a book that could never have existed before now. I hope you appreciate the magic and
+sweat and tears. I hope you enjoy reading the results. It turns out that while writing
+about observability is already hard enough, knowing when to stop and cut the book
+release is an impossible challenge. Especially when AI threatens to make everything
+obsolete every two months. Well, not everything.
+The hard-won knowledge about how complex sociotechnical systems work? That’s
+never going away. The practitioners working to understand their systems? We’re still
+here, and we’re not leaving. Software complexity has dramatically increased. So has
+the growth of the tech industry. Remember when microservices and Kubernetes were
+“unnecessarily complex”? Now that’s a three-pillar-era throwback. Throughout all
+this growth, we’ve had to figure out how to build the tools and practices necessary to
+keep our systems healthy. It’s hard work! It felt like we had finally figured it out before
+AI arrived on the scene. Now, sometimes it feels like we’re starting all over again.
+
+
+                                                                                       xxiii
+Predicting what the world will look like in five years? I feel like I can barely predict
+what next week will bring, but I can’t help but speculate. Candidly, here’s what I see
+for the next five years in observability: the world is going to get even more intense,
+and we’re going to have to keep up. How will we do that? I see a few key evolutions
+taking place to enable this: lakehouse data architectures, contextual tooling, and
+delivering value outside of engineering. These three things synergize with each other,
+and the combination is incredibly powerful.
+Observability has traditionally been most limited by the constraints of the data
+engine backing the tooling, but lakehouse architectures eliminate most of those
+constraints, enabling maximum cardinality, flexibility, compliance, and more. Mean‐
+ingfully using telemetry data, and accessing it where you need it, has been the hardest
+UX challenge of observability, but advances in contextual tooling are enabling new
+possibilities for bringing the right data to the engineers (or agents) who need it, and
+when they need it. Lastly, technological investments are increasingly cross-functional,
+and so the value that is produced from engineering practices also needs to evolve and
+become cross-functional. The days of buying tools for platform operators exclusively
+and hiding them away from the rest of the company are coming to an end.
+Above all, my prediction for the future is that it’s going to get weird. It’s already weird.
+It’s going to get weirder. It’s going to change faster than we ever thought possible.
+We’re going to have to rethink our prior assumptions; we’re going to have to break
+our old mental models and build new ones. Our beliefs about software engineering
+will change, and our techniques are going to stop working. Just like “open the
+debugger and set a breakpoint” stopped working, those three pillars of observability
+and those shiny, sparkly dashboards are on their deathbeds as we speak.
+I find a lot of comfort in that swirling vortex of unknown unknowns, personally. The
+reason for that is because it gives me that much more confidence in what will stay
+the same: people. Yes, even in a world of AI, people are still here. We’re still going to
+work together. We’re going to build new tools, new systems, and new methods. We’re
+going to learn together. We’re going to dance and laugh. We’re going to knuckle down
+and push ourselves to the next level. We’re going to reach ever upward, to the next
+generation.
+And while we can’t predict the future, we can prepare for it—starting by reading this
+book. So please, find a comfortable spot to relax and enjoy the tools, techniques, and
+insights this book offers. Together, let’s learn how to understand and observe our
+systems of today and tomorrow.
+
+                                                                          — Hazel Weakly
+                                                               Fellow, Nivenly Foundation
+
+
+
+
+xxiv   |   Foreword
+                                                                                 Preface
+
+
+
+
+When we wrote the first edition of this book, the observability landscape was shifting,
+and practices were advancing faster than we could collectively write them down. In
+retrospect, we were chasing a moving target. It took three and a half years to write
+and edit the book that was released in 2022.
+In the four years since, the landscape and practices for observability have solidified
+a great deal, which makes it easier to write about. However, life is never boring;
+ChatGPT and GitHub’s Copilot were also released in 2022, kicking off an explosive
+period of innovation that has yet to subside.
+As we write this preface, in March of 2026, the entire software industry is going
+through yet another unprecedented upheaval, a convulsive period of compressed
+change. New AI development workflows are being hammered out in real time, for
+durable code as well as disposable code. Harness engineering, agentic orchestration,
+Phoenix architectures…every day seems to come with new terms and new concepts.
+It feels overwhelming trying to keep up, and the only consolation is that everyone else
+feels just as overwhelmed.
+We’ve seen AI models leap generations, entirely new categories of tooling appear, and
+workflows that felt cutting-edge become table stakes, all within one fiscal quarter.
+This is what exponential change feels like from the inside: not a smooth trajectory,
+but a series of jarring “wait—already?” moments. The hype trains are roaring, and it
+can be difficult to pick trustworthy voices out from the ambulance chasers seeking to
+cash in on our anxieties.
+And yet, an emerging, ongoing punch line this year has had people dryly comment‐
+ing each time we rediscover the principles we’ve known all along:
+    “Oh, so we should have fast feedback loops?”
+    “Tests are important, you say?”
+    “Are you insinuating that we should talk to our own users? To each other?”
+
+
+
+                                                                                      xxv
+This time around, it has only taken us nine months to write and edit the book,
+despite it being twice as long and almost entirely rewritten. Yet as we went into
+final edits, reading the book front to back, it was already painful to read some of
+the things we had written less than a year ago. A year ago, it was reasonable to be
+skeptical about whether or not generated code would ever be as good as the median
+developer could write, or how long it would take; now it is not reasonable. A year ago,
+it was reasonable to bifurcate the space into disposable versus durable code; now that
+division is blurring.
+We have done our best to adjust for the shift in aperture, to acknowledge the ways
+that our spectrum of possible futures has widened and bent in recent times.
+But this is not a book about AI; it is a book about software development. And the
+further we get, the more we learn, the clearer it becomes to us that software (and
+people) are still the hard parts. The struggle is less about the truly novel aspects of
+AI, such as wrangling nondeterminism, and more about the things that have always
+been hard: connecting cause and effect, constructing coherent mental models, and
+managing user expectations. Only now, the rate of change is revving up to 10 times,
+100 times, 1,000 times as fast as ever before.
+We take comfort in this. Observability itself has never felt like something flashy or
+new to us—it has always felt like an intrinsic property of the software discipline,
+derived from first principles, discoverable by anyone. We believe this still. And we
+fiercely believe these first principles are more relevant and desperately needed by
+practitioners than ever before.
+This moment of compressed change will not last forever. Indeed, the one thing we
+know about exponential change is that it must end, because all resources have limits.
+As uncomfortable as it is, this change is also an unprecedented window of opportu‐
+nity. After 20 years of DevOps, the overwhelming majority of software engineers
+still don’t include production in their development workflow; at many places, they
+aren’t even allowed to. The number of companies that have the right guardrails and
+precision tools in place to validate AI-generated code in production is minuscule—in
+the single digits.
+Why? Because it’s hard. Building out feature flags, progressive deployment, and the
+right instrumentation has been time-consuming and labor-intensive, and the old
+ways worked well enough to get by, using human intuition as spackle and duct tape.
+But AI breaks this stalemate. It enables key technological breakthroughs on the
+supply side. And on the demand side, it provides the competitive pressure to change.
+Engineers who have long agitated for better platform support and enablement should
+receive this opening as the gift that it is.
+
+
+
+
+xxvi   |   Preface
+Observability is not just another developer tool; it is the keystone species of the eco‐
+system. It is the signal that connects “cause” with “effect” to make feedback loops, no
+matter how far apart “cause” and “effect” may reside. The quality of your observability
+has downstream consequences for every other thing you do.
+The goal of this book is to arm you with a clear understanding of the principles at
+work. Most of the industry has historically chosen to iterate on what is familiar and
+comfortable instead of embracing a different, better, but admittedly more disruptive
+approach. AI seems likely to strain the old ways to the breaking point. But every
+organization needs to figure out where or if that applies to them, and chart a course
+from where they are to where they need to be.
+That’s where you come in. We hope this book will equip you with the tools you
+need to diagnose, argue, debug, build, and instrument your way through this messy
+present and toward a better tomorrow.
+
+Why We Wrote This Book
+We wrote this book because we care about observability and the people who need
+it. We care about it a lot. We care about it so much that we pioneered the category,
+founded a company to work on the problem space, helped maintain OpenTelemetry
+and make it go mainstream, and have now spent close to 20 collective person-years
+writing three books on the topic.
+While we all work for or have worked for Honeycomb, we are not trying to sell
+you on its tools. You can use the concepts in this book to build production software
+systems with observability using any tools, although we would be lying if we said all
+tools are equally effective.
+We believe in enduring values like truth, reality, and shared understanding. We
+believe observability can help us navigate today’s rocky waters as the technology
+landscape shifts quickly. We believe this is more important than ever.
+We hope this book can help bring structure and clarity to what has become a very
+muddled and marketing-driven public discourse about observability.
+
+What’s Different in the Second Edition
+First, we have a new coauthor. We are delighted to welcome Austin Parker, with deep
+subject matter expertise in AI and OpenTelemetry.
+We’re also excited to incorporate a broader range of voices for this edition of the
+book, featuring a stellar lineup of guest writers. The opportunity to spotlight some
+of the people we look up to and enjoy working with has been one of the greatest
+pleasures of putting this book together.
+
+
+
+                                                                          Preface   |   xxvii
+In order of presentation in the book:
+
+   • Jeremy Morrell wrote one of the most comprehensive guides to using wide
+     events and creating custom attributes that we’ve ever seen. He has con‐
+     tributed greatly to an update of Chapter 5, “Structured Events Are the
+     Building Blocks of Observability”, and has entirely contributed Chapter 6, “Mak‐
+     ing Structured Events Arbitrarily Wide”.
+   • Boris Tane explored agentic AI use cases and examined the principles necessary
+     to generate and retain context, which continues to be key for success as we shift
+     toward more automation. We think you’ll enjoy the principles outlined in his
+     contributed content, Chapter 10, “The Role of AI Agents for Observability”.
+   • Mat Vine provided an in-depth case study on SLOs adoption for an updated look
+     at its challenges and solutions. This replaces the Honeycomb-focused use case
+     previously used in Chapter 11, “Using Service Level Objectives for Reliability”.
+   • The engineering team at ClickHouse contributed an in-depth look at how their
+     open source datastore is tuned to meet the needs of observability workloads in
+     Chapter 14, “Efficient Data Storage with ClickHouse”. This new chapter provides
+     an alternative implementation to the Honeycomb storage engine, detailed in
+     Chapter 13, “Efficient Data Storage with Retriever”.
+   • Mike Kelly contributed an in-depth look at telemetry management by examining
+     challenges and solutions through the lens of the open source Bindplane project
+     in Chapter 16, “Telemetry Management with Pipelines”.
+   • Frank Chen, guest contributor in the first edition, returned to the second edition
+     with a look at ontologies and how to think about your entire instrumentation
+     chain in Chapter 17, “Ontologies as a Shared Language for Humans and AI”.
+   • Hugo Santos contributed greatly to an update of Frank Chen’s first-edition take
+     on instrumenting tests and continuous delivery pipelines in a new Chapter 18,
+     “Observability for CI/CD Pipelines”.
+   • Hanson Ho and Matt Klein presented a look at the complex and challenging
+     workflows necessary for implementing high-observability workflows in the
+     mobile device domain in Chapter 19, “Observability for Mobile and Frontend”.
+   • Phillip Carter contributed greatly when applying the principles in this book to
+     the world of running generative AI applications in production in Chapter 21,
+     “Observability for Large Language Models”.
+   • Kesha Mykhailov contributed a first-person narrative of the observability journey
+     at Fin (formerly Intercom) in Chapter 22, “Fin’s Case Study in Modern Engineer‐
+     ing”. This chapter demonstrates how many of the concepts detailed in the book
+     often come together in real-world scenarios.
+
+
+
+
+xxviii   |   Preface
+  • Darragh Curran contributed an open letter to chief technology officers (CTOs)
+    detailing how his organization used observability to tackle the problem of accel‐
+    erating organizational learning speed in an AI era in Chapter 23, “Organizational
+    Learning Speed Is Now Your Biggest Constraint: An Open Letter to CTOs”.
+  • Rick Clark contributed a deep dive into driving change without formal authority
+    in Chapter 28, “The Organizational Shift”. This chapter covers how to recruit
+    champions, drive consensus, and shepherd disruptive transformational change
+    through complex sociotechnical systems.
+  • Hazel Weakly wrote a wonderful foreword for us on the shifting horizons
+    of software development, and contributed greatly to Chapter 31, “Instrumenta‐
+    tion for Observability Teams”, especially for teams operating in highly secure
+    environments.
+
+Second, we have two parallel tracks of guidance for engineers who write code: one
+track for AI-assisted development and the other for classic development. You’ll find
+both tracks in each chapter on instrumentation and analysis. Instead of anchoring
+our guidance in any one particular technology or tool, we describe the principles
+necessary for success and how they affect outcomes.
+Lastly, we’ve restructured the material into chapter groups based on functional roles.
+The first edition of this book was “about observability,” for “everyone.” This edition
+aims for a more targeted conceptual structure.
+
+How to Read This Book
+We wrote this book with software engineers and technical decision-makers in mind,
+but it should be relevant (and hopefully interesting) to anyone else who builds
+software or works with those who do.
+Part I is for all readers. It contains foundational concepts that we will draw on for
+the rest of the book: what observability is, how to develop good software, and the
+user experience you’re aiming for. Readers of the first edition might skip Chapter 3
+(arguably, it was the point of the entire first edition). However, this part of the book
+has been entirely overhauled to better frame the “observability” conversation in our
+modern zeitgeist.
+Parts II and III are written primarily for software engineers and observability practi‐
+tioners. Every software engineer should understand how to instrument their code
+and use the telemetry it emits. The chapters in this section cover the technical basics
+that all modern software engineers should be familiar with.
+Part IV is for engineers who want to go beyond the surface. You can think of these
+as the “show your work” chapters of the book. We dive deep into the internals and
+plumbing that enable the instrumentation and analysis demonstrated in Parts II and
+
+
+                                                                          Preface   |   xxix
+III. This segment of the book is most relevant to engineering teams operating at scale
+or building their own observability tools.
+Part V covers a number of different use cases for observability. Earlier sections of the
+book aim to be neutral on use case and setting, though they favor approaches best
+suited to working with backend systems. Part V shows how the same principles can
+be applied to other domains.
+Part VI is for technical decision-makers. Its chapters are aligned with typical org
+chart concerns from the top down, starting with an open letter to CTOs and end‐
+ing with instrumentation guidelines for observability engineering teams. Technical
+decision-makers and strategic thinkers come in many guises: not just executives,
+directors, and managers, but also observability engineering teams, platform engineer‐
+ing teams, site reliability engineers, cloud engineers, architects, and more. If you
+are trusted with decisions to empower and enable the software engineers in your
+organization, then this section is for you.
+
+Conventions Used in This Book
+The following typographical conventions are used in this book:
+Italic
+     Indicates new terms, URLs, email addresses, filenames, and file extensions
+Constant width
+      Used for program listings, as well as within paragraphs to refer to program
+      elements such as variable or function names, databases, data types, environment
+      variables, statements, and keywords
+Constant width bold
+      Shows commands or other text that should be typed literally by the user
+Constant width italic
+      Shows text that should be replaced with user-supplied values or by values deter‐
+      mined by context
+
+                    This element signifies a tip or suggestion.
+
+
+
+
+                    This element signifies a general note.
+
+
+
+
+xxx   |   Preface
+               This element indicates a warning or caution.
+
+
+
+
+Using Code Examples
+Supplemental material (code examples, exercises, etc.) is available for download at
+https://oreil.ly/7IcWz.
+If you have a technical question or a problem using the code examples, please send
+email to support@oreilly.com.
+This book is here to help you get your job done. In general, if example code is
+offered with this book, you may use it in your programs and documentation. You
+do not need to contact us for permission unless you’re reproducing a significant
+portion of the code. For example, writing a program that uses several chunks of code
+from this book does not require permission. Selling or distributing examples from
+O’Reilly books does require permission. Answering a question by citing this book
+and quoting example code does not require permission. Incorporating a significant
+amount of example code from this book into your product’s documentation does
+require permission.
+We appreciate, but generally do not require, attribution. An attribution usually
+includes the title, author, publisher, and ISBN. For example: “Observability Engineer‐
+ing by Charity Majors, Liz Fong-Jones, and George Miranda, with Austin Parker
+(O’Reilly). Copyright 2026 Hound Technology, Inc., 978-1-098-17992-2.”
+If you feel your use of code examples falls outside fair use or the permission given
+above, feel free to contact us at permissions@oreilly.com.
+
+O’Reilly Online Learning
+                       For more than 40 years, O’Reilly Media has provided technol‐
+                       ogy and business training, knowledge, and insight to help
+                       companies succeed.
+
+Our unique network of experts and innovators share their knowledge and expertise
+through books, articles, and our online learning platform. O’Reilly’s online learning
+platform gives you on-demand access to live training courses, in-depth learning
+paths, interactive coding environments, and a vast collection of text and video from
+O’Reilly and 200+ other publishers. For more information, visit https://oreilly.com.
+
+
+
+
+                                                                         Preface   |   xxxi
+How to Contact Us
+Please address comments and questions concerning this book to the publisher:
+
+        O’Reilly Media, Inc.
+        141 Stony Circle, Suite 195
+        Santa Rosa, CA 95401
+        800-889-8969 (in the United States or Canada)
+        707-827-7019 (international or local)
+        707-829-0104 (fax)
+        support@oreilly.com
+        https://oreilly.com/about/contact.html
+
+We have a web page for this book, where we list errata and any additional informa‐
+tion. You can access this page at https://oreil.ly/observability-engineering-2e.
+For news and information about our books and courses, visit https://oreilly.com.
+Find us on LinkedIn: https://linkedin.com/company/oreilly.
+Watch us on YouTube: https://youtube.com/oreillymedia.
+
+Acknowledgments for the First Edition
+This book would not have been possible without the support of executive sponsors
+at Honeycomb: many thanks to Christine Yen, Deirdre Mahon, and Jo Ann Sanders.
+Nor would this book have been possible without the domestic sponsors who put
+up with many odd hours, lost weekends, sleepless weeknights, and cranky partners:
+many thanks to Rebekah Howard, Elly Fong-Jones, and Dino Miranda. Without all
+of them, we would probably still be trying to find the time to fully develop and tie
+together the many ideas expressed in this book.
+We’d especially like to thank additional contributors who have made the content
+in this book much stronger by sharing their varied perspectives and expertise. Chap‐
+ter 16, “Telemetry Management with Pipelines”, was made possible by Ian Wilkes
+(author of Honeycomb’s Retriever engine, the basis of the case study) and Joan Smith
+(reviewing for technical accuracy of references to external literature). Chapter 14,
+“Efficient Data Storage with ClickHouse”, was authored by Frank Chen, and Chap‐
+ter 18, “Observability for CI/CD Pipelines”, was authored by Suman Karumuri and
+Ryan Katkov—all of whom we thank for sharing their knowledge and the lessons
+they’ve learned from managing incredibly large-scale applications with observability
+at Slack. Many thanks to Rachel (pie) Perkins for contributions to several early
+chapters in this book. And thanks to the many bees at Honeycomb who, over the
+years, have helped us explore what’s achievable with observability.
+
+
+
+xxxii    |   Preface
+Finally, many thanks to our many external reviewers: Sarah Wells, Abby Bangser,
+Mads Hartmann, Jess Males, Robert Quinlivan, John Feminella, Cindy Sridharan,
+Ben Sigelman, and Daniel Spoonhower. We’ve revised our takes, incorporated
+broader viewpoints, and revisited concepts throughout the authoring process to
+ensure that we’re reflecting an inclusive state of the art in the world of observability.
+Although we (the authors of this book) all work for Honeycomb, our goal has always
+been to write an objective and inclusive book detailing how observability works in
+practice, regardless of specific tool choices. We thank our reviewers for keeping us
+honest and helping us develop a stronger and all-encompassing narrative.
+
+Acknowledgments for the Second Edition
+This edition would not have been possible without the support of many external
+contributors, coauthors, editors, fellow travelers, and readers of the first edition. The
+words you’re about to read aren’t ours alone—they’ve been shaped by every hand
+that has touched this book. As you read it, we welcome you into the continuing
+conversation about observability, and hope that you will contribute to it in kind.
+We would like to specifically thank our editors at O’Reilly Media—Rita Fernando,
+Virginia Wilson, John Devins, Megan Laddusaw, Louise Corrigan, and Jonathon
+Owen. Their tireless efforts, along with the entire O’Reilly team, have been invaluable
+to the success of this project. Additionally, we’d like to acknowledge and thank our
+external reviewers—Marty Lindsay, Alex Ewerlof, Phillip Carter, Jordan Simonovski,
+Rick Clark, Ranbir Chawla, RK Sharma, Dave Williams, and Lesley Cordero. Your
+contributions helped us refine, focus, and sharpen our thoughts.
+
+Charity Majors
+It is a truth universally acknowledged that when you ask the internet for opinions,
+you will get them—unfiltered, unrestrained, and in volumes suggesting you should
+not have asked. Nevertheless, I asked the internet for advice on the software buying
+process, and 87 people replied. I owe every one of you a debt of gratitude.
+The back third of this book was headed in one direction before your stories; after‐
+ward, it veered in an entirely different one. If readers find it useful—and I hope they
+will—they have you to thank. (I, meanwhile, had to throw out my draft and start
+over from scratch in November, right when I was supposed to be wrapping up. I have
+come around to gratitude, but only after many months spent shaking a fist in your
+general direction.)
+Sam Dwyer, Abraham Ingersoll, Benjamin Mann, Hazel Weakly, and the inestimable
+Marty Lindsay were especially generous with their time. Thank you. And Rita Fer‐
+nando, our editor: I know we just thanked you like two sentences ago, but once is not
+enough. Have another.
+
+
+                                                                          Preface   |   xxxiii
+Since I, like Austin, am Never Writing A Book Again™, I can’t pass up this oppor‐
+tunity to thank my friend, co-founder, and rock-solid work partner of 10 years
+and counting, Christine Yen. You are the structure to my mess, the trellis for my
+aggressively overenthusiastic vinery, and my favorite person to embarrass with a
+compliment, no contest.
+It’s risky to start naming any of the brilliant, caring, dedicated people I get to work
+with at Honeycomb, because once I get started it’s hard to stop. But I owe particular
+thanks to Ben Hartshorne and Ian Wilkes, who have been the heart and pickled
+spleen of Honeycomb Engineering since day one, and to Emily Nakashima, who does
+five impossible things each day before breakfast. Honeycomb is the product of many
+talented hands, but you are our—oh yes—three pillars.
+Finally, and most importantly, to my family. I am grateful for your tolerance, your
+support, and your love—and perhaps even more for what you refuse to tolerate.
+Francis, Mark—thank you for crossing the ocean again and again to stay connected.
+Mom and Dad, Claire, Justice, Dan, Seri, and Rees: I’ll see you at Thanksgiving. For
+real this time.
+
+Liz Fong-Jones
+A special thanks to all of my family and partners who tolerated my long work hours
+and stress, including Elly, Ellen, Alison, Lydia, and Amber. Eternal love to my fuzzy
+companion Flurry, who never got to see the book finished.
+
+George Miranda
+Looking back on the first edition’s acknowledgements, I’m reminded of just how
+instrumental Deirdre Mahon was in making this book possible. Deirdre, I’ve said it
+before and I’ll say it again now in print: thank you for the advice. For this edition,
+I’m looking at you, Jeff Gray. Logistically, you made this one possible. I can’t begin
+to imagine where we’d be if you hadn’t got involved. Thank you for your guidance,
+candor, and perspective that continues to resonate.
+
+Austin Parker
+Apparently, the best way to keep writing books is to loudly exclaim, “Well, never
+doing that again!” to anyone in earshot after completing one, as it indicates that
+you would indeed write another book. I’d like to acknowledge the thousands of
+contributors and maintainers of the OpenTelemetry project for their efforts and work
+over the years—you make observability a possibility for so many. I would also like to
+thank my spouse, Mandy, for her infinite patience and for being a constant source of
+inspiration and encouragement.
+
+
+
+
+xxxiv   |   Preface
+                                                                                 PART I
+                       Introduction to Observability
+
+
+
+
+This first segment lays the foundations that the rest of the book builds on.
+You’ll learn what observability actually means in the context of software develop‐
+ment, how AI changes that picture, and how to gauge how observable your system
+really is. You’ll also learn what investigative capabilities a high degree of observability
+unlocks, and how to test whether your system actually has them.
+Chapter 1 traces where the term “observability” came from, how it was adapted for
+software systems, and what it actually means to have an observable system. It also
+looks at how to think about observability in the age of AI-assisted development and
+agentic applications.
+Chapter 2 is about how code crosses over from development into production, and
+what it takes to do that well. It describes the full “test in prod” toolkit—instrumenta‐
+tion, feature flags, canaries, automated rollbacks—as a flywheel where each practice
+enables the next. And it makes the case that all of it depends on one thing first:
+observability that is rich and precise enough to actually trust.
+Chapter 3 is a retrospective on the evolution of observability, written by coauthor
+Charity Majors from her own perspective. It focuses on the lessons that matter
+most now that “observability” has become ubiquitous, and closes with the functional
+requirements that anchor the concepts introduced throughout this part of the book.
+In Part II, we’ll introduce you to instrumentation principles and OpenTelemetry.

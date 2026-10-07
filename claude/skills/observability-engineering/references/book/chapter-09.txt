@@ -1,0 +1,465 @@
+                                                                       CHAPTER 9
+                 Observability-Driven Development
+
+
+
+
+In Part II, we introduced instrumentation: what to emit and why. In the previous
+chapter, we focused on analysis: how telemetry becomes evidence that you can use to
+understand system behavior. This chapter closes the loop between those two actions.
+Observability is often framed as something you use after a service is in production.
+That framing is incomplete. Observability should also be an early part of your
+software development practices. Telemetry should evolve alongside your code, and
+engineers should think about instrumentation any time a change could introduce
+new failure modes or shift performance in ways that matter to users.
+That’s the core idea behind observability-driven development; a practice similar to
+test-driven development (TDD), but covering different concerns. When observability
+drives code development, you’ll ship new features together with the instrumentation
+needed to measure impacts and capture the context you’ll need to verify their perfor‐
+mance, compare them to previous versions, and debug them quickly when reality
+disagrees with your assumptions.
+We’ll start by reviewing TDD and its limits when applied to production environ‐
+ments. We’ll look at how observability complements TDD by enabling rapid triage,
+systematic investigation in distributed systems, and shorter feedback loops between
+features and customer experiences. Lastly, we’ll cover how this approach supports
+progressive delivery and how generative AI can assist—when guided by explicit
+standards.
+
+Test-Driven Development
+TDD is one of the most successful shift-left practices in modern software develop‐
+ment. For the last two decades, it’s been considered the gold standard for testing
+software prior to its release to production. In TDD, you define behavior through
+
+
+                                                                                  149
+tests. You run those tests constantly. You use failing tests to guide implementation.
+And this all works because the environment is controlled: data resets, dependencies
+are mocked, and variability is intentionally removed.
+It’s a powerful practice because it provides engineers with clarity around software
+operability. Application functions are defined by deterministic sets of constant,
+repeatable tests. If these repeatable tests pass, the application must be running as
+expected. Before changes to the application are produced, they start as a set of new
+tests that exist to verify that the change would work as expected. A developer can
+then begin to write new code in order to ensure the test passes.
+TDD is particularly powerful because tests run the same way every time. Data typi‐
+cally doesn’t persist between test runs; it gets dropped, erased, and re-created from
+scratch for each run. Responses from underlying or remote systems are stubbed or
+mocked. With TDD, developers are tasked with creating a specification that precisely
+defines the expected behaviors for an application in a controlled state. The role of
+tests is to identify any unexpected deviations from that controlled state so that engi‐
+neers can then deal with them immediately. In doing so, TDD removes guesswork
+and provides consistency.
+But that consistency and isolation are also what limits TDD’s revelations about how
+your software behaves in production. Passing tests does not mean that users in
+production are experiencing good performance. Nor does it mean that errors or
+regressions will be easy to localize after releasing that code back into production.
+Production is defined by variability. Any reasonably experienced engineer responsible
+for managing software running in production can tell you that production environ‐
+ments are anything but consistent. They’re full of interesting deviations that your
+code might encounter out in the wild but that have been excised from tests because
+they’re not repeatable, don’t quite fit the specification, or don’t go according to plan.
+While the consistency and isolation of TDD makes your code tractable, it does not
+expose the long tail of strange conditions that only show up under real traffic, real
+data, and real dependency behavior.
+TDD ensures correctness against a specification. Observability-driven development
+helps you verify behavior against reality.
+
+Observability in the Development Cycle
+Debugging a new feature is easiest immediately after that change ships. Catching bugs
+cleanly and resolving them swiftly is what prevents them from becoming a backlog
+of technical debt that weighs down development speed. Yet, software delivery and
+operations teams often hinder their ability to do so for a variety of reasons.
+
+
+
+
+150   |   Chapter 9: Observability-Driven Development
+For example, consider that in some organizations, software engineers aren’t respon‐
+sible for operating their software in production. These engineers merge their code
+into main, cross their fingers in hopes that this change won’t be one that breaks
+production, and essentially wait to get paged if a problem occurs.
+Sometimes they get paged soon after deployment. The deployment is then rolled
+back, and the triggering changes are examined for bugs. But more likely, problems
+aren’t detected for hours, days, weeks, or months after the code is merged. By that
+time, it becomes extremely difficult to pick out the origin of the bug, remember the
+context, or decipher the original intent behind why that code was written or why it
+shipped.
+Right when the feature first ships, intent is still fresh in the original author’s mind.
+The longer the detection is delayed—hours, days, weeks—the more expensive the
+investigation becomes (often by orders of magnitude) and the more likely teams are
+to rely on rollbacks and guesswork.
+Observability-driven development addresses this by bundling instrumentation into
+the development workflow, so that it’s present in production while the intent is still
+fresh. Done well, this bundling gives your team faster, more reliable answers when
+their systems behave unexpectedly after a deployment.
+
+Determining Where to Debug
+Newcomers to observability often mistake it as a replacement for debugging their
+code, similar to using highly verbose logging. While it’s possible to debug your code
+using observability that way, that’s not its primary purpose. Observability operates on
+the order of systems, not on the order of functions.
+Emitting enough detail at the line level to reliably debug code could emit so much
+output that it would swamp most observability systems with an obscene amount
+of storage and processing needs. At scale, that approach is simply impractical and
+cost-prohibitive. And that still doesn’t necessarily tell you where the problems are
+happening.
+TDD is useful for debugging your code logic. Observability is for figuring out where
+in your systems to find the code you need to debug. High-observability tools narrow
+the search space. Which component originated the error? Where is latency being
+introduced? Where did a piece of this data get munged? Which hop is taking up the
+most processing time? Is that wait time evenly distributed across all users, or is it
+experienced by only a subset?
+High-observability tools show you the component, dependency, user segment, build
+ID, infrastructure slice, or request path where the issue originates. Often, they’ll
+also give you a good idea of what might be happening in or around an affected
+
+
+                                                           Determining Where to Debug   |   151
+component, indicate what the bug might be, or even provide hints as to where the
+bug is happening: in your code, the platform’s code, or a higher-level architectural
+object.
+Once you’ve isolated the likely location and conditions, observability’s job is done.
+From there, if you want to dive deeper into the code itself, the tool you want is a
+good old-fashioned debugger (for example, the GNU Debugger, GDB) or a newer
+generation profiler (see Chapter 20).
+Once you suspect how to reproduce the problem, you can spin up a local instance of
+the code, copy over the full context from the service, and continue your investigation.
+The following are examples of different paths you might take with debugging versus
+observability:
+
+  • You see a spike in latency. You start at the edge; group by endpoint; calculate
+    average, 90th-, and 99th-percentile latencies; identify a cadre of slow requests;
+    and trace one of them. It shows the timeouts begin at service3. You copy the
+    context from the traced request into your local copy of the service3 binary and
+    attempt to reproduce it in the debugger or profiler.
+  • You see a spike in latency. You start at the edge; group by endpoint; calculate
+    average, 90th-, and 99th-percentile latencies; and notice that exclusively write
+    endpoints are suddenly slower. You group by database destination host, and note
+    that the slow queries are distributed across some, but not all, of your database
+    primaries. For those primaries, this is happening only to servers of a certain
+    instance type or in a particular availability zone (AZ). You conclude that the
+    problem is not a code problem, but one of infrastructure.
+
+While they are related, the difference between an observability tool and a debugger
+is an order of scale; observability is the telescope that helps you aim the microscope.
+Those two scopes have some overlapping use cases, but they are primarily designed
+for different things.
+
+Debugging in the Time of Microservices
+When viewed through that lens, it becomes clear why the rise of microservices
+was tied so strongly to the rise of modern observability tools. Software systems
+used to have fewer components, which meant they were easier to reason about. An
+engineer could think their way through all possible problem areas by using only
+low-cardinality tagging. Then, to understand their code logic, they simply always
+used a debugger or IDE. But once monoliths started being decomposed into many
+distributed microservices, the debugger no longer worked as well because it couldn’t
+hop the network.
+
+
+
+
+152   |   Chapter 9: Observability-Driven Development
+                As a historical aside, the phrase “strace for microservices” was an
+                early attempt to describe this new style of understanding system
+                internals before the word “observability” was adapted to fit the
+                needs of introspecting production software systems.
+
+
+When distributed systems communicate across networks, code logic and operational
+context become inseparable—irrevocably intertwined with the logic bugs we uninten‐
+tionally shipped and inflicted on ourselves. In monolithic systems, it’s obvious to
+your debugger if a certain function slows immediately after code that modified that
+function is shipped. Now, such a change could manifest in several ways.
+You might notice that a particular service is getting slower, or a set of dependent
+services is getting slower, or you might start seeing a spike in timeouts—or the only
+manifestation might be a user complaining. Who knows.
+And regardless of how it manifests, it’s likely still incredibly unclear according to
+more traditional observability tools whether that slowness is being caused by any of
+the following:
+
+  • A bug in your code
+  • A particular user changing their usage pattern
+  • A database overflowing its capacity
+  • Network connection limits
+  • A misconfigured load balancer
+  • Issues with service registration or service discovery
+  • Some combination of the preceding factors
+
+In a system with low observability, all you may see is that all of the performance
+graphs are either spiking or dipping at the same time.
+
+How Instrumentation Drives Modern Observability
+The promise of high-observability tooling depends on instrumentation quality. Those
+tools can pinpoint issue sources, causal attributes, and exactly which half a dozen or
+more things must all be true for the error to occur by examining behavior with rich
+context—build IDs, host groups, instance types, kernel versions, dependency targets,
+container versions, etc.
+But that is only possible if that context is captured consistently by useful instru‐
+mentation. Good instrumentation drives observability. One way to think about how
+instrumentation is useful is to consider it in the context of pull requests. Pull requests
+
+
+
+                                             How Instrumentation Drives Modern Observability   |   153
+should never be submitted or accepted without first asking yourself, “How will I
+know if this change is working as intended?”
+For example, let’s say you introduced a new caching mechanism into your application
+to improve performance. While helpful, that new functionality is also a potential
+source of failure. When introducing that change, you should also add instrumenta‐
+tion to your code that tracks specific cache operations, such as when data is put into
+the cache or retrieved from it. You should set attributes like cache.put, cache.get,
+cache.key, and cache.hit to capture information about the new cache operations in
+your functions.
+Aim to develop instrumentation that creates reinforcement mechanisms and shorter
+feedback loops. In other words, tighten the loop between shipping code and feeling
+the consequences of errors. This is also known as: putting the software engineers on
+call.
+One way to achieve this is to automatically page the person who just merged the
+code being shipped. For a brief period of time, maybe 30 to 60 minutes, if an alert is
+triggered in production, the alert gets routed to that person. When an engineer expe‐
+riences their own code in production, their ability (and motivation) to instrument
+their code for faster isolation and resolution of issues naturally increases.
+That feedback loop is not punishment; rather, it is essential to code ownership. You
+cannot develop the instincts and practices needed to ship quality code if you are
+insulated from the feedback of your errors. Every engineer should be expected to
+instrument their code such that they can answer these questions as soon as it’s
+deployed:
+
+  • Is your code doing what you expected it to do?
+  • How does it compare to the previous version?
+  • Are users actively using your code?
+  • Are any abnormal conditions emerging?
+
+A more advanced approach is to enable engineers to test their code against a small
+subset of production traffic. With sufficient instrumentation, the best way to under‐
+stand how a proposed change will work in production is to measure how it will
+work by deploying it to production. That can be done in several controlled ways.
+For example, that can happen by deploying new features behind a feature flag and
+exposing it to only a subset of users. Alternatively, a feature could also be deployed
+directly to production and have only select requests from particular users routed to
+the new feature. These types of approaches shorten feedback loops to mere seconds
+or minutes, rather than what are usually substantially longer periods of time waiting
+for the release.
+
+
+
+154   |   Chapter 9: Observability-Driven Development
+If you are capturing sufficient instrumentation detail in the context of your requests,
+you can systematically start at the edge of any problem and work your way to the
+correct answer every single time, with no guessing, intuition, or prior knowledge
+needed. This is one revolutionary advance that observability has over monitoring
+systems, and it does a lot to move operations engineering back into the realm of
+science—not magic or intuition.
+
+Shifting Observability Left
+Teams that cannot reason accurately about production tend to treat it as fragile.
+They roll back quickly because they can’t distinguish “real regression” from “expected
+variance,” or they can’t isolate the cause. Over time, production becomes a place they
+fear to touch. Shifting left with observability changes that relationship.
+Bundling instrumentation with new features gives engineers an opportunity to con‐
+sider how they would see the small variance of changes that happen in production.
+Your software might behave according to specification in a small, sterile, and con‐
+trolled testing environment, but what will it actually do when it reaches production?
+If engineers focus only on adherence to a spec, they inadvertently create the condi‐
+tions that lead to fearing production deployments.
+When engineers can’t reliably reason about production, they begin to see it as a glass
+castle—a beautiful monument to their collective design over time, but one they’re
+afraid to disturb because any unforeseen movement could shatter the entire structure.
+By contrast, engineers who bundle useful telemetry into new features learn how to
+understand behaviors in production. They become empowered to reach further and
+further into the development lifecycle to consider the nuances of detecting unfore‐
+seen anomalies that could be roaming around their castles unseen (for guidance on
+reasoning about and measuring software reliability, see Chapter 11).
+Observability-driven development enables engineering teams to turn their glass cas‐
+tles into interactive playgrounds. Production environments aren’t immutable but full
+of action, and engineers should be empowered to confidently walk into any game and
+score a win.
+But this only works when observability is treated as a shared engineering practice; not
+a specialized activity reserved for SREs or operations roles. Software engineers must
+adopt observability and work it into their development practices in order to unwind
+the cycle of fear they’ve developed over making any changes to production.
+
+
+
+
+                                                            Shifting Observability Left   |   155
+Using Observability to Speed Up Software Delivery
+A common perception in the software industry is that a trade-off usually occurs
+between speed and quality: you can release software quickly or you can release high-
+quality software, but not both. A key finding of Accelerate: Building and Scaling High
+Performing Technology Organizations was that this inverse relationship is a myth.1 For
+elite performers, speed and quality go up in tandem and reinforce each other. When
+speed gets faster, failures become smaller, happen less often, and—when they do
+happen—are easier to recover from. Conversely, for teams that move slowly, failures
+tend to happen more often and take substantially longer to recover.
+A practical “North Star metric” is lead time to production: the time from code
+written to code running in production. Observability-driven development supports
+improved lead time by reducing uncertainty during rollout and making investigation
+faster when something goes wrong.
+When production is a glass castle, deployment rollbacks happen instinctively and
+comfortably at the slightest sign of any potential issues. Lacking visibility and con‐
+fidence, these teams inadvertently take their foot off the gas and halt any further
+deployments or changes while they roll back the current change they don’t fully
+understand. That’s exactly the opposite reaction to what would be most helpful in that
+situation.
+This all hinges on your team’s ability to release code to production on a relatively
+speedy cadence. If that’s not how your team currently operates, here are a few ways
+you can help speed up code delivery to production:
+Reduce batching.
+   Ship a single coherent bundle of changes, one at a time, one merge by one
+   engineer, more frequently. The single greatest cause of deployments that break
+   “something” and take hours or days to detangle and roll back is the batching of
+   many changes by many people over many days.
+Invest in the deployment pipeline.
+    Spend real engineering effort on your deployment process and code. Assign
+    experienced engineers to own it (not the intern). Make sure everyone can under‐
+    stand your deployment pipelines and that they feel empowered to continuously
+    improve them. Don’t let them be the sole province of a single engineer or team.
+    Instead, get everyone’s usage, buy-in, and contributions (see Chapter 18).
+
+
+
+
+1 Nicole Forsgren, Jez Humble, and Gene Kim. Accelerate: Building and Scaling High Performing Technology
+  Organizations (IT Revolution Press, 2018).
+
+
+156   |   Chapter 9: Observability-Driven Development
+When software engineers practice observability-driven development, they deploy
+often and successfully. Patterns like using feature flags and progressive delivery that
+decouple deployments from releases enable engineers to observe and understand
+the performance of their new feature as it is slowly released to production (see
+Chapter 2).
+
+Observability-Driven Development with AI
+You should be adding instrumentation early in the code development lifecycle. You
+should use it to answer critical questions about how your code is performing. And
+you should release that code often. But exactly what instrumentation should you be
+adding?
+In the past, frustratingly, the answer has been, “it depends.” Today, that’s still the
+answer. But a bright spot in guidance and determining exactly which instrumentation
+you should add can be addressed in part by leveraging AI-assisted coding.
+An emerging pattern in the practice of software engineering is the “copilot” model
+of agentic AI (see Chapter 8), where a developer works alongside an AI agent. These
+agents are capable of building a semantic understanding of your codebase and system
+in order to write new code, discover bugs, and generally act as a useful—if slightly
+overeager and obsequious—assistant.
+With the rapid pace of AI innovation, it’s challenging to provide evergreen guidance
+on how to best use these tools to practice observability-driven development. To
+illustrate, between when the first edition of this book was launched in 2022 and
+mid-2025, half a dozen AI-powered developer tools have not only launched but also
+achieved over $100 million in annual recurring revenue (ARR).2 There’s really no
+telling what disruptive changes will be next and no guessing which methods will soon
+be obsolete.
+That said, a few patterns and practices should remain evergreen as we collectively
+navigate a course through the future of software engineering and development. To
+that end, we’ll share what we’ve learned so far about observability-driven develop‐
+ment with AI.
+First, AI makes it extremely easy to instrument your code. Prompting an agent to
+“add OpenTelemetry support” to a new or existing codebase will quite often simply
+work, creating useful spans, metrics, and logs. Where things get tricky is that working
+telemetry and useful telemetry are two very different concepts. Agents will happily
+
+
+2 GitHub Copilot (launched June 2022 → hit $100 million ARR ≈ 12 months); ChatGPT (Nov 2022 → < $100
+ million ARR threshold within ≈ 6–9 months; revenue already $1.3 billion ARR by October 2023); Cursor
+ (April 2023 → $100 million ARR in ≈ 12 months); Replit AI Agent (Sep 2024 → $100 million ARR in ≈ 8
+ months); Lovable (Nov 2024 → $100 million ARR in ≈ 8 months).
+
+
+                                                           Observability-Driven Development with AI   |   157
+invent attributes, duplicate metrics and logs with abandon, and create overly detailed
+traces that can overwhelm you with noise.
+Crucially, you must provide detailed instructions, preferably in an agent configura‐
+tion, with general guidance on the outcomes it should achieve. Group observability
+guidance under a single header to ensure that the AI doesn’t have to manually collate
+guidance from multiple sections. Provide detailed but direct guidance.
+Examples of good guidance include statements like:
+
+  • “OpenTelemetry spans are our primary observability signal. Ensure that span
+    context is preserved through function calls.”
+  • “Display preference for applying attributes relating to an HTTP handler to its
+    root span rather than children.”
+  • “Do not duplicate telemetry signals; layer them instead.”
+  • “Each HTTP route handler must contain the following attributes: app.cus
+    tomer.id and app.customer.plan_type. These are in the request context as
+    ‘customerId’ and ‘plan.’”
+
+As demonstrated, your objective is to provide the agent with as much context as it
+needs in order to make good decisions. If you know what the source for an attribute
+value is, provide that mapping to the agent. Provide documentation links or other
+guidance where appropriate, and refer to standards such as OTel—the AI most likely
+has context about the common semantic meanings to interpret the meanings of such
+things.
+Second, AI makes code cheap, in aggregate. Perhaps you’ve read the concept that
+“all code is technical debt”. It’s the idea that every feature, line of code, and design
+decision is a liability against your future productivity. Another way to think about
+this concept is that code itself has a carrying cost in terms of maintenance burden.
+That burden is expressed in different ways.
+For example, poor interface design of an internal API can result in compounding
+performance issues due to unnecessary allocations. Repetitive patterns can increase
+the cognitive load of interpreting failures—a gap that can let bugs sneak into your
+code. And one-off features can result in dizzying combinations of failure scenarios
+that are difficult to test. AI assistance in writing code does not change any of these
+burdens. In fact, it makes them worse (see Chapter 2). In our internal use of AI
+
+
+
+
+158   | Chapter 9: Observability-Driven Development
+copilots for code generation, we have seen that AI-coauthored commits on a mature
+codebase were, on average, 3.4x longer and had a 5.5x increase in net impact.3
+While it is possible that results like this will change as AI tooling improves, what
+won’t change is that the importance of observability in generated code will remain
+paramount. Given that AI makes code cheap, your role as a developer using AI
+assistance is to reduce the carrying cost of the new code that’s being added. The best
+way to do that is to give the AI good models and patterns to follow.
+Rather than necessitating that the AI guess at what’s important in terms of attributes,
+have it create centralized helper libraries of constants and methods that it can refer
+to and add to your code as it generates new methods. You can also leverage that
+same approach to have an AI migrate your legacy telemetry to new patterns. Spend
+some time working with an agent to perform these migrations and build up a
+comprehensive prompt that describes what information should be added or changed.
+For example, help the AI understand what parameters and variables should map to
+which attributes throughout the codebase, and then use that prompt on other legacy
+services.
+Finally, consider blending test and observability-driven development patterns
+together with the assistance of AI. Tools like OpenTelemetry Weaver enable you to
+build schemas for your telemetry attributes and data, which can be fed into CI/CD
+pipelines as static checks for your codebase. You can also shift this left: give your
+AI agents access to your telemetry schemas, run local validation against the emitted
+telemetry from a service, and focus on tight loops with automated verification of
+changes. The more that the AI can check its own work against a known-good
+specification or pattern, the faster (and safer) it can make changes to a codebase (for
+more detail on using AI in observability workflows, see Chapter 10).
+
+Conclusion
+Observability can and should begin early in the SDLC. TDD helps ensure behavior
+against a specification. Observability-driven development helps ensure correct behav‐
+ior in the variability and complexity of production. Adopting that practice enriches
+your team’s analysis of their observability data.
+High-performing teams treat observability as a core engineering practice. Instru‐
+mentation should evolve with the application so that analysis remains effective
+across the system’s lifecycle. That evolution and constant practice of observing and
+understanding the variability and complexity of production is what stops production
+
+
+
+3 Over one quarter, we measured coauthored commits between a human and AI developer. The AI-assisted
+ commits were on average 607.4 lines of code versus 177.8 without, and the net change in codebase size was
+ 444.1 versus 81.
+
+
+                                                                                          Conclusion   |     159
+from being a glass castle. And it’s what equips engineering teams to ship faster, with
+confidence.
+We’ve looked at analysis through the lens of actions initiated by engineers: often,
+we’re the ones who go looking for issues. So far, our discussion of observability-
+driven development has assumed a human at every gate. Next, we’ve invited guest
+author Boris Tane to explore how AI agents are starting to take on some of the
+investigative groundwork, and what that means for how we design our systems.
+
+
+
+
+160   | Chapter 9: Observability-Driven Development

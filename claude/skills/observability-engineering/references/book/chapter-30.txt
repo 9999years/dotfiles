@@ -1,0 +1,992 @@
+                                                                      CHAPTER 30
+ The Art and Science of Vendor Partnerships
+
+
+
+
+The buying process for observability is broken. The world has changed so fast, and
+process and alignment and structure have not caught up.
+And observability is so inextricably interwoven with your company’s pace, feedback
+loops, ability to see clearly and make good decisions, that if your observability
+evaluation and procurement process is broken, your company is broken, too. These
+decisions have ripple effects that linger on for years.
+This chapter is not intended to be an intensive guide to the software buying process
+from start to finish (which would be impossible anyway), but it does offer an intro‐
+duction to the art and science of vendor engineering. We cover topics like leveraging
+trust and credibility to extend your influence across organizational boundaries; driv‐
+ing sociotechnical transformations from within; and building enduring, positive-sum
+partnerships across industry and company lines.
+It’s good for the company, it’s good for the industry, and it’s good for you. These
+are some executive-level skills—one of the rare ways to earn them as an individual
+contributor (IC)—and they are durable in a post-AI era.
+Most software transformations fail. Each one is ridiculously unlikely to succeed.
+Those that do succeed rely not only on technical excellence and top-down mandates,
+but on trust and credibility.
+In this chapter, we will give you some tools to get started. We’ll talk about who your
+stakeholders are internally, and how you can build trust and credibility with them.
+And we’ll talk about who your stakeholders are on the other side of the transaction,
+and how you can build reciprocity with them.
+We will also give you some guidance on the trickiest parts of the process and some
+common pitfalls: how to communicate up to C-levels, how to design a meaningful
+
+
+                                                                                   533
+proof of concept (POC), how to transition and hand off to another team at the
+end, and the importance of encoding the relationship using service level agreements
+(SLAs).
+This may not sound like glamorous work, but it’s engineering: it’s hard, and it’s
+meaningful. Few do it well, but those people are some of the most influential and
+effective in the industry.
+
+Does Buying Software Even Count as Engineering?
+There’s an unspoken hierarchy of tasks among software engineers, influencing who
+we look up to as well as our leveling docs and promotion packets. At the top:
+new code, new features, new products. Lower down are less glamorous tasks, like
+refactoring, tests, and infrastructure. “Buying software” isn’t on the list—is it really
+even engineering?
+You bet it is. Or it can be, and it should be.
+In fact, we will argue that vendor engineering is one of the most elite engineering
+            1
+disciplines, with an effort-to-impact ratio that is second to none.
+The decisions you make about which observability vendors to partner with will affect
+the productivity of every engineer and the experience of every customer. If you’re
+hungry for impact, it’s hard to beat that.
+We’ll talk more about what we mean by “vendor engineering” in just a moment. But
+first, here is a story from Charity to illustrate the point.
+
+
+                             A Story About Engineering Influence
+  Hi, it’s Charity again. I’d like to tell you a story about one of the most effective
+  engineers I’ve ever worked with.
+  Let me set the scene. It’s 2013, and at least 30 people are crammed around a massive
+  table in the largest meeting room in MPK 16 (the Menlo Park Facebook campus):
+  engineers, managers, executives, and sales people representing Parse, Facebook, and
+  MongoDB, including the MongoDB CEO and CTO. And me.
+  I didn’t know why so many people were there and I didn’t care. I was mad. We
+  were using the free version of MongoDB at Parse and it was crashing constantly,
+  sometimes unrecoverably. The memory-mapped storage engine would grow and
+  grow indefinitely, so we kept having to RAID together more and more EBS volumes.
+
+
+
+1 At very large enterprises, this work often happens at the principal, distinguished, or chief architect level. We
+  apologize for minting (another) new term, but technical decisions across company lines is something that
+  almost every company needs to do now, not just the ones large enough to have an architect track.
+
+
+534   | Chapter 30: The Art and Science of Vendor Partnerships
+We’d paid tens of thousands of dollars for MongoDB consultants who turned out to
+know less than we did. We were constantly being woken up by an array of crashes and
+data corruption bugs; on-call had been miserable for months. I was in that room for
+one reason: to make sure MongoDB knew how mad I was and how much I thought
+their software sucked.
+In retrospect, I understand more about that scene. The MongoDB execs were there to
+see if they could get their toe in the door at Facebook. The Facebook execs were there
+because this was the first meeting with an important vendor for an acquisition they’d
+just made, and they understood better than I did how much Parse’s future was bound
+up with MongoDB’s. They knew this was an important relationship for them to build.
+I didn’t know any of that. I just wanted my bugs fixed.
+I did most of the talking for most of the meeting, visibly irritated. The MongoDB
+contingent took notes, made sympathetic noises, and then asked Facebook many
+probing questions about whether there might be any potential use case for MongoDB
+at Facebook. (There was not.)
+Toward the end, some guy on the other end of the long table spoke up. He was polite
+and soft-spoken. He asked a few follow-up questions about the problems I described,
+and then asked about their roadmap and the plans for their storage engine. He clearly
+knew his stuff, and when he was talking, everyone looked up and leaned in. Nobody
+interrupted him. At one point he said, “I always listen to operations. You have to
+listen to what your operators are telling you” (which won me over completely).
+In the hallway afterward, my boss said, “Do you know who that was? That’s Mark
+Callaghan, one of the most legendary engineers at Facebook. I heard they invented E9
+[the highest engineering level] just for him.”
+Mark took a personal interest in our database woes. He started coming along to
+MongoDB events and building a friendly relationship with the Mongo folks. He
+looked into the MMAPv1 btree engine, and began lobbying for a pluggable storage
+engine interface. MongoDB agreed, likely because Mark secured resources from the
+RocksDB team at Facebook to develop the first client storage engine in tandem, and
+Parse agreed to be the first customer and guinea pig. Mark also brokered an introduc‐
+tion to Keith Bostic and the WiredTiger team, which MongoDB later acquired, and is
+the default storage engine in use today.
+I don’t know what all went on behind the scenes, obviously, but it’s my personal
+opinion that MongoDB could not have gone public on the strength of their old
+storage engine alone. When we rolled MongoRocks (still the best product name
+ever) out to our replica sets, we cut the footprint on disk by up to 90% and made
+write-heavy workloads possible for the first time.
+This means that Mark not only saved Parse from what we referred to as our imminent
+“Mongogeddon,” he also played a part in helping MongoDB complete its IPO and
+helping RocksDB become the multihyphenate write-optimized storage wonder it is
+
+
+                                            Does Buying Software Even Count as Engineering?   |   535
+  today. And he did all of this quietly, behind the scenes, within the space of a few
+  conversations, leveraging his decades of expertise and credibility in the space (and
+  reputation for holding vendors accountable) on our behalf. As a side project.
+  That’s my Mark Callaghan story. If you talk to anyone else who works in databases,
+  they probably have their own Mark Callaghan stories.
+  In retrospect, working with Mark changed me as a technologist. It shifted my entire
+  perspective on what world-class engineering power and influence can look like.
+  Mark wasn’t a manager or an executive, just a software engineer—always has been,
+  as far as I can tell. He doesn’t write masses of code, work the conference circuit, or
+  post on Hacker News. (He’s not very good at self-promotion.) Mark’s capabilities are
+  an advanced form of what I’ve come to think of as vendor engineering: leveraging
+  influence across company lines to move the industry forward in ways that benefit us
+  all.
+
+
+The Difference Between Vendor Engineering and Buying Software
+As you can see from Charity’s story, true vendor engineering is about leveraging
+influence to move the industry forward, which is a significant step beyond simply
+“buying software.” This evolution from mere purchasing to strategic vendor partner‐
+ships helps explain a fundamental truth of our time: modern tech companies are
+dramatically more productive than they were 20 years ago. There are a lot of reasons
+for this, but one of the biggest is that software companies have gotten better at
+leveraging each other’s work. This lets each of us specialize and make better products,
+instead of every company building everything from scratch.
+The biggest technical innovations are well-known: cloud computing! APIs! SaaS!
+Sure. But there’s a whole messy middle of decisions we don’t talk about as much: how
+we decide which companies to bet on, how to partner with them, and how to drive
+outcomes that benefit everyone involved.
+Easy to say. Hard to do.
+Vendor engineering is about wielding influence without authority across company
+and industry lines. Buying software just takes money, while vendor engineering
+takes technical depth and breadth, strategic thinking, and a solid grasp of business
+priorities as well as the levers to drive organizational change.
+
+Training Grounds for Executive Skills
+If that sounds suspiciously like an executive job description, you’re not wrong. These
+are skills that most engineers only get to practice or train in on the management
+track.
+
+
+
+536   |   Chapter 30: The Art and Science of Vendor Partnerships
+Vendor engineering is an opportunity to build credibility and trust in key relation‐
+ships around the company, and to learn how to navigate complex organizations and
+operate their levers.
+These are durable skills in an era where AI has begun to generate more lines of code
+than people do. If you believe that engineering is about solving business problems
+with technology, these are some of the biggest engineering problems of all.
+The best vendor engineers end up shaping entire industries, holding vendors to
+account, pushing them to be better and do better. We can’t all be Mark Callaghan,
+changing the trajectory of multiple billion-dollar companies with a conversation
+or two (even Mark took decades to become Mark Callaghan). But for the skill
+of translating between tech and business, speaking to C-levels and engineers, and
+representing stakeholders at all levels—there are few training grounds as intense and
+educational as the software purchasing and procurement process.
+If this kind of work interests you, here are some entry points and things to know up
+front.
+
+What to Know Before You Start
+It can be challenging to write about the software purchasing and procurement pro‐
+cess, because it seems like every company has a different process, for every different
+tool, every different time. That’s not entirely fair (larger companies in particular tend
+to be better at imposing some rigor), but there’s no getting away from it: there’s a lot
+of hyper-local variance.
+This can be tough on vendors, but it’s great for you. You should be able to find an
+entry point without much difficulty.
+
+Find Local Guidance
+Start with the docs. Your company probably has some existing policy documents to
+structure and guide the software purchasing process.
+But docs are never enough. Find the local experts, people who have done this before
+and are willing to share their expertise.
+If you’re a staff engineer who wants to grow into this kind of work, offer yourself up
+as an apprentice to someone like this. Offer to run their errands and do legwork in
+exchange for the chance to watch them up close and learn. This arrangement benefits
+everyone.
+
+
+
+
+                                                          What to Know Before You Start   |   537
+Understand Your Role
+If you’ve signed up to drive the evaluation and purchasing process, your job is to keep
+the machinery moving. There’s a certain amount of project management involved,
+which is hard to outsource. That means it’s yours.
+Your purchase will likely flow through security review, legal review, and technical
+architecture review. Each has different timelines, different concerns, and different
+needs for context. Your job becomes connecting specialists on your side to the ven‐
+dor, sharing context about why this purchase matters, helping reviewers prioritize,
+and providing realistic timeframes about how long each stage will take.
+The broad lesson: assume nobody else cares enough to keep the purchase moving.
+You’re the sheepdog. Stay on top of every stage, provide regular updates to your
+stakeholders, escalate when needed, and accept that this may consume significant
+time.
+Let’s take a look at each of those stakeholders, and what their department typically
+needs to know or care about when it comes to a software purchase.
+
+Mapping Your Stakeholders
+Software purchases at scale involve far more stakeholders than seems reasonable,
+each with legitimate but often conflicting concerns. Stakeholder management is one
+of the reasons that vendor management has such a high difficulty score. You aren’t
+just pushing packets around; your job is to understand.
+For each stakeholder, ask yourself what are their needs, what are their red lines, where
+are they coming from? The more you understand their point of view, the more you
+can partner with them creatively to navigate obstacles. This is what makes vendor
+engineering an engineering problem, not just project management.
+
+Engineering
+Most developers aren’t deeply opinionated about observability vendors. Few feel
+strongly attached to specific tooling. This cuts both ways—less political resistance,
+but also less organic enthusiasm unless you can demonstrate concrete improvements
+to their daily work.
+The key to winning engineering support is showing the tool solving their specific
+problems. This means getting involved in their codebases, understanding their pain
+points, and demonstrating genuine improvements to the things that hurt them today.
+It’s hard for anyone who isn’t a software engineer to get other software engineers
+excited about observability, which is one of the most compelling reasons for an
+
+
+
+538   |   Chapter 30: The Art and Science of Vendor Partnerships
+engineer to drive this process. Show, don’t tell. Find some champions; you’ll need
+them. They exist. Follow the pain.
+
+Management
+Engineering leadership wants to know how a software purchase fits into the broader
+technical direction, what opportunity costs you’re taking on, and how you’ll drive
+adoption across the organization.
+They typically control the organizational levers you will need to access in the migra‐
+tion stage. Feed them written progress updates to keep the drumbeat going.
+They need to know what you expect their teams to contribute, how this intersects
+with their roadmap, and how much of their existing work they’ll have to deprioritize.
+Ideally, you’ll have had a chance to rack up some major tech wins for them, so they
+will be looking for excuses to prioritize this work instead of dragging their feet (we
+will talk about building champions in a moment).
+
+Finance
+Finance stakeholders care about cost management, budget predictability, tooling
+consolidation, ROI, time to value, and contract terms.
+With finance stakeholders, you need to translate your purchase or budget requests
+into concrete business outcomes. How does your proposal reduce customer-
+impacting incidents, accelerate development velocity, or enable new capabilities that
+drive revenue?2
+
+IT/Ops and Security
+Internal IT and security teams evaluate system alignment, cybersecurity implications,
+compliance requirements, authentication integration, deployment complexity, and
+ongoing support burden. In regulated industries, these concerns intensify.
+For observability specifically, security teams often get heavily involved because of the
+nature of data flowing through the system. Customer data, business logic, system
+internals—all of it becomes visible in your observability platform. Security teams
+need assurance about data handling, retention, access controls, and compliance with
+regulations like General Data Protection Regulation (GDPR) or industry-specific
+requirements. (For more on handling highly secure instrumentation data and dealing
+with compliance, see Chapter 31.)
+
+
+
+2 As engineers, we often find deep discomfort in imprecise estimates backed by handwavey guesses; it feels
+  almost like lying. Well, we have to get over it. Finance is used to dealing with handwavies. It’s fine. Think of it
+  more like a directional orientation than a precise commitment.
+
+
+                                                                                 Mapping Your Stakeholders     |   539
+Most of what falls under the rubric of compliance, regulation, and security can be
+surprisingly flexible—as long as you have the right story and evidence for your
+auditors. This is impossible to do without active assistance from security.
+
+                      If you keep hearing “no” by proxy, as in “they will never allow that”
+                      or “they are not going to like this” or “they won’t let you,” then
+                      figure out who “they” are and go talk to them. Never accept a proxy
+                      no.3
+
+
+Procurement
+At large organizations, you’ll work with procurement specialists—and experiences
+vary wildly. Some procurement departments are efficient partners who understand
+their role is facilitating good purchasing decisions. Others seem designed primarily
+to prevent purchases from happening, drowning you in process while providing little
+actual value.
+It doesn’t matter. Treat procurement like your friend. Find out what’s holding them
+back, what their biggest pain points are, and see if you can help them out. See if
+you can help deliver a win for them that looks great on their performance review.
+Definitely do not exclude them or route around them just because they make your life
+troublesome (even if that is what they do).
+
+Communicating Up the Ladder
+When decisions require C-level approval, you probably won’t be in the room. Struc‐
+ture your case and put it in writing so your boss or executive sponsor can effectively
+advocate up the chain. Frame everything in business outcomes rather than technical
+details,4 as discussed in Chapters 27 and 28.
+No matter how much your boss insists that artifacts don’t need polish, if there’s
+any chance they’ll get escalated up the ladder, make them presentable. Executives
+trust polished slides and documents far more than engineer-quality artifacts, however
+technically sound.
+Surprises kill deals. You don’t want anyone in that room to be surprised by anything
+they learn there. Go overboard in making sure bad news gets surfaced early on and
+dealt with, objections handled satisfactorily, stakeholders appeased, obstacles noted,
+and contingencies planned for—no surprises.
+
+
+
+3 P.S. It’s usually security.
+4 A list of “major concerns” with green checkboxes saying “we dealt with these and they’re not roadblockers”
+  goes a long way too.
+
+
+540   |   Chapter 30: The Art and Science of Vendor Partnerships
+The one thing all internal stakeholders hold in common is this: you are all on
+the same team. You all want your company to succeed, and you are all working
+together to achieve that goal. Trust and credibility are the key to successful internal
+transformation efforts, so let’s talk a bit about what those are and how to build them.
+
+Trust and Credibility with Internal Stakeholders
+Mapping your stakeholders reveals the “who” and “what” of a purchase, but building
+trust and credibility provides the “how” for actual execution. While these two terms
+are often used interchangeably, they represent different currencies in an organization.
+Understanding the distinction is the difference between being a strategic partner and
+being just another petitioner.
+
+Credibility Versus Trust
+Credibility is built when you assert something is true, and it turns out to be true.
+This is where your technical expertise translates into an asset. When you assert that
+something will or will not work, do people believe what you say? If you say one thing
+and someone else says another, who gets believed? It will speed things up if you are
+credible, so be conservative in your claims, and be cautious about speaking for others.
+Trust is built when you say that you have someone’s best interests at heart, and
+your actions prove you do. This is rarely a technical consideration. When you need
+someone to trust you, extend yourself first. Do something to demonstrate that you
+understand their needs and concerns, and you’re willing to earn it.
+Ideally, the change you want to drive is one that will genuinely make your stakehol‐
+ders’ lives better. Find those points of overlap and prove them out. If they invest the
+time to get creative in helping you solve your problems, will they also be indirectly
+solving their own problems? That’s what we mean by “alignment.” If you can’t show
+alignment with a stakeholder, the job gets harder. Then you are just a petitioner—one
+of many.
+Trust is grease in the machinery; it opens doors, attracts allies, and soothes the
+organizational immune response. It builds up over time, increases with use, and can
+be lent around like capital. One of the biggest reasons to work on improving your
+credibility and trust is so you can lend yours to causes that you care about.
+
+Building Trust with Stakeholders
+How to build trust with stakeholders is not mysterious: figure out what makes them
+win and help them achieve that. What OKRs (objectives and key results) do they
+have, and which ones are they most worried about? Are there any chronic sources of
+pain or threats that you can make go away?
+
+
+
+                                             Trust and Credibility with Internal Stakeholders   |   541
+Do some of the grunt work. Get your hands dirty. Facilitate key interactions that
+could be helpful. If you already have influence in the org, put your name on any “this
+will turn out well and I’m sticking my neck out to make sure it happens” type of lists
+on their behalf.
+With these stakeholders, you’re the supplicant. You represent more work, more risk,
+and more exposure, and you are just one in a long line of questionable supplicants
+they have to deal with. It’s on you to earn their trust.
+
+Breaking Trust with Stakeholders
+One of the most reliable ways to build trust is to tell the truth, especially when it
+doesn’t portray you in the greatest light or if the news is bad. Surprises are a direct
+breach of trust; they leave execs (and other stakeholders) feeling unmoored and
+suspicious.
+To navigate the setbacks effectively:
+
+  • Never sit on bad news or big, scary numbers. When you learn something that is
+    likely to upset someone, tell them right away.
+  • Being forthcoming is twice as important if you bear any personal responsibility
+    for the situation at hand.
+  • Eliminate surprises. Again, surprises are a breach of trust. Bad news, big mis‐
+    takes, and disappointment are par for the course; that’s life. But unexpected
+    shocks at the C-level will likely tank a deal.
+
+With internal stakeholders, remember that you are the supplicant: you need some‐
+thing from them, and you will work hard to get it, but you are all on the same
+team with the same overarching goal. The dynamic with your vendor relationships is
+exactly the opposite.
+
+Trust and Reciprocity with External Stakeholders
+While internal stakeholders share your company’s overarching goals, the dynamic
+with external vendors is reversed: they want to make a sale, and you want what’s best
+for your company. Most vendor relationships are transactional, but high-functioning
+partnerships operate like two teams within the same organization—a state only
+reached through transparency and reciprocity.
+
+Building Vendor Relationships
+With your coworkers, you should assume you all want the same thing—for your
+company to succeed. When there is conflict, it’s a disagreement in good faith about
+how to achieve this.
+
+
+542   |   Chapter 30: The Art and Science of Vendor Partnerships
+You cannot assume the same of your vendors. They want something from you, and
+they will work hard to get it. With your vendors, you should assume you want
+different things. They want to sell you something. You want the best outcome for
+your company. These things may converge, or they may not.
+Remind yourself that vendors will be helpful and useful for exactly as long as you
+appear to keep making progress toward their sale, and no further. If a better outcome
+for you lies elsewhere, you are on your own to find it—and if they know you’re
+looking, they may try to actively mislead you and thwart you. (Yes, this includes
+lying.)
+This is normal. This is capitalism. This is the working basis of most friendly, produc‐
+tive contractual partnerships. It is not how all vendors operate, but it is the right
+baseline assumption.
+
+The Vendor Trust Coefficient
+Over time, as you engage with a vendor and a sales team, you will build up a mental
+model of how they operate and whether they care about what’s in your best interest—
+almost like a trust coefficient for each vendor.
+Will they answer you honestly, even when it reflects poorly on them? Do they actively
+lie to you, or only mislead by omission? How much time do they devote to spreading
+FUD (fear, uncertainty, and doubt) about other vendors, or trying to use you to set
+“traps” for the competition (feeding you questions designed to elicit an answer that
+favors them)?
+In short: how shady do they act?
+You will want and need their help. Vendors are experts in their field, after all, and
+they’ve run a ton of POCs. There’s no reason not to lean on them. But:
+
+  • Are they working to help you assess your critical needs, and to design, instrument
+    and run a POC to exercise those needs, including the rough edges and hard
+    cases? It’s not shady to help you figure out how to map your problems to their
+    solution, or to show the value they can add.
+  • Or, do they helpfully offer to do the work for you in ways that elide their
+    product’s weaknesses or approximate your hardest problems? Do they reassure
+    you that test datasets are just as good, performance is never a problem, or sway
+    you away from use cases that might show their product in a bad light? That
+    means they are actively working against your best interests.
+
+Just because a vendor is a little shady, doesn’t mean you can’t work together profitably.
+It just means you have to keep a closer eye on them. Double-check any information
+they give you, especially about their competitors. (Alternatively, just assume that any
+
+
+                                             Trust and Reciprocity with External Stakeholders   |   543
+time they mention a competitor, they are lying and a little scared.) Make sure the
+work is done to your specification, not theirs. For every lie you catch them in, assume
+they’ve told a hundred more.
+After all, you have a professional responsibility to act in your company’s best interest,
+and that does not change—no matter how lovely your sales contacts are.
+
+The Reciprocity Principle
+We believe that the best vendor–customer partnerships are built on the rule of reci‐
+procity. You should want to be a customer that your vendor will fight to retain and
+make happy; your vendor should want to provide a service that is valuable enough for
+you to fight to keep and want to pay for.
+If both of you feel like high-fiving after you negotiate a new contract, that is a
+promising start to a great partnership.
+Not everyone agrees, and that’s fine. We’ve seen engineers gloating when they think it
+costs their vendor more to run their workload than they are being paid to run it—the
+vendor is serving them at a loss, in other words. It’s always fun to get something
+for free, but in a B2B relationship, it’s usually more valuable to you if your vendor
+actually wants your business. (And if the product is good, presumably you want to
+keep using it, which means they need to stay in business.)
+The reverse can happen, too. Some vendors have a pricing strategy that is designed
+to “leave no money on the floor.” This means finding the exact point at which the
+price is so painful it will force the customer to leave, and charging right up to that
+point. This might not actually sour the relationship—as the people who pay the bills
+are usually different from the people who use the product—but it can lead to internal
+tensions between payers and users over whether the service is worth it.
+A certain slice of enterprise tech is all but impervious to price; what they do care
+about is trust, reciprocity, and the ability to influence the vendor’s roadmap (or
+strategically plan around it).
+When your company is really well-aligned with a company you’re buying from—and
+there’s a high degree of respect, transparency, and reciprocity on both sides—it can
+come to feel like your successes are their successes, and their successes are yours.
+That’s the dream. It doesn’t usually happen. But when it does, it’s incredible.
+That kind of trust can only be built over time. But it’s not where you start out—and,
+fair warning, it’s not where you usually end up, either.
+
+How to Influence Another Company’s Roadmap
+The ability to influence a vendor’s roadmap is one of the more advanced forms
+of vendor engineering—one that transforms you from a passive consumer into a
+
+
+544   | Chapter 30: The Art and Science of Vendor Partnerships
+strategic partner. This comes in many forms: product roadmap updates, feature
+previews, alpha or beta access, executive dinners after events where long-term plans
+get discussed off the record. Access like this gives you confidence that you and your
+vendor are strategically aligned for the foreseeable future.
+Influence on another company’s roadmap can be earned or cultivated in a number of
+ways. Briefly (this topic alone could fill a book!), these include:
+
+  • Being an important customer, valued for your logo, your contract size, or both
+  • Strategic alignment—your companies are going in the same direction, there may
+    even be opportunities for cross-selling or co-marketing
+  • Sweat equity—are you willing to commit some of your own resources to test or
+    develop together?
+  • Technical credibility and personal relationships, both formal and informal
+  • The levers that drive organizational commitments, such as SLAs, OKRs, and
+    KPIs
+
+In “A Story About Engineering Influence” on page 534, about how Mark Callaghan
+helped to get the pluggable storage engine work on the MongoDB roadmap, you can
+see most of these levers at work.
+After the Facebook acquisition, MongoDB really wanted to win Facebook as a cus‐
+tomer, so they started paying a lot more attention to Parse. Mark was able to leverage
+his technical credibility, as one of the engineers who built the pluggable storage
+engine for MySQL, to argue that it would be a game changer for MongoDB to do
+the same. He also introduced them to key figures in the storage engine community,
+and used his influence within Facebook to get the MongoDB storage engine support
+on the RocksDB roadmap. He showed up at their conferences, spoke when invited,
+joined the MongoDB Community Champions (formerly Masters) community, and
+built relationships in the company and community.
+This is not a one-way street, by the way. Vendors also need the ability to influence
+their customers’ roadmaps at times, starting with the migration. They need to map
+out the organization and figure out who can actually sign the deal, and what the
+migration process should look like. This is a normal part of de-risking any deal. A
+migration that doesn’t appear on a customer’s roadmap or on the OKRs of any of
+their engineering teams will probably never happen.
+And never underestimate the power of personal relationships. A reliable back channel
+can be the only way to cut through layers of formality and confusion and find out
+what the hell is going on.
+While technical credibility and personal relationships are valuable, those informal
+back channels are fragile. For influence to endure, you need to move from the
+
+
+                                            Trust and Reciprocity with External Stakeholders   |   545
+handshake of strategic alignment to the contract of operational reality by codifying
+your expectations in a formal agreement.
+
+SLAs Encode the Vendor–Customer Relationship
+SLAs are not just paperwork; they are the encoding of your relationship and the
+agreements you have made. SLAs are to the vendor–customer relationship what SLOs
+are to the engineering–sales relationship: the assurances that mutual trust can be
+built on.
+
+                     An SLA is a formal, legally binding contract between a service pro‐
+                     vider and a customer that defines the expected quality, availability,
+                     and responsibilities of services provided. It sets clear performance
+                     metrics (e.g., uptime) and remedies or penalties if these standards
+                     are not met.
+
+Don’t wait until the very end to think about them, don’t forget to get stakeholder
+buy-in, and definitely don’t leave the vendors and procurement teams to hash it out
+together without your full understanding and participation.
+SLAs are some of your most effective levers for driving behavior. Well-crafted SLAs
+can help you influence future roadmap and planning decisions in a company where
+you have no authority or direct influence, even after you and your negotiating
+counterparts have all moved on.
+You might assume that the more you trust a vendor, the less important your SLAs
+are, but that would be incorrect. Good fences make good neighbors, good boundaries
+make good friendships, and good SLAs make good vendor partnerships. They pre‐
+vent misunderstandings, align incentives, encourage long-term thinking, and even
+protect the vendor from potential lawsuits (always a relationship buzzkill). They
+protect you both, so take them seriously.
+The topic of buying software and forging partnerships is long and complicated, and
+we don’t pretend to take a comprehensive approach. But there are some things you
+should seek to clarify from the start, during vendor evaluation—confusion on any
+of these points can easily derail the entire process or lead to a substandard outcome
+later on.
+
+Early-Stage Considerations
+Every org-scale sociotechnical transformation that succeeds has achieved two things
+by the time it finishes: a mandate for change from the top, and a bottoms-up ground‐
+swell of support. Execs ultimately have to believe it belongs on the roadmap, ahead of
+
+
+
+
+546   |   Chapter 30: The Art and Science of Vendor Partnerships
+other important work, and engineers need to see the value and want it for themselves,
+before you can tap into their creative energy for problem-solving.
+In the early stages of a vendor evaluation, you might not have either. This is normal.
+Your first step should be to get clear on scope, success criteria, and executive sponsor.
+What kind of support and mission parameters do you already have, and which are
+you supposed to build?
+Here are three very different (fictional) scenarios that help illustrate the point. The
+first is an insurgency, the second is a consolidation directive, and the third is an
+open-ended exploration:
+Fort Pillars Financial (the insurgency)
+    This Fortune 100 financial services organization has run the same three pillars
+    observability vendor for 17 years at $40 million annually. Their 8,000+ engineers
+    have no direct access to production telemetry: all requests flow through central‐
+    ized operations. Mean time to resolution (MTTR) averages six to eight hours,
+    and is primarily spent correlating signals across siloed systems—by hand.
+    Your vice president has commissioned you as her agent of insurgency: find a
+    modern alternative, recruit two or three product teams for a POC, and generate
+    compelling ROI evidence. She needs quantifiable improvements in MTTR, devel‐
+    oper productivity, and cost to force a strategic reassessment at the C-level. Her
+    words: “Make their eyes pop.”
+Tool Sprawl Industries (the consolidation mandate)
+    This technology conglomerate pursued “developer empowerment” and a compet‐
+    itive acquisition strategy that resulted in over 40 observability tools across the
+    organization. A recent P0 outage took 14 hours to resolve because the relevant
+    signals were scattered across five different systems. Annual observability spend
+    exceeds $60 million with massive redundancies—and also, at the same time,
+    massive gaps.
+    You’re a principal engineer with 16 years at this company. The CEO, CTO, and
+    CFO have all signed off on a consolidation directive: you are being asked to
+    assess all use cases and tools, recommend one modern platform to replace them,
+    and develop a migration template. The budget has been preapproved with an
+    expectation of 40–50% cost reduction. You have 90 days.
+Agent Smith Systems (exploring on the cutting edge)
+   This pre-IPO software company adopted OTel early and has consistently demon‐
+   strated technical craft and rigor. AI-assisted development has increased the rate
+   of new code deployed 5–8x over the last 18 months. But their observability
+   infrastructure can’t keep pace: the vendor’s Model Context Protocol (MCP) inte‐
+   gration times out, hallucinates metrics, and can’t handle AI-generated code paths
+   (or anything else with high cardinality).
+
+
+                                                             Early-Stage Considerations   |   547
+      They are starting to operationalize agentic workflow, but getting anxious about
+      going any faster without observability that can validate as fast as they ship. They
+      haven’t really thought about whether the goal is to replace their existing tools or
+      simply augment them. A big migration wouldn’t frighten them. But right now
+      they are just trying to prove that something, anything, can work at the speed of
+      AI at production scale.
+All three of these scenarios are quite common, but each calls for a radically different
+approach when it comes to engaging with internal engineering teams, designing a
+POC, and aligning around success criteria.
+Before the first line of code can be instrumented, you must also clear the final
+two hurdles: proactively managing internal friction that may arise, and making the
+foundational OTel decision to protect your organization from vendor lock-in. Let’s
+look at each consideration.
+
+Define the Scope of Work
+How you frame the problem and scope the work is often the determining factor in
+whether or not the work succeeds.
+Aim too small and, even if you succeed, you’ll have missed a rare opportunity to solve
+the bigger problem; at best, you or someone else will just have to go back and do it all
+over again. Aim too big, and you will inevitably founder on the rocks of sunk costs,
+scope creep, and territorial pushback.
+The Goldilocks size will be set by how much air cover you have (from how high up),
+how much evidence you have already assembled to prove your case, and the populist
+ratio of anger to inertia among engineering teams.
+
+Identify Your Executive Sponsor
+Find out who can sign the contract. This sounds basic but trips up many purchases,
+as the nominal decision-maker often lacks signature authority. (Also find out who has
+budget authority. This may or may not be the same person.)
+If there are multiple layers of management between you and the person who can sign
+the check, make sure that every hop of the chain stays informed and engaged.
+Try to learn as much as you can about how the decision-maker is likely to make their
+decision. If you have a clear mental model of what that person cares about, objections
+they have thrown in the past, their top priorities and goals, complaints they typically
+register, and so forth, you can proactively address those things. Again, surprises are
+never good.
+This can be challenging, because people are not always very consistent or self-aware,
+but you have to try. Any exec who wants to say no is going to say no, and will
+
+
+548   |   Chapter 30: The Art and Science of Vendor Partnerships
+find a way to retroactively justify their decision. Don’t assume that silence means
+agreement. Farm for dissent, early and often.
+
+Define Success Criteria Before You Start
+The biggest POC failure mode is never defining what success looks like. Too many
+POCs get run by ICs or managers who lack budget authority and decision-making
+power. By the time the results trickle back to an exec who can actually approve the
+purchase, context has been lost and the evaluation criteria feel arbitrary.
+Success criteria should be specific and measurable. They should translate the problem
+you are trying to solve into functional requirements, architectural characteristics,
+and budgetary guidelines. Make your case in terms of the business, as discussed in
+Chapter 26.
+Most critically, someone close to the budget needs to understand these criteria and
+agree they’re the right ones. Figure this out now, not after three months of hard work.
+
+What to Do When Your Coworkers Perceive You as a Threat
+Everything we said about how “you and your coworkers are on the same team” is
+true. However, this does not prevent you from having incompatible opinions about
+what is in the company’s best interest. When people feel threatened, they are rarely at
+their best. Two common triggers you may accidentally set off are threats to their tools
+or threats to their turf:
+Threats to their tools
+    Sometimes a tool is more than a tool—it becomes part of someone’s identity. If
+    someone (or a team) has been using the same tool for a very long time, they
+    may take pride in their expertise. They may be active in that tool’s community,
+    be widely known as an expert and sought out for their opinion, or write highly
+    regarded essays and talks about it. They may genuinely believe it’s the best tool
+    for the job, and they might even be right. But they are usually ill-equipped to
+    evaluate alternatives with an open mind.
+Threats to their turf
+    This one can be tough to avoid with observability, because observability is every‐
+    where. You probably already have some tools, and those tools have owners who
+    take pride in their work. In Chapter 28, we provided some advice on how to
+    acknowledge the heroes who got us here, and how to try and bring them along
+    with you in a way that delivers a win for them too.
+When ego and expertise are on the line, it’s easy to lose sight of the common good.
+When people feel threatened, they are very likely to reach for any levers they have
+to sabotage your work, go around your back, escalate above your head, or get you
+shut down. They will notify their favored vendor of the threat (i.e., you) and work
+
+                                                            Early-Stage Considerations   |   549
+whatever angles they can to eliminate that threat, up to and including CEO-to-CEO
+contact, if possible. Don’t be naive about this.
+The best advice we can give you is to seek counsel from local experts, execs, and
+people who have done this before, and never stop trying to extend a hand and build
+positive sum outcomes for everyone. Yes, even the backstabbers.
+There’s one more decision you should make before you start, but it’s an easy one.
+
+The OpenTelemetry Decision
+During vendor evaluation, if you haven’t already adopted OTel at the instrumentation
+layer, now is the time to start. If you have to go through and reinstrument everything
+anyway, just to evaluate a new vendor, let this be the last time you need to do that.
+If a vendor discourages you from using OTel, they are trying to lock you in. If a vendor
+locks you in, they are reducing market pressure to improve their own product.5 You
+have been warned.
+The most important technical contribution to any software buying process comes
+at the POC stage. Converting your business case into a meaningful POC—one
+that exercises the hardest questions your engineering teams are facing—requires a
+deep understanding of your team, your technical problems, and the needs of your
+business.
+
+Design and Run a Meaningful Proof of Concept
+A POC for observability software should be a load test of your hardest problems and
+representative use cases in production. Your job is to build a POC and set of criteria
+that are sturdy enough to demonstrate value and support a swift decision.
+If more than one vendor is being evaluated, part of your job is to develop a rubric for
+comparing them. What does each vendor do best, and how much does that matter to
+you? Maybe vendor A is exceptional at a particular use case, but weak at two or three
+others. If their strong suit happens to overlap with all of your revenue-generating
+requests, it might still be the best option, but if their strong suit is only 20% of what
+you care about, you can easily rule them out.
+Another place that is both art and science is in deciding whether to instrument your
+code to see each vendor at their best, or apply the same apples-to-apples instrumenta‐
+tion across all the vendors you trial. Apples-to-apples may take less work from your
+engineering teams,6 but resist the urge to shortcut. Instrumentation is not a bolt-on;
+
+
+
+5 And if they say “sure, you can use OTel, but our bespoke integrations are more mature/performant/battle-
+  tested/whatever,” remember: it is that way because they want it to stay that way.
+
+
+550   |   Chapter 30: The Art and Science of Vendor Partnerships
+it’s part of the solution (yes, even when it’s OTel). When you are evaluating multiple
+vendors, you need to see each vendor at its best, or it isn’t a true evaluation.
+If you are running the POC process in partnership with multiple engineering teams,
+coach each of them on how to do this, and make sure each team is running a real,
+representative load sample in production. Trust but verify.
+
+What Does a Good Proof of Concept Look Like?
+POCs, like the buying process itself, are a bit like snowflakes; hard to generalize
+about, hyperlocal, and each one a little different. Your organization probably has
+some existing prior art in the form of templates or vendor checklists.
+However, as people who work for observability companies, we will take the liberty
+of being a bit more prescriptive. In our experience, successful POCs for observability
+tools usually include the following elements:
+Description of your pain
+    Include a short description of the challenges that are causing you to look at
+    alternative solutions. Include any precipitating events, if such exist; this might
+    mean a pattern of lengthy incidents that violated customer SLAs, or any other
+    modernization initiatives in flight.
+Your definition of success
+    This usually looks like a list of primary outcomes you are trying to achieve.
+    For example: understand each customer’s experience, shorten feedback loops
+    for developers, add observability to unknown-unknowns without incurring addi‐
+    tional cost, and so forth.
+Required capabilities
+   Make a list of the kinds of questions you rely on, and the questions you wish
+   you could ask more easily. Try to avoid including solutions in your requirements
+   (e.g., “a query language that supports joins”), but if you’re struggling to list which
+   capabilities you wish you had, you can just write down any workflows that are
+   currently lossy, laggy, frustrating, or time-consuming.
+Scope of the POC process.
+    Write down what the evaluation will focus on—which teams, workflows, hard
+    problems or edge cases, datasets—as well as what is out of scope for the POC.
+
+
+
+
+6 Another great reason to use OTel: AI combined with OTel can bring the burden of reinstrumentation down
+  substantially. The same goes for migration.
+
+
+                                                        Design and Run a Meaningful Proof of Concept   |   551
+The POC should be timebound (you don’t have all year to work on this) and well-
+resourced, with both dedicated in-house support and vendor support lined up for the
+duration.
+Vendors will usually offer to write the requirements for you, to “save you time.” True,
+it’s usually much faster and easier for them to do it. But it’s your responsibility to
+make sure that what is written down is actually reflective of your real needs and
+your hardest problems, and not composed expressly to make this vendor the obvious
+choice.
+If you can, try to get your colleagues to agree up front that if the tool passes all the
+POC tests, you will proceed based on the data—and not relitigate endlessly based on
+the feelings or vibes of too many stakeholders. This may be unenforceable (execs can
+always change their mind), but it sets the right expectations and makes people take
+their part more seriously.
+
+Structure Your Technical Evaluation
+Each of your technical stakeholders is going to have their own concerns, must-haves,
+and wishlist items. Your job is to validate that the list remains reasonable: compre‐
+hensive enough to include the jobs to be done, but not tied up with preserving
+backward parity at the expense of net new capabilities.
+Identify which engineering teams are likely to be users of yours (users of the tool you
+buy), and which engineering teams are gatekeepers. They have different needs.
+If you know you have internal competition or friction over turf with other teams, use
+the POC to keep everyone honest. Be alert for “capabilities” that are actually poison
+pills from other vendors, designed expressly to make other tools fail. Define success
+in terms of the business use cases, not specific features or implementation details.
+One of the biggest things to test for in a POC is how well the new solution plays with
+the old solution. Both solutions will need to run in parallel for a while, so you may
+need to deploy a lot of instrumentation that’s turned off until you can fully migrate
+off the old vendor. Can you set up dual writes? OTel can help by letting you wire up
+multiple exporters.
+
+Validate Pricing at Scale (If Cost Is a Concern)
+Most companies (but not all!) are sensitive to cost. If that’s you, one of the most
+important aspects of your POC will be validating the pricing model and getting some
+ballpark estimates.
+This is surprisingly difficult to do without sending all your data through the system.
+Most teams compromise by sending a representative sample—perhaps a single clu‐
+ster’s worth of data—and extrapolating to full production scale.
+
+
+552   |   Chapter 30: The Art and Science of Vendor Partnerships
+The price on the vendor’s website is meaningless—nobody pays that. Always see if
+you can find a customer with an architecture or product similar to yours who is
+willing to speak freely about how much they pay. Don’t forget to ask how many
+ongoing engineering cycles they devote to managing costs (this can be substantial, as
+in several engineer-salaries worth).
+Vendors can help with introductions and research. If you trust your vendor, this can
+save you a lot of time and energy. If your vendor is on the shady side, do the sourcing
+yourself to avoid shenanigans.
+
+Build Champions and Advertise Your Wins
+Not every POC is a winner; not every migration is worth doing. Engineers run POCs
+all the time that they don’t particularly care about, and that’s fine. But if you have
+developed a strong conviction that this one is a winner, and adopting it is in the best
+interests of your company, you sit in a unique position of influence. By developing
+champions, solving hard problems, and enthusiastically broadcasting your shared
+triumphs, you can substantially improve the odds of success.
+The best POC processes solve real problems for real teams in production. This is by
+far the best way to build champions—not just out of developers, but also out of their
+management layers. Don’t start with the easy problems; go straight for the toughest,
+gnarliest knots in your org. Who is understaffed, and can’t get out of firefighting
+mode? Which team has been getting woken up night after night after night, and
+still can’t identify the issue? Which teams are losing good people to burnout and
+exhaustion? Who has a principal engineer who’s been pulled into every SEV0 or SEV1
+for the past year?
+Follow the pain. Help solve their problems. Turn relieved engineers into enthusiastic
+champions and advocates for the cause.
+Don’t let those wins get lost or buried! Start a brag list: write down every time
+an engineer uses instrumentation and tooling to identify inefficiencies, save the com‐
+pany money, find a bug before a customer does, accelerate time to delivery, decrease
+MTTR, or pinpoint lurking issues that have been plaguing other people for months.
+Help your coworkers do things worth bragging about, then praise their achievements
+in public. Make sure their manager sees it, and their manager’s manager, all the way
+up the ladder. The bigger the win, the more you celebrate. Make other engineers want
+to see what all the fuss is about. You want them lining up and begging to get in on it.
+
+Maintain Momentum Through Procurement
+You are responsible for keeping the purchase moving through your organizational
+machinery. If something is held up on your side, say something. Don’t just go dark.
+Sometimes the vendor can be useful in helping unblock you, but only if they know.
+
+
+                                              Design and Run a Meaningful Proof of Concept   |   553
+Again, you are the sheepdog. Woof.
+The deal isn’t done until the contract is signed on both sides; be wary of premature
+complacency. But once the signatures are done—congrats! This is huge!
+After the deal is signed, it’s time to switch gears and start planning the process of
+migrating and cutting over to your new vendor.
+
+Migration and Follow-Through
+Ha, you thought you were done? What happens after the contract is signed will
+determine whether your investment actually pays off or not.
+
+Handing Off to Another Team
+Shortly after the contract is signed, the people staffing the deal will often (but not
+always) change over. The vendor side may do a handoff from solutions architects
+to customer architects, or presales to post sales. On the customer side, this is often
+where platform engineering or your observability team steps in to start planning a
+migration path for affected teams.
+A bit of turnover is normal and OK, but a lot of turnover on either side can lead to a
+stalled project and dropped packets.
+You may be handing the baton off, but don’t drop and dash off. Stick around to make
+introductions and help draft the migration path, along with timelines and milestones.
+Share whatever useful bits you’ve learned from the POC. Set up a regular checkpoint
+with whoever you are handing off to. Someone needs to continue to ride herd on
+your side; if it stops being you, make sure the handoff is explicit and known to both
+sides.
+
+Most Migrations Have Three Steps
+Successful migrations often follow a three-stage structure:
+
+ 1. De-risk the migration by proving it works with a nontrivial but manageable
+    example.
+ 2. Execute the bulk migration—get everything moved (accept some messiness).
+ 3. Iterate service by service to clean up and optimize.
+
+Migrations at enterprise scale have historically taken months, if not years: no wonder
+people avoid doing them at all costs. Modern LLM tools have brought these timelines
+down substantially, usually on the order of weeks—occasionally days. But this will
+depend to some extent on how practiced you are with migrations. If you’ve been
+
+
+
+554   |   Chapter 30: The Art and Science of Vendor Partnerships
+using the same tool for the past 15 years, it’s going to be a heavy lift; there’s no way
+around it. On the other hand, this is a muscle you need to build.
+Plug milestones into your organizational operating system (KPIs, OKRs, whatever),
+or the work will just get bumped.
+Don’t try to use an export of the old tool configuration as input to the new tool. It will
+be full of cruft. Start with clarity around business requirements, then build the new
+config in the new tool from scratch, using new tooling approaches and workflows.
+If you are still connected to the project, your critical contribution is this: present
+the messy reality as linear progress to stakeholders. Stakeholders want clear narrative
+arcs. Give them one, even though the actual work involves lots of back-and-forth
+iteration and problem-solving. Part of your skill in driving migrations is turning
+messy loops into linear progression that stakeholders can understand and support.
+
+You Aren’t Done Until You Decommission
+Adding a tool is easy compared to decommissioning one. The last 10% of a decom‐
+missioning project is the hardest and slowest, as only the difficult, scary parts remain.
+Ensure you publish a timeline for deprecation and deletion of the old tool, and try
+to stick to it. Only when the old tool is gone will you reap the full cost benefits of all
+your hard work.
+You have likely moved on to other projects by the time the migration reaches this
+point (which could be months, or even years later). If so, consider circling back and
+helping with the dirty work for a few weeks. It could give everyone the boost they
+need to get past the finish line. (And then: throw a party!7)
+
+Plan for the Next Transition
+One last counterintuitive detail: start planning immediately for the eventual replace‐
+ment of the tool you just bought. Write down a recap of the buying process while
+it’s fresh in your mind. What was harder than expected? What went well? What do
+you wish you had known at the outset? How effective was your POC? Are there any
+lingering concerns in your mind about the vendor you chose and their ability to
+execute? Was there a close runner-up?
+Requalify tools and vendors on a regular cadence. Examine cost versus value. When
+cost approaches or exceeds value, reassess your requirements, evaluate the current
+market, and consider alternatives. If you find something compelling, set up demos or
+
+
+7 When we decommissioned the last unicorn (a Ruby HTTP server) at Parse, we held a ceremony in the
+  Facebook quad where we burned unicorn pinatas with lighter fluid, and then had whiskey and cake. Seriously:
+  celebrate!
+
+
+                                                                        Migration and Follow-Through   |   555
+run parallel tests to understand switching costs. This will often get you meaningful
+discounts from your current vendor if they know you are actively testing other tools.8
+Meaningful discounts are a successful outcome indicating impactful work.
+Migration is a muscle—an organizational muscle. With regular practice (and a little
+help from our LLMs), it gets so, so much less scary.
+Regular review is often a requirement in regulated environments anyway, so taking
+note of what you need during the initial procurement process and ensuring the
+requalification goes smoothly makes things significantly easier down the road for
+both you and the vendor.
+
+Conclusion
+When you’re a rookie engineer, maybe you dream of writing the next operating sys‐
+tem or distributed consensus algorithm—some kind of pure, hard computer science.
+Few of us dream of growing up to send reminder emails to procurement teams and
+post-sales training teams.
+Yet partnerships and vendor engineering are often the most effective ways of solving
+your company’s hardest sociotechnical problems at scale. In a world where AI gener‐
+ates more code than people do, your value still lies in solving business problems with
+technology.
+Companies that try to build too much themselves will fail to compete with those that
+are nimble enough to leverage the best of the industry. Decisions about who you
+partner with compound over time; a good partnership, like good architecture, can
+move mountains.
+By treating the buying process with the same rigor as a production system—design‐
+ing robust POCs, building trust with stakeholders, encoding protections into SLAs—
+you ensure that your infrastructure remains an asset rather than a liability. Buying
+software isn’t the end of the journey; it’s the beginning of a partnership.
+In the following chapter, we’ll look at instrumentation from a governance perspective.
+What should observability teams know about schemas, semantic conventions, and
+data requirements in environments with a high bar for security and compliance?
+
+
+
+
+8 For engineers who are working on the requalification and POCs, demos, and so on, cost evals can feel a bit
+  like Groundhog Day.
+
+
+556   |   Chapter 30: The Art and Science of Vendor Partnerships

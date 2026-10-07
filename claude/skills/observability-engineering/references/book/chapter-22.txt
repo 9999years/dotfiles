@@ -1,0 +1,444 @@
+                                                                         CHAPTER 22
+       Fin’s Case Study in Modern Engineering
+
+
+                          This chapter is contributed by Kesha Mykhailov,
+                                             Staff Product Engineer at Fin
+
+
+                A Note from Charity, Liz, George, and Austin
+We end our look into observability use cases by seeing how many of the concepts
+we’ve discussed come together for engineering teams in the real world. The previous
+chapters of this book have covered individual concepts or contexts to illustrate how
+observability is practiced effectively in modern systems. But we think it’s best to show
+how those concepts and practices are integrated to materially change real outcomes
+for real teams at leading software companies.
+In this chapter, Kesha Mykhailov shares the remarkable journey of how the Fin
+team transformed their approach to observing and operating Fin.ai, an AI agent
+they designed to handle customer service interactions. While the initial customer
+experience was characterized by slowness and frustration, the efforts detailed in this
+chapter elevated Fin to become a leading AI agent in the space. For Fin, the core of
+this turnaround was finding ways to measure customer experience and connecting
+every change, experiment, and optimization back to that one measurement.
+This chapter is adapted from the original delivery of this story as a conference
+presentation. We’ve tried to maintain as much of Kesha’s original voice as practical in
+this adaptation.
+
+
+
+
+                                                                                       403
+When our company, formerly known as Intercom, embarked on building Fin, our
+main goal was nothing short of creating a truly revolutionary customer service agent.
+The main job of such an agent is to answer end-user questions on our customers’
+behalf. In the age of AI, Fin’s customers are true pioneers: they are transforming their
+support operations to offload repetitive and mundane conversations to Fin while
+freeing up their support teams to work on more involved and complicated requests.
+Once Fin answers a question while chatting with the end user, we consider that con‐
+versation resolved. Hence, the percentage of conversations that Fin is able to resolve
+when engaged is the most important efficiency metric—we call it the resolution rate.
+
+Increasing Resolution Rate
+Naturally, our customers are incentivized to increase Fin’s resolution rate by provid‐
+ing high-quality content that Fin can use to provide accurate answers. On the other
+hand, we push ourselves to increase Fin’s efficiency because we only charge our
+customers for the conversations that are, in fact, resolved.
+These “aligned incentives” are a secret sauce that makes Fin a top-tier customer
+service agent. Since Fin launched in March 2023, its resolution rate has steadily
+increased by about one percentage point per month, as shown in Figure 22-1. And
+this is not some marketing data tweaked to make Fin appealing; this is an honest
+signal averaged across all of the customers using Fin.
+
+
+
+
+Figure 22-1. Fin’s average resolution rate shows a steady month-over-month increase in
+its resolution rate.
+
+
+
+
+404   |   Chapter 22: Fin’s Case Study in Modern Engineering
+Resolution rate is not an easy metric to improve. We had to evolve Fin from a single
+LLM call into a complicated agentic system that follows customer guidance, invokes
+actions, and completes tasks.
+At any given time, we have dozens of A/B tests running in production that are adding
+or refining those powerful capabilities. Every individual test delivers only a fraction
+of a percentage point of improvement to the resolution rate by itself. It is only by
+stacking them up together over time that this steady growth has been achieved. Such
+evolution comes at a cost: new functionality increases the time Fin takes to process
+a query. While we kept an eye on Fin’s latency, we deliberately prioritized capabilities
+and efficiency over speed.
+
+Speeding Up Without Losing Efficiency
+In early 2025, we started getting complaints from both existing customers and poten‐
+tial buyers that Fin was slow. Despite our strategy, we took customer complaints
+seriously and started an engineering effort to figure out how to speed Fin up without
+affecting its efficiency.
+To understand what happened, we have to take a look at what Fin is from the
+engineering perspective: Fin is built on top of the existing customer platform on
+Intercom, and is deeply integrated with existing support workflows. As a result,
+Fin is a complex distributed system with multiple network transactions involved in
+processing a given interaction. In the example shown in Figure 22-2, a simple user
+question like “how do I activate my account?” creates several background processing
+requests that utilize LLMs at various speeds in order to return a correct resolution.
+
+
+
+
+Figure 22-2. Fin is a complex distributed system with multiple transactions necessary to
+process any given interaction.
+
+
+
+                                                     Speeding Up Without Losing Efficiency   |   405
+On top of this, Fin is constantly evolving. Hundreds of engineers from 20 different
+engineering teams ship changes to the code directly involved in processing Fin’s
+interactions. At Fin, shipping is our heartbeat—and even on a typical Friday, our
+heartbeat is measured at ~100 individual changes shipped per day. This rate of change
+is where the real complexity comes from.
+As customer complaints surfaced, engineers got to work. Optimization pull requests
+were flying left and right, with many charts indicating significant improvements in
+Fin’s individual components. But our customers and prospects wanted more.
+It became clear that while we were focusing on the performance of the individual
+components, we lacked a signal representing the time that end users were waiting
+for Fin to reply. To build deep empathy with our customers and to experience that
+slowness in exactly the same way they did, we decided to surface an end-to-end
+signal: the time from when the user message is submitted to the time the first tokens
+of Fin’s reply are rendered in Fin Messenger.
+
+And Thus, “Time to First Token” Was Born
+Measured on the frontend, this “time to first token” accurately represented the
+customer’s experience. Time to first token is a measure used to reflect customer
+experience: it measures the time between when a customer submits their question
+and when the first character in the reply gets rendered. In other words, this is the
+time elapsed between when the customer asks a question and perceives that an
+answer is being returned.
+From then on, every change we made to the system had to positively affect “time to
+first token,” as shown in Figure 22-3.
+Our engineers could answer the question of what (e.g., “what is the median time to
+the first token?”), but they couldn’t understand the why behind it, as they couldn’t
+map that high-level signal to the code they were working on. Our new tracing data
+lacked required details for the engineers to dig for the root cause.
+While we were trying to empathize with our customers, we lost touch with our own
+engineers. But failing is part of the process, and we did learn something from this
+experience: we understood exactly why our initial attempts to optimize Fin’s speed
+were not successful.
+
+
+
+
+406   |   Chapter 22: Fin’s Case Study in Modern Engineering
+Figure 22-3. This distributed trace waterfall view shows time to first token.
+
+If you think about a distributed trace of a complex system like Fin, you might naively
+think that transactions over time would look something like Figure 22-4.
+
+
+
+
+Figure 22-4. An oversimplified view of what is required to return the first token, wherein
+all transactions must finish serially, to completion, before the first token is returned. This
+does not reflect the reality of our system.
+
+
+
+
+                                                      And Thus, “Time to First Token” Was Born   |   407
+Here, every transaction’s “start” is aligned with the “end” of the previous transaction,
+with the answer tokens streamed back to the user at the end. In reality, it’s a lot more
+complicated, and the process looks more like Figure 22-5.
+The work being done by the agent to start responding to the user doesn’t necessarily
+align with the actual underlying transactions happening in each service.
+As we improved the speed of individual components, we didn’t know which were on
+the critical code path. Were they directly blocking the progress of Fin’s interaction,
+or were they part of the processing done after Fin’s interaction moved to the next
+transaction?
+
+
+
+
+Figure 22-5. In reality, parallel transactions don’t have to fully complete in order for the
+first token to return. Some transactions may start in the middle of the previous one,
+based on control flows within the critical path, and some transactions may not be in the
+critical path at all.
+
+To understand a system like this, a distributed trace has to include low-level telemetry
+to identify where exactly control flow is passed over to a different transaction and be
+able to identify things that lie on the critical path. We had to start from scratch and
+build new distributed traces with low-level spans attached to the transaction spans, as
+shown in Figure 22-6. With the new traces, not only were we able to empathize with
+the customers by answering the question of what; we also gave our engineers a way to
+answer why.
+Armed with this new telemetry, we were able to quickly move forward and meaning‐
+fully improve Fin’s latency.
+
+
+
+
+408   |   Chapter 22: Fin’s Case Study in Modern Engineering
+Figure 22-6. By reinstrumenting distributed trace spans to contain information about
+when control flow is passed to the next transaction, engineers were able to see both what
+was happening and understand why time to first token was impacted.
+
+Speeding Fin Up
+Let’s take a look at one of the most impactful optimizations we’ve implemented: eager
+requests.
+Unsurprisingly, the most time-consuming part of Fin’s interactions is the LLM-based
+agentic workflow making calls to multiple models. But even before interactions reach
+that stage, there’s a bunch of work that has to be done, like storing end-user messages
+in the database, progressing through customer-configured workflows, figuring out if
+Fin has to be engaged in this given conversation, and so on.
+What if we skipped that part and eagerly invoked LLM-based processing? There’s a
+good chance “normal” request flows will alter the payload affecting the prompts. But
+if it doesn’t, by the time we get to the AI-based part of the interaction, we might
+already have an LLM-generated answer at hand, as shown in Figure 22-7.
+As it turns out, in the majority of cases, the payload stays intact and we are able to
+stream the response back to the end user quicker. This optimization alone helped us
+to shave two seconds off the median time to first token.
+
+
+
+
+                                                                      Speeding Fin Up   |   409
+Figure 22-7. We created the concept of eager requests to prioritize time-consuming calls
+to LLMs. Because they take the longest time to complete, prioritizing calls to LLMs in the
+control flow allowed us to dramatically lower the time to first token.
+
+But making Fin faster is only part of the job. The real challenge is to protect the speed
+gains over time, especially given the rate of changes shipped on a daily basis. We
+knew that things would degrade again and we needed a way to proactively manage
+slowdowns.
+Given the unpredictable availability of the models (provider outages, daily seasonal‐
+ity, lack of capacity, etc.), a simple threshold-based alarm would be too noisy. We
+decided to adopt an event-based SLO that tracks the percentage of interactions faster
+than a newly established baseline, as shown in Figure 22-8.
+
+
+
+
+Figure 22-8. Daily compliance of the time to first token SLO over seven days.
+
+
+
+
+410   |   Chapter 22: Fin’s Case Study in Modern Engineering
+Focusing on our long-term trends of SLO compliance helped us stay focused on
+meaningful degradations and not be distracted by intermittent short-lived spikes.
+
+Finance Enters the Chat
+At this point, the story could have come to a happy end. We made our customers
+happy by improving Fin’s latency, and our engineers had a signal they could trust to
+surface real impact. That customer-centric signal was connected to the low-level data
+they could use to immediately investigate any degradation detected by the breach of
+the SLO.
+However, there was still one problem to be solved with our eager-request optimi‐
+zation. When a “normal” request confirms a payload match, we stream the reply
+prepared in advance by the eager-request flow. But what happens if Fin was never
+engaged in the processing of a given end-user message in the first place?
+We allow our customers to configure sophisticated multistep workflows where Fin
+is one of many steps. But sometimes, customers want to route a given conversation
+straight to a human based on certain conditions (e.g., sensitive topic around pay‐
+ments). In this case, the normal flow halts and all the LLM requests emitted as part of
+eager-request flow are wasted, as shown in Figure 22-9.
+
+
+
+
+Figure 22-9. Users can configure workflows that bypass the use of Fin. In those cases,
+eager requests may still be emitted as part of the control flow, but those tokens are
+unused. This was a malfunction of the eager-request implementation.
+
+As there was no Fin interaction in processing that end-user message, no latency
+metrics were emitted. As a result, this eager-request malfunction was flying under the
+
+
+
+                                                                 Finance Enters the Chat   |   411
+radar. Engineering learned of this only after the finance team did a quarterly review
+detecting a decrease in Fin’s gross margins. We were so focused on Fin’s latency that
+we lost touch with our own business by incurring this extra operational cost.
+Luckily, thanks to the great tracing we already had, we were able to identify and
+fix the issue, quickly surfacing all cases where there was no need to trigger eager
+requests. To validate our fixes, we used the same query that the finance team was
+using to quantify the extra LLM cost, as shown in Figure 22-10.
+
+
+
+
+Figure 22-10. We were able to query our trace data to identify situations where eager
+requests were inadvertently triggered. Thanks to our fine-grained instrumentation, we
+were able to quantify cost and use that to identify when that was happening.
+
+We were happy to observe the LLM waste percentage going down, confirming our fix.
+But we also wanted to stay on top of this signal.
+
+
+412   |   Chapter 22: Fin’s Case Study in Modern Engineering
+The problem with the aforementioned query is that it takes minutes to run. More
+importantly, the data in the warehouse is updated on a daily basis and takes hours to
+refresh. And while this is okay from the finance team’s perspective (who operate on a
+quarterly basis), it isn’t good enough for the engineers.
+Engineers need real-time feedback on their actions. That’s an important precondition
+to being able to safely ship hundreds of changes per day. So, we added Fin’s cost per
+interaction to the same distributed traces we already had, as shown in Figure 22-11.
+
+
+
+
+Figure 22-11. Because the previous query was too slow for real-time usage, we instru‐
+mented our traces to include an attribute that quantified total LLM costs for every single
+request.
+
+Of course, we put an SLO on it to make sure we were notified of degradations to Fin’s
+cost.
+
+Empathy
+Our customers were happy, as we were able to empathize with them and experience
+Fin’s speed in exactly the same way they did. We also built empathy with the business
+by surfacing a business-centric signal. Fin’s cost per interaction strongly correlates
+with cost per resolution, which we ultimately charge our customers for. Crucially,
+both customer- and business-centric signals are attached to highly detailed telemetry
+that enables engineers to investigate and fix issues, making them happy too.
+One might think our experience and learnings are specific to us, but in fact, it’s easy
+to generalize this approach.
+
+
+
+
+                                                                            Empathy   |   413
+The Rasmussen safety model, shown in Figure 22-12, explains how sociotechnical
+systems can drift toward failure (for more about sociotechnical systems, see Chap‐
+ter 24).
+
+
+
+
+Figure 22-12. The Rasmussen safety model triangle (or Rasmussen’s “drift to danger”
+model) is a conceptual diagram that illustrates how systems move toward failure. It
+represents the, usually invisible, boundary of safe operation and how constant organ‐
+izational, financial, and efficiency pressures cause operators to “drift” toward, and
+eventually cross, this boundary.
+
+The model argues that every system operates within three boundaries:
+Boundary of acceptable performance
+   Cross that boundary, and the performance/availability of your system is affected,
+   making your customers sad.
+Boundary of economic failure
+   Cross that boundary, and your business profitability is at risk.
+Boundary of unacceptable workload
+   Cross that boundary, and you risk putting too much pressure on your engineers.
+For a regular operator, those boundaries are elusive and rarely understood. But they
+do exist! Your customers will complain when things get too slow. Your finance team
+knows exactly where the economical failure boundary is; they already promised that
+gross margin to your investors. And finally, unless you equip your engineering team
+well, they might crumble under pressure by not being able to increase performance
+and reduce cost.
+
+
+
+414   |   Chapter 22: Fin’s Case Study in Modern Engineering
+That’s where observability takes a central role. The art of observability is to surface
+those safety boundaries to the operators and create a real-time feedback loop that
+empowers them to take risks and know exactly where they are in the Rasmussen tri‐
+angle. Practically speaking, the art of observability is to create a dataset that combines
+a customer-centric signal with a business-centric one. Those signals must be updated
+in real time and connected to highly detailed, low-level tracing telemetry that enables
+operators and engineers to proactively monitor and fix issues as they arise.
+This is the last mile of observability, and arguably, the hardest one. Many teams focus
+too much on instrumentation, telemetry pipelines, and vendor management, and
+overlook this. It’s easy to get bogged down with implementation details and miss the
+forest for the trees. That’s where observability becomes just another cost center, where
+the only conversation you can have with your finance team is about the cost of your
+logging cluster.
+Instead, if you walk the last mile, observability could be strongly associated with your
+customers’ happiness and business success. The good news is that, to do this, the
+only thing required is empathy. You have to deeply empathize with your customers,
+business, and engineers. Understand their needs. Feel their pain the same way they
+do.
+As ironic as it sounds, in the age of AI, empathy is all you really need.
+
+Conclusion
+Kesha’s story of engineering at Fin embodies what the rest of the book has been
+building toward: observability as a practical discipline that changes outcomes for
+real teams in real systems. Rather than treating instrumentation, tracing, SLOs, and
+iterative analysis as separate topics, Kesha’s story shows how they become a single
+operating model that ties every change, experiment, and optimization back to a
+customer-centric measurement. It also makes that measurement debuggable enough
+for engineers to act on it quickly.
+This story also demonstrates the “last mile” of observability: building empathy with
+customers, engineers, and the business by surfacing the right signals, in real time,
+with enough low-level context to explain why those signals moved. Organizations
+learn how to ship fast without drifting into danger because they can see the bound‐
+aries of acceptable performance, economic viability, and operator workload. With
+that, they can course correct before pressure pushes them across the line. This story
+is a concrete example of how modern engineering teams turn observability into a
+learning system.
+In the next part of the book, we’re going to look at how to create top-down organiza‐
+tional alignment to make these types of outcomes possible.
+
+
+
+                                                                            Conclusion   |   415
+                                                                            PART VI
+                             Observability Governance
+
+
+
+
+So far, this book has been written for engineers: the people instrumenting code,
+running production services, and trying to understand what their software actually
+does in the real world. Parts I–V are written from the practitioner’s perspective,
+bottom up.
+Part VI switches gears. We now write for technical leaders.
+When we asked the software engineering community what was missing from observ‐
+ability guidance, we heard the same stories over and over: millions of dollars spent
+on tools nobody learned to use, CTOs who’d written observability off as irrelevant
+in a post-AI world, and organizations where nobody could agree on basic questions—
+what observability even is, what problems it’s supposed to solve, or who’s responsible
+for it. That’s a leadership problem, not a tooling problem.
+Technical leadership comes in many forms—staff, principal, and distinguished engi‐
+neers, as well as directors, vice presidents (VPs), senior VPs, CTOs, and similar roles.
+We don’t think this is solely the domain of executives. Technical contributors shape
+these decisions too, and we hope that comes through in these chapters.
+The biggest problem we see right now is a widening gap: organizations are shipping
+code faster than ever, and simultaneously losing their grip on what that code actually
+does. Part VI is about closing that gap—through better decisions, better feedback
+loops, and leadership that takes both the technical and human sides of that problem
+seriously.
+Chapter 23 opens as a letter to CTOs. In the AI era, shipping code is no longer your
+biggest constraint; now you are constrained by understanding, validating, and your
+organizational learning speed. This chapter shows how much of that drag traces back
+to unpaid sociotechnical debt, and how observability connects to paying it down.
+Chapter 24 goes a layer deeper, using systems thinking to examine how change
+actually moves through sociotechnical systems. Most organizations try to hire or buy
+their way out of debt. It doesn’t work. This chapter shows what does work, and why
+observability is a leverage point, not just a tool.
+Chapter 25 helps you figure out what kind of feedback loops your organization
+actually needs, and then connects those needs to the tooling landscape. It also cuts
+through the AI noise to keep you focused on outcomes.
+Chapter 26 walks you through building a business case for observability investment.
+Is yours a cost center or a strategic investment? The answer changes what you buy,
+how you manage it, and how you measure success.
+Chapter 27 is a diagnostic. If your organization is feeling cost pressure on observa‐
+bility tooling, that’s usually a symptom—you’re paying observability prices for moni‐
+toring outcomes. This chapter helps you figure out what went wrong and how to
+course-correct.
+Chapter 28 is a guest-contributed chapter from Rick Clark, Global Head of Cloud
+Advisory at UST. Rick gets practical about how organizational shifts actually happen,
+and how to navigate the hurdles you’ll face trying to accelerate how fast your org
+learns.
+Chapter 29 examines the decision of build versus buy versus open source in detail—
+the real trade-offs, not the vendor-pitch version.
+Chapter 30 covers vendor partnerships. If you’re buying a solution, then building a
+partnership matters almost as much as the technology. This chapter covers how to
+design and run a proof of concept (POC) as well as how to build trust and credibility
+with internal stakeholders, reciprocity, and influence with vendors.
+Chapter 31 gives implementation guidance for the teams that actually drive observ‐
+ability adoption across an organization: instrumentation patterns, org-wide rollout
+considerations, and common environments like large enterprises and regulated,
+highly secure industries.
+Chapter 32 looks to the future. Now that the economics of code production have been
+inverted, what will be the downstream consequences over the next few years, and
+how can technical organizations prepare to meet them? We argue that it’s time for the
+rigor to move from the code to the system.

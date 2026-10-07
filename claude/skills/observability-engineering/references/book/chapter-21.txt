@@ -1,0 +1,484 @@
+                                                                     CHAPTER 21
+     Observability for Large Language Models
+
+
+
+
+Artificial intelligence has been a revolution over the past two years. AI and machine
+learning have been powering both transformative consumer digital experiences (such
+as recommendation engines, search engines, and spam protection) as well as business
+workflows (such as translation and logistics) for decades. However, the introduction
+of LLMs has ushered in a new era of AI-powered applications and tools. Organiza‐
+tions have eagerly embraced the potential of LLMs for programming assistance,
+natural language interfaces to data, new categories of search products, support bots,
+and more.
+While LLM applications often impress through a small up-front investment to prove
+a concept, the real work happens after the demo. LLMs are unlike most traditional
+software workloads, and the unpredictability inherent in their design and use leads
+to a fundamental challenge: users and engineers alike expect predictability in the
+outputs of a software system, but LLMs are fundamentally nondeterministic. How
+can we square this circle?
+In this chapter, we’ll dive into the realm of observability for this new generation
+of LLM-powered applications. You’ll learn about how to continuously improve the
+performance and user experience (UX) of these applications through evaluations.
+Beyond the theory, we’ll use case studies from two different LLM-powered Honey‐
+comb products—Query Assistant and Canvas—to demonstrate practical applications
+of what we’re discussing. We’ll introduce each of these products as we go through the
+chapter.
+Phillip Carter served as a principal contributor for this chapter.
+
+
+
+
+                                                                                  391
+Why Observability Matters for LLMs
+LLMs represent a step change in the capability and accessibility of machine learning
+models for both organizations and developers. Traditionally, AI has been used to
+solve various problems for users where there was no one “right answer”—like recom‐
+mending a movie based on your taste, or determining if an email is legitimate—but
+usually at a great cost. LLMs have changed this calculus dramatically by lowering the
+barrier of entry to “anyone with a credit card” simply by issuing prompts to a model
+via an API.
+Traditional observability and monitoring approaches are not suitable for understand‐
+ing these types of applications, though. While helpful at establishing a high-level
+signal or monitoring cost, traditional approaches don’t give any insight into behavior
+that leads to an undesirable outcome. The primary reason? Opacity. You can’t connect
+a debugger to an LLM to understand why it gave a specific output for a given
+input; you can’t even guarantee that it will produce that output again, irrespective
+of how many times you give it the same input. While there are parameters—such
+as temperature and top_p—that control the distribution of outputs, they do not yet
+guarantee repeatability. Confounding our attempts at sense-making, the spectrum of
+natural language inputs is an impossibly broad space. Your users will invariably find
+the most interesting ways imaginable to ask for the same thing—this assumes, of
+course, that your users are also not trying their darndest to make your LLM say or do
+something funny.
+In addition to all of this, LLMs are advancing at a breakneck pace. In 2025 alone,
+models leapfrogged their capabilities within a year thanks to improved tooling, har‐
+nesses, and advances in techniques like tool calling. Traditional methods of iterative
+design and development can’t keep up with this manic pace. Even in a future world
+where the rate of progress slows, it’s still beneficial to iterate rapidly when working
+with LLM applications. Adjusting model behavior is often a question of adjusting
+prompts (natural language instructions given to an LLM) rather than pushing deter‐
+ministic code changes. Achieving greater accuracy, reliability, or task completion rates
+often involves both.
+This model stands in stark contrast to the conventional wisdom for understanding
+the UX of web applications. Popular models of quantifying this—such as Apdex or
+other derived measures—primarily use API or endpoint speed as a proxy metric. In
+2006, Greg Linden presented that Amazon’s latency experiments found substantial
+revenue drops for every 100 milliseconds of added page delay. Similarly, in the same
+year, Google found that a half second of latency resulted in a 20% drop in traffic for
+search!
+This does not hold true for AI applications—while measurements such as “time to
+first token” can be valuable, fast (but incorrect) responses may not drive satisfaction.
+
+
+392   |   Chapter 21: Observability for Large Language Models
+In addition, in more complex agentic applications, such as research assistants or code
+reviewers, failure may not be a valuable signal in and of itself. An agent may fail to
+fetch a web page for many reasons, or pass incorrect parameters to a remote API. In
+these cases, it’s less important that the discrete operation failed and more important
+to understand if the overall task completed. In addition to these, AI applications
+introduce a very discrete cost component. GPU time is valuable, and is priced accord‐
+ingly. Understanding the trade-offs between token usage and user satisfaction is of
+paramount importance to not just the business, but also engineers.
+Opacity of system internals, rapid technological advancement, and poor proxies for
+user experience in telemetry may not be completely unique to LLM applications,
+admittedly. It’s ironic in some ways that these three points mirror the basic tenets of
+observability, as applied to the emergent behavior of a distributed system. We expect
+that our systems will fail, we expect that other services are untrustworthy, and we
+know that everything has a price. The answer in both cases is the same: we need
+instrumentation and telemetry that describe the system behavior. This is what makes
+modern systems interpretable, knowable, and improvable at scale. But what should
+we test? We need some sort of yardstick to measure our system performance against.
+For this, we turn to evaluations.
+
+Using Evaluations for LLM Reliability
+Evaluations (evals for short) are a foundational component of building reliable LLM
+applications. While they bear some resemblance to unit or integration tests—in that
+they have an expected output for a given input—they introduce a level of indetermi‐
+nate expectation that sets them apart. In short, an eval can have three results: pass,
+fail, and maybe.
+The power of evaluations is that you can blend them together and build them into
+your observability program in order to achieve reliable, helpful, and useful LLM
+applications. For example, at Honeycomb, we use a set of evals as a key input to the
+development of our Canvas product. Canvas is an AI chat experience, where users
+can ask open-ended questions that the model answers by calling tools allowing it to
+query telemetry data. Let’s walk through these evals in order to explain how they
+work.
+We have two sets of evaluations: question evals and task evals. The first are a series
+of questions that involve extracting factual items from a set of golden data. Golden
+data is hand-crafted (or otherwise representative) input data for a task. In the case of
+Canvas, it’s a variety of query results from Honeycomb. We know exactly what is in
+this data, and we evaluate the model’s ability to extract specific facts, such as “at what
+time did the most requests occur” or “which category of errors was most prevalent.”
+These questions are more precisely known as the task function of an evaluation—it’s
+what generates the output that would be presented to a user or passed back into
+
+
+                                                       Using Evaluations for LLM Reliability   |   393
+an agent loop. Finally, we have a scoring function that is used to grade the model’s
+response. For our purposes, we use a simple string-matching heuristic—we know the
+actual values present in the golden data, and we simply verify if the model presented
+this known answer.
+These question evals are paired with another set that we call “task evals” (see Fig‐
+ure 21-1). These differ in that they do not have a simple scoring function; they are
+fuzzy, subjective tasks based on our internal production monitoring. Rather than
+asking for something with a single answer, we ask the models to perform investi‐
+gations, determine the root cause of a performance regression, or other similarly
+judgement-based workflows. There is often no single “right” answer here, so what we
+score them on are the actual steps taken by the model. In order to do this, we must
+have telemetry for the execution of a workflow—and this forms a positive feedback
+loop, where we can use our telemetry to identify scenarios of user unhappiness or
+where the model performance is lacking, and then turn those into evals that we can
+iterate toward improving.
+
+
+
+
+Figure 21-1. Independent evaluation loops.
+
+It’s this loop that is at the heart of driving continuous improvement for LLM applica‐
+tions. Having a reliable set of evaluations offers you the opportunity to experiment.
+When a new model version is released, you can run your evaluations against the new
+model and measure the change. You can replay existing sessions against changes in
+prompts or tool harnesses and track the differences in behavior.
+
+
+
+
+394   |   Chapter 21: Observability for Large Language Models
+While a full discussion of eval design is outside the scope of this book,1 it’s important
+to remember that your evals are similar to unit tests. Ultimately, they only test a small
+portion of the overall function of an LLM application—the part where the application
+interacts with the language model. You can have great evals and a terrible UX; this is
+where observability fills the gap. Achieving observability for these applications starts
+with telemetry.
+
+Designing Telemetry for LLM Applications
+Instrumentation and telemetry for LLM applications is conceptually similar to instru‐
+mentation for any other application in that you care about inputs and outputs,
+requests and responses, the duration of API calls, and so on. Helpfully, quite a bit
+of this instrumentation can be generated automatically via built-in OpenTelemetry
+instrumentation in LLM client libraries. Modeling for most LLM interactions can be
+found in the OTel generative AI semantic conventions, and libraries that interact with
+LLM providers should follow these.
+If you look at the conventions, you’ll see that common values such as input and
+output token count, model name, sampling parameters, and system prompts are
+recorded on client spans. If you are using your own LLM client framework, you’ll
+want to follow the conventions in order to create maximally portable telemetry data.
+There are a few unique considerations and questions that you’ll need to answer when
+designing telemetry for your application, though:
+How much visibility should you have for inputs and outputs?
+   User prompts to an LLM are impossibly varied, and can often be incredibly large.
+   This is discussed at length in the conventions, so we’ll avoid rehashing all of it
+   here, but it’s worth considering. There are a few different ways to deal with this,
+   but one to consider is that you’re possibly recording the inputs and outputs of
+   a model independently from your telemetry—rather than writing the inputs and
+   outputs to an attribute value, add a link to the system of record as the attribute
+   value. This has downsides (namely, you’ll need to follow those links to actually
+   see what was in a session), but it’s better than not having any visibility at all.
+   You can choose to elide only certain inputs or outputs this way (e.g., binary files
+   like images or PDFs). You should also consider user privacy expectations and
+   regulations when designing telemetry. Users can—and will—use poor discretion
+   with LLM systems, and you should be considerate to yourself when thinking
+   about what you want or need to save.
+
+
+
+1 For more details on evaluations and evaluation frameworks, please see the “Evaluating Large Language Model
+  (LLM) systems: Metrics, challenges, and best practices” article for a good overview that includes more depth
+  on specific metrics and measurements, along with some practical examples of building evals.
+
+
+                                                                Designing Telemetry for LLM Applications   |   395
+How are you integrating your eval loop with your telemetry?
+   Ideally, you should be able to “promote” certain traces of user interactions to
+   evals easily. This goes in tandem with the prior consideration of inputs and
+   outputs. Helpfully, many off-the-shelf evaluation frameworks also support OTel,
+   enabling you to make an apples-to-apples comparison between a user session
+   across two different models or prompt variations.
+How should you approach cost tracking?
+   As LLM usage (and spend) continues to rise, organizations are demanding a
+   greater ROI—or at least the ability to attribute value to their monthly AI bill. You
+   may note that the semantic conventions don’t include a standard attribute key for
+   cost data. You may elect to create your own, or you can derive this cost at query
+   time based on the model and amount of tokens used. We recommend the latter
+   option, as it allows you to easily create eyeball cost differences between different
+   prompt versions or model updates.
+How are you integrating user feedback tracking into your telemetry?
+   Traditional observability approaches can use proxies for UX, such as errors or
+   API response time, as a primary signal of UX. This isn’t necessarily the case with
+   LLM applications. Fast but incorrect responses are unlikely to spark joy in your
+   users. Adding UX attributes such as feedback signals (thumbs up/down, user
+   retry, etc.) to your telemetry is a powerful technique to better understand how
+   your system is performing in production as well as to identify new evals.
+LLM applications and features may exist as islands of functionality in your system,
+but most of the time they need to interact with other services in your backend for
+everything from authorization and authentication to databases. As of this writing, an
+emerging pattern for AI applications is the agent pattern: an LLM calling tool in a
+loop, with the ability to modify its environment. Agents require access to internal
+and external APIs for all manner of functions and functionality—everything from
+contextual data about the user that’s interacting with them, to historical records of
+prior conversations, to embedded or third-party knowledge bases and remote APIs.
+While they’re often being developed as greenfield applications, agents interact and
+touch almost every aspect of an existing system. The key insight is that telemetry
+design for LLMs isn’t just about seeing what the LLM is doing or how users are
+interacting with it, but about the connections between the AI part of the application
+and the rest of your system.
+
+Analyzing Telemetry for AI Applications
+As mentioned, natural language inputs to an AI application are impossibly varied,
+complex, and nondeterministic. While you may have telemetry data recording every
+aspect of an interaction with the AI, looking at that data along a single axis often
+
+
+396   |   Chapter 21: Observability for Large Language Models
+results in unsatisfying results. Looking at just errors may give you a priority list of
+bugs to fix, but this may not move the needle on the overall user experience of your
+product.
+Broadly, it’s useful to think of your analysis workflows in terms of two different
+outcomes:
+
+ 1. Ensuring that the deterministic aspects of your AI application are functioning
+    properly
+ 2. Building a continuous improvement loop for the nondeterministic aspects of
+    your application
+
+The former outcome has been written about at length in this book, and much of the
+same advice applies. Multidimensional analysis of attributes enables you to find bugs,
+spot performance regressions, and improve overall performance. A common example
+of this, as of writing, is using observability to understand upstream LLM providers as
+a resource. Tracking rate limiting, retries, and response time from a remote provider
+is a key detail in both improving UX as well as managing your cost profile.
+A specific example of this is using telemetry analysis to determine cache behavior.
+LLM providers heavily encourage callers to leverage token caching, and incentivize
+this through significant cost reductions. Telemetry can help you identify opportuni‐
+ties for caching, or to discover where you’re incorrectly invalidating your cache.
+Providers will usually provide this information in their API response, so be sure to
+include it on your spans!
+Additionally, due to a variety of factors, upstream model providers will often time
+out or fail to service otherwise-valid requests. Being able to track and monitor
+these through service level objectives (SLOs) is a valuable use of your time. Often,
+engineers will reach for threshold-based alerting to notify them about problems
+such as this, but these alerts are fundamentally unactionable and should be avoided
+(unless, of course, the reader happens to be part of an LLM inference provider, in
+which case you probably should have threshold alerting for things like this), as there’s
+little you can do about it. SLOs are a better option here because they smooth out
+these intermittent spikes and help your team focus on meaningful degradation to UX.
+The Honeycomb Model Context Protocol (MCP) server is an excellent example of
+this flywheel in action. When developing the MCP server, we only had a limited
+dataset to pull from in developing evals and gathering feedback about the real-world
+performance of our tools. Compounding this, the instrumentation and telemetry
+available to Honeycomb engineers is rather idiosyncratic compared to both the aver‐
+age Honeycomb customer and the average organization. Honeycomb, after all, is an
+observability tool—our engineering team is accustomed to having a tool available
+that supports high-cardinality data. In order to understand how customers were
+
+
+                                                    Analyzing Telemetry for AI Applications   |   397
+using the MCP server, we needed to instrument the tooling in such a way that we
+could not only see what tools customers were using, but also where those tools were
+failing. We paid special attention to errors in this process in order to determine where
+to invest our engineering resources. An MCP server is an interesting case, in that
+you cannot see the caller’s logic or rationale behind why it’s using a particular tool or
+passing in specific parameters; you can only see what it’s actually doing. We decided
+to set an SLO of 90% success rate for queries and waited to see what happened.
+In doing so, we discovered several interesting facts. First, calling models tended to
+jump to conclusions about field names, even when prompted to first check available
+fields. Second, we noticed that models had significant issues with interpreting and
+modifying time ranges. This feedback informed our evaluations, giving us entire
+classes of errors and issues that we could build test cases for and start to iterate on
+prompting, tool descriptions, and more.
+This basic flywheel is uniquely suited to the development of AI applications, irrespec‐
+tive of their type. Telemetry data becomes the golden standard for understanding
+how users are interacting and engaging with your application, which provides the fuel
+of continuous improvement for your development process.
+
+Feeding Observability Data Into
+AI Application Development
+There are two primary ways that you’ll want to integrate observability data from AI
+applications into your development cycle. The first, as mentioned, is as a source for
+evaluations. The second is as feedback for your software harness. What does this
+mean? Broadly, the harness is the deterministic code that you’re building around the
+AI in your application. This harness is responsible for everything from providing
+tools to the AI (methods and functions it can call to perform work), to correcting
+errors in inputs or outputs, to how the AI communicates with end users. It’s the
+plumbing, so to speak, between your application and its various services and the
+language model itself.
+While it’s important to do this for any application, it’s more urgent for AI applications
+precisely because they’re unlikely to behave the same way across environments or
+users. In a traditional application, you can build voluminous amounts of test cases
+that cover practically every interaction a user may have, and then run those tests
+across a homogenous array of environments. This is not the case for AI applications.
+There is no amount of testing that will possibly capture every interaction, and the
+pace of innovation in AI is so high at this point that there’s little guarantee that the
+decisions you make today will have a shelf life of over six months. You must test in
+prod.
+
+
+
+
+398   | Chapter 21: Observability for Large Language Models
+It can be appealing to try and address all challenges through improved prompt
+engineering. But while this is an important aspect of building AI applications, often a
+little code will go a long way. An example of this is the Honeycomb Query Assistant
+feature. When released, it produced an error of some kind about 25% of the time.
+This high rate of errors is quite common for LLM-powered features at the outset.
+When Honeycomb developers looked at some of the most common errors, they
+found that many were parsing or validation errors—the response that OpenAI gave
+back was a JSON object whose structure couldn’t pass validation checks. For example,
+consider the following JSON object:
+    {
+        "calculations":[
+           {"op":"COUNT", "column":"exception.message"}
+        ],
+        "filters":[
+           {"column":"exception.message","op":"exists"},
+           {"column":"parent_name","op":"exists"}
+        ],
+        "breakdowns":[
+           "exception.message","parent_name"
+        ],
+        "orders":[
+           {"op":"COUNT","order":"descending"}
+        ]
+    }
+
+
+In the Query Assistant feature, the object attempts to represent a query for “exception
+count by caller”—a common scenario that users use Honeycomb for. However, it’s
+subtly incorrect. The structure that represents a COUNT operator is wrong, because
+COUNT doesn’t take a column as input. A correct response, like this one, would not
+have included the column:
+    {
+        "calculations":[
+           {"op":"COUNT"}
+        ],
+        "filters":[
+           {"column":"exception.message","op":"exists"},
+           {"column":"parent_name","op":"exists"}
+        ],
+        "breakdowns":[
+           "exception.message","parent_name"
+        ],
+        "orders":[
+           {"op":"COUNT","order":"descending"}
+        ]
+    }
+
+
+
+
+                                      Feeding Observability Data Into AI Application Development   |   399
+In this example, the first object is mostly correct. In fact, programmatically removing
+the column field from the COUNT calculation object not only makes the query object
+fully valid, but the resulting response from this post-processing is an ideal query to
+generate given the input. And so, instead of failing validation and creating no result
+for the user, Honeycomb decided to intervene on this kind of error by correcting the
+structure programmatically so it passes the validation check.
+As a result of analyzing outputs like this and issuing only these kinds of manual
+corrections, the error rate in Query Assistant dropped from 25% to about 14%. Later,
+improvements to a prompt brought the error rate to less than 1% (excluding timeouts
+or other uncontrollable errors).
+Finally, an interesting sidebar to this story is that the broader engineering team
+realized these AI-generated queries were actually representative of an unmet need
+with our users. People actually wanted to be able to COUNT with a column, and we
+shipped a change allowing that query syntax. This, helpfully, meant we could reduce
+some of our error correction code and improve the performance of Query Assistant
+as well!
+
+Using Evaluations and Observability Together
+If you’re already collecting inputs, outputs, and errors through production traces of
+your AI application, then you’re 90% of the way toward an effective eval flywheel.
+You have real data about how users are actually using your feature: the sort of things
+they ask for, the data sources and tools that the LLM uses, and the responses. You can
+export this data—or, in a purpose-built tool, generate new evals from it—and begin to
+update your evals based on what’s actually happening.
+The basic loop here is as follows:
+
+ 1. Are the new inputs something we want to evaluate against? Generally, the answer
+    here is yes. Then:
+      a. For these inputs, is there an ideal output? Was the existing output the ideal
+         output?
+      b. If not, update the output to what it should be based on the inputs.
+ 2. Repeat step 1 until you’ve fleshed out your golden dataset with real user behav‐
+    iors.
+ 3. Remove items from the golden dataset that are not representative of real user
+    behaviors.
+
+Rerun your evaluations and compare with historical trends. If this is a new applica‐
+tion or workflow, you’ll most likely see a dramatic drop in eval performance—this
+
+
+
+400   |   Chapter 21: Observability for Large Language Models
+is to be expected, as real-world use cases often intersect with things that you didn’t
+expect.
+A practical example of this is how we update our task evals for Canvas. As mentioned
+earlier, the task evals are a very general goal with a known answer. We care about how
+many steps it takes for a model to arrive at this answer, how many tokens it uses, and
+if the answer contains a few specific conclusions. We use LLM-as-a-Judge to score the
+response into a simple pass/fail based on some criteria, then select a sample of these
+to review by hand on a regular cadence.
+This manual review is one of the most important parts of effective observability
+(and evals), because it surfaces insights that the LLM might miss. We noticed that a
+particular task had a persistent failure due to the model misinterpreting the meaning
+of a particular column in the result data. This column was named is_slow and
+was set to true when a request took over 500 milliseconds to complete. The model
+was unable to see that this column was a calculated field (a Honeycomb query-time
+construct that is able to create a new value based on other attribute values in an
+event), and it assumed that the column was actually a feature flag. Because it couldn’t
+find any other reason, the model’s logic was that the is_slow attribute meant there
+was a load test (or some other external event) happening that made the request slow,
+and incorporated it into its result. This misinterpretation caused the model to ignore
+the underlying factors contributing to latency—it effectively went off on a wild goose
+chase.
+Our solution? We updated the column to include a description of what it actually
+was, and suddenly the model started ignoring it! It then was able to successfully
+investigate and identify the underlying cause. In practice, this is an incredibly com‐
+mon failure mode for AI agents and AI applications: the model infers or imputes
+meaning incorrectly, leading to incorrect assumptions and conclusions. Good observ‐
+ability and good evals enable you to catch these sorts of things in production and
+update your software harness to correct them, or update your prompts to better steer
+model behavior.
+A final note here on public benchmarks and generic metrics: many organizations
+have published and promulgated various measurements for things like hallucinations,
+toxicity, tone, truthfulness, bias, etc. Frontier labs will evaluate their models against
+these published benchmarks and produce very pretty graphs demonstrating how they
+stack up. These benchmarks and measurements are not bad, per se, but they can
+be highly misleading. You may find that your AI application scores quite well on
+these benchmarks while utterly failing to deliver value to end users. Put in the extra
+effort to integrate telemetry between your AI system and the rest of your application,
+and create the learning flywheel of evals with observability, and you’ll gain a better
+understanding of how well these features are working for your end users and how
+you can improve them toward those ends.
+
+
+                                                Using Evaluations and Observability Together   |   401
+Conclusion
+At its core, observability for AI applications looks a lot like observability for any other
+application. The nondeterministic nature of an LLM presents unique challenges, but
+teams already practicing observability will find their existing tools and frameworks
+transfer readily.
+The key insight from this chapter is the learning flywheel: production telemetry feeds
+evaluations, evaluations inform harness improvements, and those improvements
+show up in telemetry. This loop is how you move from a 25% error rate to less
+than 1%, how you catch a model misinterpreting a column name and fix it with
+a description, how you discover that models are guessing at fields and fix their
+behavior.
+In the age of AI, it’s tempting to reach for AI-native solutions to every problem.
+But the fundamentals haven’t changed: instrument well, analyze with intent, monitor
+what matters to your users and your business, and create feedback loops that com‐
+pound. The barrier to building AI applications has dropped dramatically. But the bar
+of success for operating them well is still having empathy for your customers, your
+business, and your team.
+Now, we turn to a synthesis of the lessons from this chapter and the entire book
+provided by guest contributor, Kesha Mykhailov, who is Staff Product Engineer at Fin
+(formerly Intercom). The journey for Fin toward building and operating its AI agent,
+Fin, deeply illustrates the opportunities that observability can unlock for modern
+software engineering teams.
+
+
+
+
+402   |   Chapter 21: Observability for Large Language Models

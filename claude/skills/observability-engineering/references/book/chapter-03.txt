@@ -1,0 +1,434 @@
+                                                                           CHAPTER 3
+        The Origins of Observability in Software
+
+
+
+
+In Chapter 1, we described observability as a property of system dependability and
+the sense-making capability of complex systems. In Chapter 2, we talked about how
+code crosses over from development to production, and how to safely test in prod.
+This chapter is written by Charity Majors, in her voice and perspective.
+It shares her retrospective on how observability entered the software industry, and
+how it has changed over time. The popular understanding has diverged from the spe‐
+cific, technical meaning it once had. This chapter is about recovering that meaning,
+and reasserting the principles that matter most.
+If you want to get straight to instrumentation and the practical bits, you have Chari‐
+ty’s blessing to skip ahead.
+
+An Introduction from Charity
+Hi! My name is Charity, and I am the cofounder and CTO of Honeycomb. I come
+from the infrastructure side of the house; I have been an operations engineer, site
+reliability engineer (SRE), and database reliability engineer, working on systems like
+Linden Lab, Parse, and Facebook, as both engineer and manager.
+For 10 years now, I’ve had a front row seat to the industry’s attempts to make sense of
+our complex, confusing, interdependent web of software, and I’ve contributed some
+attempts of my own. It’s a bit ironic, because as an engineer I always hated monitoring
+and dashboards, but I am no stranger to rage-driven development (it’s actually kind
+of my thing), and I feel really lucky to be here.
+Christine Yen—my Honeycomb cofounder—and I are often credited with inventing
+or pioneering “observability” in software engineering. This is a distinction that has
+
+
+
+                                                                                     39
+always made me mildly uncomfortable, in part because it’s not entirely true,1 and in
+part because the popular understanding is so different now.
+But while Christine and I may not have been the first to use “observability” in the
+context of software, we were the first to give it a technical definition, inspired by its
+control theory meaning, and build a product to that specification.
+When we first started exploring observability, all we knew was that we were trying to
+do something different. We had tried all the leading monitoring and APM tools, but
+they all suffered the same limitations: strict caps on cardinality to control costs, quer‐
+ies that took minutes to run, and correlations that remained stubbornly manual and
+guesswork. As engineers with experience in databases (me) and analytics (Christine),
+we knew these limitations were not intrinsic to data, and we were confused why all
+the vendors kept copying each other, iterating on a data model that worked so poorly.
+We also knew we were building for software engineers, not infrastructure or oper‐
+ations teams. Infrastructure is and was well served by the three pillars. Software
+engineering was not, and still is not.
+As generative AI has turned the cost model of software upside down, the question of
+how software engineers can validate their code in production, swiftly and reliably, has
+become more important than ever. Building may have gotten easier, but understand‐
+ing the code we built has not gotten easier; if anything, it has gotten harder. The
+solution, we are told, is agentic AI, but agents are only as good as their data. What AI
+needs most—context, relationships, ontological grounding—are what the old model
+sacrificed first.
+What happened? Why would the entire tech industry standardize around a set of
+“pillars” handed down from infrastructure? What can be done?
+
+The Dominant Model of “Observability”
+Is Just Monitoring, Rebranded
+Thinking back 20 years ago, every tech company had an operations department,
+and the ops folks ran everything: monitoring and logging, DNS & BIND, operating
+systems and kernels, filesystems and file servers, LDAP (lightweight directory access
+protocol) and Kerberos, datacenters and hardware, networking switches and routers,
+and on and on it goes.
+
+
+
+
+1 The genealogy of observability in software, as far as I can tell, begins with Bryan Cantrill, who put together
+     a deck called Software Observability in 2003 to “fancy it up a little, to try and convince the Sun managers to
+     keep funding DTrace.” From there it hopped over to then-Twitter, which had a team called “Observability
+     Engineering” in the early 2010s. This is how the term got on my radar.
+
+
+40     |   Chapter 3: The Origins of Observability in Software
+The first wave of cloud hit in 2006, when Google started hosting corporate email
+and when Amazon Web Services (AWS) launched S3 and EC2. Over the next 15-ish
+years, one by one, each of these operational tools and technologies we used to build
+was replaced by a managed API, SaaS (software as a service), or PaaS (platform as a
+service) that was better, faster, cheaper, and more reliable. As an industry, we became
+accustomed to the idea that we could now buy operational excellence in a tool: we
+didn’t need to invest in these skill sets anymore.
+And then, in the 2020s, one of those operational skill sets—just one of them—appears
+to have come furiously roaring back to life. Although we no longer talk about it as
+“monitoring” or “logging.” These days, we call it “observability”—and it accounts for
+20-30% of all infrastructure spending at many companies, a dizzying rise over the
+past 15 years that shows no sign of slowing.
+There’s a broad assumption in our industry that observability is just fresh branding
+on top of monitoring. This is understandable, because all the monitoring tools
+have just rebranded themselves as observability tools, and most teams are managing
+observability as a cost center and an ops tool for infrastructure.
+And therein lies the problem. Modern observability was never supposed to be an ops
+tool for infrastructure; it was supposed to be a tool for developers to understand their
+code in production. But that is not what it became.
+
+We Lost the Fight to Define Observability
+In 2016, when Christine and I started Honeycomb, we fought hard to give observabil‐
+ity a technical definition. “Good observability means having the ability to understand
+whatever is happening in your system, at any time, even if you’ve never encountered
+this system state before,” we said. “To do that, you need tools that support high
+cardinality, high dimensionality, an explorable interface, and the ability to visualize
+events over time as a trace.”
+We argued that observability was a tool for developers to follow their code into
+production and understand it there, in rich, exploratory detail; and monitoring, or
+logs and metrics, were for operations teams running infrastructure, and they were
+complementary. You needed both.
+We lost that fight, of course, in a landslide. The idea of observability started to get
+traction in 2017, and got buzzy in 2018, and for a while it looked like it might stick.
+Vendors had been telling their customers for years that handling high-cardinality
+data was “impossible,” that it “couldn’t be done”; when we showed that wasn’t true,
+engineers started getting excited. “Observability” tracks started popping up at main‐
+stream conferences. Monitorama renamed itself to “Monitorama (+ Observability).”
+O’Reilly asked us to write a book (this book!). But not everyone was on board.
+Customers said they wanted observability, so vendors did what vendors do: they
+
+
+                                                   We Lost the Fight to Define Observability   |   41
+rebranded. Pretty much everyone in the monitoring, logging, or APM categories
+relaunched their existing products as “observability tools” between 2019 and 2021.
+By the time Gartner added the “observability” category in 2022, the term had comple‐
+ted its long slide into meaninglessness. The reasons engineers got so excited about
+it in the early days—the reasons it was different—were long forgotten. Everyone
+believes they have observability these days, because observability can mean anything.
+On the one hand, it’s hard not to get a little depressed by this. The technical definition
+we championed would have been really useful for all the people trying to understand
+their options in a saturated market where every technical term is over-marketed.
+On the other hand, the technological currents that pushed us to develop a new
+paradigm for observability have only grown more intense. More and more teams are
+having to learn the same hard lessons Christine and I learned about the ways your
+relationship with production must be renegotiated after a step change increase in
+system complexity.
+
+Production Has Become Too Complex
+for Us to Debug Via Intuition
+Complexity has skyrocketed over the past 20 years. In 2010, the typical architecture
+was some variation on the LAMP stack: Linux, Apache, MySQL, and PHP. Moni‐
+toring and dashboards worked well in that world.
+In 2026, there is no typical stack. Our systems are dynamic, ephemeral, and con‐
+stantly in flux, a mesh of services, models, platforms, and APIs—and now (thanks to
+AI) we have nondeterminism as a feature, and there are agents in the mix. You can’t
+just hold a model of production in your head and reason about it anymore, or reliably
+intuit the answers.
+A good analogy for monitoring versus observability comes from finance. If you’re a
+young person with a paycheck and a bank account, you don’t need any complicated
+financial arrangements. Set up direct deposit, set up savings, autopay your rent
+and utilities, and check your balance once in a while, and you’re golden. That’s
+monitoring.
+Now let’s say you’re a financial services provider, or a bank. You have to track every
+single transaction going in or out of millions of accounts, pay and charge interest
+at different rates, track assets and asset classes and depreciation, and manage tax
+liability. You need to be able to drill down into any transaction between any set of
+accounts at any time, on a moment’s notice, and trace the historical path of any
+money that enters your system back until it exits the system. You need to set up
+proactive fraud detection and compliance alerts. Oh, and if you get any of it wrong,
+you could go to jail. That’s observability.
+
+
+42   |   Chapter 3: The Origins of Observability in Software
+Does observability cost more than monitoring? Yes. Because it does more. Every
+question you ask about your system has to be mediated by your telemetry in some
+way, and that costs money. But once you do need observability, it would be far more
+expensive to try to hobble along without it.
+
+The Facebook Experience That Showed Us What’s Possible
+Going back to the finance analogy: if you suddenly jump from a simple checking
+account to running a large, complex financial institution with millions of transac‐
+tions, how do you even know where to start? That’s not a common real-world
+scenario, but it’s all too relatable in tech if you found yourself going from LAMP stack
+to a massively distributed systems wasteland practically overnight.
+Shortly before founding Honeycomb, Christine and I found ourselves living through
+exactly that kind of painful shift. We’d been using tools built for simpler architectures
+to tackle incredibly large and complex problems. Both of us, working separately on
+Parse, had started shipping streams of data into a tool at Facebook called Scuba. And
+that experience forever changed how we thought about software.
+In our experience:
+
+  • Novel problems that had been virtually impossible to find until you knew what to
+    look for became possible to find in Scuba with no prior knowledge.
+  • Investigations that had taken time and energy became fast, simple, and cheap.
+  • Weirdest of all, the more junior engineers were starting to out-debug the experts
+    who had built the system.
+
+Entire categories of problems began to feel more like support tasks than engineering
+problems. This was mind-blowing. After leaving Facebook, we couldn’t stop thinking
+about how much we missed Scuba. We were convinced the world needed more tools
+like it.
+When engineers start companies, they typically fall into one of two groups: either
+they are subject matter experts (SMEs) who know exactly what they want to build, or
+they have an idea and need to find out if there’s a market for it. Christine and I were
+neither. We didn’t even fully understand why Scuba was so transformational—we just
+knew we missed it like crazy and couldn’t imagine going back to a world without it.
+We had the Scuba whitepaper, so we started experimenting, unpacking our experi‐
+ence, and sorting out what did and didn’t matter. Christine and I were not SMEs, and
+most of the people we talked to had no idea what we were talking about (and even
+less interest). We were repeatedly told by investors and leading experts that what we
+were attempting was a “solved problem.”
+
+
+
+                                        The Facebook Experience That Showed Us What’s Possible   |   43
+Neither of us had any real background in this space. What we had was an experience
+and a lot of conviction. So, we started reading and reasoning from first principles to
+work out how to replicate the experience for others.
+
+The Control Theory Definition Made It All Click
+We knew what we were building was different—in workflow, storage, and signal
+types—than anything else we had seen in the software domain. We couldn’t fit it into
+any existing category of tools.
+Oddly, it seemed to have a lot more in common with business analytics than with
+anything used by software engineers or SREs. It wasn’t monitoring, it wasn’t logging,
+it wasn’t tracing, it wasn’t APM—so what were we building? How should we talk
+about it? What would make it click for people? That sent me off searching for new
+technical terms. That’s when I read the control theory definition of observability:
+     Observability is a measure of how well internal states of a system can be inferred from
+     knowledge of its external outputs.
+
+Suddenly, it clicked. Fireworks.
+The control theory definition nailed what was different about what we were building.
+With existing solutions, you had to know what you were looking for before you could
+find it. You had to have knowledge of the internal state before you could infer what
+was happening—a circular dependency. Observability broke that dependency.
+If the goal is to understand any system state, at any given time, from the perspective
+of any user or intersection of users, just by observing the system outputs…what
+would that take?
+Working backward, we derived six functional requirements (these may look familiar
+to you from Chapter 1):
+
+ 1. High-dimensionality data: wide, wide structured events organized around a unit
+    of work. All the context. Ideally, hundreds of attributes per event.
+ 2. High-cardinality data, preserving as much detail as you want. Yes to unique IDs!
+ 3. Store raw events and aggregate at read time, with flexible, inferred schemas and
+    indexes. Pre-aggregation is a one-way street, and every key should be fast to
+    query.
+ 4. Zoom in to individual requests, and zoom out to the whole system, or any level
+    of granularity in between. Visualize events over time as a trace.
+
+
+
+
+44   |   Chapter 3: The Origins of Observability in Software
+ 5. Exploratory, open-ended user interfaces you can interact with, instead of static
+    dashboards.
+ 6. Queries must return within seconds, not minutes, so it is fast and interactive.
+
+Traditional tools have always been good at known-unknowns. Once you know you
+have a problem, you can generally find what you’re looking for. The tools work well
+for infra monitoring, and well enough for finding and fixing bugs and dealing with
+incidents.
+What modern observability introduced was the ability to understand unknown-
+unknowns. To evaluate the quality of your product, and understand the experience
+each user is having. To follow your code into production and see how users interact
+with it, to be surprised by what they come up with. Modern observability is about so
+much more than just bugs and incidents. It’s about understanding.
+This new approach was useful to software engineers for developing and validating
+their code. That was the shift that took observability from a monitoring tool for
+infrastructure to the sense-making capability of software systems—a distinction I
+sometimes worry has gotten lost along the way.
+
+The Modern Observability Landscape Is
+Confusing and Continues to Expand
+Then again, maybe not. After all, Honeycomb is no longer the only company with
+a product that handles high-cardinality, high-dimensionality data with an explorable
+experience. In fact, every observability startup founded since 2019 (that we know
+of) has followed our recipe: wide, structured events, backed by a columnar data
+store. When Honeycomb was starting out, there were no publicly available columnar
+storage engines, so we had to write our own. Now there’s DuckDB, ClickHouse,
+Snowflake, and more, and a new crop of observability vendors built on top of them.
+Not that you’d know it just by looking at their websites: the three pillars, infrastruc‐
+ture monitoring type tools use all the same words and phrases as the structured
+events backed by columnar database–type tools. In 2024, I took another stab at
+differentiation via technical terms. Regrettably, I used the most hackneyed technical
+cliché of all: 1.0 versus 2.0:
+Observability 1.0
+   This is when you send each type of signal to a separate tool or storage system.
+   Metrics go to a time-series database, logs go to a log aggregator, traces go to a
+   tracing tool, profiling data goes to a profiling tool, and so on. Any correlations
+   between pillars must be predefined and maintained by hand. You pay to store it
+   many, many times.
+
+
+                           The Modern Observability Landscape Is Confusing and Continues to Expand   |   45
+Observability 2.0
+   This is when you send your telemetry to one unified storage location. You send
+   rich, structured data that preserves the relationships for you to interrogate later.
+   You pay to store it once. In many tools, you can visualize the events over time as a
+   trace, or slice and dice them like normal log events. No dead ends.
+Simple, right? You can either have one source of truth or many sources, but you can’t
+have both. It’s clarifying. Recent to the time of writing in early 2026, Hazel Weakly
+proposed identifying data lakehouse architectures as “observability 3.0,” and there is,
+inevitably, already an “observability 4.0” on the loose.
+This escalating arms race in version numbers is, of course, the inevitable downside of
+the numbering exercise, which is why I have mostly stopped using it. (It also made
+traditional observability vendors angry. Some feel the “1.0” label implies they are less
+advanced. They are not less advanced; they are simply built for a different use case.
+But I get it.)
+
+Costs Are Driving the Need to Change,
+and AI Is Enabling That Change
+My personal opinion is that the world is moving, slowly yet inexorably, toward
+the unified model. To be clear: this is my personal opinion, not the vendor-neutral
+authorial stance of the “we” voice elsewhere in this book.
+Why? One big reason is cost. If you’re using 10–20 observability tools—and accord‐
+ing to Gartner, that’s the norm—you’re paying 10–20x in costs for every request that
+enters your system, at minimum. That cost multiplier is not sustainable.
+Teams have been hemorrhaging their most valuable data—cardinality and context—
+in an attempt to cap cost growth. It’s simply the wrong data model for the job.
+When the distinction between observability and monitoring got lost, the losers
+were developers and finance. Developers, because production remains as hostile
+and opaque to their needs as ever. Finance, because when you’re trying to meet
+developers’ needs using infrastructure tools, you end up paying to store the same data
+over and over and over again, in slightly different formats. And then you end up
+paying over and over and over again to store data that bridges the gap between those
+formats, store different data types in different ways, and so on.
+The other big reason is AI, which attacks the status quo on multiple fronts at once:
+
+     • AI is a technical enabler that can close the gaps that have made production feel
+       uncomfortable to developers.
+     • Modern observability has been hamstrung by the ecosystem built around three
+       pillars, but the AI ecosystem is springing afresh.
+
+
+46    |   Chapter 3: The Origins of Observability in Software
+  • AI is a competitive forcing function for execs to invest in reliability and
+    guardrails.
+  • AI agents are gluttons for context, and AI is only as good as the data it’s trained
+    on.
+  • Nondeterminism is a feature. Developers who want to understand agents will
+    have to instrument them and observe in production.
+  • Our ability to write code is no longer the bottleneck. Now, the bottleneck is our
+    ability to understand what we have written and make decisions about what to do
+    next.
+
+So, what do we do with all of this?
+
+Distilling the Lessons That Matter
+From a computer science perspective, none of this is new. The business side of
+our organizations went through this exact transformation 20-odd years ago when
+columnar storage engines were first introduced. Suddenly, analysts went from having
+to predefine metrics and dashboards to being able to slice and dice and zoom in and
+out, exploring data, finding new trends on the fly. They were hooked.
+Sales and marketing have always paid top dollar for great data tools because it means
+the difference between profits and losses. For engineering, that argument was never
+quite as clear and straightforward. And of course, engineering has long relied on
+tools that were selected, bought, rolled out, and maintained by infrastructure teams.
+Today, most of the tools that handle software telemetry get bucketed under “observ‐
+ability.” Some of them enable engineers to understand the quality of their product
+from the perspective of any or each of their users, as we have described. Most do
+not. The yawning gap between the cost of observability and the value returned is a
+function of this mismatch.
+The cornerstone of every high-performing engineering org is fast feedback loops, and
+you get those from observability—the sense-making function of production systems.
+That function has a compounding ripple effect. The more fast feedback loops that
+engineers have, the deeper and more meaningful the questions they ask. When they
+consistently find good answers quickly and easily, your systems and teams shift
+toward operating more sensibly and transparently. Your ability to ship swiftly, with
+confidence, picks up real speed. (We discuss this flywheel extensively in Chapters 24
+through 25.)
+That concept is not well understood by most engineering leaders right now—execs,
+managers, staff, and engineers alike. Probably because very few teams are actually
+operating anywhere near their theoretical peak potential.
+
+
+
+                                                        Distilling the Lessons That Matter   |   47
+But some are. This is not theoretical. And I’m actually uncharacteristically optimistic
+that more leaders are beginning to understand the role that observability plays in
+unlocking that potential. Leaders are waking up to the fact that their AI investments
+pay off only after they first invest in reliability and observability.
+At an individual level, observability is a force-amplifying power. It makes you better
+at everything else you do and connects you with the impact of your work on other
+people. When you understand exactly how your code behaves, what it’s really doing,
+and how that translates into each user’s experience. That is what gives meaning to the
+work of software engineering.
+Every company needs somebody who understands both observability and systems
+thinking and can make good choices—or else every migration, feature, deploy, and
+decision will be longer, harder, and more painful than necessary. Attention is the
+scarcest resource at every tech company right now, and the bottleneck has shifted
+from writing code to understanding the code we write. We don’t need everyone
+to understand observability deeply from first principles. But every company needs
+someone, or some team, who does.
+If that person is you: good luck. My hope is that this book can help lead you to
+success.
+
+Conclusion
+Charity’s history of observability can be read in many ways. The takeaway we most
+hope you leave with is an understanding of the user experience that sparked the
+breakthrough—the moment that made “observability” ubiquitous.
+The six functional requirements captured by that experience illustrate what separates
+a newer school of thought from more traditional debugging approaches. We think
+this is the most misunderstood lesson in observability—and that misunderstanding is
+largely responsible for the disillusionment that sets in when the costs don’t seem to
+match the value.
+The rest of the book unpacks this in detail: technical implementations, use cases, and
+guidance for different roles and team types. If you haven’t already, the book’s preface
+can help you figure out which sections matter most for you.
+Next, we start at the foundation: the data itself. Before you can analyze anything, you
+have to instrument your systems to capture it. That’s where Part II begins.
+
+
+
+
+48   |   Chapter 3: The Origins of Observability in Software
+                                                                              PART II
+                Instrumentation Fundamentals
+
+
+
+
+Part I covered the concepts you need to understand observability. This part is where
+you start building it.
+Instrumentation is the process of adding code to your systems so that they emit
+telemetry—and getting that right is the foundation that everything else rests on. This
+section is for most readers.
+Chapter 4 introduces instrumentation and telemetry basics: what engineers should be
+thinking about when they instrument their code, and a first look at OpenTelemetry,
+the open source framework that’s become the standard for doing so.
+Chapter 5 challenges the three pillars model—the idea that logs, metrics, and traces
+are fundamentally separate things that need to be managed separately. This chapter
+breaks down why that framing is limiting, and shows how all three can be unified
+into a single substrate: the arbitrarily wide structured event. The key insight is that
+predefining the shape of your telemetry predefines the questions you can ask of it.
+Unifying your data frees you from that constraint—capture all the context now, and
+then let the investigation shape the query later. That idea is central to everything that
+follows. Jeremy Morrell contributed greatly to this chapter.
+Chapter 6 is a guest chapter written entirely by Jeremy Morrell. It walks through com‐
+mon system conditions to show concretely what telemetry you should be capturing
+and what questions you can answer as a result. This is practical, hands-on guidance
+for how to start instrumenting your code well.
+Chapter 7 goes deeper on OpenTelemetry—not as a how-to, but as a conceptual
+guide. It covers the project’s design, common instrumentation patterns, and how to
+work with it effectively when using AI-assisted coding.
+In Part III, we’ll look at how to analyze the telemetry you’re now capturing and turn it
+into actual insight.

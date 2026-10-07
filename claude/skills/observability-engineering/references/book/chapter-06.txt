@@ -1,0 +1,1053 @@
+                                                                         CHAPTER 6
+Making Structured Events Arbitrarily Wide
+
+
+                            This chapter is contributed by Jeremy Morrell,
+                                         Principal Engineer at Cloudflare
+
+
+                A Note from Charity, Liz, George, and Austin
+In the last chapter, we broke down how metrics, logs, and traces can all be decom‐
+posed into one common datatype: the arbitrarily wide, structured event—which can
+be used to generate any view necessary during observability-based investigations.
+However, we mostly focused on showing examples that illustrate the “structured
+event” part of that datatype. In this chapter, we show you how to make those struc‐
+tured events “arbitrarily wide.”
+In observability, your structured events should be as wide as possible in order to
+capture comprehensive context for debugging. Having rich context about any given
+system event enables you to answer unexpected questions and perform complex
+analysis without prejoining data. Some of the most useful data when investigating
+novel or complex failures will typically involve comparing outliers across fields with
+high cardinality.
+Wide, structured events collapse the boundaries between logs, metrics, and traces
+into a single data structure, offering a unified view for analyzing system behavior.
+That means proactively designing your events so wide that they include fields to help
+pinpoint issues such as user ID, feature flags, and request details in a single data
+structure, eliminating the need for expensive and complex joins.
+An “arbitrarily wide” structured event means that there should be no practical limit
+to how much context can be stuffed into any single event. In a unified observability
+system, you should have as much data available in your events to aid your investiga‐
+tion as you think you might someday need. In practice, that means that any given
+arbitrarily wide, structured event contains data that has both high dimensionality and
+high cardinality.
+
+
+                                                                                         85
+     Later, we’ll examine practical constraints as we delve into analysis (Chapter 8) and
+     datastore workloads (Chapters 12 and 13). For now, let’s focus on what type of
+     instrumentation you should include to make the widest, most useful events possible.
+     The rest of this chapter is written from Jeremy Morrell’s perspective.
+
+
+In order to answer any arbitrary question, you’ll need to capture information about
+a wide variety of conditions present in your systems. In the previous chapter, we
+introduced simple examples structured around web server requests. Since our goal
+was to show how telemetry datatypes are interrelated, we glossed over what all the
+other useful attributes to capture would be.
+You’ll capture data about system state when the request occurred by writing it to
+various attributes. When considering what to capture, it’s relatively simple to come
+up with a dozen or so attributes. But there are likely far more of these than you
+would expect. In a well-instrumented codebase, there will typically be hundreds of
+attributes.
+In this chapter, I’ll walk you through that wide variety of system conditions and
+concretely illustrate the types of values you should capture in each case. Note that
+while this section contains a long list of attributes, it is definitely not exhaustive.
+
+Service and Code Context
+As you consider which attributes to capture, service and code context are good places
+to start. These attributes are what turn questions like “Is something broken?” into
+answers like “We know exactly which thing is broken, where, who’s responsible for it,
+and what changed.”
+
+Service Metadata
+Consider adding metadata about which team owns the system, or which Slack chan‐
+nel the owning team hangs out in—though note that this can be tedious to update if
+your workplace experiences frequent re-orgs. Sophisticated organizations can link the
+data in these attributes to a service catalog so they always stay up-to-date. Table 6-1
+lists attributes that are useful for connecting services to their owners.
+
+
+
+
+86     |   Chapter 6: Making Structured Events Arbitrarily Wide
+Table 6-1. Service attributes
+Attribute                 Examples       Description
+service.name              api            Name of this service
+                          shoppingcart
+service.environment       production     Environment where this service is running
+                          staging
+                          development
+service.team              web-services   Team that owns this service—useful for knowing who to page in
+                          dev-ex         during incidents
+service.slack_channel web-services       Where to reach out if you discover an issue
+                      dev-ex
+
+
+With these attributes in place, you can answer questions like: how many services does
+each team run? You can generate an answer using the following query:
+    SELECT
+      COUNT_DISTINCT(service.name)
+    WHERE
+      service.environment = "production"
+    GROUP BY service.team
+Next, have you ever looked at the load on a system and then wondered “Is that appro‐
+priate for the machine this is running on?” And then you have to look through other
+tools or config files to get that information. Well, you can avoid that by throwing that
+context on the wide event so that it’s available when you need it.
+Table 6-2 lists examples of infrastructure metadata that is useful to capture.
+
+Table 6-2. Infrastructure attributes
+Attribute              Examples                                 Description
+instance.id            656993bd-40e1-4c76-                      ID that maps to this one instance of the service
+                       baff-0e50e158c6eb
+instance.memory_mb 12336                                        Amount of RAM available to this service
+instance.cpu_count 4                                            Number of cores available to this service
+                   8
+                   196
+instance.type          m6i.xlarge                               Vendor’s name for this type of instance
+
+
+
+
+                                                                            Service and Code Context        |   87
+With these attributes, you can use the following query to answer questions like “What
+are the services with the most memory that we run?” and “What instance types do
+they use?”:
+     SELECT
+       service.name,
+       instance.memory_mb,
+       instance.type
+     ORDER BY instance.memory_mb DESC
+     GROUP BY service.name, instance.type
+     LIMIT 10
+Going a step further, you should add all relevant information related to how you’re
+orchestrating your systems. The OpenTelemetry Kubernetes semantic conventions for
+instrumentation do a good job of laying these out, but I’ve included the examples in
+Table 6-3 for your inspiration.
+
+Table 6-3. Orchestration attributes
+Attribute                           Examples                             Description
+container.id                        a3bf90e006b2                         ID used to identify Docker containers
+container.name                      nginx-proxy                          Container name used by container runtime
+                                    wordpress-app
+k8s.cluster.name                    api-cluster                          Name of the Kubernetes cluster your service runs in
+k8s.pod.name                        nginx-2723453542-065rx Name of the Kubernetes pod your service runs in
+cloud.availability_zone us-east-1c                                       Availability zone where you’re running your service
+cloud.region                        us-east-1                            Region where you’re running your service
+
+The preceding examples presume an orchestrator like Kubernetes. But even if you’re
+using a platform as a service (PaaS), you can still pull out a lot of useful information.
+This is shown in Table 6-4, using Heroku as an example.
+
+Table 6-4. PaaS orchestration attributes
+Attribute                  Examples                 Description
+heroku.dyno                web.1                    Environment variable (env var) DYNO that is set on your app at
+                           worker.3                 runtime
+heroku.dyno_type           web                      First part of the DYNO env var before the dot (easier to query when
+                           worker                   separated)
+heroku.dyno_index 1                                 Second part of the DYNO env var after the dot (easier to query when
+                  3                                 separated)
+heroku.dyno_size           performance-m            Selected dyno size
+heroku.space               my-private-space Name of the private space that you are deployed into
+heroku.region              virginia                 Region the app is located in
+                           oregon
+
+
+88   |   Chapter 6: Making Structured Events Arbitrarily Wide
+You can use the following query to answer questions like “How many Heroku dynos
+are we running?” and “What dyno types are they; for which services?”:
+    SELECT
+      COUNT_DISTINCT(heroku.dyno_index)
+    GROUP BY service.name, heroku.dyno_type, instance.type
+These are just a start, of course. But hopefully, using this as inspiration, you can see
+what other details might be useful for you and your teams to capture.
+
+Build Information
+Inevitably some of the first questions asked in any incident are “Did something just
+get deployed,” or “What changed?” Instead of jumping to your deployment tool or
+looking through GitHub repositories, you can add that build data to your telemetry.
+Threading this data from your build system through to your production system so
+that it’s available at runtime can be a nontrivial amount of glue code, but having this
+information easily available during incidents is invaluable.
+Table 6-5 shows a few examples of useful build information.
+
+Table 6-5. Build information attributes
+Attribute             Examples                                       Description
+service.version       v123                                           Version string or a hash of the
+                      9731945429d3d083eb78666c565c61bcef39a48f       built image
+service.build.id      acd8bb57-fb9f-4b2d-a750-4315e99dac64           ID given by your build system,
+                                                                     with this context enabling
+                                                                     you to audit the build if
+                                                                     something goes wrong
+service.build.        6f6466b0e693470729b669f3745358df29f97e8d       Git hash of the deployed
+git_hash                                                             commit so you can know
+                                                                     exactly which code was
+                                                                     running
+service.build.        https://github.com/your-company/api-           URL of the pull request that
+pull_request_url      service/pull/121                               was merged that triggered
+                                                                     the deploy
+service.build.        https://github.com/your-company/api-           URL that compares the
+diff_url              service/compare/c9d9380..05e5736               previously deployed commit
+                                                                     against the newly deployed
+                                                                     commit
+service.build.        2024-10-14T19:47:38Z                           Timestamp when the
+deployment.at                                                        deployment process started
+service.build.        keanu.reeves@your-company.com                  Authenticated user who
+deployment.user                                                      kicked off the build
+
+
+
+
+                                                                 Service and Code Context       |   89
+Attribute                   Examples                               Description
+service.build.              merge-to-main                          Triggering event that
+deployment.                 slack-bot                              deployed this version of the
+trigger                     api-request                            application—enabling quick
+                                                                   distinction between an issue
+                            config-change
+                                                                   caused by a configuration
+                                                                   change, an automatic deploy,
+                                                                   or a manual deployment
+service.build.              1                                      Age of the deployment—
+deployment.age              10230                                  useful for the frequent
+_minutes                                                           incident question: “Did
+                                                                   something just get
+                                                                   deployed?” (age presumably
+                                                                   updated each time telemetry
+                                                                   is emitted)
+
+With even just these few attributes, you can query answers to a question like “What
+systems have recently been deployed?” For example:
+     SELECT
+       service.name,
+       MIN(service.build.deployment.age_minutes) as age
+     WHERE
+       service.build.deployment.age_minutes < 20
+     GROUP BY service.name
+     ORDER BY age ASC
+     LIMIT 10
+Or, you could query to find out “What’s up with the spike of 500s when we did the
+last deploy?”:
+     SELECT
+       COUNT(*)
+     WHERE
+       service.name = "api-service" AND
+       main = true
+     GROUP BY http.status_code, service.version
+If the query was used to visualize performance, your graph might look something like
+Figure 6-1.
+The visualization shows that HTTP 200 OK requests served by v1 dropped quickly as
+v2 started to serve traffic. While that was happening, HTTP 500 Internal Server
+Error requests briefly spiked. Without being able to break down by version, it’s
+unclear if the 500 errors are due to side effects of bringing the v2 server up, or issues
+shutting the v1 server down. In this case, all the 500 errors are from v1, so we should
+make sure our system is properly handling all ongoing requests and can shut down
+cleanly.
+
+
+
+
+90   |   Chapter 6: Making Structured Events Arbitrarily Wide
+Figure 6-1. Requests grouped by HTTP status code and version. There is a spike of 500s
+correlating to v1 shutting down.
+
+Feature Flags
+Fine-grained feature flags are a developer superpower. They enable you to test code
+changes in production with only a fraction of your users or traffic. Coupled with the
+broad visibility of wide events (as we’ll continue to see), the attributes in Table 6-6
+can make even tricky migrations vastly more manageable and enable you to ship code
+with confidence.
+
+Table 6-6. Feature flag attributes
+Attribute                             Examples Description
+feature_flag.auth_v2                  true     Value of a particular feature flag for this request
+                                      false
+feature_flag.double_write_to_new_db true          Value of a particular feature flag for this request
+                                    false
+
+
+Adding these feature flag attributes would let you query an answer to “What errors
+are the users in the new authentication flows hitting?” and “How does it compare to
+the control group?”:
+    SELECT
+      COUNT
+    WHERE
+      main = true AND
+      service.name = "api-service" AND
+    GROUP BY feature_flag.auth_v2, exception.slug
+Adding the flag information per request enables you to compare how the new code is
+working as you opt more of your traffic into the new code path.
+
+
+
+
+                                                                          Service and Code Context      |   91
+Versions of Important Things
+Collecting the versions of runtimes, frameworks, and any major libraries you are
+using can provide really helpful context. Some examples are contained in Table 6-7.
+
+Table 6-7. Versioning attributes
+Attribute                 Examples Description
+go.version                go1.26.4 Version of the language runtime you are using
+rails.version             7.2.1.1      Picking out any core libraries like web frameworks and tracking their version
+postgres.version 16.4                  Adding the versions of any datastores you’re using
+
+Now, let’s say that a security issue with Ruby on Rails just got announced. You can
+now quickly find out what versions of the framework your services are using:
+     SELECT
+       COUNT_DISTINCT(service.name)
+     WHERE
+       service.environment = "production"
+     GROUP BY rails.version
+Or, let’s say that, suddenly, memory usage seems higher than it used to be. Didn’t we
+upgrade Go versions recently? Does that correlate? Run a query to find out:
+     SELECT
+       HEATMAP(metrics.memory_mb)
+     WHERE
+       main = true AND
+       service.name = "api-service"
+     GROUP BY go.version
+There are many useful questions you can answer when system conditions change.
+But you can’t answer them if you didn’t capture the version of important system
+components. What other versioning information could be critical to understanding
+your system operations? Add that to your wide events. (To further see how this is
+enabled in practice, see Chapter 8.)
+
+Request and Execution Flow
+Telemetry about request and execution flow is what turns a single trace or log line
+into a coherent narrative of how work moved through the system: what was called,
+in what order, how long each step took, and where it failed. It’s the fastest way to go
+from “the service is slow” to “this route is slow because this downstream call is slow.”
+Focusing on these attributes is how you make finding answers like that repeatable at
+scale.
+
+
+
+
+92   |   Chapter 6: Making Structured Events Arbitrarily Wide
+HTTP Information
+Although you should get most attributes related to HTTP information from your
+tracing library instrumentation, there are usually more that you can add. Table 6-8
+shows some common places to start.
+
+Table 6-8. HTTP information attributes
+Attribute                                          Examples                   Description
+server.address                                     example.com                Host name of the HTTP server that received
+                                                   localhost                  the request
+url.path                                           /checkout                  URI path after the domain
+                                                   /account/123/
+                                                   features
+url.scheme                                         http, https                URI scheme being used
+url.query                                          q=test, ref=####           URI query component
+http.request.id                                    79104EXAMPLEB723           Platform requestID if one exists—e.g., x-
+                                                                              request-id, x-amz-request-ida
+http.request.method                                GET                        HTTP request method
+                                                   PUT
+                                                   POST
+                                                   OPTIONS
+http.request.body_size                             3495                       Size of the request payload body, in bytes
+http.request.header.content-type                   application/json           Value of a specific request header—
+                                                                              content-type in this case, though there
+                                                                              are many more to choose if any are
+                                                                              important for your service
+http.response.status_code                          200                        HTTP response status code
+                                                   404
+                                                   500
+http.response.body_size                            1284                       Size of the response payload body, in bytes
+                                                   2202009
+http.response.header.content-type text/html                                   Value of a specific response header—
+                                                                              content-type in this case, though there
+                                                                              are many more to choose if any are
+                                                                              important for your service
+a The x- header prefix format is currently well entrenched in many orgs, although the convention has been deprecated.
+
+
+
+With these attributes in place, you can now understand more about the performance
+of your HTTP requests. For example, you can answer a question like “Are there
+differences in the output size of my HTTP responses?”:
+
+
+
+
+                                                                                      Request and Execution Flow        |   93
+     SELECT
+       HEATMAP(http.response.body_size),
+     WHERE
+       main = true AND
+       service.name = "api-service"
+The visualization in Figure 6-2 shows a graphical representation of data received by
+the example query.
+
+
+
+
+Figure 6-2. Heatmap of response sizes: most are within a fixed band, but there are sharp
+outliers that warrant more investigation.
+
+Here, you can see that the body size of responses from some HTTP requests are
+abnormally large. Those outliers might provide useful clues when investigating per‐
+formance anomalies. They could be a bug or they could be valid data—either from
+infrequently called routes or user requests returning a large dataset.
+HTTP User-Agent headers contain a wealth of information. Don’t rely on regex
+queries to try and make sense of them down the road. With wide events, there’s no
+reason not to parse them into structured data from the beginning. Table 6-9 provides
+useful user-agent metadata to capture.
+
+Table 6-9. User-agent attributes
+Attribute                               Examples                  Description
+user_agent.original                     Mozilla/5.0 (Windows NT   Value of the HTTP User-Agent header
+                                        10.0; Win64; x64) Apple
+                                        WebKit/537.36 (KHTML,
+                                        like Gecko) Chrome/
+                                        129.0.0.0 Safari/537.3
+user_agent.device                       computer                  Device type derived from the User-
+                                        tablet                    Agent header
+                                        phone
+
+
+
+
+94   |   Chapter 6: Making Structured Events Arbitrarily Wide
+Attribute                        Examples                    Description
+user_agent.OS                    Windows                     Operating system derived from the User-
+                                 MacOS                       Agent header
+user_agent.browser               Chrome                      Browser derived from the User-Agent
+                                 Safari                      header
+                                 Firefox
+user_agent.browser_version 129                               Browser version derived from the User-
+                           18.0                              Agent header
+
+
+Now you can query answers to a question like “What browsers are my users using?”:
+    SELECT
+      COUNT(*)
+    GROUP BY user_agent.browser, user_agent.browser_version
+If you have any custom user agents or headers used as a convention within your org,
+parse that out too, as shown in Table 6-10.
+
+Table 6-10. Custom user agent or custom header attributes
+Attribute             Examples                                             Description
+user_agent.service    api-gateway                                          If you have a distributed
+                      auth-service                                         architecture, have each service
+                                                                           send a custom User-Agent
+                                                                           header with its name.
+user_agent.service    v123                                     If you have a distributed
+_version              6f6466b0e693470729b669f3745358df29f97e8d architecture, have each service
+                                                               send a custom User-Agent
+                                                                           header with its version.
+user_agent.app        iOS                                                  If a request is coming from
+                      android                                              a mobile app, make sure it
+                                                                           includes which app.
+user_agent.app        v123                                     If a request is coming from
+_version              6f6466b0e693470729b669f3745358df29f97e8d a mobile app, make sure it
+                                                                           includes which version is in
+                                                                           use.
+
+Again, you’ll get many of these types of attributes from standard instrumentation
+libraries automatically. But you also might not, depending on what you use. For
+example, if your organization uses nonstandard headers, you may need to add some
+of these manually.
+Always review which attributes you get with automatic instrumentation. If you aren’t
+capturing telemetry for some of these useful scenarios, don’t hesitate to add it. Don’t
+settle for only what your instrumentation library gives you by default!
+
+
+
+
+                                                                 Request and Execution Flow           |   95
+Route Information
+We’re not done with HTTP attributes yet! One of the most important bits is the
+API endpoint that the request matched. Tracing libraries will usually give this to you
+automagically but not always. Consider extracting the route parameters and query
+parameters as additional attributes, as shown in Table 6-11.
+
+Table 6-11. Route information attributes
+Attribute                             Examples                  Description
+http.route                            /team/                    Route pattern that the URL path is matched against
+                                      {team_id}/
+                                      user/{user_id}
+http.route.param.team_id              14739                     Extracted segment of the URL path as it’s parsed for each
+                                      team-name-slug            parameter
+http.route.query.sort_dir asc                                   Query parameters that are relevant to the response of your
+                                                                service (e.g., ?sort_dir=asc&...)
+
+Adding route information to your attributes lets you better dig for underlying pat‐
+terns within groups of HTTP requests. Let’s say you’re looking at P99 latency. You
+could use the following query to group a visualization of those requests to also show
+their routes:
+     SELECT
+       P99(duration_ms)
+     WHERE
+       main = true AND
+       service.name = "api-service"
+     GROUP BY http.route
+In Figure 6-3, we see a visualization of P99 latency.
+
+
+
+
+Figure 6-3. Chart of P99’s broken down by route. There is a spike on only some of them.
+Break down this view by application version to check if this was caused by a deployment.
+
+
+
+96   |   Chapter 6: Making Structured Events Arbitrarily Wide
+Without route information, you’d only see a spike occurring in requests, but you’d
+have no further information on what those slow requests have in common. By
+grouping requests according to HTTP route, in this example, you can see that only
+requests to the POST /checkout and POST /signup routes are slower.
+
+Timings
+In the work that gets done to respond to a request, I find it super useful to break it
+up into a handful of important chunks and track how long each segment took on the
+wide event.
+You might be asking yourself, “Wait, isn’t that what child spans are for?”
+Wrapping absolutely everything in its own span is the most common failure mode I
+see when engineers first get access to tracing tools. You have to design the structure of
+your data for the way you want to query it.
+Child spans are helpful for waterfall visualization for a single request, but can be
+difficult to query and visualize across all of your requests. Putting important timing
+information on a single span makes it easier to query and also helps with tools like
+Honeycomb’s BubbleUp (see Chapter 8), which can then immediately tell you that
+a particular group of requests was slow because authentication took 10 seconds for
+some reason.
+An example of timing information to capture is shown in Table 6-12.
+
+Table 6-12. Timing attributes
+Attribute                       Examples Description
+auth.duration_ms                52.2     How long we spent performing authentication during this request
+                                0.2
+payload_parse.                  22.1       Identifying the core workloads of the service and adding timings for them
+duration_ms                     0.1
+
+
+Let’s say in your system you’ve just shipped a new subsystem that prioritizes payload
+parsing for enterprise users, and you want to see the impact of that change on tail
+latencies across all of the regions where you have systems deployed. If all of those
+attributes are present on the wide event, then this is straightforward:
+    SELECT
+      P99(payload_parse.duration_ms)
+    WHERE
+      main = true AND
+      service.name = "api-service"
+    GROUP BY
+      user.type,
+      cloud.region
+
+
+
+                                                                              Request and Execution Flow      |   97
+However, this may seem like we are duplicating data available in the child spans.
+Surely we can accomplish the same thing by wrapping the payload parsing method in
+its own span?
+This is a valid approach, but now if we want to query that data alongside any
+other data that we’ve captured in our wide event, querying has become much more
+complicated, forcing the use of JOIN:
+     SELECT
+       P99(parse_span.duration_ms)
+     FROM spans AS main_span
+     JOIN spans AS parse_span ON main_span.trace_id = parse_span.trace_id
+     WHERE
+       main_span.main = true AND
+       main_span.service.name = "api-service" AND
+       parse_span.name = "payload-parse"
+     GROUP BY main_span.user.type, main_span.cloud.region
+Mature observability tooling is capable of running these types of queries at the cost
+of additional processing; however, we should keep in mind how we will be using this
+data. We want to prioritize quick, iterative exploration, often while responding to
+active incidents, and we want any engineer on our team to be able to easily navigate
+our observability tooling.
+Viewed through this lens, identifying a few important timings and adding them to the
+wide event is well worth the slight data duplication.
+
+Async Request Summaries
+When using a tracing system, async requests should get their own spans, but it can
+still be useful to roll up some stats to identify outliers and quickly find interesting
+traces. Some examples of summarizing these into attributes are shown in Table 6-13.
+
+Table 6-13. Async request attributes
+Attribute                                       Examples Description
+stats.http_requests_count                       1        Number of HTTP requests triggered during the processing of
+                                                140      this request
+stats.http_requests_duration_ms                 849         Cumulative time spent on these HTTP requests
+stats.postgres_query_count                      7           Number of Postgres queries triggered during the processing of
+                                                742         this request
+stats.postgres_query_duration_ms 1254                       Cumulative time spent in these Postgres queries
+stats.redis_query_count                         3           Number of Redis queries triggered during the processing of
+                                                240         this request
+stats.redis_query_duration_ms                   43          Cumulative time spent on these Redis queries
+
+
+
+
+98   |   Chapter 6: Making Structured Events Arbitrarily Wide
+Attribute                           Examples Description
+stats.twilio_calls_count            1        Number of calls to this vendor’s API triggered during the
+                                    4        processing of this request
+stats.twilio_calls_duration_ms      2153        Cumulative time spent on these vendor calls
+
+Now, you can write the following query to see exactly how much traffic is going to
+which sources:
+    SELECT
+      HEATMAP(stats.postgres_query_count)
+    WHERE
+      main = true AND
+      service.name = "api-service"
+Surely my service makes a reasonable number of calls to the database…right?
+In Figure 6-4, we see the results of this example query.
+
+
+
+
+Figure 6-4. Heatmap of database queries per request: there is a bimodal distribution but
+also some outliers that make a lot of requests.
+
+The visualization, shown as a heatmap, displays a bimodal distribution, where a
+majority of requests follow one of two patterns for database communications. How‐
+ever, you’ll also notice that a handful of requests consume far more traffic than is
+nominal.
+
+Errors
+If you encounter an error and need to fail the operation, add attributes to the span
+that contain the error information: type, stack trace, etc.
+One approach that I have found incredibly valuable is tagging each location, where
+we throw an error with a unique slug describing the error. If this string is unique
+within your codebase, it’s easily found with a quick search. This enables you to jump
+
+                                                                       Request and Execution Flow        |   99
+straight from a spike in errors on a dashboard to the exact line of code throwing the
+error. It also provides a convenient low-cardinality field to GROUP BY.
+You’re unlikely to be able to wrap all possible errors, but any time a failed request
+doesn’t have an exception.slug, that is a good sign that you have places in your code
+where your error handling could be improved. It’s now really easy to find examples of
+requests that failed in ways you didn’t anticipate.
+You could add error handling into your instrumentation code like so:
+      if isNotRecoverable(err) {
+        // note the use of a plain string, not a variable
+        // not dynamically generated
+        // consider enforcing this with custom lint rules
+        setErrorAttributes(err, "err-stripe-call-failed-exhausted-retries");
+        throw err;
+      }
+Table 6-14 shows various types of error information to capture in attributes.
+
+Table 6-14. Error information attributes
+Attribute                     Examples                         Description
+error                         true                             Special field for whether the request failed or not
+                              false
+exception.message             Can’t convert ’int’              Exception message encoded in the exception
+                              object to str
+                              undefined is not a
+                              function
+exception.type                IOError                          Programmatic type of the exception
+                              java.net.ConnectEx
+                              ception
+exception.stacktrace ReferenceError: user is                   Capturing the stack trace if it’s available to help
+                     not defined                               pinpoint where the error is being thrown
+                     at myFunction (/path/to/
+                     file.js:12:2)
+                     ...
+exception.expected            true                             Enables filtering out of exceptions we can’t prevent
+                              false                            but don’t need to worry about (e.g., a bot trying to
+                                                               hit a URL that doesn’t exist)
+exception.slug                auth-error                       Creating a unique, greppable slug value to identify
+                              invalid-route                    the code location of an error if it’s predictable at
+                              github-api-unavailable           development time
+
+
+
+
+100   | Chapter 6: Making Structured Events Arbitrarily Wide
+With error information in your wide events, you can query for answers to questions
+like “Which of our enterprise users hit the most errors last week, and which errors
+did they hit?” For example:
+    SELECT
+      COUNT_DISTINCT(user.id)
+    WHERE
+      main = true AND
+      service.name = "api-service" AND
+      user.type = "enterprise"
+    GROUP BY exception.slug
+
+
+Or, you can use the following query when you want to see traces where you likely
+need to improve your error handling:
+    SELECT
+      trace.trace_id
+    WHERE
+      main = true AND
+      service.name = "api-service" AND
+      error = true AND
+      exception.slug = NULL
+    GROUP BY trace.trace_id
+While tracing libraries provide solid defaults for many of these attributes, don’t stop
+there. Review what your instrumentation captures automatically, identify the gaps,
+and fill them in. The difference between “something is slow” and “the /checkout
+route is slow because authentication is taking 10 seconds for requests from mobile
+clients on version 3.2.8” is often just a handful of well-chosen attributes that you
+added yourself.
+
+User and Business Context
+Telemetry about user and business context is what lets you connect technical behav‐
+ior to real-world impact: who was affected, what they were trying to do, and whether
+the issue maps to a specific tenant, segment, plan, workflow, etc. It turns debugging
+into prioritization because you can distinguish a “weird edge case” from a “revenue-
+critical path breaking for high-value customers.”
+
+User and Customer Information
+Once you get the basics down, this is the most important piece of metadata that you
+can add. No automagic SDK will be able to automatically understand the particular
+details of your user model.
+
+
+
+
+                                                            User and Business Context   |   101
+First, let’s cover types of user information to add, as shown in Table 6-15.
+
+Table 6-15. User and customer attributes
+Attribute                    Examples                     Description
+user.id                      2147483647                   This is the primary ID for a user. If this is an email and you’re
+                             user@example.com             using a vendor, consider your org’s policy on putting personally
+                                                          identifiable information (PII) in external services.
+user.type                    free                         Businesses usually have a way of categorizing their users into
+                             premium                      groups or users that might have outsized importance to business
+                             enterprise                   fundamentals. Individual accounts are sometimes responsible for
+                                                          10%+ of a business income or for an inordinate amount of system
+                             vip
+                                                          load. Make sure you can separate their traffic from others!
+user.auth_method             token                        This is the method the user used to authenticate into your system.
+                             basic-auth
+                             jwt
+                             sso-github
+user.team.id                 5387                         Your system may have a way of grouping users together such
+                             web-services                 as “team” or “organization.” Capture attributes for all of these.
+                                                          Sometimes teams will hit errors or edge cases that affect no other
+                                                          users.
+user.org.id                  278                          If this user is part of an organization with an enterprise contract,
+                             enterprise-name              track that! Identifying high-spend customers affected by an
+                                                          incident can enable your account managers to proactively reach
+                                                          out to them.
+user.creation_               1753833600                   This is a timestamp of when this account was created. Using this
+timestamp                    1722307200                   timestamp enables you to distinguish between issues experienced
+                                                          by someone new to your app, or only once they’ve been around
+                                                          long enough to have saved a lot of data.
+user.assumed                 true                         If you have an internal way of assuming a user’s identity for
+                                                          debugging, be sure to track this. This is also likely compulsory to
+                                                          meet security audit requirements.
+user.assumed_by              engineer-3@your-             Also track which actual user is assuming the user’s identity.
+                             company.com
+
+
+Adding user information into your wide events is what lets you segment investigative
+queries to see who exactly is affected by any particular issue. Understanding exactly
+which users are experiencing a problem is generally one of the first questions that
+incident responders will be asked, yet that continues to be a frustratingly difficult
+problem for most engineering teams.
+
+
+
+
+102   |     Chapter 6: Making Structured Events Arbitrarily Wide
+But now, with user information in your wide events, you could write a query to
+understand which users are seeing slow performance when using your services:
+    SELECT
+      P99(duration_ms)
+    WHERE
+      main = true AND
+      service.name = "api-service"
+    GROUP BY user.type
+It’s common for a single user or account to be responsible for a 10%+ of business
+revenue, and frequently their usage patterns look significantly different than the
+average user. They probably have more users, store more data, use enterprise-only
+features, and hit limits and edge cases that will never show up for the user paying $10
+a month.
+Be sure you can separate their traffic from others, by adding user attributes to your
+wide events!
+
+Rate Limits
+Whatever your rate-limiting strategy, make sure the current rate-limit information
+gets added as attributes too. With many tools, it’s unlikely that you can quickly find
+examples of users that are being rate-limited by your service. You can get around that
+limitation by adding attributes like what is shown in Table 6-16.
+
+Table 6-16. Rate-limit attributes
+Attribute               Examples                     Description
+ratelimit.limit         200000                       This is the limit being enforced by the rate-limiting system.
+                                                     Young systems may only have a single rate limit for all users,
+                                                     but as they mature there will likely be business reasons to
+                                                     have users with different rate limits.
+ratelimit.remaining 130000                           This is the budget remaining for this user.
+ratelimit.used          70000                        This is the budget for the current window that has been used.
+ratelimit.reset_at      2024-10-14T19:47:38Z This is the time when the rate limit will be reset. Different
+                                                     rate-limiting algorithms will have different parameters.
+                                                     Try to capture anything that would be helpful if you find
+                                                     yourself talking with an angry customer asking why they are
+                                                     being rate-limited.
+
+
+
+
+                                                                              User and Business Context      |   103
+Let’s say that a particularly important user has opened a support ticket about being
+rate-limited. Rather than guessing at what might be happening, if you had these
+attributes in place, you could query directly to find out. You could see what the user
+was doing with a query like this:
+      SELECT
+        COUNT(*),
+        HEATMAP(ratelimit.remaining)
+      WHERE
+        main = true AND
+        service.name = "api-service" AND
+        user.id = 5838
+      GROUP BY http.route
+Figure 6-5 is a visualization of this query.
+
+
+
+
+Figure 6-5. A graph of one user’s activity: on the far right, there is a big spike hitting the
+same route. This graph provides a starting point for investigation.
+
+
+104   |   Chapter 6: Making Structured Events Arbitrarily Wide
+In this case, we can now clearly see that the user’s behavior changed suddenly, ham‐
+mering one endpoint until the quota was exhausted. This could be some automation
+the user is building with a bug, or maybe their authentication credentials have been
+leaked and now someone is spoofing their activity. Digging into metadata like the
+route being hit, the HTTP user agent, and the source IP should help quickly clarify
+what is happening here.
+
+Caching
+For every code path where we could shortcut with a cache response, add attributes
+to your wide events that record whether or not the caching operation was successful.
+These are relatively straightforward, as shown in Table 6-17.
+
+Table 6-17. Caching attributes
+Attribute               Examples Description
+cache.session_info      true     We might have session information in an in-memory cache or key-value store, or
+                        false    we might need to go back to our main database.
+cache.feature_flags true            Feature flags are frequently cached to avoid needing to fetch them on every
+                    false           request.
+
+
+Localization Information
+What localization options has the user chosen? This can be a frequent source of bugs.
+Consider adding localization to your wide events, as shown in Table 6-18.
+
+Table 6-18. Localization attributes
+Attribute                        Examples         Description
+localization.language_dir rtl, ltr                The direction text is laid out in the user’s language.
+localization.country             mexico, uk This is the country with which the user associates. Remember
+                                                  that people travel! This is frequently different from their physical
+                                                  location.
+localization.currency            USD, CAD         This is the currency the user prefers.
+
+
+Operational Information
+Telemetry for operational concerns is what makes your systems operable by people.
+This type of information is helpful in the context of incident response.
+
+
+
+
+                                                                                    Operational Information       |      105
+Uptime
+Tracking how long the service has been running when it serves a request can help you
+visualize several classes of bugs:
+
+  • Issues that show up on a reboot
+  • Memory leaks that only start to show up when the service has been running for a
+    long time
+  • Frequent crashes or restarts if you automatically restart the service on failure
+
+It provides answers in many different scenarios, and it’s easy to add, as shown in
+Table 6-19.
+
+Table 6-19. Uptime attributes
+Attribute                    Examples Description
+uptime_sec                   1533     This shows the number of seconds since the service was started. It can be useful to
+                                      visualize restarts.
+uptime_sec_log_10 3.185                  This shows the number of seconds since the service was started and passed through
+                                         a log10 function.
+                                         This value grows sublinearly, which enables you to visualize long-running services
+                                         and brand new ones on the same graph.
+
+I recommend also either adding the log10 of the uptime as an attribute or having
+some way of visualizing this (as shown in Figure 6-6). When graphed, this empha‐
+sizes the important first few minutes of a service without being squished into the
+bottom of the graph by instances with several days or more of uptime.
+Let’s say you have some support tickets for users who are frustrated that your service
+is flaky. Some requests are successful, but mostly they hang or return disconnect
+errors. Are your services even up? Visualize the uptime with this query:
+      SELECT
+        HEATMAP(uptime_sec),
+        HEATMAP(uptime_sec_log_10)
+      WHERE
+        main = true AND
+        service.name = "api-service"
+
+
+
+
+106   |     Chapter 6: Making Structured Events Arbitrarily Wide
+Figure 6-6 shows a visualization.
+
+
+
+
+Figure 6-6. Heatmaps of uptime when a service enters a crash loop: the anomalies are
+much more visible when the data is presented in log scale.
+
+Now, we have a big clue about what is going on! Each service comes up, runs for a
+few seconds where it serves some traffic, and then enters a crash loop. Our next step
+should be to add a GROUP BY service.version to see if this correlates with a new
+release. If it does, then metadata about what triggered the deploy, who deployed it,
+and the code changes that were deployed will likely give us the context we need and
+dramatically shorten the incident investigation.
+
+Metrics
+I’ve found it helpful to tag spans with context about what the system was experienc‐
+ing while processing the request. I added code to fetch this information every ~10
+seconds, cache it in memory, and add it to every wide event produced during that
+time.
+Examples of useful metrics to add as attributes are shown in Table 6-20.
+
+
+
+
+                                                              Operational Information   |   107
+Table 6-20. Metric attributes
+Attribute                                     Examples Description
+metrics.memory_mb                             153      Amount of memory being used by the system at the time it
+                                              2593     services a request
+metrics.cpu_load                              0.57        CPU load of the system servicing this request, given here as a
+                                              5.89        measurement of the number of active cores
+metrics.gc_count                              5390        Last observed number of garbage collections— cumulative (total
+                                                          since service started) or delta (e.g., number in the last minute)
+metrics.gc_pause_time_ms                      14          Time spent in garbage collections—could also be cumulative or
+                                              325         delta (pick one and document which)
+metrics.go_routines_count                     3           Number of Go routines running
+                                              3000
+metrics.event_loop_latency_ms 0                           The cumulative time spent waiting on the next event loop tick, an
+                              340                         important metric for Node.js apps
+
+
+With these attributes, you can query an answer to questions like “Are these requests
+getting slow because we’re running out of memory space or available CPU?”:
+      SELECT
+        HEATMAP(duration_ms),
+        HEATMAP(metrics.memory_mb),
+        HEATMAP(metrics.cpu_load)
+      WHERE
+        main = true AND
+        service.name = "api-service"
+      GROUP BY instance.id
+Running this query produces a graph like Figure 6-7.
+Please note that capturing metrics in this way is not mathematically sound. Because
+you only get data when traffic is flowing, you can’t calculate a P90 for CPU load that
+would stand up to any rigorous scrutiny, but that’s usually fine in practice.
+Visualizing results for the example query (as shown in Figure 6-7) are close enough
+to get some quick signal while you’re debugging without switching to a different tool,
+especially if you can avoid calculations and can visualize with a heatmap.
+I wouldn’t recommend setting alerts on this data though. Regular metrics are great for
+that.
+
+
+
+
+108   |     Chapter 6: Making Structured Events Arbitrarily Wide
+Figure 6-7. An example using the metrics data tagged on structured events to get context
+for what’s happening with the system.
+
+
+
+
+                                                               Operational Information   |   109
+A Convention to Filter Out Everything Else
+While we are carefully crafting certain events to be “wide,” these are almost certainly
+not the only events we’re emitting. You can still use other logs where it’s helpful!
+I like to have a convention for identifying and searching for these “wide, structured
+events.” I’ve landed on calling them “main” events. An example of how to tag these
+with an attribute is shown in Table 6-21.
+
+Table 6-21. A filtering attribute
+Attribute Examples Description
+main      true     Present only for spans designated as a “wide event,” usually wrapping a request or response, or a
+                   background job
+
+I find this helpful when approaching new systems. I can quickly get a view of what
+work a system does and an idea of how the traffic for that system is distributed by
+asking for all of the main spans and grouping by the span name:
+      SELECT
+        COUNT(*)
+      WHERE
+        main = true AND
+        service.name = "other-teams-service"
+      GROUP BY name
+It’s also helpful for eliminating noise. If I’d like to calculate the error rate of requests
+into the system, I might query based on the HTTP status code:
+      SELECT
+        SUM(IF(http.response.status_code >= 500, 1, 0)) / COUNT(*) AS error_rate
+      WHERE
+        main = true AND
+        service.name = "api-service"
+
+
+However http.response.status_code is also present on child spans for any outgo‐
+ing subrequest. Without the main = true filter, we’ll get an incorrect error rate
+calculation here.
+
+Attributes Important to Your Specific Application
+Now we go off the map and get to the really valuable stuff. Your app likely does
+something unique or works in a particular domain. You might need to really care
+about which professional credentials a dentist using your app has, or which particular
+storage warehouse a package is in, or which chip is in the embedded tracking device
+installed in the cat that your app exists to track.
+Some examples of possible attributes you could add are shown in Table 6-22.
+
+
+110   | Chapter 6: Making Structured Events Arbitrarily Wide
+Table 6-22. Attributes for your specific applications
+Attribute                           Examples            Description
+asset_upload.s3_bucket_path         s3://bucket-name/   If you upload something, add context about
+                                    path/to/asset.jpg   where.
+email_vendor.transaction_id         62449c60-           If you interact with a vendor, track whatever
+                                    b51e-4d5c-8464-     transaction ID they give you in case you need to
+                                    49217d91c441        follow up with them.
+vcs_integration.vendor              github              If there are three or four types that something
+                                    gitlab              might fall into, be sure to add that context. (E.g.,
+                                    bitbucket           if 2% of requests start failing because Bitbucket
+                                                        is experiencing issues, this will help identify the
+                                                        source of the issue immediately.)
+process_submission.queue_           153                 Any time you interact with a queue, see if you
+length                              1                   can get the current length during submission.
+
+
+Table 6-22 contains a few useful examples. But this is where your expertise matters
+most. No framework is going to be able to understand what parts of your domain are
+important to track and automate for you; you have to do that.
+These suggestions provide a start, but I hope you’re able to use the inspiration to
+help you get started on your own journey toward making your structured events
+incredibly wide.
+
+Conclusion
+Jeremy’s walkthrough of practical instrumentation to add to your arbitrarily wide,
+structured events is thorough, thoughtful, and concrete. We’ll reiterate that while this
+chapter contains a long list, it is definitely not exhaustive.
+We’ll note that—since we work in the observability space—one of the questions we
+authors most often get asked is: what exact custom instrumentation should I add
+to my events? And, most often, our answer has been, “it depends.” This chapter
+lists several considerations and concrete ways to get started down that path. Of
+course, much of the best value you’ll get during your observability journey will
+be from instrumentation that is specific to your business and your applications. In
+further chapters of this book, we’ll continue to see other examples of possibly useful
+attributes.
+Next, we’ll look at how exactly you should add custom instrumentation to your code
+by diving into what you should know about the OpenTelemetry project.
+
+
+
+
+                                                                                      Conclusion     |    111

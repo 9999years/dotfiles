@@ -1,0 +1,358 @@
+                                                                              CHAPTER 32
+                                Where Do We Go From Here?
+
+
+
+
+Welcome to the end of the second edition. You made it.
+We have covered observability from many different angles in this book: its origins in
+control theory, how software engineers should instrument and understand the code
+they write, deep dives and use cases, and how technical decision-makers should think
+about observability for their orgs.
+Our goal in this edition was to update the technical content, but also to underscore
+how observability is derived from first principles and reasoning that endures, so you
+can guide your own teams and organizations through turbulent waters.
+Our industry is undergoing a convulsive period of compressed change. Roles and
+identities are being stressed in new ways. Anxiety is endemic because the things we
+long took for granted are no longer safe bets.
+In this chapter, we’ll look at where the industry is headed over the next few years, and
+what engineers and technical decision-makers can do to prepare.
+
+Developers Must Return to Production
+Before we look at what’s next, we must address the “wish” we made at the close of the
+first edition (paraphrased slightly):
+    The space we will be watching closely is that of developer workflows…Developers need
+    fast feedback loops and the ability to understand how each code change affects users in
+    production. Incredibly few developers have the ability to do that.
+    We believe the industry needs fundamentally better developer workflows in produc‐
+    tion, and we predict observability will be the path for many to get there.
+
+
+
+
+                                                                                              571
+Developers still don’t have the ability to validate a diff they just shipped, or identify
+what effect it had on any user or subset of users. Developers still live in a world where
+testing means “correct in theory,” not correct in reality.
+Consider this our one prediction for the second edition: the dev/ops dividing line
+must be destroyed. Developers are no longer crafters of code; they are builders and
+architects of systems. That system is production. Test in prod, or live a lie.
+By this, we do not mean larding on yet another mandate onto overflowing plates. We
+mean that core development workflows must include instrumentation and produc‐
+tion telemetry, validating user expectations and commitments as they actually exist.
+We can no longer afford to stub reality out of the picture. Software engineers must
+become as fluent in the messy world of production as they are in the clean, structured
+world of staging environments, CI/CD pipelines, and tests. Only one of those worlds
+holds real value. Only one is production.
+This has been forecasted before. This time is different. The reason why is AI.
+
+The Changing Cost Model of Software
+The dev/ops divide has endured long past its sell-by date because it encodes the ten‐
+sion between change and stability in a way that is legible to org charts, budgets, and
+career seekers. Over time, it has calcified into policy, friction, tools, and expectations
+that combine to make production inaccessible and inhospitable to developers.
+AI attacks this consensus on many simultaneous fronts: as a technological enabler,
+it brings practices that have required exceptional engineering discipline and skill
+within reach of the median engineering org. It provides the competitive pressure
+to accelerate, and introduces nondeterminism as a feature—the only way to validate
+agentic workflows is by instrumenting your code and observing production, then
+porting what you learn back into evals.
+But the most powerful and intriguing assault on the status quo comes from the
+changing economics of code production.
+For as long as we’ve had software, we have treasured the code artifact. We have
+obsessed over its elegance and readability, and developed elaborate rituals around
+changing it safely. As one of your authors declared earlier this year:
+      There is no test suite on earth that could make me trust a new chunk of code more
+      than I trust the code that’s been running in production for two years. That’s how trust
+      works; it takes time.
+         —Charity Majors
+
+
+
+
+572   | Chapter 32: Where Do We Go From Here?
+This is a truism where durable code is concerned. The trust lives in the code,
+implicitly.
+All of this makes sense—indeed, it is the only sensible approach—in a world where
+producing code is time-consuming and hard, and good code is scarce. The true cost
+of software has always been defined by the cost of maintaining it. Our focus on ele‐
+gant code made sense because readability was a reasonable proxy for maintainability.
+We couldn’t predict the future, but we knew our ability to read and understand the
+code would gate any change.
+But that gate has been necessary for the same reason that the only way to safely
+change the code has been with a series of tiny incremental diffs: because most
+behaviors have always been implicit and poorly understood, discovered only when we
+break them. The most important parts of our systems and software—the expectations
+of our users, the commitments we have made to uphold stability and continuity—
+exist nowhere at all. Not in the code, and not in the system.
+
+The Most Important Parts of Our System
+Have Never Been Specified
+The code is not the system. The system is the unique and irreplicable intersection
+of code, infrastructure, users, builders, data, and time. Artifacts accrue meaning
+as users develop expectations around existing behaviors. These layers of acquired,
+nonarticulated meaning are what make rewrites, migrations, and replacements so
+infamously perilous and particular.
+Code that makes it into production becomes more than just code. It becomes the
+fossilized record—the only record that exists—of developer intent, business needs,
+and user expectations and dependencies that have built up over time.
+The durable model of software delivery is agonizingly expensive. The cost of software
+has always been defined by its maintenance costs as a direct consequence of those
+sedimentary layers of accrued expectations and forgotten intent. If nobody under‐
+stands them or knows what they are, we certainly can’t test for them.
+If we are ever going to bring the cost of software development materially down, we
+are going to have to unbundle the expectations from the artifact and make them
+explicit—and live elsewhere.
+
+
+
+
+                               The Most Important Parts of Our System Have Never Been Specified   |   573
+The Great Unbundling
+Few reach their second decade of software development without acquiring a robust
+fear of large diffs. Indeed, we ourselves have argued that an intuitive sense for how
+much change is too much change, along with a pessimistic stance to production
+systems in general, is part of what defines maturity in a senior developer.
+Chad Fowler, engineer and CTO at BlueYard, wrote a post called “The Deletion Test”,
+in which he proposed a thought experiment: what do we lose when we delete all the
+source code? Why is it so scary?
+      When people say, “We can’t just throw the code away,” what they usually mean is
+      something more precise:
+          • We don’t know exactly what behavior is required.
+          • We don’t know which failures are unacceptable.
+          • We don’t know what invariants must always hold.
+          • We don’t know how to tell if a new version is correct.
+          • We don’t know which bugs are intentional fixes for forgotten edge cases.
+
+      Those are not code problems. They are evaluation problems.
+      Code becomes precious when it is the only place knowledge lives.
+
+Fowler observes that the bottleneck has shifted from generating code to validating
+code, as we have argued in this book. He goes on to reframe the question, from “How
+do we write safer code?” to “What must exist so that code can be replaced safely?”:
+      That question is harder. It requires deciding what truly matters and making it explicit,
+      testable, and durable. It requires relocating rigor out of the implementation and into
+      the system around it.
+
+If you can delete and regenerate the code while upholding all of the commitments
+you have made to users, the business, and other parts of the system, then code is
+no longer the sedimentary record of long-forgotten developer intent or the residue
+of past promises, only a materialized view of current understanding. Code becomes
+cache. Maintainability becomes a property of the system, not the code.
+
+The Human Cost of Compressed Change
+Generative AI has moved so quickly from novelty to utility that many are still
+processing the shock. We don’t wish to catastrophize or equate the dislocation of
+technological advancement with far greater traumas. But the change has come fast,
+which makes it hard.
+
+
+
+
+574   |   Chapter 32: Where Do We Go From Here?
+Many seem to be exhibiting mild symptoms of disorientation, disconnection, or
+depression. We have lost track of how many engineers have privately confided their
+plans to retire instead of processing the abrupt obsolescence of the skills they had
+cultivated for decades, building careers and communities and identities around mas‐
+tery of practice. Others show traces of mania, obsession, or magical thinking, issuing
+overheated exhortations around how “this changes everything.”
+Silicon Valley, of course, prefers—some might say actively cultivates—the latter.
+
+The Claim: “AI Is Unprecedented”
+It has grown popular in these parts to speak of AI as sui generis, the trigger mecha‐
+nism that will unleash unbounded exponential growth by achieving artificial general
+intelligence (AGI). We will build robots that do our jobs better than we can, that will
+build robots better than we could, and those robots will build other robots beyond
+the capability of our understanding, and thus inaugurate a new era of boundless
+exponential growth for our species, where we are no longer in control of our destiny.
+Climate change? Solvable and solved, thanks to more powerful models. Poverty?
+Solved by UBI (universal basic income) via some vague, undescribed AGI-related
+mechanism that is definitely not taxing the rich.
+This strikes us as a fantasy. At best, it’s a thought experiment that remains unproven.
+“Extraordinary claims require extraordinary evidence,” as Carl Sagan said. If AI can
+usher in exponential forever growth, that violates the one thing we know for certain
+about exponential growth: it will end, either by flattening out into an S-curve or by
+consuming all resources and crashing.
+Some of the pressure people are experiencing is due to real structural change and
+uncertainty, but much of it is speculation or marketing. To pick on one representative
+post that blanketed the airwaves in early 2026:
+    The AI labs made a deliberate choice. They focused on making AI great at writing
+    code first...because building AI requires a lot of code. If AI can write that code, it
+    can help build the next version of itself. A smarter version, which writes better code,
+    which builds an even smarter version. Making AI great at coding was the strategy that
+    unlocks everything else. That’s why they did it first. My job started changing before
+    yours not because they were targeting software engineers...it was just a side effect of
+    where they chose to aim first.
+    They’ve now done it. And they’re moving on to everything else.
+
+We must resist being credulous. Until proven otherwise, we still live in history, in a
+world governed by finite resources and human constraints. To claim that we are on
+the verge of exponential liftoff, where robots build robots beyond our understanding,
+is quite extraordinary.
+
+
+
+                                                             The Claim: “AI Is Unprecedented”   |   575
+Reality is enough to deal with, we feel, without borrowing hypotheticals from the
+future to stress about.
+
+This Moment Has Many Precedents
+A more practical reason to resist the framing of AI as sui generis is that it robs us of
+our history. And history, it turns out, has many instructive precedents for our current
+upheaval: 1
+
+  • The craft of weaving, replaced by the powered loom
+  • The craft of scribing, replaced by the printing press, the typewriter, the word
+    processor, and Google Docs
+  • The shift from handcrafted server pets to disposable, immutable infrastructure
+    cattle in the early years of our own careers
+
+The history of technology tells us that the most dramatic gains are made in the
+earliest years of any technological breakthrough, as the easiest problems get solved
+first. Once the low-hanging fruit has been harvested, it gets harder to come up with
+new ideas, and progress slows and becomes ever more incremental. As Adam Becker
+said, in Chapter 2 of More Everything Forever (Basic Books): “It is around 18 times
+harder today to generate the exponential growth behind Moore’s Law than it was in
+1971. Ideas, and the exponential growth they imply, are getting harder to find.”
+To us, it seems unlikely that the AI labs chose software opportunistically to accelerate
+their exponential takeover of humanity. Software is built out of language and logic.
+Software, in other words, is the low-hanging fruit.
+
+The Sysadmins Went Through This
+Ever since the first reprogrammable computer was built—the ENIAC, 80 years ago—
+the code artifact has been our most holy and sacred of relics. Lines of code built
+the world’s most valuable companies and many of the nouveau-iest fortunes. The
+loveliness of code has built reputations, landed jobs, and justified exorbitant salaries
+compared to other roles in a post-post-industrialized world economy.
+Of course it’s disorienting to live through the rapid dethroning of code as singular
+repository of meaning, value, craft, contracts, and ledger of history.
+But if you, like us, are old enough to have worked in tech in the 2000s, there is also
+something familiar about this feeling.
+
+
+
+1 This has all happened before, and it will all happen again, as the Cylons said in Battlestar Galactica. Also,
+  apparently, Peter Pan.
+
+
+576   |   Chapter 32: Where Do We Go From Here?
+Do you remember the sysadmins?
+We do. We remember their pride and dedication to craft; encyclopedic knowledge
+about kernel modules and filesystems, how to calculate a netmask or configure a
+routing table. The long running in-joke of obfuscated Perl code awards. We also
+remember the panic and paranoia and mounting embitterment that surged in some
+corners of the community, once the value of those skills began to crater, replaced by
+automation and regeneration.
+The emotional reaction is normal. The weavers felt it, the sysadmins felt it. It hap‐
+pens, it’s hard, you move through it. Most sysadmins ultimately adapted. They picked
+up a programming language, started writing more code, and automated themselves
+out of a job. They built the systems that replaced the work they used to do, and then
+they worked on those systems.
+
+From Software Code to Software Systems
+The shift from handcrafted servers to immutable infrastructure taught us that muta‐
+bility is the sworn enemy of understanding. Any artifact that is edited in place creates
+drift. Drift is what makes systems impossible to maintain.
+Our ability to kill and regenerate infrastructure components is the reason we trust
+it. At Honeycomb, we kill the oldest Kafka node off via cron every Tuesday. That’s
+why we are confident in our bootstrapping and balancing processes: everything is
+repeatable, the data can be regenerated, the commitments live elsewhere.
+The fact that we cannot regenerate our code in the same way is a sign that we don’t
+understand it. We don’t know which commitments we have made. We don’t know
+which dependencies will break. We find them by breaking them, mostly.
+In another post, Fowler said:
+    The discomfort with “fresh code” is understandable, but misplaced.
+    What people actually fear is undetected behavior change, performance regressions,
+    security regressions, and silent drift. Those failures are caused by unobserved change,
+    not by newness.
+    A system with stable contracts, strong evaluations, continuous monitoring, and clear
+    rollback paths can safely tolerate very fresh code. A system without those things is
+    dangerous even if the code is ten years old.
+
+Throughout computing history, working code has been expensive and hard to pro‐
+duce, so we have conserved it and changed it parsimoniously.
+Every change was gated on human understanding, and we had little cognitive
+capacity left over. As a result, everything outside the code got neglected. Architecture.
+Coherence. User experience. We have treated these like afterthoughts, emergent prop‐
+erties and effluvia of our precious code, but actually they are what matters.
+
+                                                      From Software Code to Software Systems   |   577
+Now that working code is abundant and cheap, we can reclaim that cognitive capacity
+and use it to build the parts that matter.
+
+Value Must Be Backed by Durability
+Disposable software is great for iterating fast and trying lots of experiments cheaply.
+But when that software meets reality, it needs to slow down. Durability is not what
+creates value, but value usually needs to be backed by durability.
+People prefer a consistent experience and a coherent mental model. Behaviors create
+expectations that we need to honor. Businesses run on structure and continuity. No
+one wants to open Slack every morning and find all their buttons rearranged.
+Code in production accumulates dependencies. This is a good thing. It means people
+use it. It means it has value.
+Dependencies require dependability, whether those dependencies are users, busi‐
+nesses, or other components. The cost of maintaining software is driven by the
+challenges of stably replacing its components.
+In Chapter 2, we talked about the messy, gritty business of code crossing over—that
+liminal state between states while fulfilling commitments to both.
+Rewriting a system in flight is far more difficult than simply writing the original
+legacy code or the new replacement; the challenge lies in crossing over. Dropping
+the cost of code to zero doesn’t substantially alter the cost structure defined by
+maintenance. Your migration path still consists of inching along, instrumenting and
+observing, discovering commitments and entanglements as you go, mostly by break‐
+ing them.
+Moving to a world of specification, evaluation, and testable commitments—where
+any component can be replaced behind its interface—changes the cost structure
+entirely.
+
+The Tools to Build Durable Systems Will Come
+We feel lost and disoriented because our eyes have not yet adjusted to our new reality.
+It is easier to see the practices we have lost than the tools, practices and ideas we will
+gain.
+The tools to build durable systems—to extract commitments and make them explicit,
+to preserve intent at the right level of granularity, to make architecture the versiona‐
+ble, reviewable artifact from which code is generated—do not exist yet. They will
+come. The economics of scarcity dominated our past, but the economics of abun‐
+dance will govern our future.
+
+
+
+578   | Chapter 32: Where Do We Go From Here?
+The problems of abundance are different problems. Our ability to generate code
+has skyrocketed, but our ability to understand it has not kept pace; if anything,
+understanding gets harder as volume and throughput pick up. All of this pushes
+toward unbundling the code. If the interfaces and expectations are extracted from
+code, if we can validate each commitment, then we don’t have to understand the
+implementation.
+The tools may not exist, but many of the ideas do exist. Most come from operations
+and QA, two domains that software engineering has historically been rather snobbish
+about. These tests and techniques are not about testing for correctness or what ought
+to be happening. Rather, they are about observing and encoding what is happening:
+behavioral tests, characterization tests, capture/replay, traffic splitters.
+But you don’t need to wait for better tools to come. You can start today. Use instru‐
+mentation to capture your intent, and then follow it out into production. Can you
+validate it there? Can your coworker? Can an agent?
+Arm yourself with observability tools that give you precision data—context and car‐
+dinality—and a scalpel-like ability to identify the consequences of every change you
+ship. Build the right seams to make your code composable, observable, upgradable,
+maintainable. Become as fluent in the real world of production as you are in the
+abstract world of stubbed-out tests.
+
+Conclusion
+The transition from treating code as a sacred relic to code as cache will be unavoid‐
+ably messy. As we unbundle our expectations from the artifact and move toward
+explicit specification, evaluation, and commitments, the traditional dev/ops divide
+simply ceases to make sense.
+Nostalgia aside, nobody misses the bad old days of handcrafted servers, Perl scripts,
+and Snowflake cron jobs. Sedimentary layers of untangleable purpose and long-lost
+intent create all the most frustrating parts about working on software.
+No one is going to miss the bad old days of handcrafted code, capture/replay, and
+strangler figs either. One day, we will reminisce about the worst software rewrites we
+have been part of, and the kids will listen in dismay.
+The tools for this future don’t yet fully exist, but the principles of observability are
+already in your hands. It starts with understanding. It starts with observability in
+production.
+
+
+
+
+                                                                        Conclusion   |   579

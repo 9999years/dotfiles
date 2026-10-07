@@ -1,0 +1,1017 @@
+                                                                       CHAPTER 29
+          Build Versus Buy (Versus Open Source)
+
+
+
+
+The choice between building, buying, or adopting open source software (OSS) is
+rarely a simple technical comparison; it’s a high-stakes economic decision that deter‐
+mines where your organization’s most precious resource—engineering cycles—will be
+spent. While generating code has never been faster or easier in the era of AI, the
+long-term cost of maintaining bespoke infrastructure remains as high as ever. Every
+hour your team spends maintaining a nondifferentiating internal tool is an hour they
+are not spending on the core products that drive your market share.
+This chapter provides a framework to help you navigate these trade-offs with clear
+eyes. We will examine the true costs—both obvious and hidden—of each approach
+and help you recognize whether your investments will compound into a competitive
+advantage or simply add to your technical debt. By the end of this discussion, you
+will be able to distinguish between the infrastructure that should be a commodity and
+what justifies custom development.
+After all, build versus buy is not a binary choice; it’s a multidimensional spectrum.
+Pretty much everyone is going to end up buying some software, using some open
+source, and writing some code of their own. The important questions are: which,
+where, and why?
+This topic is not new, but the trade-offs and relevance have shifted quite a bit in
+recent years. As mentioned in previous chapters, many companies now spend more
+on their observability bills than almost on any other category of tools, second only to
+cloud spend.
+
+
+
+
+                                                                                    507
+The next chapter will guide you through the process of evaluating vendors, managing
+vendor relationships, and extending influence across company and industry lines.
+Paired together, this chapter and the next form a block of knowledge that will help
+you navigate the thicket of business and engineering complexity in observing modern
+day systems.
+
+Which Do You Hate More: Your Money or Your Time?
+There’s an old DBA joke: Oracle is what you use when you love your time and
+hate your money; MySQL is what you use when you hate your time and love your
+money. (Hey, we warned you the joke was old. Kids, pretend we said “DuckDB” and
+“Snowflake,” OK?) While the technologies have evolved, the fundamental trade-off
+remains constant.
+In every build-versus-buy discussion, you are choosing which type of pain to tolerate:
+The “hate money” path
+    Teams on this side of the spectrum are all but impervious to sticker shock.
+    They view engineering focus as their most precious and finite resource. To them,
+    money is “cheap” if it buys back time and focus for core product innovation.
+The “hate time” path
+    For these teams, capital is the scarcest resource. They may find it easier to justify
+    $1 million in engineering headcount than a $100,000 tool budget. They’re willing
+    to accept the long-term costs to avoid an upfront bill.
+The mistake most teams make is failing to realize that they are making this choice.
+They view building an internal tool as “free” because the salaries are already paid,
+ignoring the staggering opportunity cost of what those engineers aren’t building
+instead.
+
+Surfacing Our Biases
+Now that you have considered whether you prioritize protecting your capital or your
+engineering cycles, we must look at why your answer is likely skewed by human
+nature. Let’s explicitly name some of the biggest biases and fallacies that reliably show
+up in the build-versus-buy debate.
+First is our own bias as employees of an observability software vendor. We’ve seen
+over and over again that organizations radically underestimate the true cost of build‐
+ing their own solutions, or even the cost of operating open source tools. What looks
+like a cheap solution adds up swiftly once you factor in salaries, cloud spend, and
+opportunity costs. As a result, we tend to think buying a solution provides better
+value.
+
+
+
+508   |   Chapter 29: Build Versus Buy (Versus Open Source)
+Second, and conversely, is the engineering bias. As Rick Clark—formerly of Master‐
+card, VMware, Cisco, and Pivotal Software, whose experience we’ll be drawing on
+extensively in this chapter—says: “Any time a CTO asks their engineers if they should
+build or buy, the engineers are going to say ‘build.’ Engineers want to build just like
+surgeons want to cut—they have a professional bias toward their skill set.”
+This bias is human nature. We became engineers because we love to build. But just
+because you can build something doesn’t mean you should. The opportunity cost
+of building nondifferentiating infrastructure can be staggering. Maintenance costs
+always dwarf the costs of building by a margin that’s large enough to be scary, yet
+unknowable up front.1
+Those two may be the biggest biases, but there are many more that skew the debate.
+The sunk cost fallacy shows up regularly: “We spent so much time building this; we
+can’t abandon it now!” and so does the NIH (not invented here) bias: “We are such a
+special snowflake; no one else can possibly understand our requirements.” There are
+valid fears of vendors going out of business, or using vendor lock-in and data gravity
+to raise your prices. Migration itself may even loom as an outsized fear in your mind,
+if your organization has tried and failed to migrate in the past.
+By naming these biases up front, we can move past the emotional appeal of “building
+it ourselves” or the marketing appeal of “buying the solution.” If you are running the
+buying process, encourage each stakeholder to lay their real fears on the table so you
+can collectively evaluate their degree of risk.
+There are frameworks you can use to evaluate your options and drive the process
+to a wise conclusion; we will introduce two in this chapter. But before we apply a
+standard decision framework to this choice, we must acknowledge a fundamental
+truth: observability isn’t like any other software.
+
+Observability Is Not Like Other Software
+For the most part, we have been treating observability like any other piece of soft‐
+ware. It is not. Observability is the software that watches the watchers. This means
+you probably have higher reliability requirements for your observability tools than
+for other types of tools, and you may want to think seriously about how that risk is
+bundled.
+The biggest risk is this: if you run your observability services on the same cloud
+provider, in the same region, using the same stack as the rest of your production
+systems, it’s going to go down or suffer degraded service any time that any of your
+
+
+1 Yes, this is true even in the era of AI-assisted coding, where the cost of new code is zero. The maintenance
+  costs for AI-generated code are no different; if anything, those maintenance costs are higher than those for
+  code we wrote ourselves.
+
+
+                                                                   Observability Is Not Like Other Software   |   509
+other dependencies has a problem, which is the worst possible time for your visibility
+to go dark or glitch out.
+Part of what you’re paying a vendor for is not just the tool or the interface, but high
+availability and a stack that is radically decoupled from your own dependencies.
+If you don’t need high availability (meaning your customers are fine with 98%, 99%,
+maybe 99.5% availability—and you’re sure about that), then you are probably correct
+in thinking you should be able to pay substantially less by running your own open
+source stack.
+Let’s start with a simple 2 × 2 for evaluating the landscape.
+
+A Simple Framework for Evaluating “Build Versus Buy”
+The build-versus-buy framework we’ll discuss in this chapter was first developed by
+Rick Clark, mentioned earlier, and is now used by dozens of companies. Shown in
+Figure 29-1, it’s a simple 2 × 2 matrix that can clarify your thinking remarkably fast.
+
+
+
+
+Figure 29-1. Build-versus-buy matrix, with ubiquity on the vertical axis and business
+value on the horizontal axis.
+
+                    For the sake of this exercise, “build” should be interpreted as
+                    including everything from writing your code from scratch to pull‐
+                    ing together a composable pipeline of open source components.
+                    “Buy” means paying a vendor. We’ll tackle a more nuanced set of
+                    options later on in this chapter.
+
+
+
+
+510   | Chapter 29: Build Versus Buy (Versus Open Source)
+This framework can be used for any component of your architecture, from network
+routers to visual design libraries and everything in between. In this chapter, we’ll
+discuss it through the context of building versus buying observability solutions and
+different elements of your observability stack.
+First, consider the axes:
+
+  • The horizontal axis represents business value, from “none” (will not add revenue
+    or market share) to “differentiator” (which could be a significant competitive
+    advantage in your market).
+  • The vertical axis represents ubiquity, from “commodity” (available everywhere,
+    highly standardized) to “bespoke” (unique to your specific needs).
+
+
+
+                                                  Business Value
+  Before we move along, let’s get crisp on what we mean by “business value.” Engineers
+  sometimes confuse business value with “importance,” but those are very different
+  things. Business value means market share and revenue impact. Will building this
+  thing bring you more customers? Will customers pay you more if you build it?
+  Every company runs lots of software that is desperately important, but does not
+  intrinsically add market share or revenue.2 For example, your secrets vault is very
+  important, but running it on a u-24tb1.112xlarge high-memory instance type (448
+  CPUs, 24 TB RAM) isn’t going to increase your market share or revenue impact.
+  Another way to think about it: every organization has two types of problems.3 There
+  are problems that are common to all businesses (How do we authenticate users?
+  How do we monitor our systems? How do we manage DNS?), and problems that
+  are unique to your business model and competitive position. In general, you want to
+  channel engineering “build” cycles toward the second category.
+
+
+This framework is both liberating and time-saving in the way it lets you swiftly rule
+out large swaths of software that should obviously be built or bought. (If you have
+anything in the “should not exist” quadrant, that is worth bringing to light!) This
+means you can reserve your time and energy for talking through the most interesting
+decisions.
+
+
+
+2 This is also referred to as “infrastructure.”
+3 Technically, every business has three kinds of problems: problems that are common to all businesses, prob‐
+  lems that are unique to your business but common across teams, and problems that are unique to your
+  business and constitute your core value proposition. For the sake of simplicity, we’re lumping the first two
+  together.
+
+
+                                                      A Simple Framework for Evaluating “Build Versus Buy”   |   511
+The Four Quadrants: Build, Buy, Should Not Exist, or Decide
+The four quadrants guide your decision making: build, buy, should not exist, or
+decide. You should be able to map each piece of technology you operate or need to
+acquire into one of the quadrants.
+
+Build (upper right)
+The “build” quadrant represents high business value and bespoke needs. This is
+where your competitive advantages and organizational core competencies live. For
+Honeycomb, one of these differentiators is Retriever, our custom-built columnar
+storage engine (discussed in Chapter 13). These are the kinds of differentiators that
+justify building custom solutions.
+
+Buy (lower left)
+The “buy” quadrant represents tech that has low business value and is a commodity.
+This is where most infrastructure components live: service catalogs, identity manage‐
+ment, logging infrastructure, and observability platforms. If it’s standard and doesn’t
+differentiate you, buy it.
+
+Should not exist (upper left)
+The “should not exist” quadrant represents low business value combined with
+bespoke implementation. These are things that are unique to your organization but
+don’t actually help your business. They shouldn’t exist, but unfortunately they often
+do. And when they do, they are often the worst kind of technical debt.
+Here’s a real-life example of something an organization should not have built:
+      [financial institution] had written its own threaded request handler module in Apache
+      HTTPD 1.3.x. It was five times faster than the stock scheduler. It was tightly integrated
+      with all the company’s processes and apps. Years later, Apache 2.0 came out and had
+      a new module API and a threaded scheduler that was even faster, and the original
+      developers were long since gone. They were stuck and actually disadvantaged with
+      slower connections/sec than others. When support for HTTPD 1.3.x finally ended,
+      they paid a consulting company over $10 million to fix their mess (but not before the
+      whole thing turned into a regulatory compliance issue, because unsupported software
+      versions can’t get security updates).
+
+You are better off figuring out how to obliterate this software entirely. Find out how
+to do the same sort of work with other open source or commercial systems.
+
+                     Some of these codebases do end up being open sourced but they
+                     are, for all intents and purposes, abandonware projects immedi‐
+                     ately upon release.
+
+
+
+512   |   Chapter 29: Build Versus Buy (Versus Open Source)
+Decide (lower right)
+The “decide” quadrant represents “high” business value and is a commodity. These
+are things that genuinely differentiate your velocity and product quality, but where
+decent off-the-shelf options exist. This is where all of the hard and interesting conver‐
+sations happen.
+There is no one right outcome to be had here; you’ll have to convene the right
+stakeholders and hammer this out between yourselves. Sometimes the decision may
+come down to whether you have the right subject-matter expertise in house, or
+how much of a competitive advantage you think is at stake. These discussions are
+often heavily influenced by your organizational habits and ethos. Some shops are
+commercial off the shelf (COTS) all the way. Others are heavily OSS-driven.
+We caution you to avoid making these decisions by managerial fiat. These decisions
+are heavily weighted toward the technical side of sociotechnical systems, and they
+should be owned by your technical domain experts, ideally ones with skin in the
+game. This is what staff+ engineers are there for. You will get better outcomes if they
+have a say in the decisions that get made.
+
+
+   Staff+ Engineering Incentives Should Align with Business Outcomes
+  To staff+ engineers: One of the best things you can do for the sake of your own
+  career is develop a reputation with management that you can be trusted to make good
+  decisions based on the actual needs of the business, not your own desire to build cool
+  stuff.
+  To the managers of staff+ engineers: Please promote and level engineers based on the
+  caliber of their decisions and the strength of those business outcomes, not on how
+  many lines of code they write. Engineers typically assume they are more likely to get
+  promoted to principal engineer by spending 18 months and $20 million worth of
+  engineering cycles building an observability solution from scratch than by picking
+  a good vendor, building some integrations, and rolling it out internally—even if the
+  latter costs a quarter as much, takes half the time (though they often deliver a better
+  product overall).
+  Engineers aren’t making this up; they see this exact kind of thing coming out of
+  promotion processes all the time. It’s one of the biggest drivers of technical debt in
+  the world. If you want your engineers to make good decisions based on business out‐
+  comes, then as leaders you must reward good decisions based on business outcomes.
+
+
+
+
+                                          A Simple Framework for Evaluating “Build Versus Buy”   |   513
+When you find yourself in the “decide” quadrant with a decision to be made, here are
+the key questions to ask:
+What precisely is the job to be done by this software?
+   Develop an objective rubric that the organization can see and weigh in on. Start
+   high level, with stories and scenarios, not with a laundry list of features or any
+   vendor-specific implementations. We talk about this process more in the next
+   chapter on vendor engineering.
+How unique are our requirements?
+   If you think “no one’s like us,” you’re probably wrong. Most companies are
+   far more similar than they believe. Take your rubric and compare it to similar
+   architectures and case studies from peer companies. How did they already solve
+   this problem? What are the deltas for your use case that existing systems don’t
+   solve for?
+What’s the smallest version of this problem we can solve?
+   Don’t build a massive custom platform if you can solve 80–90% of your needs
+   with a commercial tool and build the remaining bits as extensions.
+Do we have product management expertise to dedicate to this?
+   Building internal tools requires product thinking, user research, iteration cycles,
+   and roadmap management, as well as internal evangelism and marketing.
+   Without that discipline, you’ll end up with an unloved tool that never sees
+   adoption.
+What’s our timeline?
+   Can your business afford to wait months or years for a custom solution, or do
+   you need to get started immediately?
+Who will support it?
+   Who will support it when the people who built it move on?
+If you end up deciding to build your own because there were no solutions available
+that fit the bill perfectly, but some were close, set a reminder for yourselves to check
+back in a year.
+One unscientific rule of thumb to keep in mind: the closer you get to laying bits down
+on disk, the more conservative you should be about preferring battle-tested code.
+User experience (UX) is on the other end of the spectrum; the closer you get to UX,
+the more likely you are to end up writing custom code to handle your use case, and
+the less paranoid you should be about it.
+You need a really, really good reason to write a new database, operating system, or
+filesystem format. But writing a new library on top of OTel to give your frontend
+team intuitive, easy instrumentation that delivers end-to-end insights on app respon‐
+siveness? Yeah, that sounds pretty normal.
+
+514   |   Chapter 29: Build Versus Buy (Versus Open Source)
+Mapping Examples to Quadrants
+Let’s apply our rubric to a few common “jobs to be done” in the observability arena.
+
+Example 1: Custom SLO/error budget tracking
+Jobs to be done: Engineers need to understand if their services are meeting reliability
+targets and have budget left over for experimentation.
+How unique are our requirements? Your service level objectives (SLOs) are probably:
+latency percentiles, error rates, availability—same as everyone else. The deltas might
+be: “We have unusual traffic patterns (batch jobs, retail cycles)” or “We need to tie
+this to deployment gates.” Every vendor does this.4 You think you’re special because
+you have 37 microservices? So does everyone.
+Smallest version: Use vendor SLO features for 80% of services. Build custom tooling
+only for the 3–5 services with genuinely weird requirements (maybe your machine
+learning inference pipeline has different latency characteristics than HTTP services).
+Do we have product management expertise? This is where internal SLO tools die.
+Someone builds it, it’s hard to use, no one iterates on it, and everyone goes back to
+their old dashboards.
+Timeline: Your CFO wants reliability metrics next quarter. But you can’t wait a year
+for your custom solution.
+Who will support it? The senior engineer who built it just got promoted and doesn’t
+want to deal with it anymore.
+Verdict: Buy for 90% of use cases, and maybe build thin wrappers for genuinely
+unique business logic.
+
+Example 2: Custom instrumentation library wrapper
+Jobs to be done: Frontend developers need to instrument their React apps without
+becoming OTel experts. We want consistent patterns and our specific context auto‐
+matically included.
+How unique are our requirements? Your React app is…a React app. But the UX
+requirement—making it dead simple for your team—is actually legitimate. The
+generic OTel SDK requires too much ceremony for your developers’ workflow.
+
+
+
+
+4 The one distinguishing feature is that most vendors don’t derive their SLOs from data in a bidirectional way.
+  You can’t say “show me the requests that violated my SLO, so I can look for patterns” with the three pillars
+  generation of tooling or with vendors that specialize in SLOs. This is a killer capability you only get with
+  modern, unified observability tools.
+
+
+                                                     A Simple Framework for Evaluating “Build Versus Buy”   |    515
+Smallest version: A thin wrapper around OTel that:
+
+  • Autocaptures your standard context (user ID, session ID, feature flags, whatever
+    else)
+  • Provides three to four helper functions for common patterns
+  • Has maybe 200 lines of code
+
+Do we have product management expertise? You need someone who understands your
+developers’ workflow and will iterate based on adoption. This can be lightweight—
+maybe a senior engineer who cares about DX.
+Timeline: You could ship this in two weeks.
+Who will support it? This is lightweight enough that your frontend platform team can
+own it. Low surface area means low maintenance burden.
+Verdict: Build! This is a UX layer, not infrastructure. You’re not building a new
+tracing backend; you’re making OTel ergonomic for your context.
+
+Example 3: Cost attribution and chargeback
+Jobs to be done: Engineering teams need to understand how much their observability
+costs, tied to their service ownership, so they can make informed trade-offs about
+what to instrument and how aggressively to sample.
+How unique are our requirements? Your organizational structure is unique to
+you—which teams own which services, how you do internal billing, whether you
+chargeback by cost center or business unit. The underlying problem (measuring and
+allocating observability spend) is universal at scale, so every vendor will have an
+approach. Most will give you org-level billing and maybe some basic tagging for cost
+allocation. Few give you “team X spent $4,500 this month; here’s the breakdown by
+service.” Even fewer integrate with your internal chargeback systems.
+Smallest version: Use vendor tagging to get 80% there. Build a lightweight script that
+pulls billing data via API, maps it to your internal team structure, and generates a
+monthly report. Don’t build a full cost management platform.
+Do we have product management expertise? This is political as much as technical. You
+need someone who understands both the billing side and the engineering culture.
+Without ongoing iteration, teams will game your cost allocation or ignore it entirely.
+Timeline: If you’re bleeding money on observability, you need visibility this quarter,
+not next year.
+Who will support it? This sits awkwardly between finance, platform, and engineering.
+Make sure someone actually owns it or it’ll die when priorities shift.
+
+
+
+516   |   Chapter 29: Build Versus Buy (Versus Open Source)
+Verdict: Buy the observability platform, and build the attribution layer if (and only if)
+you have material spend and a real chargeback culture. Most companies should just
+use vendor tags and manual reporting.
+
+The Generalized Pattern
+The pattern that emerges from these examples:
+Infrastructure/storage
+     This is almost always buy.
+UX/workflow
+   This is often build (small, focused tools, or thin layers and wrappers).
+Intelligence/decision making (anything that will take you more than three months to
+develop)
+     Build only with strong project management commitment.
+The “decide” quadrant is full of things where the technical capability is increasingly
+commoditized, but your workflow, your business context, or your org structure
+creates deltas. The question is whether those deltas justify a full rebuild instead of an
+extension of vendor tools.
+
+What About Open Source?
+Open source and source-available code are options that don’t fit neatly into the previ‐
+ous build-versus-buy matrix. It’s not quite “building”—you’re not creating something
+from scratch. But it’s not quite “buying” either—you’re not paying a vendor to handle
+the complexity for you. However, you may be purchasing systems integration work
+to get it installed with the rest of your infrastructure or, if nothing else, service and
+support to keep it up and running.
+Open source is best understood as a third option that shifts where you pay costs.
+Instead of paying upfront licensing or usage fees, you pay in:
+
+  • Engineering time to evaluate, deploy, and integrate
+  • Infrastructure costs to run the software
+  • Ongoing maintenance and upgrade work
+  • Lost opportunity costs of engineers maintaining infrastructure rather than build‐
+    ing product features
+  • Recruiting and retaining engineers with expertise in those specific open source
+    tools
+
+
+
+
+                                                              What About Open Source?   |   517
+As developer advocate Heidi Waterhouse memorably put it, OSS is “free as in pup‐
+pies, not free as in beer.” A puppy costs $0 to acquire, but requires years of feeding,
+vet visits, training, and care. The same principle applies to open source observability
+tools.
+This doesn’t mean you shouldn’t use open source; many organizations derive tremen‐
+dous value from it. But you must be fully aware of what it’s really costing you, and
+make that decision with clear eyes.
+Source-available code is much like open source, with the key difference being that
+you cannot customize, extend, or even fix the code directly.
+
+A Framework That Includes Open Source
+If open source adoption is part of the mix (or acquisitions, consultancies, and other
+hybrid solutions), you may find this adaptation of the decision framework by Peter
+Corless to be helpful, as shown in Figure 29-2.
+
+
+
+
+Figure 29-2. Build-versus-buy 2 × 2 matrix expanded to include open source, source
+available, COTS, commissioning, consultants, and acquisitions as options.
+
+The axes here are the same as before:
+
+  • The x-axis represents business value, from “none” to “differentiator.”
+  • The y-axis represents ubiquity, from “commodity” to “bespoke.”
+
+In the simpler version of the 2 × 2, our quadrants were called: build, buy, should not
+exist, and decide.
+
+
+
+
+518   |   Chapter 29: Build Versus Buy (Versus Open Source)
+In this “enriched” version, the corresponding quadrants are: create, adopt, acquire,
+and avoid. The quadrants mean roughly the same thing, but have been renamed to
+better suit the context of open source.
+The categories we want to plot don’t map neatly to entire quadrants this time, but
+we will describe where each one falls on the 2 × 2 map. These categories include:
+“integrate” (OSS or source available), which falls in the “adopt” quadrant; “buy”
+(COTS, certain SaaS) in the “acquire” quadrant; and “commission” (consultants,
+usually), spanning the “create” and “acquire” quadrants; in addition to the standard
+quadrants of “build” and “should not exist.”
+
+The Four Quadrants: Avoid, Create, Adopt, Acquire
+These four quadrants inherit similarities from the 2 × 2 matrix discussed in “A Simple
+Framework for Evaluating ‘Build Versus Buy’” on page 510. Where they are the same,
+we will not repeat ourselves, but we will note where they differ.
+
+Create (upper right)
+The build category is the same as the simple framework for evaluation: high business
+value combined with bespoke solution.
+This is software that has potentially significant intellectual property value. You may
+decide to keep it as a trade secret, trademark it, or file for patents. It could become
+the basis of your own COTS product or service offerings. More virtuous leaders
+in the industry might even make it available as source available or OSS for other
+organizations, thus bringing the cycle full circle.
+
+Avoid (upper left)
+The “avoid” category is also the same as the simple framework for evaluation: low
+business value problems with bespoke solutions shouldn’t exist.
+
+Adopt (lower left)
+The “adopt” category represents low business value combined with commodity. This
+is the realm of OSS and source-available licensed code, and where most infrastructure
+components live: agents, SDKs, service catalogs, identity management, logging infra‐
+structure, observability platforms. If it’s standard and doesn’t differentiate you—just
+download it and adopt it. From a software developer perspective, the advantage is
+that you can see the code in order to diagnose low-level problems and, in the case of
+OSS, you can even contribute the fix.
+
+
+
+
+                                                  A Framework That Includes Open Source   |   519
+Acquire (lower right)
+The “acquire” category represents some business value above and beyond what can
+be found in open source, and critical differentiation. This is the realm of COTS
+software products and SaaS offerings with advanced features you are willing to pay
+for. You can customize it for your environment, maybe write a few custom plug-ins
+or connectors, but you can’t fundamentally change the codebase. In most cases, you
+can’t even see the codebase, which might make it hard to diagnose and troubleshoot
+the thorniest of problems.
+
+Commission (middle right)
+Straddling the border between “create” and “acquire” is the “commission” category:
+the realm of custom engineering and work for hire. You do this when you need
+software that isn’t available off the shelf, but it isn’t something you need to develop as
+an internal core competency—or you simply don’t have time or internal resources. It’s
+pure mercenary work for a job that needs to be done well and fast. You still have to
+create the spec, but the hired gun does the job. Maybe it is just one of those custom
+plug-ins or connectors for COTS software you acquired. Or maybe it’s something
+decidedly more sophisticated, like customized dashboards, CI/CD workflows, or data
+science algorithms and models. The advantage of commissioned software is that you
+own the code after it’s written. Simultaneously, that’s also the big disadvantage.
+
+There’s Always Vibe Coding
+This is far from a comprehensive accounting of all the ways you can acquire software.
+Our list doesn’t even count Claude or ChatGPT, because we are only listing ways that
+have some form of quality, accountability, and governance baked into the model. If
+you’d like to ask Claude to go generate your enterprise observability solution, be our
+guest.
+Even before generative AI came along, the true cost of software had very little to do
+with the time it took to write code, and everything to do with the cost of operating,
+scaling, changing, extending, refactoring, and monitoring that code. Which is as true
+now as it has ever been.
+
+The Real Costs of Building Your Own
+Most companies today will end up buying services from one or more observability
+vendors. We buy observability from a vendor for the same reason we buy DNS,
+storage, networking, and email: because if it’s not your core differentiator, it probably
+doesn’t make sense for you to expend valuable engineering cycles on building it
+yourself. It’s probably a distraction from your business goals, and distractions can be
+very expensive.
+
+
+
+520   |   Chapter 29: Build Versus Buy (Versus Open Source)
+Opportunity costs are usually the biggest expense, because resources are finite. By
+choosing to build an observability tool, what did you choose not to do with those
+engineering cycles? What potential business value have you sacrificed?
+Anything you can build in a year with a small team of engineers is unlikely to
+compare favorably to a service with hundreds or thousands of engineers building
+it. It’s not just a numbers game, either: observability companies are subject matter
+experts—it’s what they do. Presumably it is not what you do.
+To calculate opportunity costs, you must first calculate the financial cost of each
+option, quantify the benefits received, and compare the two. Let’s start with an
+example of calculating the costs of building your own.
+
+The Hidden Costs of “Free” Software
+You could choose to build your own observability stack using open source compo‐
+nents that you then assemble yourself. For simplicity, we’ll assume this is the case.
+(Writing the code yourself from scratch would cost at least an order of magnitude
+more.) To illustrate actual operating costs, we’ll use a real example.
+We spoke with an engineering team manager who was considering investing in a
+commercial observability solution after having built an in-house ELK (Elasticsearch,
+Logstash, and Kibana) stack. We’d given him a quote of about $80,000 per month to
+provide observability for his organization.
+He immediately balked at the sticker shock of a nearly $1 million annual solution and
+pointed to the “free” ELK stack his team was running internally.
+However, he wasn’t counting:
+
+  • The cost of dedicated hardware to run the ELK cluster, at $80,000 per month
+  • Three additional engineers recruited specifically to help run it at $250,000–
+    $300,000 each per year
+  • One-time recruiting costs at 15–25% of annual earnings, or about $75,000 per
+    engineer
+  • Organizational time spent hiring and training them to become effective
+
+The seemingly free solution had been costing his company over $2 million each year—
+more than twice the cost of the commercial option. But he’d been spending that in
+ways that were less visible to the organization.
+This pattern repeats constantly (see Chapter 27 for more analysis). Engineers are
+expensive, and recruiting them is hard. It’s especially wasteful to devote their talent
+to building bespoke infrastructure solutions in the name of saving money, when the
+reality is often much further from the truth.
+
+
+                                                     The Real Costs of Building Your Own   |   521
+The first step to understanding ROI is to truly understand the hidden and less-visible
+costs of running supposedly free software. Calculate:
+Full-loaded engineer costs
+     Salary, benefits, recruiting fees, training time, management overhead
+Infrastructure costs
+     Compute, storage, networking, and the engineering time to manage that infra‐
+     structure
+Opportunity costs
+   What could these engineers be building instead that would actually differentiate
+   your business?
+Ongoing maintenance burden
+   Version upgrades, security patches, integration work, scaling challenges
+If you’ve never really stopped to think about how much your own time costs or how
+much your team’s time costs, first of all, don’t feel bad. Most engineering managers
+we hear from haven’t done this either. But do this. Your time, your energy, your
+focus…they are not cheap. You own your attention and your calendar. No one else is
+going to protect it for you.
+
+The Benefits of Building Your Own
+In many organizations, the deciding factor comes down to justifying visible spending,
+which is one of the worst ways to make a complex sociotechnical decision. But there
+are real benefits to investing local engineering cycles into the domain:
+Building creates in-house expertise.
+    When you decide to build custom tooling, it becomes someone’s job to deeply
+    understand your organizational needs and turn those into functional require‐
+    ments. Over time, you develop institutional knowledge about both observability
+    best practices and your specific systems’ characteristics.
+Building enables deep customization.
+    You can create integrations with your bespoke internal systems, enforce naming
+    conventions that matter to your organization, and build workflows that match
+    exactly how your teams operate. Rather than using generic prebuilt software
+    designed for many use cases, you can optimize for your specific needs. (But note
+    that this benefit can turn into a liability, if you aren’t careful; optimizations and
+    customizations scale poorly compared to standard interfaces.)
+Building teaches you the domain deeply.
+    If you choose to build your own observability solution, you’ll inherently need
+    to internalize and implement the concepts in this book—from the necessary
+
+
+522   |   Chapter 29: Build Versus Buy (Versus Open Source)
+     data granularity provided by events, to automating the core analysis loop, to
+     optimizing your datastore to performantly return results against large quantities
+     of unpredictable high-cardinality data. You’ll learn exactly where metrics serve
+     your business and where they don’t by slamming headfirst into their limitations.
+Building might be good for the bottom line.
+    If you choose to build, it might be that what you’re building can save the
+    company considerably over existing commercial offerings, especially if there are
+    vendor lock-ins that you can’t otherwise escape. Yet remember to pay attention
+    to the true cost of building as just outlined. Beyond cost savings, sometimes
+    building software can actually become part of your company’s product or serv‐
+    ices offering, actively bringing in revenue. Or it could be part of its intellectual
+    property portfolio, such as being patented, if there is a chance to license it to
+    others. However, be realistic as to the probabilities of your organization actually
+    doing anything of commercial value with an internally built tool.
+Building your own may be the only viable option.
+    This may be the case if, for example, you want a cheap, basic monitoring service
+    and none of the big vendors are building that.
+
+The Risks of Building Your Own
+The benefits of building don’t come without serious risks. The era of building infra‐
+structure like infrastructure—and exposing the rough edges of that infrastructure to
+software engineers—is over. Anything you build in-house for other engineers needs
+to get built like a product.5
+Product management expertise is rare.
+    Does your observability team have a product manager (whether by title or
+    function) whose job is to interview users, determine use cases, manage feature
+    development, deliver a minimum viable product, gather feedback for iteration,
+    and balance constraints against business needs? If not, you’re likely to build
+    something that doesn’t meet user needs effectively. When that happens, it can
+    damage senior management’s trust in engineering’s ability to make sound techni‐
+    cal decisions.
+     Product-led organizations will have in-house product expertise that can make
+     custom development successful. But whether that product management expertise
+     will be allocated away from core business objectives toward building internal
+     tooling is another question entirely.
+
+
+
+
+5 For a longer discussion of why this matters so much, follow Abby Bangser on LinkedIn/Bluesky, or read the
+  article “Infrastructure Gravity & Domain Engineering” by Jack Danger.
+
+
+                                                                   The Real Costs of Building Your Own   |   523
+Building takes time.
+    Custom solutions delay your observability adoption initiatives. Can your busi‐
+    ness afford to wait several months to get a functional solution in place instead
+    of getting started immediately with a commercial product? This is like asking
+    whether your business should wait to get operations underway while you first
+    construct an office building. Sometimes that makes sense for long-term consider‐
+    ations, but often reduced time to value is preferable.
+Ongoing support is never-ending.
+   Building your own observability product is not a one-and-done solution. It
+   requires ongoing maintenance. Underlying third-party components will get
+   updates and patches. Organizational workflows and systems are constantly evolv‐
+   ing. Unless those components and integrations stay current, custom solutions
+   risk becoming obsolete…and Google won’t be very helpful when it breaks.
+Adoption might be low.
+   If you don’t have the organizational ability to deliver a system with excellent
+   UX, workflow flexibility, and speed, it’s entirely likely that you’ll have invested
+   substantial time and money into a solution that never sees widespread adoption
+   beyond those intimately familiar with its rough edges and workarounds.
+An unfortunately common pattern in enterprises is to devote development effort
+toward building an initial version of internal tools and then move on to the next
+project. Internal tools get abandoned once development stalls, adoption is low, and
+the effort required to make them meet current requirements isn’t a high enough
+priority compared to competing interests.
+
+The Real Costs of Buying Software
+On one hand, the costs of buying software tend to be more visible and upfront,
+which is good. On the other hand, cost may or may not go up in tandem with
+value. Recall that Gartner study we mentioned in Chapter 23, with a representative
+customer whose observability costs have been going up 48% per year for the past 15
+years straight. Are you getting 35,800% (358x) more value out of your tools now than
+you were in 2010?
+
+The Hidden Financial Costs of Commercial Software
+Let’s start with the most obvious cost of buying software: the financial cost. In a
+vendor relationship, this is the most tangible expense—you see it whenever your
+vendor sends you a bill.
+A reality of commercial software is that vendors must make money to survive, and
+their pricing schemes factor in profit margins. You will pay a vendor more to use
+their software than it costs them to build and operate it for you. That’s not unfair—it’s
+
+524   |   Chapter 29: Build Versus Buy (Versus Open Source)
+how businesses work. (If you are paying them less than it costs to run your workload,
+you should be very concerned—about their survival as a business, and about whether
+or not they care about retaining you as a happy customer.)
+What is considerably less fair is obscuring the real costs, avoiding transparency, or
+stacking so many pricing dimensions that you cannot reasonably predict what your
+usage patterns will cost in the future.
+A common antipattern to watch for is pricing strategies that obscure total cost
+of ownership. These include per-seat, per-host, per-service, per-query, or per-any-
+other-impossible-to-predict metering mechanism. Pay-as-you-go pricing may seem
+approachable at first—until your usage explodes at a rate disproportionately more
+expensive than the revenue it helps you generate.
+Consider these questions as your organization grows:
+
+  • Will your team size change as your startup becomes more successful? (Almost
+    certainly yes.)
+  • Will the number of hosts significantly grow in the future? (Likely yes, though
+    instance resizing complicates projections.)
+  • Will there be more services? (Possibly, especially if you decompose monoliths
+    into microservices.)
+  • What about the number of queries you run? (Almost certainly yes, if the tool is
+    successfully adopted.)
+
+When it comes to observability specifically, you should predict exponential growth
+in data queries as a culture of observability spreads through your organization. The
+recommended practice is to analyze observability data with increasing curiosity.
+You should see query volume expand dramatically as more teams find value in
+understanding system behavior.
+Therefore, avoid observability tools with pricing schemes that penalize adoption and
+curiosity. You want to ensure that as many people in your company as possible have
+the ability to understand how your customers use your software, in as many ways as
+possible. Observability is not just for engineers! Support, product, design, security,
+marketing…the more people stay grounded in the truth of production, the better for
+everyone.
+As a consumer, demand that your vendors be transparent and help you calculate
+hidden costs and forecast usage patterns. Ask them to walk you through detailed cost
+estimates of both your starting point today and your likely usage patterns one to two
+years in the future. Be wary of any vendor unwilling to provide exceptional detail
+about how their pricing will change as your business grows.
+
+
+
+
+                                                       The Real Costs of Buying Software   |   525
+The Hidden Nonfinancial Costs of Commercial Software
+A secondary hidden cost of commercial solutions is time through vendor lock-in. Yes,
+buying a ready-made solution lowers your time to value initially. But once you’ve
+committed to a commercial solution, how much time and effort would be required to
+migrate to a different solution?
+The most labor-intensive part of observability adoption is instrumenting your appli‐
+cations to emit telemetry data. Many vendors shortcut time to adoption by creating
+proprietary agents or instrumentation libraries prebuilt to generate telemetry in
+proprietary formats their tools expect. While those proprietary agents may be quicker
+to start with, any time and effort devoted to making them work must be repeated
+when evaluating alternative solutions.
+The open source OTel project solves this problem by providing an open standard
+that many observability tools support. OTel allows you to shortcut time to value
+with proprietary tools by using OTel distributions (distros) that layer boilerplate
+configurations on top of standard OTel libraries.
+Your strategy to avoid vendor lock-in should be to use native OTel functionality by
+default in your applications and rely on distros or exporters to handle vendor-specific
+configuration. Should you wish to evaluate or migrate to a different tool, you can
+replace configurations without rewriting all your instrumentation.
+
+
+                            Use OTel, and Model Costs For Growth
+  “Don’t use their own agent! Use an agnostic agent like the OpenTelemetry Collector,
+  even if it means having to jump through a few hoops to understand how data is
+  meant to be transformed and shipped around. Be open to both decorating teleme‐
+  try data with useful fields and removing useless fields to save on cardinality and
+  dimensionality.
+  Make sure to model your costs for your current usage and potential future usage as
+  your company grows. Build in a buffer to account for misconfigurations that could
+  potentially explode your bill. Usually providers can forgive those accidental costs but
+  don’t put yourself in a tricky position by not covering yourself. Do not trust anything
+  that’s not in writing!”
+  Matthew Sanabria, Engineering, Oxide Computer Company
+
+
+Some vendors nominally support OTel, but will leverage their weight and influence
+during the sales and proof-of-concept process to disparage OTel and try to convince
+you to use their proprietary integrations instead. They might say how much easier
+and simpler and better it is to just use their agents, or how much more “mature” and
+“battle-tested” their agents are.
+
+
+526   |   Chapter 29: Build Versus Buy (Versus Open Source)
+These vendors are entirely capable of making the OTel experience as good or better
+than their proprietary agents. They have chosen not to do so because they are trying
+to lock you in. It is, regrettably, a very effective strategy.
+
+The Benefits of Buying Commercial Software
+The benefits of buying software are mostly what you’d expect. In the next chapter, we
+will talk in depth about how to build enduring, mutually beneficial partnerships with
+software vendors, so we’ll keep this part brief:
+The most obvious benefit is time to value.
+    You don’t need to build a custom solution—you’re purchasing one that’s ready to
+    go. In most cases, you can start within minutes or hours and quickly gain new
+    understanding of your production systems.
+Commercial solutions generally offer more streamlined user experiences than open
+source alternatives.
+    Open source tools are typically designed as building blocks for you to assemble
+    yourself. Commercial software tends to be more opinionated—a finished product
+    with specific workflows. Product designers work to streamline ease of use and
+    maximize time to value.
+You offload maintenance and support to your vendor.
+    Rather than burning your own engineering cycles, you pay someone else to
+    handle that burden. You benefit from economies of scale—your vendor operates
+    the same infrastructure for hundreds or thousands of customers, driving down
+    per-customer costs and improving reliability through shared learnings.
+You potentially gain access to domain expertise.
+    By purchasing tooling from a company whose core competency is solving
+    observability challenges, you can tap into years of expertise addressing the
+    problem in various ways. This commercial relationship can provide invaluable
+    guidance that would otherwise take years to build internally.
+
+The Risks of Buying Commercial Software
+The benefits of buying commercial software don’t come without risk. Importantly,
+some of the bigger risks are baked into the largest benefits:
+By delegating responsibility to your vendor, you risk not developing your own in-house
+observability expertise.
+    In this way, that last benefit of buying commercial software is also one of the
+    bigger risks. By simply consuming a ready-made solution, your organization may
+    not dive deeply enough into the problem domain to understand how observabil‐
+    ity applies to your particular business needs.
+
+
+                                                      The Real Costs of Buying Software   |   527
+Commercial products are built for wide audiences.
+   While they have opinionated designs, they’re also generally built to adapt to
+   various use cases. By definition, commercial products are not specifically built to
+   accommodate your special needs. Features critical to you may not be priorities
+   for your vendor, leaving you waiting for functionality essential to your business.
+You don’t control them.
+    The vendor may get acquired, run out of money, decide to pursue a different
+    target market, or have massive, days-long reliability outages of their own. (Then
+    again, your company might too. Nothing is guaranteed, not even tomorrow.)
+Fortunately, there’s a way to mitigate most of these risks and develop your own
+in-house expertise while adopting commercial observability tools. Because this is
+not the kind of all-or-nothing situation where you have to build everything or buy
+everything. You can, and probably should, do some of both.
+
+Build Versus Buy Is Not a Binary Choice
+The choice to build or buy presents a false dichotomy. A third option is to buy and
+build. We recommend this approach for most organizations.
+Buy an underlying vendor to do the heavy lifting, but craft libraries, tools, and
+interfaces for your engineers that feel friendly, idiomatic, and do as much automation
+and wrapping as possible (as shown in Figure 29-3).
+
+
+
+
+Figure 29-3. A compelling mixture: outsource the hosting, query performance, feature
+development, and product direction, but keep instrumentation and pipeline in house.
+
+This is the platform model, after all: build things that are unique to your company,
+but shared across teams.
+
+
+
+
+528   |   Chapter 29: Build Versus Buy (Versus Open Source)
+This Is Where Your Observability Team Comes In
+Observability needs an owner, whether you buy from a vendor or not. It’s a massive
+expense and force multiplier, and it will be a load-bearing pillar of any push to adopt
+generative AI workflows.
+Buying a vendor solution doesn’t mean your company won’t need an observability
+team. It means that instead of spending their time tuning ELK stacks and Prometheus
+metrics and operating pipelines, the team acts as an intermediary integration point
+between the vendor and your engineering organization, making that interface seam‐
+less and friendly.
+We know from industry research that the key to success when outsourcing work is to
+carefully curate how that work makes its way back into the organization.6 This is what
+your observability team is here to do.
+Your observability team should:
+
+  • Write libraries and useful abstractions.
+  • Standardize naming schemes across the organization.
+  • Handle updates and upgrades gracefully.
+  • Consult with other engineering teams on effective instrumentation.
+  • Manage vendor relationships.
+  • Make decisions about adopting new technologies.
+  • Educate teams about observability practices.
+  • Deliver training and sample code.
+  • Integrate telemetry data sources if your company still has three pillar tooling.
+  • Look for ways to simplify and reduce friction and costs.
+
+For organizations considering building their own observability stack for customiza‐
+tion to specific needs, this approach is especially effective.
+
+Get the Best of Both Worlds
+Using an observability team to build on top of an extensible vendor solution minimi‐
+zes sunken costs that distract from delivering core business value. Your team can
+build integrations that mount the wheel to the fast-moving car you’ve already built,
+rather than reinventing the wheel.
+
+
+
+6 Nicole Forsgren, Dustin Smith, Jez Humble, and Jessie Frazelle, Accelerate State of DevOps 2019, (DORA,
+  2019).
+
+
+                                                                 Build Versus Buy Is Not a Binary Choice   |   529
+The key to enabling that balance is to ensure that your team uses a product that has
+a well-developed API that lets you configure, manage, and run queries against your
+observability data programmatically. Last-mile problem-solving requires substantially
+fewer resources than building everything yourself.
+
+Important Caveats
+Given the breadth of this topic, keep in mind that we are talking straight down
+the middle of the industry. We are trying to address technology businesses that are
+extremely price-sensitive as well as companies that are all but immune to cost.
+If your company is an outlier in some exceptional way—maybe you’re a hyperscaler,
+maybe you’d be fine with monitoring circa 2009 (if it came with a 2009 price tag)—
+our advice may not apply to you. That’s fine. We trust you know your business better
+than we do.
+There are three key caveats to keep in mind, accordingly.
+First, there is currently no large commercial offering for monitoring capabilities at
+                          7
+monitoring price points. There are some smaller shops that seem to offer this kind
+of thing, but you’ll need to do your own independent research. If your needs are
+simple—checking if services are up, down, or slow—and your architecture is straight‐
+forward enough to reason about in your head, you may need to drive off the beaten
+path a bit. The major observability vendors have largely abandoned this segment of
+the market in favor of more complex (and expensive) use cases.
+Second, the build-versus-buy quadrant may break down at hyperscale. If you’re with
+Google, Meta, or another hyperscaler, the economics do shift. At that scale, it may
+become cheaper to build your own solutions, even for commodity products. That’s
+why Meta builds its own custom power grids.
+We hear a lot of companies fret over whether any vendors can possibly handle
+their scale. Let’s put it this way: if you aren’t building your own power grids, you’re
+probably fine. (Even for hyperscalers, building their own products is usually driven
+more by wanting control than scale.)
+Third, there is no one-size-fits-all solution at enterprise scale. While you should always
+seek to avoid unnecessary duplication of data, every strategy to manage costs at scale
+is going to involve tiers of service. You might use:
+
+
+
+
+7 Plenty of large observability vendors offer a free or cheap, entry-level price point (as in “the first hit is free”),
+  but not one that scales up to large traffic volumes.
+
+
+530   |   Chapter 29: Build Versus Buy (Versus Open Source)
+  • High-fidelity observability for your most critical applications, anything customer-
+    facing, money-handling, or under active development
+  • Traces and tail sampling for customer-facing applications that are stable and not
+    under active development
+  • Basic metrics and synthetic health checks for noncustomer-facing, less critical
+    applications
+  • Open source solutions for specific use cases where commercial offerings don’t
+    justify their cost
+
+One caveat to our list of caveats: in our experience, lots of people believe their
+company is exceptional for some reason or another…which often turns out to be
+completely ordinary.
+
+Conclusion
+Observability is not like any other type of tool. It’s the software you use to understand
+your own products: the code that makes them, the users that use them, and the
+intersection of all three.
+Ten to fifteen years ago, every observability SaaS option was basically a hosted version
+of what you could run yourself. Vendors took open source monitoring/logging tools,
+ran them as managed services, and charged for the convenience.
+That’s no longer true. The products available commercially have meaningfully
+diverged from what’s available via open source. For most companies (or at least
+most of the companies with more money than time), the default position is to invest
+in a commercial observability solution as a baseline, and focus engineering time on
+building business-differentiating features. Build custom integrations and abstractions
+on top of commercial tools where needed, but don’t rebuild the entire platform. For
+most companies, observability falls into the lower-left quadrant: commodity software,
+low business value.
+The exceptions—companies that should seriously consider building—are those with:
+
+  • Truly unique requirements that no commercial vendor addresses
+  • Scale so massive that custom solutions become economically viable
+  • Observability as their core business capability
+  • Regulatory or security requirements that prevent a company from using external
+    vendors, or even running other vendors’ code on their systems (if these exist)
+
+
+
+
+                                                                         Conclusion   |   531
+For everyone else, the path forward is clear: buy your observability platform, build
+your integration layer, and focus your engineering talent on the problems only you
+can solve.
+This leads us to the next chapter: how to evaluate and work effectively with observa‐
+bility vendors.
+
+
+
+
+532   | Chapter 29: Build Versus Buy (Versus Open Source)

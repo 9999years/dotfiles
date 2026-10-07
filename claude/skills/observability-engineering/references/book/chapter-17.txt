@@ -1,0 +1,567 @@
+                                                                          CHAPTER 17
+                    Ontologies as a Shared Language
+                                   for Humans and AI
+
+
+    This chapter is contributed by Frank Chen, CTO at Balto Energy
+              and Designer-in-Residence at University of California
+                                      San Diego (UCSD) Design Lab
+
+
+                A Note from Charity, Liz, George, and Austin
+A shift toward a high degree of observability relies on high-context telemetry and
+data-driven analysis. Often, teams quickly discover that “more visibility” also means
+managing a lot more data. Once you’re capturing rich events across services, environ‐
+ments, and teams, you run into a familiar problem from the broader data world:
+semantic failures.
+The same concept gets measured in multiple places, labeled in multiple ways,
+or defined with slightly different rules. At first, it’s simply inconvenient. But left
+unchecked, suddenly dashboards disagree, queries don’t line up, and nobody is quite
+sure which version of the “truth” is actually the real truth. This is a well-known failure
+mode in analytics and data engineering, and the observability domain is not immune.
+This chapter introduces ontologies as a practical mechanism for establishing shared
+understanding across development, operations, and business stakeholders. An ontol‐
+ogy is a structured map of a domain: its core entities, the relationships between them,
+and the rules that constrain valid behavior. In observability work, this map becomes
+operational through semantic conventions—standardized names and schemas that
+services emit consistently, so that telemetry encodes both system state and domain
+meaning.
+In this chapter, Frank Chen demonstrates how to define a minimal ontology and
+how to reuse those definitions from development through production. It also extends
+
+
+
+                                                                                         311
+  that approach to nondeterministic AI systems, showing schemas and invariants that
+  provide guardrails and enable repeatable evaluation by “closing the loop” from pro‐
+  duction telemetry back into validation logic.
+  The rest of this chapter is written from Frank Chen’s perspective.
+
+
+It’s 2 a.m. on a Saturday. Your pager fires. You open your laptop and stare at two
+contradictory dashboards. The infrastructure dashboard is all green: “99.9% uptime,”
+“latency < 200 ms,” “HTTP 200 OK.” According to the platform metrics, the system is
+perfect.
+But the business dashboard is screaming. Customers are reporting bills that contra‐
+dict the laws of physics—showing curtailed solar exports instead of crediting them.
+The AI agent you shipped last week to optimize grid interactions has started halluci‐
+nating price windows that don’t exist.
+Nothing is “broken” in code. The servers are up. The API is responding. The AI
+is answering prompts. The failure is invisible to your standard observability tools
+because it isn’t a failure of infrastructure; it’s a failure of semantics.
+In complex systems—especially those combining rigid rules with nondeterministic
+AI—data is everywhere, but truth is scarce. “Availability” can mean one thing to a
+developer (the server is up), another to an SRE (the latency is low), and something
+totally different to the business (the bill is accurate). I’m going to demonstrate how to
+fix that silent failure using ontologies.
+Before exploring how to design a minimal, practical ontology for a nondeterministic
+AI system, let’s first take a look at how ontologies fit into observability.
+
+Ontologies and Their Role in Observability
+Ontologies are formal, explicit specifications of shared concepts and their relation‐
+ships within a domain. They act as both a common vocabulary and a knowledge map
+for humans and machines to forge a shared understanding of data and its meaning.
+For clarity, I’m not talking about knowledge graphs used by academics. I’m talking
+about defining a map of your domain—the core objects, relationships, and rules—
+and using it as a layer in your organization and, in particular, your observability data.
+This ontology is how organizations can guide their sociotechnical systems.
+The goal of ontologies is to avoid fragmented definitions. Terms like “reliability”
+create contradictory signals that sow divisions and chaos between your teams, as
+shown in Figure 17-1.
+
+
+
+
+312   |   Chapter 17: Ontologies as a Shared Language for Humans and AI
+Figure 17-1. Chaos ensues when dev, ops, and business stakeholders lack a unified
+domain language.
+
+Ontologies and semantic conventions are the missing layer in observability. For
+observability work, an ontology turns scattered metrics and logs into named, linked
+concepts that are codified in your team’s semantic conventions, runbooks, and docu‐
+mentation. By doing that, terms like “uptime,” “user,” “availability,” and “incident” will
+mean the same thing across multiple teams and tools. The practical payoffs are fewer
+alerts, faster diagnoses, and signals that match from development to production.
+When using ontologies and semantic conventions, you gain the ability to catch errors
+that traditional monitoring misses, and you gain a powerful way to place guardrails
+around nondeterministic AI.
+An ontology remains an academic exercise until it is codified. In the next section,
+we’ll look at how to design a minimal ontology.
+
+Design the Ontology
+In observability, we implement our ontology through semantic conventions (standard‐
+ized names, structures, and schemas that every service in your system agrees to use).
+Think of these semantic conventions as a translation layer for your organization. For
+business stakeholders, they provide a clear vocabulary of “cost” and “usage” that maps
+directly to customer value. For engineers, they ground abstract technical metrics, like
+
+
+
+                                                                   Design the Ontology   |   313
+latency or throughput, into actual business processes. And for the system itself, they
+serve as rigid schemas that turn ambiguous data into verifiable truth.
+
+                    Semantic conventions through ontologies can be explored in
+                    frameworks for modeling additional entities, relations, and con‐
+                    straints such as Palantir Foundry, Apache Jena, Apache Atlas, or
+                    OpenMetadata.
+
+
+To build a reliable system, we need to start by mapping our “nouns” (entities) and
+our “invariants” (rules). For our running scenario, consider an energy management
+system designed to help customers understand and optimize their utility costs. The
+system’s primary job is to ingest raw usage data and accurately price a bill based
+on complex, shifting utility rates. To add value, the system also uses an AI agent to
+generate billing proposals and optimization plans—such as suggesting when to shift
+appliance usage to save money.
+
+Define the Core Entities (the Nouns)
+To ensure this system remains accurate and safe, we can reduce its complex world to
+a minimal set of fundamental objects and define their relationships in a map:
+IntervalSeries (the input)
+      This consists of a timestamped series of raw usage data.
+Tariff (the logic)
+      This is the deterministic ruleset (time-of-use windows, rates) effective for a
+      specific period.
+BillSet (the output)
+      The calculated result is produced by applying a Tariff to an IntervalSeries.
+ActionPlan (the AI proposal)
+      This is a tentative object unique to AI systems that represents the system’s struc‐
+      tured interpretation of the user’s intent. It bridges the gap between vague natural
+      language (“save me money”) and specific system operations. The ActionPlan is
+      untrusted until validated.
+Once we have these objects defined, we can define the invariants.
+
+Define the Invariants (the Rules)
+Invariants are the mathematical truths that must always hold. If an invariant is
+violated, the system is broken, even if no exceptions are thrown. The core rules are as
+follows:
+
+
+
+314   |   Chapter 17: Ontologies as a Shared Language for Humans and AI
+Coverage (completeness)
+   Every timestamp in the IntervalSeries must map to exactly one pricing win‐
+   dow in the Tariff. No gaps, no overlaps in pricing_coverage.
+Arithmetic (integrity)
+    The total_cost in the BillSet must equal to the sum of its individual compo‐
+    nents (within a floating-point tolerance of ±$0.01). The “whole” must strictly
+    equal the sum of its parts.
+Determinism (reproducibility)
+    Given the same series_id and tariff_id, the system must produce the same
+    determinism_hash (BillSet) result, every single time. A rerun of yesterday’s
+    data must yield yesterday’s result.
+In a traditional system, you might treat these rules as simple unit tests. But when you
+introduce nondeterministic AI, invariants become your primary line of defense. You
+can’t write a unit test for every possible hallucination that an LLM might generate.
+You can’t predict if the AI will suggest a tariff that doesn’t exist or a time-shift that
+defies the laws of physics.
+Instead of testing the input (which is infinite), you use invariants to constrain the
+output. By treating these invariants as runtime assertions, you create a semantic
+firewall. When the AI generates an ActionPlan, we simulate the result and check it
+against the invariants. If the simulation creates a gap in coverage or an arithmetic
+error, we know—with mathematical certainty—that the AI’s plan is flawed, and we
+reject it. This enables you to deploy creative, nondeterministic agents into production
+while maintaining safety guarantees of a deterministic system.
+
+Visualize the Semantic Grammar of the Domain
+Once you have defined the nouns and invariants, you can then map their relation‐
+ships in a graph, such as the one shown in Figure 17-2.
+To understand this graph, follow the flow of data from left to right. The system
+begins with the IntervalSeries, which is the raw, physical truth of energy consump‐
+tion measured by hardware. This data is inert until it meets the Tariff, which
+represents the logic and pricing rules effective for that specific time period. When you
+combine the physical data (IntervalSeries) with the logic (Tariff), you produce
+the BillSet—the financial truth.
+The ActionPlan sits outside the deterministic flow as a potential modifier. Note how
+it doesn’t produce a bill directly. Instead, it proposes changes to the other entities—
+perhaps shifting consumption in an IntervalSeries or switching to a different
+Tariff. It is the “intent” waiting to be tested against the physics of the rest of the
+graph.
+
+
+                                                                  Design the Ontology   |   315
+Figure 17-2. Ontology entity-relationship graph: this diagram visualizes the seman‐
+tic grammar of the domain, defining the fundamental objects (nouns) and rules
+(invariants).
+
+                    Resources for AI Engineers
+                    To dive deeper into distributed energy resources (DERs) and
+                    domain modeling, the Agile Electrification group at the UCSD
+                    Design Lab maintains open source playbooks. These resources
+                    include specific patterns for parsing natural language intent into
+                    structured ActionPlans and standard ontology definitions for
+                    energy. You can find them on the project’s GitHub repo.
+
+Once you have the core entities, you can define the invariants.
+
+Glue the Schema Through Metadata
+To implement this, you must establish semantic conventions that ensure every data
+point has clear provenance. For example, when you look at a BillSet, you shouldn’t
+just see a dollar amount; you should see exactly which input and which logic version
+produced it. Provenance enables you to understand how, what, and why this thing
+exists in your database. Metadata is the glue that lets you see what created a BillSet.
+The following is an example of the simplified schema for our deterministic core,
+focusing on how we link inputs to outputs:
+      // IntervalSeries (the Input)
+      {
+        "series_id": "uuid-home-1234",
+      ...
+        "lineage": {"source": "smart_meter_api", "fetched": "yyyy-mm-dd"}
+      }
+      // Tariff(the Logic)
+      {
+        "tariff_id": "uuid-tariff-55",
+
+
+
+316   |   Chapter 17: Ontologies as a Shared Language for Humans and AI
+    ...
+      "rules": {"type": "time_of_use", "windows": [{ ... }]}
+      "ruleset_version": "2025.12.1"
+    }
+    // BillSet (the Output)
+    {
+      "billset_id": "uuid-bill-100",
+      "total_cost": 150.76,
+    ...
+      "lineage": {
+                   "input_series_id": "uuid-home-1234",
+                   "applied_tariff_id": "uuid-tariff-55",
+                   "calculation_engine_version":"2025.5.1"
+                 }
+    }
+When building your schema, ensure that you:
+
+  • Map every output back to its specific input series_id.
+  • Version your logic (e.g., ruleset_version) so results are reproducible.
+  • Embed lineage directly into the metadata to automate troubleshooting.
+
+By explicitly linking the input_series_id and applied_tariff_id within the Bill
+Set metadata, you transform a simple cost figure into a traceable audit log. This
+structure allows your observability tools to automatically correlate spikes in cost with
+specific changes in logic or input data.
+By establishing these foundational schemas, we prepare the system to handle “parsed
+intent”—transforming vague AI suggestions into the structured snapshots required
+for the deterministic validation that we will explore in the next section.
+
+Schematize Intent with the ActionPlan
+If your system uses AI to process or generate actions, you must also define a schema
+for intent. While the objects discussed previously capture what actually happened, the
+introduction of AI adds a new requirement: capturing what might happen and why.
+We cannot trust an LLM to “fix the bill” directly. Instead, we force the model to fill
+out an ActionPlan schema.
+The ActionPlan schema acts as a constraint. It forces the model to convert “vibes” or
+conversational nuance into discrete, measurable fields that the deterministic system
+can validate. It is a parsed intent: a structured snapshot of what the AI thinks the user
+wants, as shown in this schema definition:
+    // ActionPlan (the Parsed Intent)
+    {
+      "plan_id": "uuid-plan-99",
+      "status": "PROPOSED",
+
+
+                                                                  Design the Ontology   |   317
+        "predicted": {"bill_delta_usd": -94.50},
+        "actions": [
+           {"device": "ev_charging", “time_shift”: {"start": "22:00", "end": "06:00"}},
+        ],
+      ...
+        "lineage": {...}
+      }
+
+Notice that with provenance, you can reason about how the input (IntervalSeries)
+quantifies the BillSet. With the ActionPlan, you can reason about why the AI
+suggested a change before you ever allow it to execute.
+With the nouns, invariants, and now the ActionPlan defined, you have established
+a bare minimum ontology. This core contract provides the foundation you need
+to begin enhancing your system with automated validation, CI/CD pipelines, and
+shared instrumentation.
+
+Validate the Contract: Continuous Integration
+Evaluation of AI-driven actions and intent should be boring and repeatable. If you
+are building a system that relies on AI agents, you cannot rely on “vibes” or manual
+testing. You need a rigorous evaluation pipeline that treats your ontology as a con‐
+tract.
+This is one place where observability “shifts left.” In a traditional workflow, we often
+think of a vulnerability as something that happens after deployment. But with a
+strong ontology, we can observe the system’s behavior before it ever touches produc‐
+tion data. By using immutable fixtures (e.g., a standard input IntervalSeries and
+Tariff for the “golden path” and “edge cases”), we can assert that our invariants hold
+true under every code change.
+
+Layer Three Gates for Defense
+Instead of scattered lists of tests, we organize our CI gates into three distinct layers of
+defense:
+Deterministic layer
+    The first layer checks the rigid physics of the system. We verify determinism:
+    given the same IntervalSeries and Tariff, the system must produce the
+    exact same BillSet hash. If the hash changes, the code has drifted. We verify
+    arithmetic integrity, ensuring that the total_cost strictly equals the sum of its
+    components. Finally, we verify coverage, ensuring that 100% of the input data
+    maps to valid logic windows without gaps or overlaps. These are binary pass/fail
+    checks. If any of these fail, the build is broken.
+
+
+
+
+318   | Chapter 17: Ontologies as a Shared Language for Humans and AI
+Simulation layer
+   Once the math is solid, we check the logic. For an AI agent proposing an Action
+   Plan, we run a simulation. We take the agent’s proposed changes, feed them into
+   our deterministic engine, and verify the prediction. Did the agent claim this plan
+   would save $20? The simulation must confirm that delta within a tight tolerance.
+   If the AI hallucinates savings that the physics engine cannot reproduce, the gate
+   closes.
+Semantic layer
+   The final layer evaluates the quality of the communication. This is where we
+   use golden dialogs (predefined ideal interactions) to score the AI’s explanations.
+   For example, we check for a confidence floor in which the system rejects any pro‐
+   posal where the model’s internal confidence score drops below a safe threshold
+   (e.g., 0.6).
+
+               Evaluation pipelines and instrumenting LLMs are beyond the
+               scope of this chapter, but see Chapter 21 for a more thorough
+               explanation of evals with AI, especially when it comes to framing
+               up golden dialogs and scoring. Golden dialogs are a predefined
+               ideal set of interactions across the given model.
+
+
+Establish the Team Workflow
+When a gate fails, the ontology tells you where to look. If a structural gate fails, the
+engineer fixes the schema. If a coverage gate fails, they inspect the logic mapping. If
+a semantic gate fails, they tune the prompt or the retrieval context. By treating these
+failures as observable events—emitting the same JSON structure in CI as we do in
+production—we ensure that “fixing the build” is indistinguishable from “fixing the
+system.”
+
+Create Signal Parity in Production:
+Continuous Deployment
+The ultimate payoff of an ontology with semantic conventions is signal parity within
+a continuous deployment (CD) pipeline that goes to production. In most organiza‐
+tions, the code that tests the system in CI is completely different from the queries
+that monitor the system in production. This disconnect means that a bug caught by a
+“unit test” feels completely different from the same bug triggering an alert.
+We close this gap by ensuring that our operational dashboards hang directly off the
+ontology’s objects. We emit the exact same structured payload in production that we
+generated in our CI pipeline. This means that the logical assertion preventing a pull
+request from merging is the exact same query that triggers an incident in production.
+
+
+                                     Create Signal Parity in Production: Continuous Deployment   |   319
+Understand the Hierarchy of Signals
+Instead of generic “error rates,” our semantic conventions allow us to monitor specific
+categories of failure that map to business impact.
+First, we monitor structural integrity. We track pricing coverage to ensure no inter‐
+vals were missed, and we validate tariff effective dates to guarantee the ruleset
+matches the time period. A drop in coverage is not just a “data error”; it is a violation
+of the system’s contract.
+Second, we monitor logic stability. We look for bill anomalies by comparing current
+outputs against historical baselines or “twin” simulations. We also track ranking
+drift—if the system suddenly recommends a different tariff for the same usage pat‐
+tern, the logic has become unstable.
+Finally, we monitor AI reliability. Because our AI workflow emits standardized
+ActionPlans, we can track the proposal acceptance rate and the evaluation pass rate
+in real time. If the model’s fuzzy-match score against golden dialogs drops, or if users
+start rejecting proposals at a higher rate, we know the model has drifted, even if the
+infrastructure is healthy.
+
+Create Shared Instrumentation: The Universal Payload
+To make signal parity real, we define a set of shared instrumentation fields used in
+every workflow, whether it’s a deterministic batch job or a dynamic AI interaction.
+Every log line emitted by the system must carry the context required to reconstruct
+the decision.
+This payload begins with identity and versioning. We log the home_id and series_id
+to bind the data to the user, but we also strictly identify the tariff_id and rule
+set_version. This enables us to answer the question “Did the bill change because the
+usage changed, or because we deployed a new rule?”
+Next, we include the invariant results. The payload explicitly states the pricing_cov
+erage score and the determinism_hash. If a calculation fails, the log doesn’t just say
+error; it identifies exactly which invariant was violated.
+For AI-driven workflows, we might enrich additional context for models and
+prompts in our observability workflows. We want to capture the model_name (e.g.,
+GPT-5) and the prompt_version. By standardizing these fields, a “low acceptance
+rate” dashboard in production can immediately drill down to see if the issue is
+isolated to a specific prompt version or model variant.
+By codifying these shared instrumentation fields, we move beyond theoretical map‐
+ping and into active system defense. This universal payload ensures that every
+component—whether deterministic code or a generative model—speaks the same
+
+
+320   |   Chapter 17: Ontologies as a Shared Language for Humans and AI
+language. With this semantic foundation in place, we can now examine the “AI
+sandwich architecture” where these definitions serve as the critical interface between
+rigid rules and fluid AI intent.
+
+Implement the AI Sandwich Architecture
+To operationalize the minimal ontology we have defined (comprising our nouns
+like the BillSet and our invariants like arithmetic integrity), we use the AI sand‐
+wich architecture. This architectural pattern sandwiches a nondeterministic AI layer
+between two layers of deterministic, rule-based logic. This ensures that the dynamic,
+AI-driven process remains grounded in the bedrock of truth provided by the deter‐
+ministic workflow.
+To guarantee reliability, we must strictly separate the systems’ physics from its
+imagination. By decoupling the “physics” (our immutable business rules) from the
+“imagination” (the probabilistic nature of LLMs), we prevent nondeterministic AI
+hallucinations from corrupting the core integrity of our financial data. Figure 17-3
+illustrates the decoupling of these two worlds.
+
+
+
+
+Figure 17-3. This dual-workflow architecture shows how a guardrail can create relia‐
+bility. The AI workflow (bottom) must pass through its proposed actions against a
+deterministic rules-based workflow (top) for validation against invariant checks before
+any action is executed.
+
+We divide the application into two distinct loops, each with its specific responsibili‐
+ties and observability needs:
+Deterministic workflow
+    The deterministic workflow is the boring, safe part of the system. It takes an
+    input (IntervalSeries) and applies a set of rigid rules (Tariff) to produce an
+    output (BillSet). It is mathematically pure; if you run it 10 times, you get the
+    exact same hash 10 times. We use this workflow for everything that requires legal
+
+
+                                                    Implement the AI Sandwich Architecture   |   321
+      precision: pricing a bill, comparing historical costs, or generating the “ground
+      truth” for a simulation. Here, observability focuses on invariant enforcement. We
+      monitor coverage, arithmetic integrity, and hash stability. If this layer fails, the
+      code is broken.
+Dynamic AI workflow
+   The dynamic AI workflow is the creative part of the system. The AI analyzes
+   the user’s context and synthesizes an ActionPlan. We treat this object as “intent
+   capture”—a snapshot of what the AI thinks the user wants, frozen in a format
+   we can simulate. Because LLMs are nondeterministic, this workflow is prone to
+   hallucination. The AI might propose charging an electric vehicle (EV) during a
+   time window that doesn’t exist, or it might optimize for a tariff the user isn’t on.
+If we treat rules as guardrails, we never execute the AI’s proposal directly. Instead, we
+feed the ActionPlan into the deterministic workflow to validate it. We treat the AI’s
+output as a hypothesis and the rules-based engine as the test. We can ask:
+
+  • Does the proposed plan result in a valid BillSet?
+  • Does the simulation confirm the predicted savings?
+  • Does the plan violate any hard constraints (like 100% coverage)?
+
+If the deterministic layer says “no,” then the AI’s proposal is rejected before the
+user ever sees it. In our observability data, we record this as a “proposal rejection.”
+This metric—the rate at which the guardrails reject the proposed plan—becomes our
+highest-fidelity signal for AI reliability.
+Instead of executing unchecked proposals, the rules-based engine acts as a continu‐
+ous validation layer, rejecting any output that violates our core invariants before
+it ever reaches the user, and sending a signal back to restart the loop. In our
+observability data, this proposal-rejection rate becomes our highest-fidelity signal
+for monitoring AI reliability in production.
+
+Close the Loop: Production Driving Tests
+In the AI sandwich architecture, production is not just where code runs; it’s where
+test cases are born. We “close the loop” by taking the telemetry and edge cases
+captured in production and feeding them directly back into our development and
+testing cycles. When the AI creates a proposal that the rule engine rejects, that is a
+learning opportunity. We don’t just log the error; we capture the specific inputs (the
+prompt, the IntervalSeries, and the Tariff) that confused the model. We scrub
+this data of personally identifiable information and promote it to a golden dialog
+in our CI environment. This creates a continuous feedback loop where real-world
+failures automatically become the next generation of automated tests.
+
+
+322   | Chapter 17: Ontologies as a Shared Language for Humans and AI
+By treating production traces as future test fixtures, we create a data flywheel. If the
+model fails to understand a specific edge case—like a leap-year tariff change—we
+capture that artifact, add it to the eval suite, and block future deployments until
+the model passes that specific scenario. We track the “eval pass rate” as an SLI. A
+sudden drop in this rate is treated exactly like a latency spike: a reliability incident
+that requires immediate remediation.
+
+Putting Ontologies into Practice
+To visualize how this architecture functions in a live environment, let’s walk through
+two specific scenarios using our example ontology.
+
+Scenario A: The deterministic comparison
+Consider a user who wants to know if they should switch pricing plans. The system
+begins by binding the user’s historical IntervalSeries and fetching three candidate
+Tariffs. It then calls the deterministic engine to generate three distinct BillSets.
+Before returning any data, the system performs an invariant check, asserting that
+every single interval in the history maps successfully to a specific price window. Once
+validated, the system ranks the BillSets by total_cost.
+From an observability perspective, the logs emit a payload containing the determin
+ism_hash and the ruleset_version. This creates a perfect audit trail; if the user later
+calls support to ask why the numbers changed, an engineer can retrieve and replay
+the exact tariff version used in that specific calculation.
+
+Scenario B: The AI proposal
+Now, consider a user asking an AI agent to “save me money.” The model generates
+an ActionPlan suggesting a shift of EV charging to 10 p.m. Instead of executing this
+immediately, the system enters a simulation phase. It creates a synthetic IntervalSer
+ies (a counterfactual copy of the data modified by the proposed actions) and runs
+this counterfactual through the deterministic workflow to calculate the new cost.
+The system then performs a verification step, comparing the deterministic engine’s
+calculated savings against the AI’s predicted savings. If the AI predicts a $20
+saving, but the engine calculates only $0.50, the system flags the proposal as a
+hallucination and discards it. The observability layer records this event with a spe‐
+cific structured value like: proposal_status=rejected and rejection_reason=simu
+lation_mismatch. This ensures that bad advice is caught by the system, not the
+customer.
+
+
+
+
+                                                   Close the Loop: Production Driving Tests   |   323
+Conclusion
+We started this chapter at 2 a.m. with a pager barking and dashboards lying. The root
+cause was disjoint language. Dashboards disagree, alerts duplicate, and the on-call
+engineers burn out because teams don’t share the same nouns and verbs. Ontologies
+and semantic conventions are not just documentation; they help shape your observa‐
+bility strategy. These objects and invariants help transform unknown-unknowns into
+clear, actionable signals.
+This dimensional thinking matters for software teams working with nondeterministic
+AI as part of their workflows. You should model input and output as untrusted,
+understand its respective components, validate workflows when possible with rules-
+based invariants, and use these invariants consistently.
+Ontologies with semantic conventions won’t make outages or observability challenges
+disappear, but they transform that 2 a.m. pager bark from a confusing hunt for
+disjointed data into a directed search. By following the advice in this chapter, you
+ensure that the next time you’re woken up, you have the shared vocabulary needed to
+identify exactly which invariant was violated and fix the problem before the alert even
+hits your phone.
+
+
+
+
+324   |   Chapter 17: Ontologies as a Shared Language for Humans and AI
+                                                                          PART V
+                                 Observability Use Cases
+
+
+
+
+Part IV was about diving deep into implementation details. In Part V, we zoom out.
+Here, we look at observability across different domains: how the techniques you’ve
+learned apply when the context changes. This section is for engineers who want to
+take those practices into their specific area of work.
+When “observability” was first borrowed from control theory and applied to soft‐
+ware, it was mostly about backend reliability. That’s no longer the whole picture.
+The concept now extends to data quality, security monitoring, compliance, capacity
+planning, and more—far more than we can cover in a single book. So, what we’ve
+focused on are the use cases where we’ve seen these practices actually work.
+Chapter 18 looks at applying observability techniques to CI/CD pipelines—how to
+debug and improve software delivery performance. Hugo Santos, CEO of Namespace
+Labs, contributed greatly to this chapter.
+Chapter 19 is a guest-contributed chapter by Hanson Ho, with an insert by Matt
+Klein, on frontend mobile observability. Mobile is a cardinality explosion: countless
+device types, operating system (OS) versions, network conditions, session lengths,
+and user behaviors. This chapter tackles what it takes to actually understand what’s
+happening out there.
+Chapter 20 is about performance engineering—how observability practices can help
+you gather baselines, run experiments, and quantify the impact of architectural
+changes. If you need to make your system faster, this is how you do it rigorously.
+Chapter 21 tackles the boss-level nondeterministic enigma that is ensuring the reli‐
+ability of applications based on LLMs in production. This chapter examines both
+techniques for using observability practices to ensure LLM reliability and shows how
+to use production data to better refine your LLMs.
+Chapter 22 is a guest-contributed chapter by Kesha Mykhailov, Staff Product Engi‐
+neer at Fin. It follows the journey of building and operating Fin, its AI agent—a story
+that pulls together many of the techniques from earlier in the book and shows what
+they can do together in the real world.
+In Part VI, we shift perspective entirely, from practitioners to leaders, and look at how
+to build the organizational alignment that lets you actually move at AI speed.

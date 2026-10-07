@@ -1,0 +1,562 @@
+                                                                       CHAPTER 31
+      Instrumentation for Observability Teams
+
+
+                                   This chapter was written by Hazel Weakly,
+                                       Fellow at the Nivenly Foundation, and
+                         Austin Parker, Director of AI Strategy at Honeycomb
+
+
+Ralph Waldo Emerson once wrote, “language is fossil poetry.”1 Social scientists and
+philosophers have long observed that language itself both shapes (and is shaped
+by) society. Wherever two or more people gather, a language is sure to be either
+developed or refined. Culture itself is the crucible of language—the way we interact
+and relate to one another.
+An observability engineering team grappling with an instrumentation strategy for
+their system faces similar burdens. Code ages like the value of a new car driven off the
+lot: it depreciates the moment it’s written. While software (as a whole) may provide
+value, code itself contains a burden of maintenance and care that requires careful
+planning, strategy, and gardening in order to avoid overwhelming operators as their
+system scales. If that describes the kind of problems that keep you up at night, then
+you’re in the right place.
+Observability teams may take different forms depending on the size, scale, and remit
+of an organization. In smaller orgs, “observability team” may be a role that’s foisted
+upon a site reliability engineer. Larger organizations may have multiple teams, each
+responsible for a certain set of logical systems. Your bosses may be in information
+technology, or they might be in software engineering. Your job may look more like
+vendor management than anything else. There’s a wide spectrum of practices.
+But in general, we believe that an observability team should own instrumentation at
+a pretty wide level. That includes instrumentation code and frameworks, telemetry
+
+
+1 Ralph Waldo Emerson, “The Poet,” in Essays: Second Series (1844).
+
+
+
+                                                                                     557
+pipeline configuration and management, alerting infrastructure, SLO tooling, and so
+on. As an observability team, you may not be responsible for actually writing the
+instrumentation code yourself, but you’re likely evaluated on how much everyone else
+does.
+In this chapter, we’re going to cover instrumentation for observability teams, includ‐
+ing what your “north star” should be, regardless of size and shape. We’ll start with
+instrumentation foundations and what everyone should know. Then, we’ll discuss
+how instrumentation changes in secure, regulated, or otherwise unique environ‐
+ments. We’ll cover observability learnings and management at very large enterprises,
+and finally discuss how observability teams should think about infrastructure metrics
+and observability.
+
+What Observability Teams Need To Know
+As previously mentioned, language is a construct constantly evolving based on social
+interactions. Instrumentation is very similar: it’s a construct that is created from the
+evolving operation of software. If we had perfect visibility into what our code was
+doing without logging, metrics, profiling, or other technology, then we wouldn’t need
+to worry about instrumentation.
+For many years, we’ve seen various tabulae rasae for the semantics of software appear.
+Unfortunately, they often wind up as being overfit for a particular domain. For
+example, the .NET and Microsoft Stack have long enjoyed a vertical integration
+between runtime and operating system that allowed Microsoft to produce a more or
+less consistent dialect of system state metadata, but it generalized poorly (and then
+Microsoft decided to embrace Linux and subsequently threw away half of it).
+Similarly, Java has its own dialect and semantics that are integrated up and down
+the stack—that is, until you add in a React frontend or a mobile app written in
+Swift. Then you’re back to square one. *nix systems in general have a somewhat
+consistent and self-referential dialect of telemetry, but like most things involving *nix,
+the learning curve can be more of a learning cliff.
+Ultimately, the north star for an observability team is being able to define and
+manage the constructed language for their organization. That requires an ability to
+play archeologist with the terms and definitions that have slowly ossified into the
+informal language of software engineering at a company, while making a bridge to
+the lingua franca of the wider world. Your role as part of an observability team isn’t
+just handing out instrumentation and documentation. You must also provide the
+framework that individual contributors and leaders across teams, business units, and
+companies use to communicate intent and action. That’s a big responsibility and role.
+
+
+
+
+558   |   Chapter 31: Instrumentation for Observability Teams
+Semantic Conventions
+The most valuable part of OpenTelemetry (OTel) for an observability team is in its
+semantic conventions. Semconv—as they’re sometimes colloquially referred to—are
+a collaborative effort to define standard human definitions for common concepts in
+software, hardware, and telemetry itself.
+A subtle goal of semconv is to make telemetry a trainable skill, rather than something
+that must be learned at the knee of more experienced developers at each new job.
+Because semconv are universal and portable across languages, clouds, and runtimes,
+they work more as a dialect than as an encyclopedia. You shouldn’t necessarily
+need to memorize them, but knowing how the structure works helps you interpret
+unfamiliar conventions.
+Semantic conventions are a shared vocabulary and grammar for observability meta‐
+data. The vocabulary is the set of names for attributes, metrics, spans, events, and so
+forth—things like http.request.method, db.system, exception.type, GET <route> .
+The grammar is how those names are organized into reusable patterns: dot-separated
+namespaces, families like http.request.header.<key>, requirement and maturity
+levels, and stability.
+That design offers scalability: you can reasonably infer other domain shapes from
+existing ones, making discovery and mapping easier. This makes observability a more
+teachable practice. Rather than needing to remember the details and minutiae of
+each individual service, once an engineer learns the basic namespaces, they’re able to
+trace through a service call chain easily. Most of the heavy semantic lifting is covered
+by two heuristics: domains are namespaced in order of specificity, left to right, and
+actors are defined by client/server or producer/consumer.
+The other advantage of semantic conventions is that you don’t have to do all of
+the work yourself. The OTel project defines a significant number of domains and pro‐
+vides instrumentation for them, along with tooling such as Weaver, which allows you
+to create and define your own domains. That domain definition and promulgation is
+one of the most important aspects of instrumentation design for observability teams,
+so let’s focus on that next.
+
+Telemetry Schemas in Practice
+The benefits of API contracts and versioning are well-known: they improve the safety
+of deployments, provide stable integration points for consumers, and allow teams to
+more easily scale. So, why not treat telemetry the same way? Telemetry schemas are a
+concept that brings the best practices behind modern API design to the observability
+space by providing a textual representation of the telemetry data a service emits and
+providing tooling for the discovery, linting, creation, and code generation of those
+schemas.
+
+
+                                                  What Observability Teams Need To Know   |   559
+As of this writing, introducing a telemetry schema is not a turnkey process. But, the
+building blocks exist for you to adapt and implement. In lieu of a step-by-step user
+guide, let’s discuss the benefits of schemas and how to write new ones.
+Schemas provide a single source of truth for the telemetry emitted by an application
+or service. This is beneficial for developers and SREs alike. Instead of a potpourri of
+fields and subtly duplicated data, users can refer to a single document that lives near
+the code. That discoverability has myriad applications as well: tools can leverage these
+schemas for easier access to end-user discoverability, auditing becomes easier, and AI
+assistants can ingest these documents into their context for safer editing or agentic
+SRE practices.
+In addition, these schemas allow for both compile time and runtime verification
+of telemetry. Builds can be failed or flagged when attributes or signals that aren’t
+specified appear in the code, and pipelines can be created that drop mystery attributes
+from generated data.
+Finally, schemas allow for safe evolution of data. Pipeline processors can use schemas
+to update or modify telemetry data in flight, normalizing data before it’s ingested and
+exposed to alerting rules or dashboards.
+Writing new schemas is an ideal way to move toward your north star of normalizing
+the constructed language of observability in your organization. Here are a few tips:
+Start from the “why.”
+    Base your schema on the questions that users are likely to ask, while also sup‐
+    porting the requisite variety of fields and attributes to answer emergent questions
+    about system behavior. Make the common questions cheap, reliable, and efficient
+    to answer.
+Define your namespace.
+    Identify the shared business attributes that are truly consistent across your orga‐
+    nization and place them at the right level of a namespace.
+      For instance, if a transaction ID is truly shared across the organization (in
+      multiple systems—line-of-business applications, billing systems of record, etc.),
+      then this should be expressed at a higher level than a system-specific or service-
+      specific ID (acme.transaction.id versus acme.serviceName.transaction.id).
+      The reason is that you don’t want to make your grammar confusing to users who
+      are working outside of their normal domain. A business analyst may want to
+      answer questions like “Based on annual revenue, which customers that have filed
+      support tickets in the last quarter have had the worst API performance?” If you
+      intermix identifiers, then it’s probable that some data will be incorrectly included
+      or excluded. This is more important than ever with the rise of AI assistants
+      throughout organizations; AI will pattern-match very strongly, and may not have
+
+
+560   |   Chapter 31: Instrumentation for Observability Teams
+    the sophistication required to realize why these values are different (or that they
+    are at all).
+Abstract at the right level: actors and roles over protocol details.
+    While you should expose protocol information to your telemetry, the relation‐
+    ship between services should remain decoupled. This is the rationale behind the
+    client/server and consumer/producer delineation in OTel, and you should mirror
+    that. Transports can change, after all.
+DRY.
+   Shared attribute keys should be shared across signal types. If the same attribute
+   appears on different signals, then the values for that attribute should also be con‐
+   sistent. A good example is our aforementioned transaction.id. That attribute
+   contains extremely high-cardinality values, and it’s not recommended to have
+   high-cardinality fields on time series metrics.
+    Instead, you can layer attributes between signals (see Chapter 7) that improve
+    your ability to navigate from one to another while also maintaining limits on
+    cardinality. In this case, you may wish to add a customer.region (or tier, etc.)
+    that has lower cardinality and enables you to preserve some semantic customer
+    metadata on time series, and reserve higher-cardinality attributes on signals that
+    are better-suited for them.
+
+
+                         Identifiers and Security Teams
+ In regulated environments, there are a variety of identifiers that raise the compliance
+ level of data by their existence (e.g., internal customer identifiers). That presents
+ a challenge to the observability team: security thrives off of isolation, compliance
+ thrives off of evidence, but observability thrives off of correlation.
+ In cases where useful identifiers would trigger compliance or security guidelines, you
+ should consider one-way hashes of sensitive data. For example, an internal customer
+ identifier can be anonymized in such a way that it can’t be reversed into its original
+ format. As long as the hash method is consistent across your organization, you can
+ still gain the benefits of correlation without incurring the oversight of security and
+ compliance.
+
+
+One critique of telemetry schemas is that they appear to be a very heavyweight
+solution, especially for smaller organizations. That’s a reasonable critique, but it
+speaks more to the frustration and conflict present in the misaligned incentives for
+observability teams and development teams in organizations, rather than an inherent
+flaw.
+
+
+
+
+                                                   What Observability Teams Need To Know   |   561
+Dev teams often don’t see the same constraints as observability teams because their
+scope is more limited. They may only have to care about a single service, or a small
+group of them, whereas observability teams are exposed to the entire firehose of
+data (and are often scored on keeping the costs of that firehose controlled). You
+can’t necessarily browbeat other teams to take those concerns seriously, either. Direct
+accounting of costs is a strategy, but it’s one that usually engenders resentment and
+poor observability outcomes. So then, how should an observability team create the
+right incentives to encourage desired behaviors?
+
+Tooling, Migrations, and Paved Paths
+Aligning development, operations, business, and observability teams on telemetry
+data isn’t just publishing a wiki page about “best practices” and calling it a day. Nor is
+it dropping in some sort of monitoring agent and giving people a bunch of prebuilt
+dashboards.
+We’ve seen many well-meaning DevOps teams try to “bring in observability” by
+spending months carefully analyzing each infrastructure and service dependency,
+rolling out agent configurations and dashboards for those services, presenting them
+to development teams as a fait accompli, and then having them collect dust because
+the data being collected isn’t relevant to the day-to-day work of any of the aforemen‐
+tioned groups.
+Recall that your north star is to build a shared language for the organization and
+to adopt the techniques that society uses to promulgate language: education, diction‐
+aries, rites, and repetition (namely, culture). In a more practical sense, you need to
+build tools and frameworks that make it easy for users to adopt the language that
+you’re building, create repeatable and accessible training opportunities for users as
+they adopt it, embed touchpoints for your instrumentation practice and strategy into
+your SDLC, and ingrain these into your processes.
+Let’s look at each of these.
+
+Tools and Frameworks
+OTel is designed to be extensible and interoperable with existing telemetry systems,
+cloud environments, and SDLC tooling. When considering how to build your own
+tools, keep in mind two basic things:
+
+ 1. Don’t wrap the API, but you can extend it or build indirection around it. OTel
+    is intended to be a universal API, with universal idioms. Wrapping the API and
+    changing the names of method calls for consistency with existing telemetry suites
+    or preferences is a distinct antipattern. You can extend the API—e.g., writing
+
+
+
+
+562   |   Chapter 31: Instrumentation for Observability Teams
+    decorators that bundle multiple calls into one (think starting a span and updating
+    a bundle of metrics at the same time)—but avoid changing it entirely.
+    You can also choose to bundle and reexport methods from the upstream library.
+    For example, you can create a single indirect package that bundles together OTel
+    along with dozens of other existing instrumentation APIs. Doing that enables
+    you to immediately migrate many services without breaking callers while rewir‐
+    ing them behind the scenes.
+ 2. Hide the right complexity from users. The OTel SDK can be highly verbose, with
+    what feels like a mountain of boilerplate and customization options. Most of this
+    complexity can be distilled into a one-liner that you add to a service framework.
+    Current work in the space is aiming to make this even more straightforward,
+    with a configuration file–based approach.
+
+The single thing that trips up most development teams is context propagation
+between services. Solving this problem is a perfect opportunity to start as you
+plan to keep going, by embedding OTel into your remote procedure call or service
+framework with a basic telemetry schema, and ensuring that this framework handles
+service-to-service context propagation. If adopting OTel is as simple as picking up a
+new version of an internal library, teams will be far more likely to adopt it.
+On the backside of telemetry generation, you’ll want to focus on managing and
+understanding data volume and data quality. The OpenTelemetry Collector and
+tooling like Weaver are crucial here. The Collector is wildly configurable, but also
+highly customizable. Rather than trying to handle everything in config, we suggest
+writing custom extensions (it’s just a little Go) and building your own collector
+distribution using the OpenTelemetry Collector Builder (OCB). That choice gives
+you significantly more flexibility in handling unique filtering, sampling, or transfor‐
+mation scenarios, as well as reduced resource usage and reduced security attack
+surface. Weaver can be integrated into your build or deployment pipelines to live
+check emitted telemetry data against registered schemas, or even added as a hook for
+local build/test scenarios.
+AI can also be an ally here. Explore AI-assisted remediation for existing services by
+capturing telemetry from preproduction environments, feeding it through Weaver,
+and then handing the code and Weaver outputs to an AI agent to suggest fixes for. If
+you’re feeling adventurous (and have great tests), you can even have the agent go off
+and make the PRs for you.
+For the enterprise users, Weaver offers additional benefits. While it’s good hygiene to
+ensure that your telemetry matches a schema, regulated industries will often need a
+compliance review of code or outputs in order to verify that they’re not leaking sensi‐
+tive data. Gathering evidence for the compliance team and auditors using Weaver in
+CI can automate a tedious process.
+
+
+                                                    Tooling, Migrations, and Paved Paths   |   563
+Paved Paths and Special Hats
+Too often, we see OTel (and observability) initiatives in general meet a staggering
+shrug of indifference from users. You can lead a developer to water, but you can’t
+make them drink. That shouldn’t be terribly surprising. Observability can feel like
+a chore, even at the best of times, and it’s little wonder why the industry seems to
+gravitate toward “easy buttons” and magic agents that promise to do all the work for
+you (or, these days, magic AI agents that will understand and solve your problems for
+you).
+A possibly persuasive story comes from the early days of distributed tracing at
+Google. One of the engineers responsible for Dapper (Google’s internal tracing tool)
+was wondering how to get more users. Dapper had been rolled out and was collect‐
+ing traces from a variety of services (search, shopping, etc.). A guerrilla marketing
+approach of “telling people to use it” had stalled.
+The engineer’s mentor suggested figuring out where people already were: what tools,
+screens, and services were they using to understand performance? Figure that out,
+then the path should become clear.
+The Dapper team interviewed and analyzed engineer behavior, and ultimately added
+a single link to the monitoring graphs that teams would regularly consult when they
+were paged that would lead into Dapper. Usage doubled and then tripled, almost
+overnight. Engineers who discovered Dapper would tell their colleagues on other
+teams about it. Before long, distributed tracing had become a core tool in production
+monitoring and observability at Google.
+Your engineering teams probably have similar places they congregate: existing dash‐
+boards, alerts, wiki pages, and so on. Identify those, understand their pain points,
+pave a path to your observability data and OTel solutions, and let the magic happen.
+You’re not going to win over everyone immediately, but you have to start somewhere.
+Make adoption as easy as possible by building tools, as previously mentioned. A little
+upfront work will pay dividends over time, especially with recalcitrant teams. The
+“right way” and the “fastest way” should be the same way. One tactic we’ve seen in
+successful organizational adoption is compiling and promulgating OTel wins—keep a
+brag book of where your observability efforts are helping and make sure management
+sees them. Make stickers, t-shirts, or little charms to incentivize adoption and usage.
+Get creative!
+Finally, make adoption safe. Leverage Collector pipelines to dual-send data to cheap
+blob storage as well as telemetry databases—especially when doing migrations or
+changing sampling rules—to compare old versus new, and have confidence that
+you’re not dropping anything. Add rules (either through the transform processor,
+schemas, or other mechanisms) to avoid cardinality explosions by dropping high-
+cardinality fields on specific signal types like metrics. Ship default pipelines for local
+
+
+564   |   Chapter 31: Instrumentation for Observability Teams
+development to make it easy for devs to understand what telemetry is being emitted,
+and centralize the management of pipeline configurations so it’s easy to tell why some
+data is being dropped.
+The last tip for adoption is especially important for sampling. One of the biggest
+frustration moments for developers is when they go looking for data that they think
+should exist, but doesn’t. Dual-send can help this by providing a fallback when data
+is sampled out. But you can also help by doing more education about sampling,
+its benefits, and its drawbacks. Make sure sampling rates are easy to understand
+and avoid overly complex sampling strategies at first. It’s generally better to get “too
+much” data when starting out and then walk it back as you build confidence in your
+tools.
+To wrap up, it can be helpful to think of yourself as an observability guide when roll‐
+ing out instrumentation and OTel as an observability team. You’re not necessarily the
+one who’s going to stand at the summit and get your picture taken, but you’re going
+to try really hard to make sure nobody who’s coming with you gets themselves killed.
+OTel gives you the framework to create safe, reliable, and repeatable instrumentation
+paths—and as it matures, it’ll become easier to do so. It gives you the grammar and
+vocabulary that you and your organization need as a floor to scaffold your own
+concepts on top of. It provides tools to help manage and constrain the volume of
+telemetry generated by modern, cloud native software, and it can help you avoid
+common pitfalls if you use the features it offers. Learn it, leverage it, maybe even
+love it, but don’t dismiss it—it’s a wave that you can surf to accelerate observability
+adoption at your organization.
+
+Instrumentation in Highly Secure Environments
+In highly secure environments, two of the chief concerns about instrumentation
+are compliance and security. While both are immensely complex topics, from the
+perspective of observability, we’re going to think of compliance as being largely about
+the evidence one provides, and security as being largely about the isolation one
+guarantees.
+Unfortunately, that means we quickly run into a tricky situation: observability’s
+superpower is data correlation. Done naively, that very superpower can easily com‐
+promise security isolation guarantees and stymie compliance evidence collection.
+However, if we approach observability as a shared language between the entire enter‐
+prise, it becomes possible to facilitate compliance without compromising security.
+Given how these two concerns make implementing observability much more dif‐
+ficult, it might be surprising to know that it’s still very similar to implementing
+observability in any enterprise. One main difference comes from how high the bar is
+for implementing security capabilities; many “best practices” become requirements.
+
+
+                                              Instrumentation in Highly Secure Environments   |   565
+Another significant difference is how heavy the burden of proof is. Do you have end-
+to-end encryption? Do you secure customer data properly? Is your OTel Collector
+using FIPS 140-2 encryption? Lovely! You’ll need evidence for all of that. In addition,
+much of the success here relies on properly communicating with and designing
+incentives for various teams: leadership, engineering, product, architecture, and every
+other function need to be on the same page.
+If you thought it was hard to convince stakeholders to work with you to implement
+observability, convincing them when they’re in an organization that has 10 times the
+compliance-related busywork on their plate is another story entirely.
+Many organizations in this situation fall into the trap of only being able to make pro‐
+gress on “mandatory” items; unfortunately, observability is almost impossible to make
+mandatory. Success here often requires designing incentives in a way that everyone
+involved looks good when they help you; they’ll often want the observability, but they
+need to justify it against a massive pile of mandatory work. Help them do that.
+This is one reason why it makes sense to talk about facilitating compliance evidence
+collection with observability.2
+
+Use Compliance Tiers to Your Advantage
+Luckily, there’s another component to highly secure environments that can make
+observability easier to implement: very rarely does every environment need every
+compliance control.
+Nobody wants to add unnecessary work to their plate, so it’s common to encounter
+multiple tiers of compliance, multiple tiers of regulation, and a graduated approach
+to environments. Use this to your advantage and provide seamless ways to “graduate”
+services from one level of compliance to another. While startups might recoil at the
+thought of a 12-month process to get an application “in a production environment,”
+this is the norm for regulated industries.
+That said, just because a service is not “in production” doesn’t mean they’re not
+deploying code. Often, services are built out in local environments, and then in
+development, testing, staging, and finally production. Importantly, every level has
+more stringent requirements. A common mistake might be to shift implementation
+burden to the development teams by providing a “production ready” observability
+framework.
+Rather than requiring development teams to do months of busywork in order to
+“just get some data” locally, enable them to experiment as rapidly as possible given
+
+
+
+2 Another reason: security projects are typically better funded than other projects, which can be a good “in” for
+  making progress on observability rollouts.
+
+
+566   |   Chapter 31: Instrumentation for Observability Teams
+the constraints of each environment. You’d be surprised at how quickly they become
+your champions when you work to make their life easier. Don’t just shift observability
+tooling left; shift the value left too.
+Speaking of shifting the value left, this often means providing a minimal set of
+capabilities as a platform that integrates observability into the needs of the company.
+
+A Minimal Set of Capabilities for Observability Teams
+If we’re facilitating compliance and security concerns, the following are a good start‐
+ing point of capabilities to think about:
+Vendor management
+   You’ll have many requirements from your regulators. They’ll want to know that
+   your vendors are capable, and you’ll need some strong business agreements and
+   financial incentives to ensure your vendor relationships are mutually beneficial.
+   Be prepared to pay for what you’re asking for.
+Encryption (end to end, at rest, and more)
+    End to end as a requirement is more thorough than you might expect. You need
+    mTLS between every component, even services in the same trusted boundary. If
+    it talks over the network, it needs mTLS, period. This is a strong reason to prefer
+    sockets for intraservice communication when possible.
+    While mTLS takes care of most end-to-end encryption, encrypting the data at
+    rest is also important. Depending on your requirements, encrypted hard drives
+    may or may not be sufficient.
+Multilayer data analysis
+   This is the hardest component. You have to prove you’re satisfying all your
+   regulatory requirements with every byte of data you send over the network to
+   anywhere. Merely satisfying it isn’t enough; you have to show the work too.
+    For example, many data regulations require that only minimally relevant data
+    is sent to locations that customers explicitly authorize. You will need to be
+    very careful to not accidentally send identifying data in telemetry. The superpow‐
+    ers of observability will be working against you here: correlation is a strength
+    of observability, but it means that it becomes extremely easy to accidentally
+    send telemetry that is “safe” locally, but globally can be constructed into de-
+    anonymized and identifiable data.
+You’ll notice a pattern: all of the aforementioned capabilities are invisible. No
+customer-facing roadmap is going to prioritize developing these capabilities, and
+even observability teams will struggle to demonstrate value when implementing
+them. Consequently, it becomes critical that they can be implemented as quickly and
+efficiently as possible.
+
+
+                                             Instrumentation in Highly Secure Environments   |   567
+Valuable Capabilities in a Regulated Environment
+Because of this, the following capabilities become quite valuable for operating in
+a regulated environment that it’s almost infeasible to attempt observability without
+them:
+Chargeback
+   This becomes very useful for ensuring that the observability team is suitably
+   staffed and that the value of it can be shown in the company. Without that,
+   observability efforts might die out from lack of buy-in.
+      This can also be viewed as building cost and operational concerns into the
+      “language” of the business. Business-intelligence shaped concerns are often hand-
+      in-hand with regulatory requirements, especially regulations that have language
+      around undue burden.
+Schema control
+    You can do multilayer data analysis without this, but it’s vastly easier to be able to
+    have multiple levels of confidential data when you can check things automatically
+    against a schema. Schemas also make it easier to prevent global correlation from
+    compromising regulated anonymity of client data. In other words, judicious use
+    of the OTel Weaver project can be the difference between needing to roll out an
+    observability deployment per application versus one per environment. It can make
+    or break a team’s ability to be allowed debugging information at all.
+Data transport through proxies you control
+   You don’t strictly need this, but runtime scanning of data for compliance and
+   security reasons is required in almost every regulated environment. Doing it
+   without proxies is possible, but needlessly painful.
+      Sufficiently powerful proxies are key for enabling policy agents to become an
+      effective tool for enforcing company-wide data controls. They’re exceptionally
+      useful for providing evidence on otherwise hard-to-prove requirements such as
+      what data is allowed to be sent to a third-party vendor.
+Tokenization and data anonymization
+    Tokenization enables you to do something very powerful: it can help prevent
+    locally safe data from being globally correlated. If the data can’t be anonymized
+    because it’s encrypted, you don’t have to worry about identification in the same
+    way.
+      Tokenization has another strong benefit: it allows you to do side channel correla‐
+      tion outside of your tooling. What might otherwise be too sensitive or verbose to
+      put in observability data—such as AI chat logs or database queries—can be made
+      useful when combined with a technique such as tokenization.
+
+
+
+568   |   Chapter 31: Instrumentation for Observability Teams
+    As mentioned earlier, there are benefits to correlation of anonymized identifiers.
+    Using safe, one-way, hash functions that are consistent across the organization
+    provides a level of functionality while minimizing data exposure risk.
+Authorization and authentication
+   Your data handling needs to have certain guarantees around it being handled
+   by agents that are allowed to do so. This is significantly easier to achieve if
+   your mTLS utilizes short-term credentials, attested identities, and granular per‐
+   missions.
+In addition, many regulatory requirements deal with “nontechnical” aspects of run‐
+ning a technical organization. You will encounter a need for documenting and exe‐
+cuting long-term support plans. You will also need to develop operating models
+for migrations. Best practice guidelines evolve into blueprints and frameworks.
+Documentation graduates into requirements around teaching courses and internal
+support SLAs. Code scanning and schema validation become something that needs to
+happen at development, in CI, during deployment, and throughout the lifecycle of an
+application operating at runtime.
+
+This Is Hard Work, But Work Worth Doing
+As an observability team, it can feel overwhelming to think about all of these
+regulatory requirements, and it can also feel like you’re doing all the security and
+compliance work “in addition to” or “instead of ” the value-delivering work of observ‐
+ability. However, partnering proactively with security and compliance teams will pay
+dividends down the road in establishing trust and unlocking the roadblocks for
+engineering teams.
+After all, if engineering teams aren’t allowed to instrument their code effectively,
+nothing else about observability will end up mattering.
+Just like spoken human languages, the power of observability really shines through
+when everyone is on the same page and communicating effectively with each other.
+Giving them that language and the tools with which to express it safely, securely,
+and compliantly, is the secret to delivering modern engineering capabilities in highly
+secure environments.
+
+Conclusion
+The role of an observability team is ultimately not to claim the success of an
+observability program, but to enable that success for the entire organization. That
+makes defining success harder; data volume and dashboard count are a lot easier to
+measure.
+
+
+
+
+                                                                       Conclusion   |   569
+Your wins show up in subtler ways. Issues that would have been a week of conference
+bridges shrink to days. Teams communicate expectations in SLOs, and they’re echoed
+by directors and executives. Compliance stops being a four-letter word. Remember,
+though, that this is probably the best possible time to start building an observability
+program.
+OTel provides a level foundation for you to build rich, business-specific context
+on top of. The technical artifacts surrounding it, like semantic conventions and
+telemetry schemas, provide a pathway to cultural goals. You have the ability to make
+the right way and the fast way the same way, and to place observability in the places
+that your engineers already are. At the end of the day you’ll know you’re succeeding
+when the language of observability becomes part of the engineering and business
+record.
+In the next chapter, we’ll explore where to go from here. We’ll check in on predictions
+from the first edition of this book and make new predictions for where observability
+is heading that may (or more likely may not) age just as well.
+
+
+
+
+570   |   Chapter 31: Instrumentation for Observability Teams

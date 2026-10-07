@@ -1,0 +1,591 @@
+                                                                     CHAPTER 18
+                      Observability for CI/CD Pipelines
+
+
+  This chapter was written by Hugo Santos, CEO at Namespace Labs,
+                 and Liz Fong-Jones, Technical Fellow at Honeycomb
+
+
+Previously in this book, we’ve described the value of observability in accelerating
+feedback loops by enabling teams to understand what changes they need to make to
+software. But a barrier that often holds teams back from completing that feedback
+loop is how long it takes to actually get feedback on code that’s under development
+or to push code into production. If it feels like you’re operating the Mars rover
+manually with a minutes-long delay between putting in a command and seeing
+results, it doesn’t matter how quickly you can analyze and get results. Observability
+and controllability are duals, and you will need to make sure both feedback loops are
+in balance.
+To specifically define the terms that we will be using throughout this chapter, we
+define CI to be the process of creating a build artifact from your source code and
+inputs, and CD to be the process of rolling that build artifact out to production.
+Both are required elements for closing the feedback loop between writing code and
+running it in production, but organizations may have differing degrees of complexity
+in each.
+In this chapter, you’ll learn to look at the fundamentals of CI/CD through a new
+perspective, and understand how investments in observability can help you improve
+the performance of your CI/CD processes. We’ll conclude with a case study showing
+how Honeycomb used observability for data collection to identify the correct places
+to innovate and improve build performance. Later on, in Chapter 23, you will learn
+further about the feedback loop of feedback loops, and how tightening each feedback
+loop ensures your team can ship software quickly and predictably.
+
+
+
+
+                                                                                  327
+Why Reliable and Fast CI/CD Matters
+Let’s say a developer in your team has just finished writing a piece of functionality
+and wants to get it landed and shipped to production. The first step is to get a pull
+request submitted. You know the next thing they’re doing is waiting for tests to pass.
+And before tests pass, the test and production binary builds need to be completed.
+Because the xkcd comic about “my code’s compiling!” still rings true in 2026, they’ll
+use the moment to get a coffee while they wait. Now, with the appropriate beverage in
+hand, they see a test fail—only to pass on a rerun? It’s probably a flake, safe to ignore
+(that’s what the team folklore says, anyway).
+The faster you make your build, and the more deterministic you make it, the faster
+you’ll then be able to put your changes into production to get real feedback through
+your observability tooling. Then you can have the virtuous cycle come into effect by
+making any changes needed, pushing those out, and developing a stable rhythm.
+CI/CD pipelines are, at their core, production systems for developer feedback. Devel‐
+oper time is expensive, so treating CI/CD as an afterthought or demanding anything
+less than production rigor results in wasted cycles. Yet they’re often treated as unman‐
+ageable opaque boxes: if builds succeed, the system is “fine.” But if your CI/CD
+platform is opaque to you as an internal customer, you’ll never know why a build is
+slow, what caused a flake, or where to intervene, let alone why it costs so much.
+
+Build Observability Has the Best ROI
+of All Observability Applications
+Your platform engineering team can magnify its own impact by identifying and
+eliminating bottlenecks to fast delivery of software into production. While human
+response time matters for things like code review and any manual processes involved
+for quality assurance (QA) testing, once QA is automated, the bulk of the delay
+between a developer writing code and that code serving real production users is time
+spent compiling, testing, and progressing through deployment stages.
+Your company might operate services that process millions of requests per second,
+each of which may have only fractions of a penny of value. Without implementing
+sampling and other techniques to reduce telemetry volume, it can be difficult to see
+ROI from adding full instrumentation. But build systems are nothing like customer-
+facing high-RPS (requests per second) systems—every request by definition has a
+developer waiting on it to unblock them, so the request failing or being slow poten‐
+tially wastes tens of dollars of compute and hundreds of dollars of developer time.
+As of this writing, the cost of developing code to create a pull request is coming
+down, but is still far from zero. LLMs and agents cost tokens, and thus money, to cre‐
+ate pull requests. And developers cost even more money in the form of their salaries.
+
+
+328   | Chapter 18: Observability for CI/CD Pipelines
+Therefore, the number of requests to kick off a build will be relatively bounded and
+small, perhaps on the order of a dozen pull requests per day per developer at most,
+even with AI assistance. Scaling past that point would sacrifice human understanding
+of the code being written, with code reviews and quality checks becoming perfunc‐
+tory.
+This kind of traffic volume is an ideal use case for getting started with observability
+and seeing it in action for yourself, rather than waiting to implement it in your
+live production services. It easily fits in the volume that is possible to self-host and
+manage for open source observability tooling, as well as in the free tier of commercial
+observability solutions. And the returns for developer productivity can be enormous.
+Observability brings light to this blind spot. It enables teams and organizations to
+reason about performance, reliability, and efficiency using real data, and not just gut
+feeling or institutional knowledge (like “it’s fine to ignore that test”).
+
+CI/CD Through the Lens of Observability
+To answer questions, you first need data. And we can start simple, by looking at
+what the verbs and nouns are and how we might measure them. This serves both as
+a refresher on the basic elements of CI/CD systems, as well as a guide to applying
+observability to those basic components.
+
+The Ontology of Continuous Integration and Deployment
+In Chapter 17, you learned about the importance of ontologies, and defining clear
+verbs, nouns, and adjectives to describe your system and assigning consistent names
+to things. Now, let’s apply that to a CI/CD system and see how it overlaps with the
+ontologies of observability.
+Each system has its own building blocks for orchestration, and units of work. GitHub
+Actions has workflows, jobs, and steps. Buildkite has pipelines, builds, jobs, and steps.
+And the open source systems of Argo and Concourse have units of applications,
+projects, and states. Workflows connect back to pull requests, and provide the critical
+signal that developers are waiting for. What might be topically “are my tests passing?”
+is in fact “do workflows X, Y, and Z pass?” Each workflow then subdivides into
+multiple jobs that can execute concurrently, as long as each of their prerequisites is
+satisfied.
+In the world of CI, each Job may have multiple steps that execute serially within the
+job. In turn, each step might actually be a command to execute part of a test suite
+comprising multiple tests in a testing framework. For CD systems, jobs might include
+steps to fetch credentials, push config files, mutate production, or otherwise actuate
+the deployment of a change into production in order to make the desired state match
+the current production state.
+
+
+                                                    CI/CD Through the Lens of Observability   |   329
+Fortunately, these concepts also map well to spans and traces in the production
+observability world. Each workflow is a single trace. Each job is a set of spans
+subordinate to the root span for the workflow. And each step within the job is a
+span within its contained job. And you likely have the detailed logs that emerge from
+executing each individual step as well.
+If you are a developer, the choices you have control over tend to be at the execution
+level, not at the orchestration level. Typically, this means the jobs that run your
+test code and build your binaries. And because they run only your code, that’s the
+simplest for you to change first and improve your own experience.
+As a platform team, you may have additional points of leverage—for example design‐
+ing the orchestration and how and where it runs, and on what units of work. For
+instance, you might be able to design batching systems to run multiple pull requests
+together and only break them apart if one request fails. Or, you might be able to con‐
+ditionally run tests depending upon whether relevant code was modified. However,
+we’d encourage you to start simple and only add complexity if it results in substantial
+productivity savings.
+
+Instrumentation Basics
+Once you’ve established a clear ontology for your CI/CD system, the natural next
+step is to begin collecting the data in your observability tooling. Start by exporting
+individual job run data from your CI/CD solution: when they start, when they finish,
+and whether they’ve succeeded. Fortunately, this has straightforward analogies to
+trace spans in the broader observability world. Each job has a name, has a start and
+end time (or start and duration), belongs to a collection of jobs in a workflow, and
+may have other attributes worth tracking.
+One of the most important pieces of telemetry is which repository and code branch
+is being passed through CI. Branches are important because they play a key role in
+how a developer is bringing changes to the codebase. Whether tests are running for
+main or for a pull request branch, for example, may play a role in how important
+that particular set of workflow invocations is and what your performance standards
+may be. If someone writes a single inappropriately slow or flaky test, that will slow
+down their invocations, but not those of the rest of the team. However, if that change
+merges and now everyone’s build is slow, including builds for the main branch, now
+you have a serious problem.
+Here you can rely on the integrations available to your CI system, or you can make
+the integration yourself. There’s usually a well-defined “first step” and “last step” you
+control where you can emit events from (e.g., “this job started” and “this job ended”).
+If you are on a platform like GitHub Actions, exporting telemetry data can be as sim‐
+ple as using an OTel action that exports Job and Step duration to your observability
+
+
+330   | Chapter 18: Observability for CI/CD Pipelines
+stack. Empowered with the information in these basic metrics, your teams can start
+deriving expected behavior, and should be able to answer questions like “How long
+should this take?” and “Does this job fail often?”
+
+Defining Service Level Indicators and Achieving Predictability
+Data on typical success rate and overall latency serve as your first implicit SLIs
+and SLOs. This understanding transforms the CI/CD system from a mystery into a
+measurable process, enabling you to track its behavior and act on changes. Rather
+than accept what the opaque box gives you, you can understand it and control it. At
+minimum, setting these expectations enables you to detect and prevent regressions
+even if you’re not yet ready to invest in an overhaul of your entire pipeline.
+Being empowered with data transforms the conversation: with your customers (the
+developer teams), the feedback is no longer based on “feel,” but on real data (e.g., “job
+duration has been degrading over time”). And you can show your leadership team
+where the real problems are, and motivate the work necessary to fix them.
+In a CI system, we tend to define performance as the “end-to-end user time” that it
+takes from start until a change has been validated. And it best tracks the experience
+of our customers. Developers are waiting for software to be validated so that they
+know they’re done with their change and that code can be submitted into their
+repository. Just like in a production system, you want to think through and define
+what’s important for your customers (and who your customers are).
+Even if they don’t directly impact the typical latency of a CI/CD run, you may also
+want to track metrics that impact cost or predictability. For instance, you may want
+to ensure that only a small percentage of tests and associated runs are flakes (as
+measured by percentage of successful retries), or ensure that your CI presubmit
+hooks are working correctly by tracking test failure rates on your main branch. For
+cost, resource usage can help you ensure you are pacing acceptably against your
+CI provider’s commitments to avoid surprises with wasted contractual spend or
+unexpected charges.
+
+From Jobs, to Directed Acyclic Graphs and Traces
+Collecting data at the job level is the simplest entry point, as we control code that is
+run as part of the job. But we know from before that jobs only tell part of the story.
+Pull requests wait on the entire workflow to finish, rather than the individual steps
+or jobs that comprise them. While steps within jobs run sequentially, the workflow
+in the CI platform winds up growing into a directed acyclic graph (DAG) of multiple
+jobs, where each job can only depend on those before it.
+These DAGs tend to emerge naturally. It’s expensive to always build a container
+image used for testing every time you want to spawn a different set of tests, so you
+
+
+                                                    CI/CD Through the Lens of Observability   |   331
+add a prebuild job that builds that container image once, and makes it available
+to subsequent jobs. You now have a dependency: if the prebuild job slows down,
+everything else depending upon it also has to wait. If the prebuild job fails, the
+subsequent jobs can’t run. And if the subsequent jobs don’t run, you don’t have data
+on them.
+By mapping your CI/CD ontology to the primitives of distributed tracing, you move
+away from team folklore about the slowness of the build and toward a measurable
+process where every workflow has a verifiable result. However, measuring a job in
+isolation only tells part of the story. Developers don’t wait for individual steps; they
+wait for the entire validation sequence to finish. In modern delivery, these sequences
+naturally evolve into a DAG of interdependent tasks. To understand why a build is
+truly slow, we must move beyond the list of jobs and visualize this graph as a trace
+to identify the critical path—the only place where optimization will actually yield a
+faster feedback loop.
+
+Making Improvements and Measuring Them
+As your product infrastructure evolves, these workflows tend to become more com‐
+plex. You don’t just have one container image prebuild; you have five. You have jobs
+with multiple dependencies and jobs that are dependent upon them. You are now
+executing a series of jobs with well-defined dependencies. And success is defined
+as all of the terminal jobs succeeding. The split into different jobs affords you the
+opportunity to rely on pipelining and parallelism of expensive steps. Why is this
+complexity worth it? And how can you measure the results?
+Pipelining is an important property to increase the performance of your CI/CD
+platform. But it comes with trade-offs. In a world of serialization, each step would
+run after the other, and it would be simple to understand how far the workflow is. But
+builds can take tens of minutes, and end-to-end suites can take hours. If you serialize
+them, it may take a long time until you can start deploying.
+So you lean on pipelining, and end up running multiple expensive jobs in parallel.
+When you do, observing the performance and behavior of a single job in isolation no
+longer tells the full story. For example, if your systems are composed of a React front‐
+end, a Go backend binary, and a Rust backend binary, the team working on the Go
+backend binary may flag that their builds got slower. Perhaps they started depending
+on a larger Go library and are spending more in the compilation phase. But when
+you zoom out, if the Rust build dominates the run time, the small differences to the
+Go build end up not playing a role on the overall performance of the workflow. The
+overall duration remains unchanged.
+
+
+
+
+332   |   Chapter 18: Observability for CI/CD Pipelines
+So yes, you have a slow Go build, but your real problem lies elsewhere. You just found
+your critical path. If you had spent time optimizing the Go build, you still wouldn’t
+have changed the end-to-end time.
+
+Understanding Performance: Treating Continuous
+Integration Like Production
+A CI job is fundamentally a production workload running on a deadline. While
+capturing the duration of individual steps helps us see that a build is slowing down,
+reducing the critical path requires the same forensic rigor we apply to performance in
+production. Like any production system, your pipeline may be constrained by CPU,
+memory, input/output operations per second (IOPS), or even just input/output (I/O)
+(e.g., calling other systems). Your production jobs likely run the same codebase that
+your test jobs do, but with the added pressure of doing a lot of work in a small period
+of time.
+To move beyond guessing why a job might be slow, we must be able to correlate our
+traces with host-level metrics and logs to identify where our toolchains are hitting
+their limits. Only experimentation and collecting data can tell you the truth.
+The following are examples of how experimentation can reveal bottlenecks:
+
+  • A team assumed that increasing their runner resources (i.e., number of cores)
+    will fix a slow JavaScript build. Their instrumentation data shows the build time
+    remains flat. The truth is that the job uses webpack, but without the required
+    configuration (e.g., ThreadLoaders) to benefit from parallelism. The extra cores
+    sat idle while the build remained single-threaded.
+  • A team assumed that their Go build is as fast as it can be on their current
+    hardware. After doing a trial run with more cores available to their Go jobs, they
+    see that the build time was cut in half. This revealed that the native support in
+    Go for parallelism makes it highly elastic and it can be effective to buy speed with
+    more CPU.
+  • A team was unable to push releases to production quickly despite having very
+    efficient incremental builds. They were pushing container images to all regions
+    from a single source job and were network-bandwidth constrained rather than
+    host constrained.
+
+By effectively leveraging your observability into your build system, you can optimize
+what truly matters rather than guessing what to improve upon next or admitting
+defeat.
+
+
+
+
+                                                Making Improvements and Measuring Them   |   333
+Predictability: Real-World Trade-Offs
+Many of the build- and test-related systems we rely on are built around the idea of
+producing predictable outputs from a well-defined set of inputs. When that relation‐
+ship can be trusted, it can be cached.
+For example, pulling the same container image where the digest is known will always
+yield the same bytes. That property is not an implementation detail; it is a correctness
+contract. And because of that contract, pulling the same digest once and reusing it
+across multiple runs doesn’t compromise correctness. It is a simple and effective way
+to improve incrementality.
+This pattern shows up everywhere in CI systems. If the inputs are stable, and the
+outputs are deterministic, you can safely remember the result. And remembering the
+result is often the difference between a fast system and, well, a slow one.
+But reproducibility doesn’t exist in a vacuum. External constraints and shared
+resources can limit it. There is a constant tension between doing more work in
+parallel and fully utilizing resources for cost efficiency. Packing more tends to lead to
+higher contention, and higher contention tends to lead to more flaky tests or jobs that
+intermittently fail. At that point, the question is no longer purely technical. Instead, it
+becomes “does your engineering culture tolerate flakes?”
+When your tests are reproducible, resource constraint–based flakes are effectively a
+tail-latency tax—retries don’t disappear; they add time. A useful way to reason about
+these trade-offs is to compare P90 versus P50 latency. A singular view of individual
+jobs or workflows may not surface this information, but treating each workflow run
+as a single trace and applying modern observability techniques can help you identify
+trends in P50 and P90 and make the right choices for your developers.
+Managing resource constraints is also uneven across toolchains. Some ecosystems
+make this easier than others. For example, go test makes it relatively straightfor‐
+ward to scale across additional cores. End-to-end browser testing, on the other hand,
+is much harder to parallelize effectively and often ends up constrained by memory,
+I/O, or external services rather than raw CPU.
+One way teams offset this is by relying on ephemeral, dedicated resources. Instead of
+packing unrelated jobs together and hoping for the best, they provision short-lived
+environments with known capacity. This can look more expensive at first glance, but
+often ends up cheaper once you account for retries, investigation time, and developer
+wait time.
+Because builds and tests tend to have a high fan-out and batch-oriented shape, you
+should also expect to see a countable number of failures increase as fan-out increases.
+This can happen as your engineering team grows or as coding agents start producing
+changes at a higher rate.
+
+
+334   |   Chapter 18: Observability for CI/CD Pipelines
+The key question then becomes: are these real failures, or are they infrastructure
+failures? The more predictable your build and test runs are, the easier it is to answer
+that question. For example, a subtle synchronization or timing issue hiding in a
+test might never show up until your underlying hardware platform changes and
+everything suddenly runs faster.
+Because CPU is an elastic, time-shared resource, the more robust your tests are
+to timing variance, the better you can utilize your infrastructure. That robustness
+directly enables higher packing ratios: more work on fewer CPUs—without paying
+the flake penalty.
+To reason about these limits, make sure you instrument OS-level metrics, or work
+with a provider that does. Your jobs are subject to many constraints beyond CPU and
+memory: open file descriptors, kernel shared memory, socket buffer sizes, and more.
+When running integration or end-to-end tests, an effective way to understand limits
+across all of your services is to rely on containers and collect cgroup-level metrics.
+That gives you visibility, not just into your own process but into the aggregate
+resource usage of your dependencies too.
+At this level, CI observability starts to look a lot like production observability—and
+that is not an accident.
+
+(The Lack of) Incrementality: The Bane
+of Continuous Integration’s Existence
+If you interview a bunch of developers, you may hear a lot of pushback on CI
+performance. You may even hear things like: “I run our whole test suite in 5 minutes
+on my MacBook and CI takes 20 minutes; can we just run our CI in our Apple
+machines?” You can, but that’s a story for another day.
+CI should be fast. Why is it not?
+Many workflows start simple, and for the sake of reproducibility, they do the same
+work from scratch all the time. That’s actually good: you want reproducibility. You
+want to know that your builds and tests run consistently and are not dependent on
+state left over by other jobs. But starting over from scratch every time is expensive.
+Thankfully, many toolchains have a solution to this problem: they maintain inter‐
+mediate files. Using language and toolchain-specific semantics guarantees a certain
+level of correctness in that only intermediate files produced from the same inputs end
+up being reused (if, that is, you are persisting the cache between workflow runs).
+Go, for example, has module and build caches. If you build the same Go program
+with a small change to one of its source files, your build will be fast because the
+remainder of the output files are going to be reused. Leaning on the incrementality
+
+
+
+                                               Making Improvements and Measuring Them   |   335
+of your toolchain (and its correctness guarantee) enables you to have the best of both
+worlds: manageable isolation, with great performance.
+
+Keeping Your Build Performance Tight and Your Developers Happy
+When you’re able to measure build performance, you might start seeing a relation‐
+ship between tail latency (i.e., your P90 job duration or higher) and flakiness. For
+certain categories of tests, finding full reproducibility is hard. And it ends up being
+costly to ensure consistent behavior from all of your tests.
+The more complex the test, the more components it exercises, and the higher the
+chance that you’ll see nondeterminism. Many workflow solutions have a magical
+solution: retries. You have a job that fails 5% of the time (you measured), so you
+enable retries (either on the entire job or sometimes on individual failing tests within
+the job), and you barely see failures. But your tail latency just shoots up. Your P50
+barely moved, but sometimes you end up waiting twice as long. Only by integrating
+observability into the wider range of runs can you understand how often things fail
+and whether the delay to retry a test or step is worth it.
+And that’s the hard trade-off. Different teams will be at different levels of maturity
+and will decide differently whether this is a problem or not. For some, confidence
+that it “mostly” passes is fine. Perhaps you have other ways to test the behavior of the
+changes being made that bring you extra confidence.
+An interesting perspective here is that your tests are your first line of representation
+of production. If something fails in your tests, it may be a factor of the test harness,
+but it may also be a real problem that you’ll find only later in production.
+
+Case Study: The Importance of Quick
+Build Times at Honeycomb
+At Honeycomb, we believe in ensuring an awesome developer experience for our own
+engineering teams; it’s the only way that we can compete with companies that have
+way more engineers than us. We’ve historically tried to keep our build times under 15
+minutes, taking percussive action when build times went over that. In fact, we have
+an internal SLO on the data, which alerts us if more than 5% of builds take longer
+than 15 minutes!
+But it turns out that 15 minutes is still not a great experience; devs will task switch
+rather than wait for builds to complete, losing valuable context. Ideally, build times
+under six to seven minutes keep developers around to watch their builds, ready to
+rapidly correct CI failures. The mental state that’s tracking implementation details—
+kept in a developer’s head—never gets paged out, as they don’t feel the need to turn to
+Slack or pull the next ticket while waiting.
+
+
+336   | Chapter 18: Observability for CI/CD Pipelines
+Could observability potentially help us here, too?
+
+History of Improving Build Times at Honeycomb
+Observability-driven optimization of build times and reliability has enabled us at
+Honeycomb to keep our developers happy and productive. Observability-driven
+development is not just for code; it’s for any sufficiently complex system! And we
+would argue that our build system is one of our mission-critical complex systems just
+as much as our storage engine is. If our build system goes out, we cannot deploy new
+code, and pull requests from our developers begin aging like milk. Undeployed code
+is perishable.
+Between June 2018 and May 2019, the median amount of time it took to build Hon‐
+eycomb doubled from 7 minutes to nearly 14 minutes. This prompted us to switch
+CI orchestration providers from one that had limited support for parallelism to one
+that offered much better native support. Without having adequate observability and
+longer-term history tracking, we would not have been able to identify the issue before
+it reached a boiling point of developer frustration. Tracking SLOs on build time
+enabled us to avoid having regression over time—the “boil the frog” effect, where
+developers feel frustrated but lack evidence beyond anecdata.
+From 2020 to 2025, we went from 10–20 pull requests landing on the main branch
+per week to 100+ consistently every week. The total number of lines of code in our
+codebase approximately doubled over those five years, increasing the amount of work
+incurred both for compilation and for unit testing. Amdahl’s law became a limiting
+factor even as we attempted to add parallelism.
+There again, being able to trace execution to identify slow steps and success-after-
+failure job spans enabled us to determine our flake rate and what portions of the
+build to optimize next. We needed to find the right places to intervene rather than
+making off-target optimizations that would not impact the total critical path latency.
+Eventually, we hit the point of no longer being able to brute-force apply more
+parallel workers or shorten build steps. We needed to actually rethink our entire
+caching strategy. How did we determine that we were unable to proceed any further?
+Amdahl’s law states that even if a parallelizable step is shrunk to take no time through
+infinite parallelism, the sum of all the remaining serial steps will dominate the critical
+path and minimum time needed to run the workload.
+Because we had traces from our CircleCI buildevents instrumentation, we could
+study them to understand where all the time was going. The tests actually were some
+of the faster parts of the build, and it was the binary build and artifact creation and
+upload steps that were the slowest. Why?
+
+
+
+
+                                   Case Study: The Importance of Quick Build Times at Honeycomb   |   337
+Build steps and data transfer
+To our surprise, the main issue holding back our performance was transferring files
+between different build steps. Nearly 3.5 gigabytes (GB) of data were being passed
+between intermediate steps and the final jobs that uploaded the built artifacts. We
+discovered that the data was being gzipped rather than compressed with zstd, so
+meaningful size reductions purely through compression were not possible.
+Instead of trying to compress the data, I (Liz) started thinking about whether it
+was possible to entirely avoid moving all that data around. The primary artifacts we
+need to ship to our Kubernetes cluster are Go binaries and bundled-and-minified
+JavaScript built with Webpack. Those get compiled into images pushed to Amazon
+Elastic Container Registry (ECR), as well as archival unstripped copies of the binaries
+uploaded to S3. But with the move of all our services to containers and Kubernetes,
+there was no longer a need to upload stripped binaries to tarballs stored in S3, nor to
+make those binaries part of the ECR images. What if we could just build everything
+in one single step and avoid shipping state around?
+
+Docker bake
+The first thing that we considered was an Omnibus build step to do the Go build,
+then the JavaScript build, and then bringing it all together into build artifacts. While
+this minimized data transfer, it was horrifically inefficient to run the steps in serial,
+waiting for each step to finish before starting the next step. My (Liz’s) research then
+took me toward Docker Bake, a relatively new method (introduced in 2019 and
+popularized around 2022) of chaining together multistep Docker image builds.
+
+Parallel builds
+By allowing steps to progress independently—and blocking only when they needed
+output from a parallel build step that had not yet finished—we were able to effectively
+interleave multiple parallel builds on a single virtual machine. You might expect that
+the CircleCI built-in support for Docker layer caching (DLC) to be helpful here.
+However, our experience was that passing state via object storage in the CircleCI
+workspace was slower than we would’ve liked. Compressing and uncompressing
+indiscriminate amounts of cached data via DLC would take longer than either creat‐
+ing the state from scratch or passing in base layers generated from periodically built
+and explicitly cached tarballs.
+
+Removing bottlenecks
+Migrating the steps from separate CircleCI jobs run on the Docker executor into a
+single Docker Bake on a CircleCI machine executor allowed us to establish the floor
+of our build time. We then carefully adjusted parallelism to make the tests (which still
+run on standard CircleCI parallel runners using the CircleCI parallel test sharding
+
+
+338   | Chapter 18: Observability for CI/CD Pipelines
+helper) take approximately the same amount of time. We spent a lot of time staring
+at graphs generated using buildevents instrumentation data created to understand
+the latency distribution of each step and ensure that no single job would become a
+bottleneck. For instance, we discovered that steps like initializing our test database for
+Go integration tests—previously having little effect on total build time—now needed
+to be optimized themselves.
+
+Caching network fetches
+We also were able to dive into individual traces to identify if there were specific
+steps contributing to tail latency, and squished those down through more aggressive
+caching. For instance, we found that the necessary steps to update the system depen‐
+dencies for Puppeteer usually ran fast but could have enormous variance. So it was
+better to pay a flat tax of a few seconds to cache the apt lists and .deb packages from
+the day’s first run instead of redownloading every time.
+
+Results
+One of the really cool things that happened during our investigation was stitching
+together buildevents traces at the CircleCI job and step level together with the actual
+Docker BuildKit command tracing data. It turns out that BuildKit has integrated
+OTel support since its inception, so by setting the TRACEPARENT environment variable
+to match the buildevents trace and span IDs, we were able to directly observe each
+individual command execution, ECR upload step, and blocking while waiting for
+other steps to complete.
+The payoff of having build times consistently below seven minutes was well worth the
+effort. These benefits have compounded as the volume of AI-written code and pull
+requests have increased. Being able to validate code as fast as a language model can
+spit it out is a competitive advantage.
+
+Applying These Lessons to Your Build System
+Now that you’ve learned about how we achieved engineering productivity wins from
+investing in our telemetry and observability in our CI/CD pipelines, here’s how to
+achieve similar results from your build systems.
+The first step, as outlined earlier in the chapter, is to simply know how bad things are
+at the top level. You need to know how long each build step is taking, even if you can’t
+yet decompose the build step into each constituent piece. After all, it may not make
+sense to add fine-grained instrumentation to each individual command of a job that
+takes one second, when another job that blocks build progression takes two hours to
+complete!
+
+
+
+
+                                   Case Study: The Importance of Quick Build Times at Honeycomb   |   339
+In order to do this, export data from your build system using whatever mechanism it
+natively supports. While at Honeycomb we were using a legacy Honeycomb-specific
+tool called buildevents; OTel is now the best way to instrument new build work‐
+flows. For instance, GitHub Actions can integrate with OTel in one of two ways:
+either via an OTel Collector receiver that pulls data using a GitHub API key, or via
+a GitHub Actions add-on that takes an OpenTelemetry Protocol (OTLP) destination
+to emit telemetry about the currently running job. Systems such as BuildKite natively
+export OTel traces.
+For tracing individual build steps, you can use otel-cli as a wrapper. The basic
+syntax is to run otel-cli exec --name "human-readable span name" echo "do
+stuff". Then, otel-cli handles the serializing of the tracing state and any attributes
+you may set to environment variables (and optionally a file on disk). For instance,
+you can nest execution by running a shell script inside of otel-cli, and have com‐
+mands in the shell script themselves traced with otel-cli. If build steps traverse the
+boundary of a single machine, you may need to manually serialize the state and pass
+it along rather than rely upon the TRACEPARENT environment variable or the local
+filesystem.
+But what about if your build system is partly or entirely written in Docker or
+produces container images as an output? Given that a majority of cloud native
+development deploys onto Kubernetes, and thus requires creation of containers on
+container registries, this is not an idle concern. You’ll have a big step named docker
+build or docker bake in your build telemetry, without the ability to break it down
+more granularly.
+Instead of trying to bring otel-cli into our docker build steps and wrapping each
+command, Docker supports natively exporting OTel within the docker client itself, or
+the underlying build and buildx servers that the docker client calls. For the docker
+client, you can set the DOCKER_CLI_OTEL_EXPORTER_OTLP_ENDPOINT variable inside
+of your CI environment before Docker commands are invoked. If you do this, you
+shouldn’t also use otel-cli, as it will result in duplicate instrumentation.
+Tailor your instrumentation to your current build system; use the simplest abstrac‐
+tions first, and only go to manual instrumentation for trace spans if your CI system
+does not have built-in automatic instrumentation at the granularity you need. And
+just as you would add in custom attributes in a production system, you should also
+add in custom attributes tracking the sizes of outputs, the amount of cached data,
+whether the module cache was a hit, the number of files using deprecated or legacy
+patterns, and so forth, to get even more value out of your CI data.
+
+
+
+
+340   | Chapter 18: Observability for CI/CD Pipelines
+Conclusion
+Build systems and observability are both foundations of the development feedback
+loop. By treating build systems as a production system and using the same observa‐
+bility tooling to understand it, you can eliminate bottlenecks to software delivery.
+CI/CD systems can be both expensive and brittle, but observability helps you gain an
+understanding of them and mitigate risks over time.
+In the next chapter, you’ll learn about how to apply observability to the opposite end
+of the delivery cycle: the last mile of mobile, web, and frontend systems.
+
+
+
+
+                                                                       Conclusion   |   341

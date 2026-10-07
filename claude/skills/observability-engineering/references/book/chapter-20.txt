@@ -1,0 +1,793 @@
+                                                                       CHAPTER 20
+                                    Performance Engineering
+                                           with Observability
+
+
+
+
+Observability is often framed as a tool for reliability—keeping the lights on and fixing
+what breaks. However, a mature observability practice also serves as the foundation
+for performance engineering: the disciplined pursuit of making systems faster, more
+efficient, and more cost-effective. In this chapter, we explore how to move from
+reactive firefighting to proactive optimization by leveraging the overlap between these
+two fields.
+
+The Case for Performance Engineering
+Imagine you had a mystery bug that was silently adding latency to every request in
+your services. That was the situation our team found ourselves in, and the catalyst for
+our performance engineering journey.
+In December 2021, the Honeycomb engineering team was surprised to find a discrep‐
+ancy between the request latency for our ingest endpoint as measured by the load
+balancer logs and the auto-instrumentation spans in our application traces. The effect
+was most pronounced for POST requests to our ingest service endpoint that ingested
+single wide events rather than larger batches. Somehow, time was going missing, and
+requests that would take tenths of a millisecond to complete on the server side were
+showing up in the load balancer as single-digit milliseconds.
+Larger requests to our batch endpoint also showed the same discrepancy of single-
+digit millisecond variation between the data sources, but the difference was less
+noticeable as a proportion of the request time because batches vary in size and can
+take tens to hundreds of milliseconds. Outside the visibility of our instrumentation
+for traditional observability, something was slowing down every request.
+
+
+                                                                                     369
+With no specific ideas for what could be amiss, and to rule out the possibility of the
+tracing overhead itself being the problem, we used the Go programming language’s
+built-in support for performance profiling to search for clues. We expose the net/
+http/pprof endpoint on our pods, so it was a matter of running the go tool pprof
+utility as a one-off to obtain a flame graph (see Figure 20-1).
+
+
+
+
+Figure 20-1. A Go pprof flame graph showing an unusual amount of time spent in
+regexp.Compile within mux.newRouteRegexp, taking similar CPU time relative to the
+ServeHTTP endpoint code.
+
+Manually reaching for separate tooling outside of our own always-on tracing was an
+impediment to the investigation, but we were able to identify the problem based on
+where the CPU was spinning for excess cycles. The regexp.Compile path shouldn’t
+have been consuming 17% of all CPU in the process and bogging down requests.
+Under normal operation, we’d have expected regular expressions to be compiled only
+once upon startup and reused after that. Why were we reinitializing the HTTProuter
+mux and reparsing its configuration over and over?
+A dive into the code confirmed that the HTTP router was being discarded after each
+request rather than being reused as a singleton. The fix to the slow performance
+impacting our customers was just five lines of code (see Example 20-1). And we could
+not have caught the problem with tracing alone, as the tracing hook is called by the
+mux router after it has already been instantiated—once each request has already been
+matched to a route.
+
+
+
+370   |   Chapter 20: Performance Engineering with Observability
+Example 20-1. The entire five-line Git diff for the bug fix, with initializeRouter()
+pulled out into a method and called in the Start() function rather than being called for
+each ServeHTTP() request.
+
+@@ -115,6 +115,7 @@ type App struct {
+     zstdDecoders chan *zstd.Decoder
+
+     grpcServer *grpc.Server
++    router     http.Handler
+ }
+
+ func (a *App) Start(ctx context.Context) error {
+@@ -149,6 +150,7 @@ func (a *App) Start(ctx context.Context) error {
+         return err
+     }
+
++    a.initializeRouter()
+     a.server, err = hd.ListenAndServe(&http.Server{
+         Addr:        a.Port,
+         Handler:     renameBeelineTraceHeaders(gz(a)),
+@@ -448,5 +450,8 @@ func (a *App) ServeHTTP() {
+
+     // Allow cross-origin API operation from browser js
+     w.Header().Set("Access-Control-Allow-Origin", "*")
++    a.router.ServeHTTP(w, r)
++}
+
++func (a *App) initializeRouter() {
+     router := mux.NewRouter()
+
+This investigation prompted us to spread knowledge of performance engineering
+across our team. Our performance journey was similar to the shift that we espoused
+earlier in this book—from reactive to proactive debugging, and from single points
+of failure to team-wide expertise in observability. Performance engineering and cost
+control share many goals with observability, and ideally benefit from using shared
+tooling.
+For a very long time, performance engineers have used disjoint and disparate tooling
+when compared with operations teams or software engineering teams. What we’ve
+both been trying to achieve has been observability, but the tooling has constrained
+us into inspecting different layers of the stack and at different granularity. In an ideal
+world, unified observability will offer useful functionality to all facets of software
+delivery and optimization, regardless of whether they are investigating individual
+assembly instructions or the end-to-end user journey. It is time for our disciplines to
+come together, and to focus on empowering every engineer to own their code and
+systems in production.
+
+
+
+
+                                                      The Case for Performance Engineering   |   371
+                    While we can’t cover performance engineering in full detail, and
+                    must focus only on the overlaps with distributed-systems observ‐
+                    ability, Brendan Gregg’s seminal works BPF Performance Tools
+                    (Addison-Wesley, 2019) and Systems Performance (Pearson, 2020)
+                    are strong resources for those who choose to further explore the
+                    discipline.
+
+
+Building a Performance Engineering Practice
+Performance engineering addresses two critical business needs: lowering costs to aid
+the bottom line, and speeding up customer experiences. While it certainly can be a
+fun academic exercise to hyperoptimize a specific function, real impact comes only
+from moving the needle on tangible metrics. For any given experiment, you should
+first gather baseline data on performance and cost in advance of running the test.
+Are you working on the right part of your codebase to have the largest possible
+impact? And can you quantify any future improvement you might make—whether
+to latency, data size, dollars, or effective tons of carbon dioxide emission? Thinking
+more broadly about a performance engineering function, dedicated headcount only
+may make sense if given the correct mandate and with appropriate scope.
+In many cases, where the cloud bill is small, investment in performance engineering
+may simply not feel worth it relative to the salaries of the engineers required to
+optimize versus build new features or maintain reliability. Similar to considerations
+on payoff of time spent automating versus how much time the automation will
+save, we would caution developers to avoid premature optimization where the salary
+and opportunity cost outweighs the cost or customer performance gain. However,
+failing to implement any guardrails can lead to waste, excessive expenditure, or
+customer-facing latency creeping up—and collectively, we are wasting a significant
+amount of resources and potentially worsening the climate crisis. Therefore, knowing
+how to employ performance engineering is still valuable, even if you decide that now
+is not yet the time to invest in doing it.
+For us, the investment was worth it because of our relatively high cloud bill relative
+to our headcount—and the fact that we operate a software as a service (SaaS) startup,
+where gross margins and other engineering-influenced business metrics directly
+affect our viability as a company. Having intentionally built a culture of observability-
+driven development meant that our developers embraced performance engineering
+relatively quickly.
+Like observability-driven development, performance engineering requires identifying
+the most impactful possible changes, adding instrumentation, making the change,
+and then inspecting the results in production. The team already had a sense of
+curiosity and ownership, but was stymied by the ad hoc nature of the siloed tooling
+that we had employed in our initial forays into performance engineering. We needed
+
+
+372   |   Chapter 20: Performance Engineering with Observability
+to improve the usability of the tooling we made available to our development teams,
+and make our practice continuous rather than one-off. We also sought not to build a
+separate individual repository of knowledge or a dedicated performance engineering
+team.
+
+Optimizing Cost Without Modifying Application Code
+Getting performance engineering onto the engineering roadmap for teams can be
+challenging. Developers prefer the experience of receiving performance and cost
+gains automatically with no additional effort on their part to change code. Fortu‐
+nately, there are a few options for optimizing on the backend without requiring
+developers of each application to take manual action. In this section, you’ll learn
+about three techniques for hands-off optimization.
+
+Infrastructure Purchasing Models
+One of the most important factors impacting the overall cost of your infrastructure is
+the type of compute platform you use. Even before choosing specific instance types,
+you must first choose a product based on its developer ergonomics and economic
+model. We don’t mean choosing between an m4.large versus an r5.xlarge (although
+we’ll discuss that topic later in this chapter). There are six models for obtaining
+compute capacity:
+
+  • Capital expenditure (building your own datacenter (Oxide Computer Company)
+  • Reserved capacity (AWS Savings Plans, Azure savings plans, Google commit‐
+    ted/sustained use discounts)
+  • Persistent, defined capacity (Amazon EC2, Azure virtual machines [VMs],
+    Google Compute Engine)
+  • Interruptible, defined capacity (Amazon EC2 Spot, Azure Spot VMs, Google
+    Preemptible VMs)
+  • Persistent, elastic capacity (AWS Fargate, Azure Container Apps, Google Cloud
+    Run)
+  • Interruptible and flexible, for short requests (AWS Lambda, Azure Functions,
+    Google Cloud Functions)
+
+Each of these methods of procuring infrastructure has benefits and drawbacks in
+terms of money, customer experience, and the developer time required to care for
+them. With a function as a service (FaaS) approach like Lambda or Azure Functions,
+you achieve perfect utilization—only paying when your software is actively running.
+You need not worry about the software system–level dependencies or underlying
+hardware. As a trade-off, you pay a higher unit cost for each CPU-second (or CPU-
+millisecond, if your provider supports granular billing), because the cloud provider is
+
+                                         Optimizing Cost Without Modifying Application Code   |   373
+assuming the risk of capacity management and is unable to sell all of their capacity
+pool. And some requests may take longer to serve if the cloud provider needs to
+allocate and boot up new capacity for your workload.
+Running entire virtual machines (VMs) instead of using serverless means you can
+keep your processes active, persist data to a cache, or maintain connections to depen‐
+dencies, making requests return a lot faster. However, you’re paying for that server
+time while you’re not using it, and you need to make sure you can scale up within
+time if you get more requests than you expected. And if you’re using self-hosted bare
+metal rather than VMs, your CPU-hour costs will be much lower, but you’ll have to
+make the capital outlay for the hardware and assume responsibility for provisioning
+and availability.
+Then there are the models lying somewhat between—for instance, purchasing
+reserved capacity, or using a blended serverless compute engine that abstracts away
+the underlying VMs but prices for the CPU consumed by each task rather than the
+duration of each request. When using VM-based infrastructure, you can also achieve
+significant performance and cost optimizations by using a container orchestration
+approach, such as Kubernetes, to pack multiple applications into a single VM. How‐
+ever, the conversation about containerization is partially orthogonal to the compute
+model: serverless functions can operate with raw binaries, supplying their own OS
+and container, and it’s possible to run Kubernetes, Red Hat OpenShift, Amazon
+Elastic Container Service, or another container orchestrator on top of any type of
+underlying compute—ranging from bare metal to Fargate.
+Which should you choose? Well, that’s dependent on how your system scales, and
+also how your consumers use that application. Ultimately, you’re going to want a mix
+of different capabilities to make it work optimally. For instance, you may want to
+run your database servers in the VM model, managed through Amazon Relational
+Database Service or Google Cloud SQL. Your user-facing frontends might run via
+serverless, and you might assign batch or streaming worker pools via Fargate or
+Cloud Run. The choice of platform is not a fixed, one-time decision. Over the longer
+term, optimizing the cost of compute requires using observability data to your load
+profile and deciding when to change even if there is some operational work required
+when migrating between compute models. And the options are not all or nothing; a
+hybrid approach may make sense.
+If you have a very spiky workload, you may still want to try Lambda as a compute
+layer, but this could prove to be very costly (or result in persistent cold starts and
+refused connections) if you get a spike that’s unexpectedly large. If, however, the
+time of executing Lambda directly correlates to your revenue, this may be fine.
+Observability for the serverless case is relatively straightforward, as the duration of
+trace spans straightforwardly converts to the total price—in fact, you can calculate
+
+
+
+
+374   |   Chapter 20: Performance Engineering with Observability
+additive measures such as “request cost” and graph those dimensions directly in your
+tool of choice!
+Observability plays a key role in gathering the data needed for deciding when it’s
+time to migrate onto an additional compute platform or retire an existing one. Con‐
+current execution counts—derived from either provider-exported metrics or from the
+number of concurrent trace spans—enable you to determine how much serverless
+concurrency to provision with your cloud provider. Utilization metrics enable you to
+determine when a sustained workload could be shifted toward a more server-ful or
+sustained-use model. Just be mindful of the human cost of managing and operating
+toward the physical end of wrangling real servers.
+
+Fleet-Wide Optimization
+Once you have nailed down what compute model(s) you are using, the next step
+is making that compute cost as little as possible. There are three broad techniques
+to try: squeezing, optimizing, and migrating architectures. An architecture switch is
+a complex effort with correspondingly huge potential payoffs, but there are many
+smaller such experiments and projects we undertake on an ongoing basis at Honey‐
+comb to optimize our costs and improve the performance our customers see.
+Assuming you have set SLOs (see Chapters 10 and 12) and have a healthy culture
+of chaos engineering, the first step is to see how few machines you actually need
+to still achieve those SLOs. Reduce task counts, reduce CPU and memory alloca‐
+tions per task, and set autoscaling targets to higher target utilization—with the
+ultimate goal of shutting down VMs. In the past, standard practice was to run Intel
+architecture–based instances with hyperthreading or simultaneous multithreading
+(SMT) at 40% utilization, and Arm instances (or any instance with SMT disabled) at
+70–80%. However, that recommendation may no longer hold for the kinds of cores
+you are using. Test until latency actually begins to degrade. Your observability data
+will come in handy, especially given that degradation may impact a small tail of
+complex but crucial requests rather than the overall system.
+Always test against the most recent generation of hardware that your vendor offers.
+As this book has and will continue to go several years between revisions, any specific
+recommendations we might make would rapidly become out of date. After taking
+away instances and shrinking underutilized instances, checking the appropriate ratios
+of CPU to memory to storage may help you save money. Most cloud providers
+charge a premium for higher-RAM configurations, as well as charging for use of
+their managed durable block storage products (e.g., Amazon Elastic Block Store). For
+I/O-bound workloads, you may benefit from using NVMe drives directly attached to
+instances (e.g., AWS -d suffix and i- prefix instances, or Azure L-series instances)
+instead of durable block storage for data volumes.
+
+
+
+                                         Optimizing Cost Without Modifying Application Code   |   375
+Fleet-wide profiling (discussed later in this chapter) also comes in handy in terms
+of identifying code bottlenecks. For now, we’ll note that those bottlenecks might not
+be in your own application code, but instead in OS libraries, the kernel, or common
+shared library code. If you can identify and solve a performance issue impacting
+multiple workloads, rather than just one workload, it may be well worth it. While
+saving 1% off of 1% of your workload is likely not worth spending more than a few
+minutes of engineering time, if that 1% generalizes across all of your workloads, it
+could be a meaningful amount of money. For more on this, see the paper by Gang
+                                     1
+Ren et al., “Google-Wide Profiling.”
+Another potential avenue to make large-scale performance and cost gains is via
+recompiling your binaries to run on a more efficient CPU architecture designed
+for the cloud. We’ve previously written on the Honeycomb blog about our switch
+to the Arm64 architecture using AWS Graviton instances. Microsoft offers Cobalt
+Arm instances, and Google offers Axion Arm instances. Each generation of Arm
+processors appears to show 30% price-performance gains per generation, outstrip‐
+ping the rate of price-performance gains of the x86 architecture. All of these are
+worthwhile competitors to their equivalent-generation Intel and AMD competition,
+but do require you to potentially reconfigure or recompile your workloads.
+Today, there are many guides for carrying out an Arm64 migration, but the basics are
+to switch over container or OS base images to the corresponding architecture, then
+test that your container or binary build pipeline still works using the new architecture
+and new base images. You’ll then need to test deploying the new architecture, sending
+it representative traffic, and then load testing to determine how it performs relative to
+your original configuration. Remember, because most Intel/AMD instances use SMT
+and Arm does not, you may find that it is safer to run your Arm64 instances more
+saturated since you will not be contending against your own workload. Always test
+to breakage/saturation to see the true performance and packing gains and not the
+superficial results!
+
+Cost Optimizing Kubernetes
+If your workload uses Kubernetes, the tricks mentioned in the previous section
+can help you make the most efficient choices about your underlying architecture
+and sizing. Kubernetes also enables you to make more efficient use of machines
+by packing multiple workloads onto the same hosts, ensuring that a misshapen
+workload consuming a high amount of CPU but low RAM can be paired with one
+that consumes little CPU but maintains a lot of state in RAM, better utilizing the
+capacity without stranding any.
+
+
+
+1 Gang Ren, Eric Tune, Tipp Moseley, Yixin Shi, Silvius Rus, and Robert Hundt, “Google-Wide Profiling: A
+  Continuous Profiling Infrastructure for Data Centers,” IEEE Micro 30, no. 4 (2010): 65–79.
+
+
+376   |   Chapter 20: Performance Engineering with Observability
+The first trick to deploying with Kubernetes—as it has the concept of fault tolerance
+and automatic task migration—is to embrace infrastructure flexibility. If your code
+doesn’t keep large amounts of local state and can tolerate periodic migration between
+instances with a lame duck period of approximately two minutes, you may find inter‐
+ruptible instances to be a good fit for your workload. With the Karpenter plug-in for
+Kubernetes (or ordinary autoscaling groups), you can benefit from instance flexibility
+on the spot or interruptible instance market. Just make sure you use the relevant
+Node Termination Handler plug-in to move workloads out of the way gracefully
+before the nodes are terminated!
+Measuring the impact of your changes works with your current observability tooling.
+You don’t need any special tooling other than running the OpenTelemetry Collector
+on each node (as a DaemonSet) in order to understand and optimize the efficiency
+of your Kubernetes clusters. Installing the OpenTelemetry Collector with the kubelet
+stats receiver and k8sattributes processor is a power tool for understanding the
+health and behavior of your cluster.
+The visualization layer is the most key when looking at Kubernetes cluster data. There
+can be a wide variance in the saturation and utilization of each pod and each node as
+a whole, so percentiles will often be misleading. Heatmaps, such as the ones shown in
+Figure 20-2, are a preferable mechanism of looking at how your nodes are doing and
+whether you are “clipping” 100% saturation and at risk of requests being blocked on
+access to the CPU, slowing throughput and delaying responses to users.
+
+
+
+
+Figure 20-2. A set of charts showing the number of distinct hosts of each instance type
+in each availability zone, and aggregate heatmaps showing the amount of CPU and
+memory utilized for a time period spanning a week.
+
+
+
+
+                                           Optimizing Cost Without Modifying Application Code   |   377
+With knowledge of the load distribution on each Kubernetes node, it’s possible to
+identify both hotspots where there is too much load, as well as undersaturation where
+nodes are not being adequately utilized. Statistical analysis on those outliers might
+reveal instance shapes that have particularly poor utilization, delays in scaling down,
+or other factors that lead to the fleet not running as expected. Any field that is
+attached to the metadata can help, such as node group, instance type, architecture, or
+availability zone.
+In order to further debug the behavior of cluster scaling, Kubernetes helpfully emits
+logging data from its control plane, including from the Cluster Autoscaler (CAS) or
+Karpenter processes. Ingesting those logs into your observability tooling can reveal
+the reasoning behind the decisions to create or remove particular types of nodes at
+particular times.
+One easy opportunity for optimization, even if not plotted on a resource chart, is to
+remove excess boot volume size. Disk space is most commonly used to store logs, but
+if logs are being exported to your favorite observability tool or to cold storage, you do
+not need to persist very many on disk. Also consider whether instance NVMe storage
+may be more appropriate than managed remote data volumes.
+Moving beyond node optimizations, how can you identify the biggest opportunities
+for workload-level cost savings on Kubernetes? Plotting the sum of all CPU and
+memory used by each service name or DaemonSet name can enable you to find the
+largest consumers of CPU and memory to then examine the tracing and profiling
+data. See Figure 20-3 for an example. After all, when engineering time is scarce,
+you’re better off solving the problems with the largest impact first; saving 1% of 10%
+is better than saving 5% of 1%!
+The Kubernetes metrics that will be your biggest friends are the pod CPU utilization,
+pod memory requests, and limit usage values. That usage is the genuine demand that
+cannot be eliminated through clever bin-packing and scaling tricks. So, at the end of
+the day, to progress any performance engineering efforts will require reducing that
+demand. However, you should be wary of potential pitfalls with observability tooling
+when examining usage by pod within a given deployment. The intended surge in
+pods during the rollout will inflate the usage for a wider time window, as will the
+appearance of pods that terminated just after the start of the time window, and pods
+that started just before the end of the time window. Thus, a service might appear to
+have up to double the number of pods that it normally has during an aggregation
+window, causing the sums of CPU consumed by all pods to appear artificially inflated.
+To avoid this kind of artifact, plotting each configuration template hash separately
+within the service avoids the apparent duplication of monitored resources.
+
+
+
+
+378   |   Chapter 20: Performance Engineering with Observability
+Figure 20-3. Four line plots showing total CPU and memory utilization and unused
+reservations of pods, broken down by deployment, DaemonSet, and StatefulSet names.
+
+In addition to seeing which services are consuming the most actual resources, you
+may find it helpful to view which services have reserved the most resources, and
+whether any of the resources are going unused. Some underutilization is an expected
+part of the slack present in any robust system, especially given the consequences of an
+OOM (out of memory) or cascading failure. However, excessive allocations of RAM
+or CPU may be starving other processes on the machine of resources they could
+benefit from and may cause your cluster to become larger than it needs to be.
+Besides the resources we intend to run in a cluster, we need to understand how
+much overhead we are introducing for our observability and compute infrastructure
+itself, the Kubernetes compatibility layers, and any security needs. For instance, on
+our clusters, you’ll find Lacework running, OpenTelemetry collectors, and internal
+Kubernetes services like node-local-dns, kube-proxy, and Container Storage Inter‐
+face (CSI) drivers. These often run as DaemonSets, one per kubelet or host—and
+across hundreds of hosts, their overheads can add up.
+When provisioning a Kubernetes cluster, don’t forget about the reasons you adopted
+Kubernetes. If one or two workloads predominate in your cluster, you may want
+to consider sizing to allow for optimal bin-packing of combinations of the most
+common workloads’ pods. It may not show as underutilization of an individual pod
+or service to have capacity lying fallow on a given machine, but if a given machine
+has 32 cores, and you have pods that require 20 cores each, then 11 to 12 out of the 32
+cores will be potentially wasted once DaemonSets are accounted for. This is because
+you cannot fit two 20-core pods on the same machine, and DaemonSets should take
+up a maximum of 1 vCPU in total.
+
+
+                                         Optimizing Cost Without Modifying Application Code   |   379
+There may be other smaller jobs that can fill the cracks, but if your 20-vCPU job
+is the primary workload you run, inevitably, you’ll be spinning up machines just to
+create capacity for that workload. It’s better in that case to upsize to 64-core machines
+so three 20-vCPU jobs will fit on one machine, or to run a higher number of smaller
+tasks by reducing to 15 vCPU per pod, to allow better bin-packing. Also, be mindful
+of stranding CPU or memory on a machine, even if the CPU and memory ratios are
+appropriately tuned for the entire cluster. For example, if you have a workload domi‐
+nated by high-CPU, low-memory jobs, ensure that there is still enough room after
+the high-CPU jobs are running to allow for the smaller amount of CPU requested by
+high-memory jobs.
+
+Cost Optimizing Serverless
+For serverless, the underlying compute platform takes on the responsibility for man‐
+aging utilization and reducing wasted resources. The primary cost driver is the
+duration that your functions execute for, but there are subtleties lurking in the weeds.
+For instance, startup time and cold starts result in billing, as does the amount of
+CPU/RAM that you assign to each function, and the cost of the API calls required to
+invoke your function and that the function itself makes.
+Your cloud provider’s metrics may be a good start for understanding the amount of
+time taken by each function. For instance, Amazon CloudWatch offers metrics for
+the number of concurrent executions, invocations, and execution duration. Similarly
+to earlier sections about not using the resources that you don’t need, taking away
+excess memory and CPU will save you money—to a point. That point comes when
+increased execution time or instability such as OOMing makes further reductions no
+longer worthwhile. Lambda Power Tuner can be a powerful tool for minimizing the
+cost function that is a product of CPU and execution duration, by executing your
+function many times with different sizing parameters.
+Cold starts—where your application is not yet running at the time that your provider
+needs an instance of your function to serve a request—don’t only incur a latency
+penalty to the end user. Cloud providers have pushed the cost of initialization work
+done during a cold start onto the client, meaning that you are billed for the time it
+takes to become ready to serve. Such work might include setting up fresh connections
+to dependencies, loading datasets into memory, or more. To measure and lower this
+cost, consider implementing observability into the runtime cycle of your serverless
+applications. You’ll need to implement OpenTelemetry instrumentation into your
+main function, create a span at the start of the main function, and end it just after
+setup has finished but before allowing the serverless runtime code to take over
+execution. Then, for each invocation, create a “running” span for the duration of
+execution, and persist a “sleeping” span started just before the function is frozen to be
+sent once the function is thawed.
+
+
+
+380   |   Chapter 20: Performance Engineering with Observability
+Be aware that the costs of getting data to your serverless functions may be more sig‐
+nificant than you expect. For instance, the cost of S3 read requests is approximately
+25% of the total cost of running the serverless functions that power the Honeycomb
+Retriever storage engine (see Chapter 13). Reducing the costs of compute can only
+contribute so much to reducing the total cost of ownership as a result.
+While provisioned concurrency may appear attractive, it essentially trades money
+for cold-start latency and gives you the worst of all worlds in terms of cost. You
+have to handle manual capacity planning, you don’t receive a meaningful discount
+in exchange for committing to usage, and you’re still unable to amortize setup costs
+across longer application lifecycles, as you would with a persistent application.
+
+Observing the Costs
+Making your workload execute faster will almost always be the most effective way to
+lower your compute costs. Whether that’s optimizing a serverless function’s execution
+time or your API hosted in a container, no savings actually manifest until you
+consume less of whatever the billing dimension is. The question is, how do you safely
+reduce resources and ensure that you’re not adversely affecting the user experience?
+There are multiple dimensions to the cost of your compute layer. It’s not simply
+“time,” because the different machines and instance sizes also have an impact on
+price—otherwise, you could just throw more compute resources at your workload to
+make it “faster”! So, you’ll want to identify what dimensions to optimize.
+However, consider also whether giving a workload more memory or faster network
+might actually make the execution happen faster too, and avoid otherwise idling or
+wasting resources. Observability can help find these bottlenecks by showing which
+steps are the slowest. Conversely, it may be that a majority of your workload cost
+is not the compute but is instead some ancillary dimension such as networking or
+storage.
+Ingesting your cloud bill into your observability tooling can help identify opportuni‐
+ties for improvement, focusing on the greatest sources of spend first, and drilling
+down into what common tags or attributes those share in common. Tagging also
+ensures accurate chargeback or other attribution of cost to use cases and potentially
+to individual tenants in an SaaS model. The rows in the cost and usage report
+translate well into wide events; the cost in dollars is one field, the service is another,
+the usage type is another, and so on and so forth. Each tag on a resource becomes a
+column, and each value of the tag becomes the value’s field. Aggregations work the
+usual way via performing summing operations grouped by resource, tag, and so on.
+
+
+
+
+                                           Optimizing Cost Without Modifying Application Code   |   381
+Observability tooling also contributes to the cost of running a workload, but can be a
+valuable source of data for investigations. For thoughts on how to improve your ratio
+of value to cost, see Chapters 15, 26, 27, and 29 for build-versus-buy and cost levers
+that you can use.
+In addition to focusing on the highest consumption tags and services, it can be
+valuable to look for quick wins that require no code change. For instance, if you have
+a consistently high utilization of raw compute VMs, your service provider may have
+savings plans or committed use discounts available. Having the data available to see
+what the minimum hourly spend is will enable you to rightsize a commit and ensure
+that it will be effective over the contract term.
+Likewise, if you are spending a lot of money on load balancers, network address
+translation (NAT) gateways, or data transfer between availability zones, consider
+reconfiguring your topology. Keeping data transfers within the same availability
+zone—going directly from node to node—avoids unnecessary costs for shuffling
+bytes around. In some cases, the cost of the network can outstrip even the cost of the
+compute or the storage!
+
+How Application Observability Reduces Cost
+Having insight into the performance of your workload enables you to gain both
+direct and indirect benefits. When you improve performance, you can frequently
+remove resources to get the same performance as before, or reduce waste that was
+caused by the additional usage. However, as you’ve learned in the previous section,
+it’s important not to waste time on the smaller or less vital components of your
+application. Only focus attention on optimizing the most resource-intensive or most
+user-visible parts of your application.
+In order to identify where you’re spending the most time for your most important
+requests, a first step is to use distributed tracing (as we’ve discussed in the rest of
+the book), and wrap major functionality in spans. By visualizing the concurrency
+of spans and the sum of their duration, you can get a quick and dirty idea of what
+the critical path is and what you might want to optimize. Anything that makes a
+call to another service or performs a computationally expensive operation on data is
+worth wrapping in a span. The good news is that your existing observability should
+cover these cases well through automatic instrumentation of remote procedure calls
+(RPCs), plus manual instrumentation to fine-tune coverage for internal spans within
+your services. Always aim to account for where your application is spending its time
+to the nearest tenth of a second (hundred milliseconds). Long trace spans with no
+activity and no child calls suggest mystery-meat time that could be better accounted
+for by adding subspans with incremental detail.
+
+
+
+
+382   |   Chapter 20: Performance Engineering with Observability
+Due to the overhead of instrumentation, there is a limitation on how much detail
+you can obtain per span. If you were to wrap every function in a span, you would
+slow down your application and do just as much instrumentation work as real work!
+Instead, you need to consider how to aggregate smaller units of work into larger units
+of work that measure in tens of milliseconds or more, rather than in microseconds or
+single-digit milliseconds. For that finer degree of detail, you’ll need to use profiling at
+the individual function level. We’ll discuss this approach in the next section.
+
+Using CPU Profiling Tools
+How, exactly, did we get the insight into where our code was slow in the original
+example at the start of the chapter? pprof is the name of the specific tooling that the
+Go programming language offers, but the generic technique is called profiling. Profil‐
+ing allows for determining how much time programs are spending in each function,
+line of code, and even assembly instruction. The key insight behind profiling is that
+we can interrupt a program at any point with OS signals, and retrieve the previously
+running program counter (the assembly instruction currently being executed) and
+the stack frames above it. A lightweight interrupt handler can record the stack info
+to a ring buffer, and we can periodically read the ring buffer to populate maps with
+counts of how often a given program counter was observed, and with what parents.
+Given a binary with appropriate symbol tables, we can symbolize the program
+counter to lines of code and function names. Sampling the call stack every millisec‐
+ond might be overkill and introduce too much overhead, but sampling every 10
+milliseconds might give a picture of which assembly instructions and lines of code
+are most likely to crop up. Over time, a statistical picture of a program approximates
+reality—similar to sampling of distributed traces, a single sample might not be rep‐
+resentative, but a thousand or a million recorded datapoints give a pretty accurate
+picture of the percentage of time spent in each function or assembly instruction.
+We’re big fans of distributed tracing, but it’s not the best tool for every job. Profiling
+enables us to get granular detail, instead of having to create a span for each and every
+function call within a service, let alone each line of code.
+
+Setting up and interpreting profiling data
+Profiling Go binaries as a one-off is remarkably straightforward, thanks to features
+of the Go runtime. There’s a built-in HTTP handler that you can enable on your
+application—but remember to set the HTTP server listening on a different port that
+is not internet visible. Then, curl the endpoint while the behavior you’re looking for
+is manifest, save to $profile, wait a minute, and then you’ll have a file that you can
+feed to go tool pprof $profile. We recommend running with -http :8080 for
+a friendlier web user interface; you’ll also want to supply the original source code
+directories for line-level detail, and the original binary corresponding to the running
+
+
+                                                  How Application Observability Reduces Cost   |   383
+server in order for assembly-level detail. You can also use -profilecpu with go test
+-bench to write profiles for your canned benchmarks.
+In other languages, you’ll need to consult runtime documentation—for instance, Java
+uses Java Flight Recorder (JFR). In the worst case, you might need to use the perf
+tools bundled with your Linux kernel, or use an eBPF collector agent. Regardless of
+how you collect them, what should you do with the results of profiles?
+Profiling tooling typically defaults to either a listing of source code with statistically
+estimated numbers of milliseconds attached, or a directed acyclic graph (DAG) ren‐
+dering—with boxes representing functions and their total time, lines representing
+calls between functions, and line weights representing seconds spent on each path
+in the call tree. Both of these can be somewhat obtuse to work with, so instead we
+recommend a different approach.
+If you took the advice to run go tool pprof with its web frontend, you can open up
+the visualization menu and choose a flame graph instead. Flame graphs are a more
+intuitive way to work with the data. Width represents the total amount of time spent
+in a function and its children, stacking one function beneath another represents a
+child function call, and individual icicles or flames represent collections of full stack
+traces sharing the same functions in order in the stack frames.
+This enables visualization for glanceability of three things that are not obvious when
+looking at raw source dumps or the full DAG:
+
+ 1. What the most expensive part of the code is
+ 2. If it’s the code or the libraries being called
+ 3. How much is attributable to one function itself versus its children
+
+The best targets to optimize are those functions that are called often with medium-
+sized running time (e.g., the library function that is called from 10 different places
+and constitutes a significant chunk of the running time of each callsite), or those
+that are often found close to the root of the flame with little time spent in their
+children. This has parallels to how you might reason about breaking down traces
+and optimizing the single largest blocking request preventing completion of a traced
+request—except instead of each bar representing a specific request or subsection of a
+request, each bar represents the aggregated sum of time spent making calls to a given
+function, even if many different shorter calls were made.
+
+Scaling out profile collection and analysis
+While it’s handy to catch something misbehaving in staging (or in a unit test or
+benchmark), problems rarely manifest in the real world while we’re looking. And by
+the time we’re alerted, they may have already disappeared. We need our systems to
+
+
+
+384   | Chapter 20: Performance Engineering with Observability
+give us the telemetry continuously for us to interrogate later, so that we don’t need to
+catch them in the act. This is the whole reason why we have observability, right?
+Fortunately, you can either run profiling continuously with agents that hook into the
+runtime, or continuously scrape the profiling HTTP endpoints on your applications.
+The data volume is manageable because it’s highly redundant—while each minute-
+long profile segment might be five megabytes (MB) in size, two hours of data is not
+going to be 120x as expensive. The same function calls and even lines of assembly
+repeat often, and the data compresses nicely.
+This is the value proposition behind continuous profiling tools such as Grafana
+Pyroscope, Polar Signals, and zymtrace. They handle the lift of both the agent and
+of the collection and visualization pipeline so that you can get answers when you
+need them. That way, you won’t be trying to remember which debug endpoint to
+curl, or how to run the pprof debugging command at 2 a.m. We’re believers in
+running less software at Honeycomb, and this is one wheel we were glad to not
+have to reinvent. With OpenTelemetry offering a common profiling agent, SDKs, and
+encoding of profiling data, the vendor-neutral future of the profiling observability
+signal has never looked brighter.
+
+Using the Correct Observability Signals, Together
+Engineers tend to prematurely optimize: we will jump into optimizing SQL queries or
+look for loops that could be trimmed with early exits. However, without knowing that
+these are actually the biggest impact on your code, it’s essentially educated guesswork.
+For seasoned engineers, those who have spent time in that ecosystem or that domain,
+this can actually be very effective. But how do we give all engineers this capability?
+To some degree, profiling requires you to already know you are interested in a very
+specific portion of your system. Therefore, it’s a tool that is best used in conjunction
+with a tool like tracing. Using tracing—both from an analytics perspective and from a
+waterfall-view perspective—enables you to validate hypotheses quickly.
+
+When to use each signal type
+In our opinion, tracing gives you a bird’s eye view and enables you to navigate the
+system as a whole. High-cardinality data analysis enabled by the unified observability
+model equips you to explore individual fields and their values to understand outliers
+and weird behavior. Analyzing hundreds of millions of traces can give you astonish‐
+ing insight into what real customers are experiencing in the system. But sometimes
+you really need to grab the microscope to look at the rings (lines) of the tree (code)
+rather than look at the forest of microservices as a whole. Profiling is that tool.
+
+
+
+
+                                                How Application Observability Reduces Cost   |   385
+First, you might begin an investigation by asking:
+
+  • Is this endpoint normally slow?
+  • Is this database query slow only when it’s called for this API endpoint?
+  • When this endpoint is slow, is it always this database call causing it?
+
+Armed with this information, you can establish before, and after, your change
+whether you’re targeting the right area of the system to make the biggest impact.
+Having a scientific or engineering mindset involves employing the scientific method
+to hypothesize testable changes and then performing the experiments required to
+validate—not just throwing spaghetti at the wall. Sometimes, your change will be
+visible in the profiles from processes at large, while having only a small change at
+the trace level. Other times, it’ll be the reverse: much faster traces, but with the
+percentage of time spent in each function remaining unchanged.
+
+Blending performance engineering and observability
+What if you didn’t have to make the trade-off between request-level but outer-
+function-level granularity for tracing, and inner-function-level but only process-wide
+granularity for profiling? When profiles are indexed at the level of individual seconds
+of data, or are tied to individual trace spans, magic happens. You can understand
+what was slow, for whom, why, and how, all at the same time instead of guessing.
+It’s premature optimization to write the very most efficient, inscrutable code every‐
+where. But having the visibility post facto to know what’s actually being called in a
+tight loop and needs to be ratcheted down enables you to optimize just in the right
+places, with an explanation as to why you’re doing it. We admit to feeling skeptical
+about the “day 2+” value of profiling. Wouldn’t we just squish the “obvious” bugs and
+then stop finding value? Well, that’s not true. You’re always adding new services or
+changing them, and creating new bugs along the way.
+The golden example of this discovery for us at Honeycomb was finding that we
+were serializing a very complex query—containing nested derived columns—from
+protobuf to JSON on behalf of a user (see Figure 20-4). We were also then invoking
+Lambda hundreds of thousands of times, doing the serialization each time for each
+invoked Lambda—on a single Retriever merge node that was already running very
+hot from coordinating other queries. While our Lambda functions are massively
+parallel at mapping across millions of files on S3, the nodes dispatching Lambda
+invocations have finite resources.
+
+
+
+
+386   |   Chapter 20: Performance Engineering with Observability
+Figure 20-4. Flame graph from an execution on a Retriever query frontend, showing
+time spent in jsonpb encoding of a query specification from protobuf into JSON.
+
+This was a user-specific problem: tickling suboptimal behavior, slowing down their
+own query latency—as well as everyone else’s query latency. Profiling enabled us
+to figure out what was actually happening, not just which user and what phase of
+execution. We were able to cache the serialization of the JSON.
+A further optimization revealed itself by examining that user’s query traffic alone:
+the query that took so long to encode was also running slow on Lambda because it
+contained so many distinct abstract syntax tree (AST) nodes. We could reduce the
+amount of time it took the function to actually run on the Lambda side as well, by
+making a change in our query language (see Figure 20-5).
+
+
+
+
+                                               How Application Observability Reduces Cost   |   387
+Figure 20-5. Time spent evaluating a deeply nested set of IF conditional blocks in the
+Honeycomb calculated-field language evaluator.
+
+The customer was using an if { } else { if { } else { if { } else { if
+{ } else { if { ... } else { ... } } } } } } pattern, which we could simplify
+by offering a switch statement. Once we transformed away the complexity of the
+query and refactored the customer’s query to use the new syntax, execution was
+dramatically faster.
+This behavior would never have turned up inside of our traces, as we simply cannot
+afford to trace each function that’s called when processing each record in the inner
+loop. But profiling on a high-cardinality, per-customer basis showed us what was
+wrong and how to fix it.
+
+Conclusion
+Like the practice of observability, performance engineering is not a one-and-done
+activity. Instead, it is a scale with diminishing returns toward the very top end, and
+large gains at the beginning. And it must be continuously reinforced. Incremental
+0.5% or 2% improvements lead to compounding benefits over time, even if they are
+not as flashy as a 30% performance optimization on a fresh, unprofiled codebase. The
+core loop is: measure to find potential improvement, do the improvement, measure
+the effects, and repeat.
+
+
+388   |   Chapter 20: Performance Engineering with Observability
+By late 2024, when we were reviewing options and faced the choice of what contin‐
+uous profiling tooling to employ, it no longer was just one singular engineer that
+wanted a say in the requirements. Instead half a dozen different teams at Honeycomb
+each saw benefits from being able to proactively investigate performance.
+Our finance and engineering teams were also collaborating on cost tooling, lever‐
+aging data from our AWS bill and from our application and Kubernetes cluster
+telemetry to model and predict future costs (and to be able to bake predicted future
+optimization into our cost modeling).
+Performance engineering, much like observability-driven development, thrives on
+shared knowledge and continuous practice. With a robust observability foundation,
+any engineer can own and optimize their code in production. But as the technological
+landscape evolves, so too do the systems we observe. In the next chapter, we will
+explore the cutting edge of this evolution, diving into how to use observability with
+LLMs to embrace observability in the modern age of AI-driven systems.
+
+
+
+
+                                                                      Conclusion   |   389

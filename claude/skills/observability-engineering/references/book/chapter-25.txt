@@ -1,0 +1,495 @@
+                                                                       CHAPTER 25
+                              The Observability Landscape
+                                  Through a Systems Lens
+
+
+
+
+In the previous chapters, we established the why and what of accelerating organiza‐
+tional learning speed through feedback loops. In this chapter, we get into the how.
+Amplifying feedback loops can spiral into virtuous cycles or death spirals. Balancing
+feedback loops can create stability or devolve into chaotic swings or rigidity. What
+makes the difference between learning and flailing is how you’re using those loops,
+and the quality of the observability tools feeding data into them.
+We’ll start by looking at how feedback loops typically work in most organizations.
+Then we’ll contrast them with the feedback loops that actually accelerate learning,
+and examine why closing that gap has been hard for so many teams. We’ll look at
+two generations of observability tooling and which loops each one supports, and we’ll
+close by examining how AI is both accelerating the need for change and opening up
+new ways of working.
+This chapter focuses on recognizing the capabilities you need so that you can choose
+observability tooling that fits. The next few chapters build on that by examining
+the business case, how to diagnose your current investments, and how to drive
+organizational change.
+
+The Landscape Feels Noisy Because the Labels Are Noisy
+Before we begin, let’s talk about the elephant in the room: the “observability” category
+has become almost unfathomably large. It started as monitoring, logs, and application
+performance monitoring (APM) thrown into a blender and quickly metastasized into
+a budget line item that eats up to a third of infrastructure spend in some companies.
+With that growth came aggressive marketing. The term is now applied to a wide
+
+
+                                                                                     451
+range of tools and niches: data observability, AI observability, large language model
+(LLM) observability, and more.
+As a result, many vendors claim similar outcomes using similar language, despite
+products (and outcomes) that are fantastically different. Unfortunately for you—the
+reader of this book and the consumer of those tools—that makes the entire landscape
+a snarled, expensive mess. Let us be the first to say: we’re sorry. This is not what we
+intended when we first coined the term.
+But the lessons from earlier in this section can help. Zooming out, a systems lens
+offers a cleaner organizing principle: instead of starting with vendor categories or
+feature lists, start with the feedback loops you need to strengthen, and the decisions
+those loops need to support. Our goal is to learn fast.
+Let’s start with the loops that most organizations run today, and then look at the ones
+you actually need.
+
+The Loops Most Organizations Run
+Today (and What Is Missing)
+Despite the last decade and a half of DevOps culture and “you build it, you run it,”
+the reality for most teams is this: of the two main feedback loops—development loops
+and operational loops—only one of them includes production.
+
+Development Feedback Loops
+The software development feedback loop is fast, but isolated. It’s optimized for imple‐
+menting and validating business logic. The phases are: build → run tests → iterate →
+merge → move on, as shown in Figure 25-1.
+
+
+
+
+Figure 25-1. The software development feedback loop focuses on local builds, running
+tests, and iterating until tests pass. The loop continues until code is reviewed and merged.
+
+
+
+
+452   |   Chapter 25: The Observability Landscape Through a Systems Lens
+Most developers live in their development environment, their task tracker, their chat
+app, and a handful of other tools. They build, run tests, and learn. They build, run
+tests, and learn—again and again—until they deploy to an integration environment,
+click around manually, and submit a pull request. Once it’s reviewed and merged, the
+job is done. On to the next feature.
+Developers know their code will eventually get deployed to production, but they
+often don’t know when or what happens afterward. Unless there’s a bug or an inci‐
+dent, they typically don’t look at production at all.
+Most organizations don’t have a feedback loop connecting developers to their changes
+in production. The only loops that include production learning are operational ones.
+
+Operational Feedback Loops
+Operational teams run a different loop, oriented around service health. The phases
+are: alert → investigate → fix, as shown in Figure 25-2.
+
+
+
+
+Figure 25-2. The operational feedback loop protects service health. It’s triggered by an
+alert, escalation, or customer complaint, moves to triage and investigation, and ends
+when a fix is deployed.
+
+For ops teams (i.e., DevOps, SRE, platform engineering, cloud engineering, or other
+names), the feedback often comes from dashboards, alerts, and customer complaints.
+They are typically working reactively, often scrambling to investigate, learn, and fix
+what went wrong after it has already affected customers.
+The ability to learn from these loops is limited, because it’s often not obvious what
+caused the problem. Alerts are triggered by thresholds—which means they fire only
+after the impact is significant, once a performance issue is bad enough to threaten the
+whole system. Sometimes the operational loop is triggered by a recent deployment.
+Far more often, it’s a customer complaining about something that shipped days,
+weeks, or months ago, as shown in Figure 25-3.
+
+
+
+
+                                    The Loops Most Organizations Run Today (and What Is Missing)   |   453
+Figure 25-3. A customer complaint may be tied to an action taken long in the past,
+making it nearly impossible to connect the dots back to the source.
+
+When caused by an issue that shipped long ago, the issue is often the result of
+combinatorial conditions. For example, when an issue has been lurking for a while,
+it’s usually the result of compounding conditions. Data volume reaches a threshold
+that causes timeouts, which stacks up threads, which triggers the alert. That’s why
+operational loops more often look like Figure 25-4.
+
+
+
+
+Figure 25-4. A more common operational feedback loop spans weeks, months, or years.
+The compounding conditions that trigger an alert often surface long after the code
+changes that caused them.
+
+This is where the disconnect between development and operations becomes clear.
+Operational loops are oriented around bugs, errors, reliability, and outages. Those are
+important. But reliability is only a tiny part of what developers actually need to know
+about their code in production.
+Most developers should be asking questions like: how are users behaving? Is this
+feature getting adopted? Where are users dropping off? Why are they quitting? How
+does what we shipped map to what we intended? Reliability and bugs are part of that
+picture, but not the main one.
+
+
+
+
+454   |   Chapter 25: The Observability Landscape Through a Systems Lens
+Most developers don’t ask these questions, because they don’t have the tools to easily
+ask these questions. As we discussed in the last chapter, if curiosity gets punished, it
+eventually stops asking, and the opacity of the system becomes its own reinforcing
+loop.
+
+The Missing Loop
+What’s missing is a consistent loop that connects the developer’s concern of “I wrote
+this” to “I can see and understand what it did in production.” The developer loop
+stops at merge; the operational loop starts when something breaks. The gap between
+them is where learning slows down and costs compound, as shown in Figure 25-5.
+
+
+
+
+Figure 25-5. In most orgs, there is no connection between the developer loop and
+production: the developer loop stops after code is merged. The operational loop only
+begins when something is visibly broken. The gap between the two is where velocity goes
+to die.
+
+The terms “inner loop” and “outer loop” are sometimes used for dev and ops, respec‐
+tively. Fast iteration on the inner loop is fine—but once you’re ready to put code into
+production, you need to follow it there and validate it.
+When the developer loop doesn’t include production, all “learning” comes from tests.
+Tests are a proxy for production. But as any experienced engineer knows, what you
+learn when all your tests pass is…that all your tests pass. Depending on the quality of
+your test suite, that may be a lot or a little, but it is never a substitute for what you’ll
+learn in production. Production always surprises you, because people are agents of
+chaos.
+In order to accelerate organizational learning, we must build feedback loops that
+make it easy to connect developer intent with consequences in production, because
+that is the loop where value gets created.
+
+
+
+
+                                    The Loops Most Organizations Run Today (and What Is Missing)   |   455
+The Feedback Loop for Value Creation
+At the end of Chapter 23, we included a letter from Darragh Curran, the CTO of Fin,
+which ended with this:
+      The complexity ratchets up, but the truth becomes clearer: the bottleneck isn’t shipping
+      (we’ve largely optimized that), and it isn’t even writing code (which is now easier than
+      ever). The bottleneck is understanding…
+      If shipping is your heartbeat, then understanding is your breathing…The deeper and
+      more effective your breathing, the more oxygen you pull in. In turn, that fuels sharper
+      decisions, faster fixes, and better products.
+
+Let’s unpack that.
+
+Shipping Is Your Heartbeat
+Every time you ship a diff, you create new value for the business, as shown in
+Figure 25-6. This is the core loop of value creation, and it probably happens many
+times a day.
+
+
+
+
+Figure 25-6. The core loop of value creation: deploy, observe, learn. You don’t create
+value until code gets shipped. You don’t start learning until code is in production. That’s
+why most development methodologies emphasize shipping small diffs, frequently.
+
+As Darragh says, “shipping is your company’s heartbeat”—so it should be as com‐
+mon, easy, and uncomplicated as possible.
+This is a theoretical loop, of course.
+This is how progress gets made at any tech company: build → deploy → observe →
+learn → then wrap what you learned into the next thing you build (see Figure 25-7).
+A healthy delivery system executes this loop repeatedly, applying what was learned
+to each subsequent change. Each deploy is a way to validate assumptions, catch
+unintended outcomes, and refine both product behavior and system reliability.
+
+
+
+
+456   |   Chapter 25: The Observability Landscape Through a Systems Lens
+Figure 25-7. Every deploy is a chance to learn. Technology companies often optimize for
+delivery speed—deploy, deploy, deploy.
+
+Some organizations have made this a high-frequency habit. Fin (formerly Intercom),
+for example, ships its Ruby monolith around 70 times per day. Each deploy takes
+8–15 minutes from merge to full production rollout, supported by powerful, granular
+observability.
+But having an “opportunity to learn” is not the same as “learning.” What happens if
+you don’t observe? Unfortunately, most companies still have feedback loops similar to
+Figure 25-8.
+
+
+
+
+Figure 25-8. If learning isn’t captured by following a code change into production, the
+opportunity is lost. Deploying frequently is not the same as learning fast. Without closing
+the loop, feedback is lost and learning stalls.
+
+Every time you deploy and don’t observe to validate, you create an open loop. The
+learnings get lost because you’re making changes without capturing understanding.
+Are you creating value, even if you aren’t looking at it? Yes…well, probably…actually,
+who knows?
+
+
+
+
+                                                       The Feedback Loop for Value Creation   |   457
+If you wait for an operational alert to tell you something is wrong, you guarantee that
+you’ll only ever learn about problems large enough to threaten the whole system, or
+severe enough for customers to complain.
+
+How to Build the Loop and Close the Gap
+Production is a zone of chaos. Your system may be processing millions of requests
+per second across thousands of services for millions of customers. In that environ‐
+ment, even a fleet of AI agents scanning for anomalies is of limited use. Weird things
+are always happening; weird things are the norm. You can’t distinguish actionable
+signal from baseline noise just by looking at the whole haystack.
+But if you know exactly what you’re looking for, when it happened, and where to look,
+even very small needles—a single weird request—can be found quickly and easily
+with the right tools.
+To drive real sociotechnical change, the person who wrote the code needs to be able
+to see what it’s doing, understand how users are experiencing it, and continuously
+improve it from that understanding, as shown in Figure 25-9.
+
+
+
+
+Figure 25-9. A developer encodes their intent in instrumentation, then deploys, and then
+validates that intent in production. Precision tooling surfaces small issues missed by
+preproduction testing. The developer adds fixes, redeploys, and looks again—and notices
+something interesting: new user signups are climbing, driven by users from Finland. They
+keep exploring to find out why.
+
+You can’t close the loop by having one person write the code and another person
+watch production. You can’t close it by having a developer glance at a dashboard
+
+
+
+458   | Chapter 25: The Observability Landscape Through a Systems Lens
+of high-level aggregate metrics. And you can’t close the developer learning loop by
+connecting it to a downstream operational loop.
+The way you close the loop is by tracking developer intent, from writing or generat‐
+ing the code all the way through to production, and then validating that intent using
+rich context data and precise observability tools.
+“No spike in errors” is not precise. Precise looks like this: “Compaction rate for long
+strings went up 5% and disk footprint went down 30% for requests with a specific
+build_id, combination of feature flags, and test users on our 10% canary deploy
+versus the 90% baseline—and the distribution of return codes looks unchanged.”
+
+Why Closing the Gap Is Rare: The Economics of Cognitive Load
+As you read this, it can sound so simple and powerful to close the gap. We believe it
+is both. Yet very few teams—and almost no large organizations—actually operate this
+way. Why?
+Organizations often blame cultural factors: developers don’t care about production,
+or they don’t use the tools available to them. A more useful explanation is that the
+tools haven’t been worth the time and energy it has taken to use them.
+The industry is trapped in a circular dependency loop: they don’t have precision data,
+so it isn’t worth the lift for developers to look at their changes in production, so they
+don’t look, so the tools never get any better.
+Our systems evolved to tolerate a certain rate of change, held together with duct tape
+and intuition. The old ways worked well enough, most of the time, so there has been
+no competitive pressure to jolt us into disruptive tool changes.
+AI looks like it may finally break this logjam by attacking on multiple fronts. AI
+provides the technical breakthroughs, the competitive pressure, and the disruptive
+need for developers to follow their changes into production, since that is the only way
+to know what nondeterministic agents will do there.
+Let’s look at the two generations of observability tooling on the market today, and the
+feedback loops each was designed to support.
+
+Two Observability Models, Two Feedback Loops
+There are two generations of observability tooling on the market today: the three
+pillars model and the unified model, as discussed in Chapter 1. We will recap them
+briefly here, along with which feedback model each excels at solving.
+
+
+
+
+                                              Two Observability Models, Two Feedback Loops   |   459
+Three Pillars Model (Built for Operational Outcomes)
+The three pillars model evolved out of the monitoring and logging space. It’s designed
+for infrastructure, where engineers must operate hundreds if not thousands of third-
+party components that they did not write and cannot change. Your networking gear,
+hard drives, and container IDs spew out a steady stream of metrics and/or logs.
+You have limited ability (or desire) to configure this output; you just need to find
+somewhere cheap to stash it. So you stream metrics into a metrics store, and logs
+into a logging store, and maybe traces into a tracing engine. (And if you have them,
+you do the same for profiling data, errors, exceptions, anomaly detection, product
+analytics, and so on. You can see where the cost ballooning comes from, since you
+end up storing many different copies of the same data.)
+This model is well-suited for infrastructure and the operational loop. It dominates
+the ecosystem of integrations, so it’s easy to get started with. Where it flails—hard—is
+with developer loops.
+To understand the experience of each user or the impact of each change shipped,
+developers need precision data, exploratory capabilities, and fast feedback loops. The
+relationships between the datapoints are the most important parts of the data; the
+three pillars approach destroys these at write time.
+Any time you need to crosscut dimensions like user experience, application behavior,
+or business context, users of this model will face correlation difficulties. The three
+pillars model requires a lot of manual correlation and intuitive leaps. It works well
+enough for fixing bugs and responding to incidents, but not enough to understand
+what happened, the quality of your product, or how users are using it.
+
+Unified Storage Model (Built for Developer Learning)
+The second model, unified storage, emerged from the intersection of business intelli‐
+gence and APM tools. In this architecture, signal types are all ingested as structured
+event logs into a single, unified data store, typically backed by columnar storage. All
+the relationships are preserved, removing the need for manual correlations or pillar
+hopping (see Chapter 5).
+Columnar storage engines support both high cardinality and high dimensionality
+(defined in Chapter 1), so they support very precise questions.
+Precision is a function of context richness and cardinality. The beauty of context
+is that it makes data exponentially, combinatorially more powerful. If you have 29
+fields on a single trace or canonical event, and you add a 30th, that 30th is more
+powerful than all 29 combined, because you can now generate exponentially more
+combinations and subsets of dimensional detail.
+
+
+
+460   |   Chapter 25: The Observability Landscape Through a Systems Lens
+We know these things intuitively. The high-cardinality identifier “Patrick Snuffleupa‐
+gus” is more identifying than just “boy,” and neither is valuable out of context.
+This model is well-suited for understanding the quality and behavior of your appli‐
+cation code and the experience of each user. It supports the developer feedback
+loop (deploy → observe → learn). Its flexibility and speed make it easy to turn
+questions into fast feedback loops. This model works exceptionally well for turning
+deployments into developer learning.
+The unified model shines at answering exploratory, open-ended questions like, “Show
+me all requests from mobile users in the European Union with feature flag X enabled
+that had errors in the checkout flow.” These questions are impossible to formulate on
+the fly with the three pillars model.
+Where the unified model struggles is with operational infrastructure monitoring. It
+can do some of this work, but it does not shine there.
+
+AI Changes the Game and Opens New Interaction Models
+At the time of writing, the SDLC is undergoing a compressed period of change. New
+patterns and philosophies for code generation seem to emerge every passing day.
+While we don’t know yet where we are headed, we can identify some patterns in
+broad strokes.
+AI has upended the economics of software development. Writing the code used to be
+the most time-consuming and expensive part for many organizations; now it’s all but
+free. The constraint has moved from “code producing” to “code coherence.” We can
+produce artifacts much faster than we can reason about them.
+The bottleneck has shifted from generating code to validating code. Generation is
+cheap; confidence is not. In a world where most code is disposable and regenerable,
+code functions more like a cache. And most of the code in the world is not green‐
+field code; it’s brownfield or blackfield code,1 where production is the sole tattered
+remnant of developer intent. If it’s going to become regenerable, that code will first
+have to cross over, as discussed in Chapter 2.
+Today, wise engineering leaders are laying the foundation for their teams to cross
+over to generated workflows, and they are dealing with the problems that are already
+here. The most pressing of which is this: when software changes faster than an
+organization can understand its consequences, risk accumulates faster than it can be
+resolved (or code simply never gets reviewed). The learning feedback loop becomes the
+limiting resource.
+
+
+1 “Blackfield development” is a term for a severely chaotic brownfield project, likened to navigating a dark cave
+  without a light.
+
+
+                                                   AI Changes the Game and Opens New Interaction Models   |   461
+AI can reduce or eliminate much of the friction that developers have encountered
+by trying to fit infrastructure/ops tools to their use case, and MCPs (Model Context
+Protocols) may have some ability to bridge the pillars and derive insights.2 AI can
+deliver data directly to developers in their dev environments or via Slack.
+Ultimately, much of the pain of the developer loop will be best solved by agentic
+workflows. Developers can declare intent, write or generate code to implement it, test
+it, deploy it, and validate that intent in production. Agents can do the tedious work
+of checking back over time, circling back every hour, day, or week, so that even slow-
+burning issues (a memory leak, a cache drift) can be identified and remediated before
+they are big enough to pose a threat to the system and thus trigger an operational
+alert.
+Some of this can also be contrasted with a complementary approach: adversarial
+“continuous review” agents that do things like flagging potential memory leaks,
+inspecting if important constraints of the system are being respected, and so on.
+Faster feedback loops are a unifying theme here, whether the entity receiving the
+feedback is a human or not.
+This is not just convenience; it’s a structural way to reduce loop friction and increase
+learning speed. The pieces for this exist today. But they require a very specific techni‐
+cal foundation: unified, structured, high-context events that AI can reason about. The
+business intelligence approach is what makes these outcomes possible.
+
+Both Feedback Loops Matter: Lead with the Right One
+Operational feedback loops are essential safety mechanisms. They monitor your
+infrastructure, track aggregate system health, and ensure you’re meeting your SLOs.
+They’re the primary way to understand infrastructure health, and they’re the safety
+net that catches the big, system-threatening problems that slip through testing, stag‐
+ing, and progressive deployment.
+But they can’t be the only mechanism by which developers learn what their changes
+did—not if you want to develop at the speed that modern competition demands.
+Operational feedback loops are downstream, delayed, and oriented around system-
+threatening conditions. They’re driven by customer complaints and system failures.
+By the time an operational loop activates, users have already been impacted and your
+team is already in reactive mode.
+Developer-facing observability moves learning upstream—toward prevention, itera‐
+tion, and product quality. Developer feedback loops let you see problems forming,
+
+
+2 Reports to date are mixed, and evidence strongly suggests that agents themselves will go out of their way to
+  seek out richer upstream data, with connective tissue intact, instead of logs and metrics.
+
+
+462   |   Chapter 25: The Observability Landscape Through a Systems Lens
+understand user experience proactively, and validate that your code does what you
+think it does before users notice. It’s the difference between prevention and cure, and
+between learning continuously and learning from disasters.
+
+Align on the Outcomes You’re Building Toward
+The observability landscape can be legitimately overwhelming. Many of the hundreds
+of observability vendors are functionally identical, other than pricing and packaging.
+Other vendors are meaningfully and radically different under the hood. As a cus‐
+tomer, it’s hard to tell the difference, because vendors are, how shall we say, “not
+bound by technical accuracy in the sales process.”
+But you do not need to start off by gathering detailed feature comparisons or per‐
+forming elaborate bake-offs. A more effective way to start is by getting leaders aligned
+around one question: which feedback loop is your bottleneck, dev or ops?
+If your pain is operational stability—keeping systems up, getting visibility into infra‐
+structure, managing chaotic incident response—then tools built for operational out‐
+comes are the right place to begin. The three pillars model is mature, robust, and
+purpose-built for infrastructure and other operational use cases.
+If your pain is delivery velocity—i.e., you need to ship swiftly, with confidence, and
+understand the quality of your product as experienced by each customer—then tools
+built for developer learning are where to start. The unified storage model is built for
+this.
+If your pain is due to an unprecedented influx of AI-generated code that no one
+understands, or if you are preparing to transition from handcrafted, artisanal code
+to code written and reviewed by AI, or if you need to trace agentic workflows in
+production systems, then you too should focus on developer learning.
+There is no universal right place to start. However, most organizations are starting
+from a place where they have invested heavily in their operational feedback loops
+and very little in their developer loops. This is despite the fact that ops loops are
+supposed to be a safety net, not the primary driver of organizational learning, and
+are supposed to deliver rapidly diminishing returns on marginal investments once
+stability is reached.
+In sports terms, most organizations are blowing their wad on the goalie. They aren’t
+even staffing the rest of the field, just giving the goalie more and more dough. And
+then they wonder why they can’t score any points.
+Most organizations need both operational feedback loops and developer feedback
+loops. But you can’t build a business case without first building alignment around
+which problem you are trying to solve, and which feedback loop is at the heart of
+it. Without that shared understanding, you can spend limitless sums yet still fail to
+
+
+                                              Align on the Outcomes You’re Building Toward   |   463
+produce meaningful sociotechnical change. The observability landscape is complex,
+but the feedback loops that matter are not. Start there.
+
+Conclusion
+In this chapter, we cut through the noise of the observability landscape by focusing
+on its core purpose: accelerating organizational learning through feedback loops. We
+established that the reality in most organizations is defined by a critical gap between
+a fast, isolated development loop and a slow, reactive operational loop. Relying solely
+on operational feedback for production learnings means losing out on the continuous
+learning necessary for value creation.
+If you want to build at the speed of AI, you need to learn and validate at the speed
+of AI as well. That means learning from production after each change, through
+the developer feedback loop. Fortunately, AI is not only driving the need for these
+capabilities—it’s also powering new workflows that enable them and substantially
+reduce cognitive load.
+In the coming chapters, we’ll get practical—covering the business case for observabil‐
+ity, how to evaluate your current investments, how to drive organizational change,
+when to build versus buy, and how to build strong vendor partnerships. All of these
+practical steps depend on first getting clear on what you’re trying to accomplish.
+
+
+
+
+464   |   Chapter 25: The Observability Landscape Through a Systems Lens

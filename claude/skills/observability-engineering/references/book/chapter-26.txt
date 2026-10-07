@@ -1,0 +1,531 @@
+                                                                           CHAPTER 26
+                  The Business Case for Observability
+
+
+
+
+In the AI era, our primary constraint has shifted from developing code to under‐
+standing and validating it. To do this swiftly, easily, and consistently, you need to
+connect developers to their code in production through a single, fast, efficient feed‐
+back loop.
+Production is where developer intent meets reality. Every deploy is a unique conflu‐
+ence of infrastructure, software, user traffic, and time, which happens once and can
+never be precisely repeated; observability is how we make sense of that intersection.
+This chapter takes the next step: how to get funding support and protect the work
+that turns feedback loops into sociotechnical change that persists.
+Modern observability is rooted in infrastructure, and many leaders are still accus‐
+tomed to managing it as a cost center. But observability for developers is one of the
+most powerful levers for accelerating learning and converting engineering labor into
+product delivery as efficiently as possible. If you’re a leader trying to do just that, this
+chapter will help you make the business case.
+In this chapter, we’ll talk about how to anchor your business case in the feedback
+loop you want to accelerate, how to quantify value for your organization, and how to
+frame observability in a way that survives annual planning cycles.
+
+Identifying Your Priorities
+Developing the business case for observability shouldn’t start with comparing vendor
+feature lists. Instead, leadership alignment begins by identifying which feedback loop
+is the primary bottleneck in your organization right now: the operational loop or the
+developer learning loop.
+
+
+
+
+                                                                                         465
+By establishing shared intent, you ensure that your observability spend can translate
+into measurable improvements that solve real organizational problems. You need a
+sustainable business case aligned with your strategic priorities—whether that’s the
+stability of your existing infrastructure or the speed of your development teams.
+In this section, we’ll look at the complementary roles of the two loops and how to
+decide which to prioritize.
+
+Complementary Roles of the Two Feedback Loops
+This isn’t a purely binary choice. Most organizations need both loops to function. The
+goal is to get clear on which problems you’re trying to solve, because that tells you
+where to put your energy.
+Operational feedback loops are essential safety mechanisms. They monitor your
+infrastructure, track overall system health, and ensure you meet your SLOs.
+      Infrastructure (n.): The code you have to run, in order to run the code you want to
+      run.
+          —Charity Majors
+
+Operational feedback loops are downstream, delayed, and threshold-based, driven by
+customer complaints and system failures. By the time your operational loop fires,
+users have already been impacted and the threat is sizable.
+Operational loops are very important and you definitely need them. But they should
+not be the only way (or the primary way!) that developers learn about their code in
+production. They are guardians of stability, the last line of defense, protectors of the
+last resort.
+Developer learning loops let you track developer intent, verify user experience (UX),
+and validate that your code is working as intended—and identify problems before
+users notice anything is wrong. These loops move learning upstream toward preven‐
+tion, iteration, and product quality.
+This is the difference between prevention and cure, between learning continuously
+and only learning from disasters.
+
+Read the Fire Codes
+For many organizations, there’s no clean choice between which loops to prioritize.
+The reality is that many teams are fighting fires constantly while also being under
+pressure to ship faster. On this point, we’ll borrow wisdom from one of our favorite
+SREs at Honeycomb:
+      It’s great that you’re so good at firefighting, but maybe it’s time to read the fire codes?
+          —Fred Hebert
+
+
+466   |   Chapter 26: The Business Case for Observability
+Many engineering orgs are proud of their firefighters—and they should be. Incident
+response requires calm under pressure, sharp instincts, and a willingness to take
+ownership when things go wrong. But when an organization’s identity is built around
+firefighting, improvement becomes reactive by default. When it takes a crisis to learn
+anything, all your capacity gets spent on reaction and recovery rather than progress.
+“Reading the fire codes” is a metaphor for strengthening the upstream mechanisms.
+The bigger leverage is in prevention: designing systems and practices that stop fires
+from starting in the first place. That happens by building feedback loops that reduce
+the frequency and severity of incidents, and learning loops that make every change
+safer and more informative.
+
+The Business Case for Operational Loops
+The business case for operational loops is essentially the same as the traditional
+business case for monitoring and logging. The business cares about system health,
+and aggregate measures can often satisfy that goal.
+The degree of observability in your system matters. Signs of poor or insufficient
+observability include: customers finding your bugs before you do, small incidents
+snowballing into major outages, and debugging by intuition that burns out your
+senior engineers.
+Regardless of your current observability level, the business case is the same. ROI is
+demonstrated clearly and measurably through:
+
+  • Improved uptime
+  • Faster incident response
+  • Cost savings from prevented outages
+  • Reduced employee burnout
+
+Operational loops are downstream and time-sensitive. They are triggered by alerts
+(threshold-based or SLO violations) or by humans noticing problems (customer
+reports, helpdesk tickets). Operational loops succeed when teams can quickly answer
+three questions: what is happening, who is affected, and what will restore service
+fastest?
+
+Mapping Observability Models to Operational Outcomes
+Both the three pillars and unified models can support operational loops:
+The three pillars model
+    It works well for reactive operational workflows and infrastructure, where usage
+    is dominated by aggregate system metrics. With naming discipline and carefully
+
+
+                                                  The Business Case for Operational Loops   |   467
+      built bridges between tools, this model can serve dashboards and power simple
+      debugging use cases (with the aid of intuition and deep familiarity).
+The unified model
+    It also supports operational workflows, and shines at outlier detection and
+    exploratory investigations—by tenant, region, endpoint, feature state, and so on.
+    It reduces reliance on intuition and deep familiarity, and eliminates the need
+    for tool hopping or cross-correlation. The unified model uniquely shines at
+    connecting SLO violations back and forth with the requests they were derived
+    from.
+Given the overlap in outcomes, the formula for determining value is the same regard‐
+less of which model you use. Individual tool performance will vary, but the mandate
+is consistent.
+
+The Operational Mandate
+To understand the value of operational loops, look at how operational instability
+affects your business. Signs you may be approaching a breaking point include:
+
+  • Customers discover and report critical production bugs before you do.
+  • Minor incidents take so long to detect and fix that they escalate into extended
+    outages.
+  • Your backlog of investigations keeps growing because new problems pile up
+    faster than you can triage them.
+  • Your teams spend more time on break/fix work than on building new features.
+  • Customer satisfaction is low because of repeated performance issues that the
+    support teams can’t verify, reproduce, or fix.
+  • New features are delayed by weeks or months because engineers are tangled up in
+    figuring out how services are interacting.
+  • You hesitate to ship AI-generated diffs to production because nobody wrote them
+    or really understands how they work.
+
+This list is entirely about bugs, incidents, and performance issues. If these are your
+biggest constraints, your operational feedback loops need work.
+The business case for improving operational loops hinges on four things:
+Higher incremental revenue
+    Better uptime and performance directly translate to more revenue from
+    improved code quality.
+
+
+
+
+468   |   Chapter 26: The Business Case for Observability
+Cost savings from faster incident response
+    This results in faster mean time to detect (MTTD) and mean time to repair
+    (MTTR), quicker query response, faster bottleneck identification, reduced on-
+    call time, and fewer rollbacks all reduce labor costs.
+Cost savings from avoided incidents
+    Finding problems before they become critical prevents outages from happening
+    in the first place.
+Cost savings from lower turnover
+    Better tooling reduces burnout, alert fatigue, and on-call misery, which means
+    fewer engineers leave.
+Other benefits may apply depending on implementation, but these four should be
+universal for any business that adopts the practices in this book. Rather than getting
+caught up in feature comparisons between vendors, focus on whether—and how
+much—they actually improve business impact in these areas.
+Operational feedback loops are a vital safety net for almost every organization. If
+improving operational outcomes is your goal, then observability is your primary tool.
+But because operational loops are essentially table stakes, let’s turn our attention to
+the business case for developer learning loops, which is where the real leverage lies.
+
+The Business Case for Developer Learning Loops
+Developer learning loops are upstream from operational loops, and have compound‐
+ing effects downstream. If developers only look at production after something breaks,
+most of the learning is being lost.
+Developer learning loops are about far more than just bugs and incidents. They are
+about understanding the intersection of code, infrastructure, and users, and all that
+this entails. Production is a very noisy place, and users are agents of chaos, so you
+need to be able to ask exploratory questions and follow the trail, wherever it goes.
+These investigations often start with open-ended questions, like “Am I building the
+right product?”, “How are my users using it?”, and “What happened when I shipped
+that change?”
+Recall from Chapter 24 that we said observability is the sense-making layer for com‐
+plex sociotechnical systems. It’s what closes open loops and turns slow, lossy feedback
+into tight, accelerating ones. The questions that matter for reducing uncertainty are
+crosscutting by nature: impact by cohort, outcomes by feature state, regressions by
+request path, behavior under real load.
+Given that, two things should become clear: (1) tooling capabilities matter a lot
+here, and (2) this is a different kind of investment. With high-quality, granular
+
+
+                                             The Business Case for Developer Learning Loops   |   469
+observability as your information channel, your business case is about applying
+sustained pressure to the single greatest point of leverage in any software engineering
+organization: the value creation loop.
+Unified observability unlocks developer learning in ways that the three pillars cannot.
+We discussed both models in Chapter 1 (and briefly in Chapter 25):
+The unified storage model
+    This gives you speed, flexibility, explorability, and no practical limits on cardin‐
+    ality and context. Precision tools like this can track developer intent over time
+    against a noisy baseline and validate precise changes in production. When teams
+    can ask any question, explore any scenario with arbitrary specificity, and get
+    reliable answers in seconds, learning becomes routine. Curiosity is rewarded and
+    compounds across your teams.
+Three pillars observability
+    This can answer some of these questions, too, albeit at a much higher cost—
+    manual correlation, reliance on experts, queries that take minutes, and investiga‐
+    tions that take hours. Learning loops work best when they are easy and fast. If
+    validating a change is hard, teams revert to larger batches, slower releases, and
+    more guesswork. When curiosity is punished, people stop asking questions.
+The difference in outcomes is stark. The business case here hinges on how you
+quantify the impact of developer learning. Before we get into the mandate, let’s look
+at prior research we can build on.
+
+Estimating the Value of Developer Learning
+If “developer learning” feels squishy and hard to justify, recall the research of leading
+organizations like DORA, SPACE, DX,1 GitHub, and others (see links in Chapters 23
+and 24), that have been quantifying the measurable effects of developer productivity
+for years.
+When thinking about the business case for developer learning, notice how many tools
+in your current budget already try to buy it indirectly: CI/CD, test infrastructure,
+feature flags, experimentation platforms, progressive delivery, internal developer plat‐
+forms. The developer tools category is enormous because the economics are real—
+engineering time is expensive.
+As the number of developer tools has grown, so has the theoretical ceiling for
+engineering velocity. Yet very few organizations have come close to those theoretical
+gains; most see only modest improvements. Why?
+
+
+
+1 If you are a DX user, each point on the “DX index” correlates to X hours of time saved per developer per year.
+  It’s something worth tracking, even if estimates like these will always be imprecise.
+
+
+470   |   Chapter 26: The Business Case for Observability
+In our view, this is less mysterious than one might guess. Developer productivity is
+a system, and many tools succeed weakly (if at all) because they don’t close the loop.
+They improve one part of the system while leaving the feedback step weak. In the
+absence of learning, all you have is activity. Some omnipresent examples include:
+Chaos engineering
+   If you’re injecting failures into your systems but can’t identify precisely where and
+   how things broke, chaos engineering is just chaos. The shift to learning requires
+   clear attribution: what degraded, where, and why?
+Feature flags
+    Flipping flags to expose features to subsets of users gives you control, but control
+    without validation is a trust-fall activity—the control is illusory.
+Progressive delivery
+    Rolling out features gradually reduces risk, but only when regressions can be
+    precisely identified by cohort and slice. Otherwise, you have a slower deployment
+    pipeline and the same uncertainty.
+Many modern engineering practices only succeed when they form a closed loop:
+change → observe → act. Observability is what closes that loop and turns these
+practices into fast, specific, actionable learning.
+A credible business case doesn’t need to prove that developer time has value. It needs
+to show how observability reduces wasted cycles, accelerates outcomes, and aids in
+the value creation loop.
+
+The Developer Mandate Has Two Halves
+The business case for investing in observability to accelerate learning from develop‐
+ment loops has two halves to measure:
+External measures
+    Outcomes experienced by customers
+Internal measures
+     Outcomes experienced by engineers and engineering-adjacent roles
+Where you invest internally should reflect your business model, your competitive
+position, and where your biggest opportunities lie. Let’s take them one at a time.
+
+External measures: Product differentiators and customer experience
+From an external perspective, observability plays a supporting role in every customer
+interaction. This includes dependability, but also the quality of the product and the
+experience of each user, as well as the ability to understand and respond to real users’
+
+
+
+                                                The Business Case for Developer Learning Loops   |   471
+questions and behavior in real time (e.g., “Where did my package go?” or “Where did
+my deposit end up?”).
+Start by listing out your core differentiators as a business—your mission, vision, and
+product roadmap. What are your unique value propositions? What’s in your critical
+path, what do you have an SLO on? How do you make money? Start with those.
+
+                     At Honeycomb, for example, we have an internal target that query
+                     builder and boards queries should return in under 5 seconds, 85%
+                     of the time, and much more complex “deep dive” queries should
+                     return in less than 30 seconds, 85% of the time. We have similar
+                     targets for availability of data (99.95% of the time, submitted data
+                     will be queryable in under 60 seconds) and reliability of data
+                     (99.99% of data submitted will be persisted to disk). These things
+                     are very important to us; they differentiate us, and we are proud
+                     of them. We should invest in rich telemetry around these critical
+                     paths so we can understand them extremely well.
+                     We are investing heavily in exploring agentic workflows and other
+                     AI-enabled interfaces, so we also invest in making sure those engi‐
+                     neers are instrumenting their code as they go.
+                     On the other hand, services that are not user facing, not in the
+                     critical path, or not one of our key SLO targets need a lot less
+                     precision and investment.
+
+Turning this into monetary estimates is harder to give guidance on, but one go-to
+example is UX. At scale, small changes in latency and reliability can move business
+metrics in meaningful ways. A few public examples:
+
+  • Amazon reports that every 100 milliseconds of latency costs the company 1% in
+    sales.2
+  • Walmart found a 2% increase in conversions for every second it shaved off of
+    loading time.3
+  • Staples saw a 10% increase in conversions by reducing home page load time by
+    one second.4
+
+
+
+
+2 Steven van Vessum, “Amazon study: Every 100ms in Added Page Load Time Cost 1% in Revenue”, Conductor,
+  June 14, 2023.
+3 Cedric Moore, “The revenue impact of every second while your website loads”, Trueform, February 10, 2025.
+4 Martyna Kozłowska, “7 Ways Website Performance Impacts Your Business and Marketing Goals”, Reffine.
+
+
+
+472   |   Chapter 26: The Business Case for Observability
+The more strategic external value isn’t just knowing whether systems are “up.” Real
+value is unlocked when you can see and understand what users are actually doing:
+what they’re trying to accomplish, and where reality diverges from your assumptions.
+Other terms pleasing to the ear of finance include gems like: “fully-loaded engineer‐
+ing cost,” “recovered capacity from less firefighting,” “faster time to market,” “reduced
+incident investigation labor,” and “avoided wasted build cycles.” These are all ways
+to express the practical consequence of tighter feedback loops; your finance team
+can help you attach numbers to them. Pair your estimates with clear baselines and
+conservative assumptions.
+The decisions you make about how to instrument your code, or how to collect and
+analyze your telemetry, are not operational decisions. These are product decisions.
+
+
+                         The Cost of Not Paying Attention
+  What gets missed when developers only look at production for bugs and incidents?
+  Almost everything.
+  Instagram grew out of an app called Burbn, a location-based check-in app. The
+  founders observed that users were gravitating toward the photo-sharing feature, so
+  they pivoted and doubled down on it.
+  YouTube started off as a video dating site, but users seemed more interested in the
+  videos than the dating. Twitter (now X) was originally a podcasting platform called
+  Odeo. Slack emerged from a failed gaming company’s internal chat tool.
+  It’s remarkable how often this pattern pops up. Some of the most interesting features
+  and creative uses come out of watching what users do and following their lead. But if
+  you can’t or don’t look, you will miss it.
+
+
+The external half of the dual mandate is about being able to learn from customers and
+evolve the product toward better outcomes—before your competitors do, and before
+internal narratives harden into the wrong roadmap.
+
+Internal measures: Velocity as a competitive advantage
+Internal value is the part that leaders undervalue because it’s harder to put on a slide.
+It doesn’t always show up as a clean “+1% revenue” headline. But it’s where the real
+leverage lives, because it determines whether your organization can actually execute
+and learn without drowning in its own complexity.
+
+
+
+
+                                                The Business Case for Developer Learning Loops   |   473
+Instrumentation and enablement around internal developer feedback loops—CI/CD,
+deploys, test suites, agentic monitoring, specs, SLOs, developer sandboxes, visual
+tests, progressive delivery, feature flags, and so forth—is the difference between ship‐
+ping hundreds of times a day and shipping once a week. It’s the difference between
+small and nimble teams that can self-serve their needs, and slow and lumbering
+process overhead. It’s the difference between engineering labor converting efficiently
+into outcomes or evaporating into rework, escalations, and task trackers.
+And increasingly, it’s about which teams are going to survive the leap to AI-generated
+code. Teams that struggle to complete a migration or understand a user session
+in production are not equipped to validate nondeterministic agentic workflows in
+production, much less what it will take for their code to cross over (as discussed in
+Chapter 2).
+The reason is simple: uncertainty is expensive. When engineers can’t see what their
+code is doing in production, every change carries more risk. Organizations respond
+with more coordination and risk mitigation. Uncertainty creates drag, and so do most
+of the ways people respond to it. It’s how capable teams slow down without even
+noticing.
+You can’t hire your way out of a velocity problem caused by uncertainty. More bodies
+don’t help, they just increase the coordination tax.
+The way to break a velocity stalemate is by accelerating your ability to validate each
+change in production. You need to build confidence and you need to build it fast.
+That is the best way to efficiently convert engineering labor into outcomes: with fewer
+regressions, less rework, and tighter learning loops.
+The business case for developer learning can be assembled using internal velocity
+metrics, external experience metrics, or both. The investment returns on external-
+facing developer loops come from leaning into your product differentiators to
+increase revenue; the investment returns on internal-facing developer loops come
+from allowing each developer to accelerate and move with confidence.
+In an era where AI is being used to accelerate the development process, your ability to
+capture those gains and convert them into business results will depend on your ability
+to validate each change and understand the impact it has on your customers.
+Next, let’s look at how management needs to change in order to manage developer
+learning as an investment.
+
+
+
+
+474   |   Chapter 26: The Business Case for Observability
+Strategic Investment or Cost Center Optimization?
+There’s a reason many organizations habitually manage observability as IT or cost
+center technology: that’s how the industry got here. Monitoring and logging were
+traditional operations tools, as discussed in Chapter 3, and many of our tools and
+practices still reveal signs of their origins.
+
+
+                         Cost Centers Versus Investments
+  A cost center is a department or function within a company that incurs expenses but
+  doesn’t directly generate revenue. It’s tracked as a cost to the business rather than a
+  profit contributor. Classic examples include IT, human resources, legal, finance, facili‐
+  ties, ops, and infrastructure. They’re necessary for the business to operate, but their
+  value is indirect. They enable the revenue-generating parts of the org to function.
+  The term often carries a slightly loaded connotation: calling something a cost center
+  is sometimes a way of signaling that it is lesser-than or shouldn’t exist.
+  An investment, on the other hand, is something you spend money on now in order
+  to get more value back from later. The key distinction is the expectation of return. An
+  investment is supposed to compound.
+  The tricky part is that the return on many investments is delayed, indirect, or just
+  hard to measure. If you can’t draw a straight line from “we spent X on observability
+  tooling” to “we made Y more dollars,” the finance brain defaults to treating it as
+  overhead.
+  Engineers often find ROI estimates endlessly exasperating, because they seem fuzzy
+  and imprecise—they are, but that’s not the point.
+  The point is: framing matters. Cost centers get cut; investments get funded. The time
+  you spend crafting estimates is time well spent.
+
+
+“Is observability a cost center or an investment?” is a trick question. It’s actually both,
+or it can be, because observability inherits the properties of the code you are observing.
+Think about it:
+
+  • The observability you use for infrastructure and operational outcomes is a cost
+    center, because infrastructure itself is a cost center. You can’t make more money
+    by spinning up extra pools of idle capacity, and you can’t make money by ladling
+    on more monitoring checks than you actually need. Infrastructure is about
+    operating as efficiently as you can.
+
+
+
+
+                                              Strategic Investment or Cost Center Optimization?   |   475
+  • Your revenue-generating application code is an investment; you might add new
+    features, improve the recommendation engine, or make it faster and more inter‐
+    active in order to boost sales and conversion rates. The instrumentation and
+    telemetry you use are also an investment, if you are able to use better observabil‐
+    ity tools to improve the product or UX in ways that generate more revenue than
+    the marginal costs of those tools.
+  • The code you use to deploy, test, validate in production, and so forth, is not
+    revenue-generating code. However, engineering salaries are the largest single
+    category of expenses for most technical product companies, and internal tooling
+    and enablement can be a force multiplier on developer productivity as well as
+    overall confidence and execution speed.
+
+Observability and precision data are also dependencies for the coming AI revolution,
+but no one knows how to price that yet.
+In practice, managing all observability like a cost center doesn’t just reduce tool
+spend—it degrades the information channel the organization depends on to detect,
+diagnose, and improve its systems. This has many unfortunate consequences
+downstream.
+This is not to say that there are no effective techniques for constraining costs, or that
+you shouldn’t try to limit your spending. (There are, and you should.) But it would be
+short-sighted to manage all telemetry spend the same way. If you prevented develop‐
+ers from gathering high-cardinality data because it was too expensive, and as a result
+they don’t have enough specificity to identify outliers or improve performance, you
+are only hurting yourselves.
+
+Observability as Organizational Investment
+Observability is the sense-making apparatus for sociotechnical systems with con‐
+stant flux, dynamic components, nondeterministic agents, and countless emergent
+behaviors.
+It is the mechanism that connects cause and effect to create feedback loops. Observa‐
+bility is what builds the bridge that connects developer intent to user impact. And
+context-rich data and precision tooling are the primary safety mechanism for the
+emerging domain of automated coding techniques like harness engineering.
+Yeah, it’s kind of a big deal.
+If observability has not historically been managed as an investment or a strategic
+priority, what might that look like from an organizational perspective? Here is what
+needs to change:
+
+
+
+
+476   |   Chapter 26: The Business Case for Observability
+Reporting structure
+    Infrastructure, operations, and IT excel at managing cost center technologies
+    to a strict budget, which is why observability should not report to them. It
+    should roll up to engineering leadership—your vice president of engineering,
+    CTO, or sometimes chief product officer (CPO). Those roles typically have more
+    experience managing technology as an investment, not just as overhead.
+Team structure
+   Observability teams should be staffed and run like platform engineering teams,
+   not like infrastructure/ops. Follow the platform “Prime Directive”: build the
+   components that are unique to the company, but shared across teams. Use design
+   principles and user research, treating software engineers as their customers.
+   Minimize cognitive overhead for developers. Make auto-instrumentation feel like
+   magic. Make it easy to do the right thing and hard to do the wrong thing.5
+Remember, the worst possible outcome isn’t picking the wrong tool; that’s recovera‐
+ble. A worse outcome would be if you start pouring money, time, and engineering
+cycles into a solution when you don’t yet have alignment around questions like “What
+are we trying to solve?”, “What does success look like?”, and “What feedback loop are
+we trying to improve?”
+
+Conclusion
+In this chapter, we showed how to build a business case around operational response
+(firefighting) or developer learning (reading the fire codes). Each loop has different
+success measures, and the business case should be built around those measures
+instead of specific tools or features.
+We also identified the management shifts required to unlock funding and manage
+observability as an investment. Operational outcomes are cost-center optimizations
+and belong under IT/ops, but developer learning loops are a strategic investment and
+should live within engineering.
+When you translate faster learning and validating into conservative estimates of
+recovered capacity, reduced waste, and reduced risk, the case becomes fundable and
+sustainable.
+In the next chapter, we’ll cover some more practical diagnostics, as well as questions
+you can use to figure out if your investments are paying off or not.
+
+
+
+5 Do not, under any circumstances, simply call yourselves a “platform engineering team” and go on to run and
+  operate a giant mess of open source software. Any team that either (a) writes and maintains a sizable corpus
+  of code or (b) operates a substantial production service is not a platform team; they are a software team or an
+  operations team, respectively.
+
+
+                                                                                              Conclusion   |   477

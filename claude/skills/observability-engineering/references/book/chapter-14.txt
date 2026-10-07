@@ -1,0 +1,1301 @@
+                                                                           CHAPTER 14
+          Efficient Data Storage with ClickHouse
+
+
+       This chapter is contributed by ClickHouse team members Rory
+     Crispin, Vlad Seliverstov, Xander Garbett, and Dale McDiarmid
+
+
+                 A Note from Charity, Liz, George, and Austin
+ In the previous chapter, you learned about the design and implementation trade-offs
+ used by the Honeycomb Retriever datastore to manage observability workloads. In
+ this chapter, you’ll see how a popular open source datastore makes contrasting trade-
+ offs to solve the same problems. Multiple implementations of columnar database
+ technology can enable the exploratory data workflows we’ve advocated throughout
+ this book; we’ve invited ClickHouse to share their battle-tested approach. You may
+ find it especially valuable to read this chapter if you are already using ClickHouse as a
+ storage backend for your observability data, or considering building on ClickHouse.
+ Modern observability workloads require flexible schemas to capture evolving teleme‐
+ try, ingestion rates that can sustain several million rows per second, and query
+ latencies low enough to support interactive exploration over trillions of rows. You
+ don’t have to be tied to any one specific vendor or solution, but knowing that those
+ solutions exist and something about their architecture can help you make better
+ technical decisions to support the business and operational needs.
+ The rest of this chapter is written from the ClickHouse team’s perspective.
+
+
+ClickHouse is an open source, column-oriented database management system
+designed for real-time analytical querying at massive scale. It is built to address
+the demands of modern observability workloads, through its columnar storage
+engine, vectorized execution, and support for schema-rich event data. These design
+decisions enable it to serve as a unified backend for telemetry, without relying on
+pre-aggregation or rigid pipelines.
+
+
+                                                                                         239
+The ability of ClickHouse to ingest and query large volumes of event data at high
+speed enables ad hoc analysis for fast root-cause identification and operational deci‐
+sion making. Observability data is exposed through standard SQL, enabling teams
+to use familiar syntax and tooling. ClickHouse embraces open standards, supporting
+direct American National Standards Institute (ANSI) SQL access for interactive quer‐
+ies, dashboards, and integration with downstream systems such as alerting or AI
+pipelines. This ensures interoperability and avoids query or schema lock-in. Open
+source projects, community integrations, and custom tooling such as HyperDX,
+provide additional options for visualization and workflow integration. For instance,
+Dash0, SigNoz, and SolarWinds use ClickHouse as their datastore under the hood.
+By consolidating multiple telemetry signal types into high-cardinality wide events,
+ClickHouse not only supports structured, high-dimensional data but also enables
+correlations across diverse non-observability sources at query time. This capability
+enables you to use ClickHouse as a backend for modern observability workloads
+while also connecting it to data sources used for data warehousing and other emerg‐
+ing workloads.
+This chapter demonstrates how ClickHouse enables an observability model built on
+wide events, supporting fast exploration, real-time alerting, and root-cause analysis.
+We introduce the core concepts behind ClickHouse performance, walk through prac‐
+tical ingestion with OTel, outline key schema and query optimizations, and cover
+strategies for scaling from a single node to multiregion clusters. We close with an
+overview of how visualization layers connect to ClickHouse for analysis.
+
+ClickHouse Core Concepts
+Building effective observability systems with ClickHouse begins with an understand‐
+ing of how its architecture aligns with the characteristics of telemetry data. Observ‐
+ability workloads are demanding. Modern systems generate massive volumes of
+real-time, high-cardinality data and time series; these need to be ingested efficiently
+and made available for analytical queries. In this section, you will explore MergeTree,
+the ClickHouse storage engine. You’ll also see how ClickHouse executes queries
+internally, how primary keys influence data organization and read efficiency, and how
+various caching layers contribute to consistent, low-latency performance.
+
+                     MergeTree is deployed within ClickHouse as a single binary with
+                     a homogeneous architecture—every node can handle both reads
+                     and writes. This uniform design is key to grasping how MergeTree
+                     tables work, as data ingestion, background merges, and query pro‐
+                     cessing all follow the same principles across nodes. Scaling out
+                     from a single server with sharding and replication builds on this
+                     common foundation. Dedicated read or write paths are an optimi‐
+                     zation on the same core architecture.
+
+
+240   |   Chapter 14: Efficient Data Storage with ClickHouse
+MergeTree Fundamentals
+The MergeTree family of table engines forms the foundation of nearly all persistent
+storage in ClickHouse, with variants designed for aggregation, sharding, and repli‐
+cation provided to extend this core architecture. While it is possible to use other
+engines within ClickHouse, only MergeTree is optimized for observability.
+The MergeTree engine organizes a table as multiple parts, each containing a subset of
+rows stored in a columnar format and sorted by the table’s designated ordering key. A
+part is produced for each insert, typically consisting of several thousand rows. Within
+each part, data is further divided into granules—contiguous blocks of rows that serve
+as the smallest unit of index and that facilitates data skipping. Once written, these
+parts are immutable, with background processes continuously merging smaller parts
+into new, larger ones up to a configurable maximum size—currently 150 gigabytes
+(GB) by default at the time of writing.
+
+                Observability data is mostly write-once: you append events and
+                rarely mutate them. That fits the ClickHouse immutable-parts
+                design and fast insert path. When changes and redactions are
+                needed, ClickHouse does support lightweight updates and deletes,
+                but they’re inherently slower than append-only writes and are best
+                kept off the hot path.
+
+This approach is reminiscent of a log-structured merge-tree (LSM tree): immutable
+writes, background consolidation, and eventual compaction. However, MergeTree
+differs in two critical ways: it is columnar rather than row-oriented, and it’s explicitly
+ordered by a user-defined key (“primary key”). These differences optimize for analyt‐
+ical workloads rather than transactions.
+This “one part per insert” architecture is what enables ClickHouse to sustain
+extremely high ingest rates without coordination overhead. Background merges grad‐
+ually consolidate these parts into larger, sorted blocks, which not only compress
+efficiently but also preserve data locality for fast access. The result is a storage engine
+uniquely well-suited for wide, high-cardinality event data: it ingests at streaming
+scale, compresses to minimize storage footprint while maintaining ordering, and
+accelerates analytical queries that must scan across billions of rows.
+To better understand how inserts work in MergeTree, consider Example 14-1. It
+demonstrates how a raw insert is transformed into a durable, queryable data part by
+creating an events table and inserting a few sample records.
+
+
+
+
+                                                                ClickHouse Core Concepts   |   241
+Example 14-1. Example SQL statements for creating a table and inserting an event in
+ClickHouse.
+
+CREATE TABLE events
+(
+    `Timestamp` DateTime,
+    `ServiceName` String,
+    `SeverityText` String,
+    `Message` String,
+    `RequestId` String
+)
+ENGINE = MergeTree
+PRIMARY KEY ( ServiceName, Timestamp)
+
+INSERT INTO events (Timestamp, ServiceName, SeverityText, Message)
+VALUES
+    ('2025-09-05 10:15:00', 'nginx-d', 'info', 'User login successful');
+
+
+After running this code, ClickHouse carries out a sequence of operations to trans‐
+form the inserted rows into a durable, queryable data part:
+Sorting
+    Rows are first ordered by the table’s primary key. These should be the columns
+    that define the natural ordering of the data. Sorting makes subsequent filtering
+    and range scans efficient.
+Index creation
+    As it sorts, ClickHouse builds a sparse primary index. This isn’t a full index
+    on every row; instead, it records the first key value at the start of each granule—
+    a sorted block of rows, typically configured to span approximately 8,000 (see
+    Figure 14-1). This makes the index small enough to keep in memory while still
+    giving ClickHouse the ability to seek and skip large portions of irrelevant data.
+Columnar storage and compression
+    Next, the values for each column are written separately in a columnar format,
+    using the row ordering. Before being written, each column is compressed.
+    Observability data often achieves compression ratios of 20:1 or more.
+Data part finalization
+   The compressed column files, sparse index, and metadata are bundled together
+   into the immutable part mentioned earlier. Parts are later merged in the back‐
+   ground to form new, larger ones, but each individual part is immediately
+   available for queries, enabling data that arrives late to be stored and queried
+   effectively.
+
+
+
+
+242   |   Chapter 14: Efficient Data Storage with ClickHouse
+Data organization
+   ClickHouse can then store related parts in a group or folder called a partition.
+   Parts are never merged across partitions, so it allows certain operations to act
+   on the folder as a whole. They should be coarse-grained and based on a low
+   cardinality column, as setting a fine-grained partition prevents ClickHouse from
+   optimizing the parts.
+
+
+
+
+Figure 14-1. Rows are stored in granules, sorted according to the columns defined in the
+primary key.
+
+Storing the sparse primary index of the start of each granule enables ClickHouse to
+optimize the speed of seeking to a specific position.
+
+Query Execution
+While creating tables and inserting data are essential steps, understanding how quer‐
+ies execute is fundamental to ClickHouse. After all, storing the data quickly does not
+matter unless you can query it quickly as well! Query execution defines how data
+is retrieved and processed, and mastering it enables users to optimize performance,
+debug complex workloads, and design efficient interfaces.
+With the data from the previous example now loaded into our table, let’s look at how
+to query and access it. The most common observability query is “Show me data for X
+service in the last N minutes.” Let’s see how ClickHouse handles such a query.
+The query shown in Example 14-2 retrieves 1,000 log events for the kube-system
+service between two timestamps, returning the Message field in chronological order.
+
+
+
+
+                                                               ClickHouse Core Concepts   |   243
+Example 14-2. Example query for log event filtering.
+
+SELECT Message
+FROM events
+WHERE Timestamp BETWEEN '2025-07-22 10:13' AND '2025-07-22 10:15'
+  AND ServiceName = 'kube-system'
+ORDER BY Timestamp ASC
+LIMIT 1000
+
+Here is an outline of the sequence of operations that occur when the query runs:
+1. Partition pruning
+     First, ClickHouse tries to exclude entire partitions from the scanned data. For
+     instance, if the example table was partitioned by toStartOfDay(Timestamp),
+     the database would immediately discard all partitions that don’t overlap with
+     2025-07-22 10:13 to 2025-07-22 10:15.
+2. Part pruning
+     ClickHouse then examines each data part’s metadata. This metadata contains
+     the minimum and maximum values for the primary key columns (ServiceName,
+     Timestamp) within that part. If a part’s Timestamp range does not overlap with
+     2025-07-22 10:13 to 2025-07-22 10:15, it is immediately discarded.
+3. Index scanning and granule pruning
+     ClickHouse consults the sparse primary key indexes for the remaining parts.
+     Because ServiceName sorts the data within the part and then the Timestamp,
+     ClickHouse can perform a binary search on the index values to quickly identify
+     the small range of candidate granules whose data might match.
+4. Columnar scanning
+    After identifying the candidate granules, ClickHouse reads the ServiceName and
+    Timestamp column data for those specific granules. A filtering pass is performed
+    on this data to determine the exact rows that match the WHERE clause.
+With the matching row offsets, the required granules from the Message column
+are fetched, decompressed, and read at the offsets—this will be the final output of
+our query. Note that, similar to Retriever as discussed in Chapter 13, columns not
+considered in the query were never fetched, and the Message column was not read
+until the final set of rows was identified (also known as lazy materialization). This
+characteristic is an essential feature for efficient queries on wide events, where a
+majority of columns are not queried.
+In the following sections, we explore the differences between structured and unstruc‐
+tured logs and how each impacts query performance within ClickHouse. We examine
+the advantages and trade-offs of both approaches, showing how users can balance
+structure and flexibility to achieve optimal results. We then discuss the importance of
+
+
+244   |   Chapter 14: Efficient Data Storage with ClickHouse
+primary key design for query efficiency in the context of observability, and offer an
+overview of the key caching mechanisms available in ClickHouse.
+
+Structured logging
+As discussed in Chapter 5, transforming plaintext logs into structured events enables
+faster queries against the data, more efficient storage, and much more powerful
+aggregate query investigations.
+A natural first step is to store structured events in an SQL database by creating
+columns for each significant attribute. For example:
+    ALTER TABLE events ADD COLUMN HttpMethod String;
+    ALTER TABLE events ADD COLUMN HttpStatusCode UInt16;
+    ALTER TABLE events ADD COLUMN HttpPath String;
+
+With data stored like so, costly LIKE operations against a plaintext log string are
+instead accelerated by reading directly from the column, as with the query:
+    SELECT * FROM events
+    WHERE Timestamp BETWEEN now() - INTERVAL 1 HOUR AND now()
+      AND HttpStatusCode = 404;
+As you saw earlier, storing data as an integer is more efficient than using an unstruc‐
+tured string. It uses fewer bytes on disk, making data faster to fetch, scan, and cache,
+while also enabling quicker comparisons and the option to add indexes for further
+acceleration.
+However, this schema does not scale cleanly. Modern applications evolve rapidly,
+and new attributes—customer.id, feature_flag.key, pod.name, and countless oth‐
+ers—are added frequently. Adding a new top-level column for every emerging field
+quickly becomes unsustainable, especially when many attributes are short-lived or
+only relevant to specific subsets of events. For fast-moving engineering teams, a rigid
+column-per-attribute schema creates friction rather than flexibility.
+
+Balancing structure and flexibility with map
+To address the scalability challenges of evolving attributes in observability data,
+ClickHouse offers powerful semi-structured data capabilities. You can maintain a
+few critical, top-level columns while storing all other attributes in a flexible Map
+datatype. This gives you the best of both worlds: performance for common attributes
+as concrete columns, and flexibility for arbitrary attributes in the Map type.
+
+
+
+
+                                                              ClickHouse Core Concepts   |   245
+Let’s enhance the table with a map for log attributes:
+      ALTER TABLE events ADD COLUMN LogAttributes Map(String, String) CODEC(ZSTD(1));
+Now, your event-ingestion pipeline can parse the incoming event and populate the
+structured columns and the attributes map, regardless of whether the field names
+have been seen before.
+This approach keeps your primary schema clean while preserving all contextual
+information.
+
+                    The Map type has performance trade-offs. Accessing a key in a Map
+                    requires reading all keys and values, making it more input/output
+                    (I/O) intensive than querying a dedicated column. Map keys also
+                    cannot be part of the primary key. For these reasons, maps should
+                    be used sparingly, and replaced with more performant structure for
+                    your query load.
+
+This hybrid model of structured columns and semi-structured maps is a cornerstone
+of building a robust and adaptable observability platform. As we’ve discussed, the
+next step is to optimize queries against this map data further, using skip indexes and
+materialized columns for attributes that become “hot” query targets over time.
+The JSON type introduced to ClickHouse in 2025 aims to simplify observability use
+cases by accepting wide JSON (JavaScript Object Notation) events and automatically
+creating concrete columns for frequently occurring fields, while storing rare data in a
+separate blob structure with type hints. Before JSON, it was the observability platform
+maintainer’s responsibility to actively manage this split between materialization of
+columns, where necessary. The JSON type also makes it ergonomic to manage deeply
+nested JSON within ClickHouse and overcomes the performance challenges of the Map
+type.
+With an understanding of how ClickHouse stores and retrieves data, you can now
+examine how to design schemas that leverage these capabilities effectively. The early
+decisions around primary key selection, datatypes, and retention policies establish the
+foundation your observability platform will build upon.
+
+Primary key design
+The choice of primary key is fundamental to ClickHouse performance. The primary
+key determines the data’s physical sorting order and the primary key index’s structure,
+which enables fast query pruning. For observability workloads, this decision directly
+impacts how efficiently you can filter and aggregate telemetry data.
+
+
+
+
+246   | Chapter 14: Efficient Data Storage with ClickHouse
+Consider common query patterns in your observability system:
+
+  • Do you typically filter by service first, then time? For example:
+    — PRIMARY KEY (ServiceName, Timestamp)
+  • Are you more likely to search all services within a specific time window? For
+    example:
+    — PRIMARY KEY (Timestamp, ServiceName)
+
+The primary key should align with your most frequent and performance-critical
+queries. As these examples illustrate, no single schema perfectly suits every use
+case. ClickHouse addresses this challenge by providing materialized views and pro‐
+jections that enable you to transform data and apply alternative primary keys during
+ingestion. We’ll explore these capabilities further in “Practical Data Modeling and
+Optimization” on page 255.
+
+Caches
+During an investigation, you often execute many searches over the same dataset
+while iteratively adjusting filters. You might start with a broad scan for errors and
+then narrow down to a handful of services or filter by specific dimensions. Without
+caching, each refined query would redundantly process data that ClickHouse has
+already scanned, wasting computational resources and slowing down your investiga‐
+tive workflow.
+ClickHouse uses a multilayer caching system to dramatically accelerate query perfor‐
+mance. Each cache type operates at a different level of the query execution pipeline,
+from storing complete query results to caching individual data blocks. In this section,
+we’ll highlight four primary caching mechanisms, but there are others you can
+explore.
+The query cache stores a full query result in the cache, using the abstract syntax tree
+of the query in order to match entries. It is advised that the query cache is enabled
+for specific, frequently run queries at the query level via a setting, to avoid thrashing
+the cache entries—this can occur if the capability is enabled for less frequently run
+queries.
+The query condition cache (otherwise known as the predicate cache) stores informa‐
+tion about granules scanned while queries are running. For example, if a query has
+a threshold > 10, ClickHouse will store a single bit for that condition on each
+granule scanned in memory, storing a 0 if the granule has no matching entries. This
+allows subsequent queries that use threshold > 10 to skip scanning that granule,
+improving query performance.
+
+
+
+
+                                                              ClickHouse Core Concepts   |   247
+The filesystem cache is primarily used when reads from a disk or object store are
+typically slow or expensive. It stores data on a faster disk to avoid making a call to the
+slower storage. It caches the raw data from a table, but also caches other data, such as
+table and granule metadata, or even full raw files for other formats like Parquet.
+The userspace page cache is an in-memory cache. Like the filesystem cache, it can
+store data from either the tables or the metadata of the tables. However, unlike the
+filesystem cache, it stores all the information in memory. This has advantages over
+a pure memory-backed filesystem like tmpfs, as ClickHouse can manage memory
+proactively, rather than delegating memory management to the kernel.
+
+Collecting Data
+Having explored how ClickHouse stores, organizes, and queries observability data,
+we can now look at optimizing how that data arrives in the first place. In this section,
+we’ll examine how to collect and insert telemetry efficiently using the OpenTeleme‐
+try Collector and the ClickHouse exporter. You’ll learn how these components fit
+together to form a fast, reliable ingestion pipeline; how to tune insert performance
+and durability; and what alternative ingestion options exist for different architectural
+needs.
+
+The OpenTelemetry Collector and ClickHouse Exporter
+Although ClickHouse supports many ways of ingesting data, we will focus on getting
+up and running fast with existing telemetry pipelines. This means using OpenTeleme‐
+try Collector to ingest data. The ClickHouse exporter has general-purpose schematic
+defaults and well-documented settings for adjusting the exporter’s performance.
+By default, the ClickHouse exporter provides a solid baseline for inserting large
+amounts of data, without needing to tune the exporter, providing a ClickHouse
+schema that adheres to the OTel Logs model for small to mid-sized workloads.
+You can maximize ClickHouse insert performance by doing fewer but larger insertion
+operations. Adding the batch processor is a good way to achieve this, assuming you
+are using a centralized OTel gateway.
+If you’re not using a central gateway, setting async_insert=1 lets ClickHouse batch
+records on the server side using ClickHouse’s asynchronous inserts capability. This
+allows multiple exporters—for instance, when OTel is run as a DaemonSet or side‐
+car—to send small payloads without handling batching themselves, removing the
+need for an external agent or gateway and simplifying the architecture.
+You can also control durability by choosing wait_for_async_insert=1 for confirmed
+inserts with retries and backpressure, or 0 for fire-and-forget inserts that lower
+latency at the cost of durability.
+
+
+248   |   Chapter 14: Efficient Data Storage with ClickHouse
+ClickHouse’s out-of-the-box idempotency also helps handle network failures. By
+default, the hash of each block’s contents is retained in ClickHouse (for a configurable
+window), and exact matches of inserts are deduplicated and returned as successful.
+This enables clients to safely retry failed inserts.
+
+Alternate Ingestion Approaches
+Although the previous section focused on data ingestion via OpenTelemetry Collec‐
+tor, this is not the only observability pipeline option.
+Your data pipeline will almost always have unique requirements. In the case of a
+highly durable pipeline, you could use a durable store such as Kafka or S3 to push
+messages, and then ingest the data via native ClickHouse engines such as the Kafka
+table engine or S3Queue. This provides a larger queue in the event of backpressure
+or planned downtime than a collector’s local disk. In our experience, we don’t need
+to use a durable pipeline for performance reasons, as our ClickHouse cluster com‐
+fortably keeps up with our load of tens of millions of inserts per second, but your
+requirements around resilience may differ.
+Additionally, ClickHouse supports a wide variety of input formats and language cli‐
+ents, so it’s simple to connect any bespoke sources written in your preferred language
+to your central ClickHouse store.
+You can even connect to external databases like PostgreSQL via the table engine.
+Or you may have an external system that can produce JSON payloads via webhooks
+(for example, PagerDuty webhooks). ClickHouse’s HTTP interface provides a way to
+capture that data and integrate it.
+This reinforces the broader point: by treating observability data as just another data
+problem, you can seamlessly correlate observability signals with other observability
+and business datasets in ClickHouse for deeper context and richer understanding of
+issues.
+
+Querying Data
+With data now flowing into ClickHouse, the next step is understanding how to
+extract insight from it. In this section, we’ll explore how to query observability data
+effectively—from simple searches and aggregations that reveal patterns in logs and
+metrics, to more advanced joins that connect disparate event streams in real time.
+These examples illustrate how ClickHouse transforms raw telemetry into actionable
+insights, whether you’re investigating individual errors or correlating complex behav‐
+iors across systems.
+
+
+
+
+                                                                      Querying Data   |   249
+Simple Queries
+Let’s start by looking at some very simple queries that represent a common first step
+in observability analysis. Example 14-3 retrieves all rows from the last hour where the
+service name is equal to nginx and the log message begins with the keyword exited.
+
+Example 14-3. A simple query.
+
+SELECT *
+FROM events
+WHERE Timestamp > now() - INTERVAL 1 hour
+  AND ServiceName = 'nginx'
+  AND Message LIKE 'exited%'
+
+                     You could also use HyperDX, which is an open source observability
+                     frontend built by ClickHouse, to compose this query using Lucene-
+                     like syntax (i.e., ServiceName:nginx and Message:exited*). See
+                     “Visualizing Your Data” on page 272 for further details.
+
+
+A slightly more advanced query can help us move beyond simple filtering to under‐
+standing performance patterns in our events. Supposing we wanted to identify which
+nginx endpoints are slowest under real traffic conditions. With a few aggregations,
+we can summarize latency across all requests in the last hour, highlight endpoints
+with meaningful load, and order them by their worst response times, shown in
+Example 14-4.
+
+Example 14-4. A more complex query.
+
+SELECT
+    Path,
+    count() AS Requests,
+    round(quantile(0.95)(RequestTime), 3) AS P95_s,
+    round(quantile(0.99)(RequestTime), 3) AS P99_s
+FROM events
+WHERE ServiceName = 'nginx'
+  AND Timestamp > now() - INTERVAL 1 HOUR
+GROUP BY Path
+HAVING Requests >= 100
+ORDER BY P95_s DESC
+LIMIT 20;
+
+
+
+
+250   |   Chapter 14: Efficient Data Storage with ClickHouse
+The results of this query (see Table 14-1) tell us three things at once:
+Volume
+    We can see how many requests each endpoint served in the period.
+Tail latency
+     The 95th and 99th percentile response times for each endpoint, aggregated at
+     query time, are far more useful than simple averages when spotting performance
+     issues.
+Prioritization
+    By filtering to endpoints with at least 100 requests and ordering by worst P95, we
+    focus attention on endpoints that matter to users.
+
+Table 14-1. Results from the query in Example 14-4
+Path              Requests P95 (s) P99 (s)
+/api/v1/orders 40,723      1.034 1.78
+/api/v1/users     23,161   0.699 1.08
+/                 56,093   0.555 0.895
+/static/img       20,088   0.491 0.82
+
+
+From this result set, we can already see a few insights:
+
+    • /api/v1/orders is the slowest endpoint by far, with a P95 above one second and
+      a P99 close to two seconds, making it a prime candidate for investigation.
+    • /api/v1/users also shows elevated tail latency compared to lighter endpoints,
+      though it is still substantially faster than /api/v1/orders.
+    • High-volume but lightweight endpoints such as / and /static/img are serving
+      tens of thousands of requests with subsecond tail latencies—no immediate con‐
+      cern there.
+
+This ability to surface the “pain points” at a glance is the key advantage. Instead of
+raw logs (too noisy) or averages (too smoothed), we see immediately where the user
+experience may suffer. This is better than a pre-aggregated metric; it is computed on
+demand, using precisely the dimensions and aggregations we needed. And because
+these numbers are derived from wide events, we can seamlessly zoom from these
+aggregated metrics into individual events.
+Although this example was simple (showing only a GROUP BY path), you could
+imagine wanting to query both by path and by version—or by path and version and
+remote IP address—which no metric system could feasibly have a time series for
+without exceeding cardinality limits!
+
+
+
+                                                                           Querying Data   |   251
+Complex Joins
+For a more complex example of querying with ClickHouse, let’s consider how to
+connect arbitrary events with the ASOF JOIN.
+For ClickHouse, observability isn’t just about looking at a single stream of events.
+Real systems produce many types of signals: application logs, infrastructure events,
+Kubernetes events, and business metrics. These streams often evolve independently.
+The challenge we see is not just collecting them, but connecting them when you need
+to answer a question.
+Traditional tracing tries to solve this by enforcing relationships up front: fixed sche‐
+mas, trace IDs, and correlation at the application layer. That works for predictable
+flows, but it breaks down when the relationships are ad hoc or when you need to
+investigate workflows that weren’t anticipated.
+ClickHouse takes a different approach. Instead of defining links at ingest time, you
+can defer them until query time. Using JOIN operators, particularly the ASOF JOIN,
+you can connect events on the fly, even if they were never part of a single trace.
+ClickHouse JOINs can be used with standard columns, fields inside the Map type, or
+event columns derived from query time expressions (such as extracting a substring
+from a field).
+Suppose we want to measure how long it takes a container to recover after a crash.
+We have two tables, shown in Tables 14-2 and 14-3.
+
+Table 14-2. Table of events (as defined earlier)
+Timestamp                     ContainerId      Message
+2025-08-13 10:00:00 nginx                      exited abnormally with signal 9
+2025-08-13 10:00:00 apiserver exited abnormally with signal 9
+…
+
+Table 14-3. kube_events table containing Kubernetes events
+Timestamp                        ContainerId    EventType
+2025-08-13 10:16:01              nginx          ContainerReady
+2025-08-13 11:16:03              apiserver ContainerReady
+…
+
+At a glance, it’s clear from Tables 14-2 and 14-3 that nginx went down at 10:00:00 and
+recovered at 10:16:01. But with real systems, you want to compute this systematically
+across all containers. That’s where the ASOF JOIN comes in. Unlike a regular JOIN,
+which looks for exact matches between tables, an ASOF JOIN can join across tables
+that contain an ordered sequence of events, connecting neighboring rows. This works
+
+
+252   |   Chapter 14: Efficient Data Storage with ClickHouse
+well for observability use cases, where events arrive at different cadences and you
+need to connect them—for example, matching a container failure to the first recovery
+event that follows.
+
+Example 14-5. ASOF JOIN example.
+
+SELECT
+    failures.ContainerId as ContainerId,
+    failures.Timestamp AS FailureTime,
+    recoveries.Timestamp AS RecoveryTime,
+    dateDiff(second, failures.Timestamp, recoveries.Timestamp) AS RecoverySeconds
+FROM
+     events AS failures
+ASOF LEFT JOIN
+     kube_events AS recoveries
+     ON failures.ContainerId = recoveries.ContainerId
+     AND failures.Timestamp < recoveries.Timestamp
+WHERE
+     failures.Message LIKE 'exited abnormally%'
+     AND recoveries.EventType = 'ContainerReady'
+ORDER BY
+     failures.ContainerId,
+     failures.Timestamp;
+
+This produces rows like those shown in Table 14-4.
+
+Table 14-4. Resulting rows from the ASOF JOIN in Example 14-5
+ContainerId   FailureTime         RecoveryTime          RecoverySeconds
+nginx         2025-08-13 10:00:00 2025-08-13 10:16:01 961
+apiserver 2025-08-13 10:15:00 2025-08-13 10:16:03 63
+
+
+In plain language, the nginx container took about 16 minutes to recover, and the
+apiserver recovered in just over a minute.
+With this query, we’ve essentially built a recovery-time metric on demand, directly
+from raw events.
+Now, supposing we were concerned that a particular release version caused a
+regression in the mean time to repair (MTTR) for nginx, we might update the
+query to include the column image_tag from the table kube_events, adding recov
+eries.image_tag to our SELECT, and filtering with AND container_id = 'nginx'.
+Now we can calculate the recovery time for each image type.
+
+
+
+
+                                                                          Querying Data   |   253
+By using JOINs across metric sources, we moved from raw event streams to actionable
+metrics with just a few lines of SQL. More importantly, we did this without predefin‐
+ing relationships or changing our ingestion pipeline, enabling us to refine and extend
+questions.
+
+Scaling Vertically
+As your observability platform matures and data volumes grow, the initial schema
+and infrastructure decisions that worked well at a smaller scale may need refinement.
+This section explores the iterative process of evolving your ClickHouse deployment
+to handle increasing load, changing query patterns, and new operational require‐
+ments.
+At scale, performance bottlenecks in observability systems often come down to how
+data is stored—and more importantly, how it’s queried. Semi-structured fields like
+Map(String, String) or JSON are flexible, but querying them efficiently across
+trillions of rows requires users to perform some optimizations.
+The key insight is that scaling isn’t just about adding more hardware—it’s about
+evolving your approach to data modeling, query optimization, and infrastructure
+management based on real-world usage patterns and performance data.
+In this section, we begin by examining how to profile queries to identify bottlenecks.
+Then, we’ll explore data modeling and optimization techniques that improve perfor‐
+mance within and across tables. Finally, we discuss lifecycle management strategies
+that help balance speed, cost, and retention as data volumes expand. Together,
+these topics provide a practical framework for scaling ClickHouse efficiently without
+adding unnecessary complexity.
+
+Profiling Your Queries
+As your observability system grows, optimization should be driven by systematic
+measurement and hypothesis-driven experimentation, not random guesswork. Profil‐
+ing means examining how queries behave: what resources they use, how efficiently
+they access data, and where time is spent. These insights guide schema design and
+tuning far more effectively than intuition.
+ClickHouse makes profiling straightforward with its internal system tables. Users
+interested in exploring these capabilities can find more details on optimizing queries
+in the ClickHouse documentation.
+
+
+
+
+254   |   Chapter 14: Efficient Data Storage with ClickHouse
+Practical Data Modeling and Optimization
+This section explores the various approaches that ClickHouse supports to better
+model your data at query time. Each approach has its own trade-offs around compute
+or storage at ingest time in exchange for faster queries.
+These approaches are effectively split into two styles: optimization within a table and
+optimization across tables.
+
+Within a table
+The first set of strategies focuses on optimizing data retrieval and query performance
+within a single MergeTree table. These techniques refine the table’s internal data
+structure to maximize efficiency against a fixed schema.
+
+Skip indexes. Skip indexes are data structures that enrich a granule (a collection of
+consecutive rows) with statistical metadata. The goal of a skip index is to inform
+ClickHouse during query planning whether it should skip (hence the name!) scan‐
+ning that granule or not. So, an ideal skip index should have clustered results within
+a granule. Thus, skip indexes will be most effective when applied to a column that
+correlates with the table’s write order, as dictated by the primary key.
+A positive result should only occur for a small number of granules out of the total
+set, thus ensuring the majority of granules are skipped. In other words, if your data is
+likely to have positive results across most granules, it’s not worth adding a skip index.
+The extra skip index structures will bloat your table storage and can even degrade
+performance, as ClickHouse will read the skip index before determining that it will
+not be able to skip granules.
+To illustrate this, the SQL shown in Example 14-6 is adapted from the default OTel
+logs schema.
+
+Example 14-6. Example skip indexes.
+
+    INDEX idx_request_id RequestId TYPE bloom_filter(0.001) GRANULARITY 1,
+    INDEX idx_res_attr_key mapKeys(LogAttributes) TYPE bloom_filter(0.01)
+      GRANULARITY 1,
+    INDEX idx_res_attr_value mapValues(LogAttributes) TYPE bloom_filter(0.01)
+      GRANULARITY 1,
+    ...
+    INDEX idx_message Message TYPE tokenbf_v1(32768, 3, 0) GRANULARITY 8
+
+
+
+
+                                                                    Scaling Vertically   |   255
+      It defines an index called idx_request_id on the column RequestId. The
+      bloom_filter(0.001) specifies a false positive rate of 0.1%, which is useful
+      for needle-in-a-haystack queries such as RequestId lookups. GRANULARITY 1
+      indicates the index covers one granule (by default, 8,192 rows).
+
+      It creates a Bloom filter index on the keys of the LogAttributes map, enabling
+      efficient search through attribute names without scanning the full map structure.
+
+      This is similar to the previous index, but it targets the values of the Log
+      Attributes map, improving performance for queries filtering by attribute values.
+
+      A tokenbf_v1 Bloom filter is defined on a tokenized version of the Message
+      column. For example, a message like “The quick brown Jabberwocky” is split into
+      tokens (The, quick, brown, Jabberwocky), each inserted into the Bloom filter.
+      32768 sets the filter size in bytes, and 3 specifies the number of hash functions
+      used.
+All four skip indexes in Example 14-6 are a variant of the Bloom filter. The concepts
+behind Bloom filters have multiple excellent explanations, so we will focus on the
+specifics within ClickHouse. The ClickHouse documentation provides approaches to
+selecting and optimizing these parameters.
+The net effect of this index is a simple text-based search on text tokens. The best
+performance is when applied to string columns that contain a large number of unique
+values and are queried for relatively rare terms (the more granules skipped, the
+better).
+MinMax indexes are another type of skip index that store the minimum and maximum
+values for a specific column of each granule. They can be particularly useful in
+observability datasets when searching for anomalies such as unusually long spans.
+For example, in a table of trace spans with a Duration column, the index stores the
+minimum and maximum duration for each granule. When you query for outliers
+(e.g., spans where Duration exceeds a threshold), ClickHouse can decide with a
+single comparison whether an entire granule can be skipped, avoiding thousands of
+unnecessary row scans.
+Figure 14-2 shows an example of how a MinMax index filters the granules for a query,
+and thus reduces the data to be read.
+
+
+
+
+256   |   Chapter 14: Efficient Data Storage with ClickHouse
+Figure 14-2. MinMax index filter example.
+
+                ClickHouse introduced inverted indexes on columns to accelerate
+                full-text search. This feature extends the concept of skip indexes by
+                pruning irrelevant granules for token-based queries using inverted
+                indexes. The result is significantly faster log and text-search per‐
+                formance with minimal configuration overhead and deterministic
+                results. This approach is similar to the use of Bleve-based full-text
+                search indexes on Retriever.
+
+
+Column materialization. A powerful feature for data modeling in ClickHouse is the
+ability to materialize columns. This means that a column, often derived from an
+existing one, is stored separately on disk and updated automatically. While some flex‐
+ible datatypes, like the Map type, are excellent for initial ingestion of semi-structured
+data, filtering or querying against them can be slower at scale as they require runtime
+parsing of the entire map.
+The practical solution is to materialize fields that users filter by regularly. Pulling
+high-value keys like pod_name, region, or query_id out of maps and into top-level
+columns allows the system to leverage ordering keys, compression, and skip indexes
+effectively.
+
+
+
+
+                                                                        Scaling Vertically   |   257
+                     One advantage of the JSON type is that it handles materialization
+                     automatically. During inserts, any new fields not already repre‐
+                     sented as columns are detected, and corresponding columns are
+                     created.
+
+
+Because observability requires the ability to synthesize and aggregate data at read
+time—not just write time—we see convergent evolution, with calculated fields on a
+single row as a feature present in Retriever that is similar to column materialization in
+ClickHouse.
+
+Projections. A projection is an embedded, query-optimized subset of columns for a
+MergeTree table that reorders (and optionally pre-aggregates) data with a different
+primary key index from the base table. Internally, ClickHouse maintains one or more
+hidden projection structures and automatically updates them during ingestion. This
+isn’t a skip index, as the projection structure is a full copy of the columns it includes
+by default. When a query is run, ClickHouse transparently selects the projection (or
+the base table) that minimizes the data scanned, without requiring query rewriting or
+extra joins—thus optimizing query execution time.
+Projections are especially useful when filtering or grouping on columns not included
+in the primary key. They improve performance by reducing I/O and computation at
+query time. Use projections when you need to support multiple query patterns with
+different dimensions (e.g., ordering by Timestamp or ServiceName) while keeping a
+single table for simpler queries and easier maintenance. Users query a single table
+while ClickHouse automatically routes their query to the optimal projection.
+Projections add storage and ingestion overhead, because more data must be written,
+increasing I/O and memory usage. The additional cost of storage can be minimized if
+using object storage for long-term retention.
+
+Across tables
+The techniques mentioned in the previous section around optimizing a single table
+will take you a long way. Optimizing a single table can improve data layout or index‐
+ing, but its structure remains fixed. For example, the primary key is immutable, and
+avoiding projection costs may still leave limitations. As requirements grow, special‐
+ized tables often deliver better compression and query performance, and ClickHouse
+provides these benefits without complex pipelines or queries.
+
+Materialized views (incremental). In ClickHouse, an incremental materialized view acts
+like an AFTER INSERT trigger on the source table. It captures newly inserted rows
+from the source table in its SELECT statement and writes transformed or aggregated
+results into a separate target table at insert time. This can be used to shift computa‐
+
+
+
+258   |   Chapter 14: Efficient Data Storage with ClickHouse
+tion from query time to insert time by creating subsets of smaller data, either filtered
+or pre-aggregated.
+Inserts to tables with a single materialized view are atomic, using the same dedupli‐
+cation logic as the rest of ClickHouse, minimizing issues with retrying inserts. The
+materialized view then persists only the transformed results, ensuring the original
+data isn’t stored when it’s not needed.
+A table can have multiple materialized views, which can also be chained. This enables
+you to create simple streaming data pipelines—filtering, aggregating, or routing data
+to a specific table or even another materialized view. In the example shown in Fig‐
+ure 14-3, a materialized view is responsible for sending a copy of the error logs from
+the wider dataset to a dedicated table. A second chained materialized view computes
+aggregates over the error logs, which can then be used for low-latency querying with
+minimal resources to power features such as alerting.
+Queries against the materialized view are much faster because the data has already
+been precomputed, making it ideal for repeated access patterns or real-time analytics.
+The advantage of using an incremental materialized view for this approach is twofold.
+First, it provides a consistent API for insertion; your source table defines the single
+data entry point, with its schema acting as the baseline of the metadata that your
+events must have.
+Second is the ability to derive aggregations or apply filtering on event data during
+insert time. A concrete example is SELECTing events that are considered business
+critical, such as errors in the Figure 14-3 example, and routing them to another table
+for faster querying with a different retention configuration.
+
+
+
+
+Figure 14-3. Illustration of materialized views filtering and aggregating data on insert.
+Rows land in logs_null, a view copies all events to all_logs, another filters errors into
+error_logs, and a chained view aggregates those errors into error_aggregates for fast
+queries.
+
+Merge table. In many cases, the previously described techniques result in multiple
+tables, each containing different subsets of events. This can lead to situations where
+users need to run queries that span several tables simultaneously. To improve the
+ergonomics of querying across multiple tables, ClickHouse provides the Merge table.
+
+                                                                    Scaling Vertically   |   259
+Although the name is deceptively close to the name of the MergeTree engine, this
+feature is conceptually different. It enables you to define a view over multiple under‐
+lying tables regardless of whether they differ in schema, partitioning, or sort order.
+To users, it still behaves like a single table, even though a Merge table may combine
+several schema variants accumulated over time, each tuned to the data shape when it
+was written.
+A useful example of this is the system table query_log, where the old data is rotated
+to another table, query_log_0, query_log_1, etc., on ClickHouse version and schema
+updates. To SELECT across all of them, the following syntax can be used:
+      SELECT * from merge(’system’, ’^query_log.*’)
+
+The regex matches all of the tables with query_log, and ClickHouse will transpar‐
+ently split the queries and will even automatically choose the minimum viable schema
+that returns results for all of the tables.
+Using this approach enables you to evolve your ingestion strategy and schema over
+time without rewriting historical data or breaking queries, providing a stable API that
+engineers or tooling can use. For instance, this might cover a scenario in which a
+team changes from integers to enum datatypes for HTTP status codes, or promotes
+user_id from a map key to a full key.
+The combination of materialized views and the Merge Table engine allows for split‐
+ting ingested data into dedicated tables, but querying across all of them with a unified
+view via the Merge table engine. In an example of convergent evolution, the Retriever
+datastore has also implemented a variant of this feature, as the COALESCE calculated
+field that can select from any extant fields.
+As an example, Figure 14-4 illustrates how logs inserted into the logs_null table can
+be filtered into two separate tables—one containing all nonerror logs and another
+storing only error logs. Users may then query across both tables using the Merge table
+function to create a unified view of all logs.
+
+
+
+
+Figure 14-4. Example of how the Merge function can be used to return combined results
+from two separate tables.
+
+
+
+
+260   |   Chapter 14: Efficient Data Storage with ClickHouse
+Whether improving query efficiency within a single table through skip indexes and
+projections or structuring data across multiple tables with materialized views and
+Merge tables, each approach enables better alignment between schema design and
+real-world query patterns. By continuously evolving your data model as workloads
+grow and change, you can maintain fast, predictable performance without increasing
+operational complexity—laying the groundwork for the next stage of scaling your
+observability platform.
+
+Data Lifecycle Management
+Observability data follows predictable access patterns: recent data is frequently quer‐
+ied for real-time debugging and alerting, while historical data is accessed less often
+for trend analysis and forensics. This natural lifecycle makes tiered storage an ideal
+cost-optimization strategy.
+ClickHouse’s time to live (TTL) policies enable automatic data movement between
+storage tiers based on age. We recommend using solid state drive (SSD) storage—
+whether instance attached or persistent volume—for your hot tier, where data is
+initially written, before moving it to an object storage tier (S3 or Google Cloud
+Storage, for instance) based on time or disk-fill percentages.
+The time period here would typically be based on your access patterns and the period
+over which most queries occur. In contrast with Retriever, which attempts to eagerly
+offload data to S3 to expand the set of workers that can potentially read the data in
+parallel, ClickHouse (in this deployment pattern) aims to keep data locally for as long
+as it’s likely to be queried on that host. Data can then transition through progressively
+cheaper storage classes. This idea is captured by Figure 14-5, where data in NVMe
+(non-volatile memory express) is queried more frequently than that in spinning disk
+or even object storage.
+
+
+
+
+Figure 14-5. Data in NVMe is accessed more frequently than that in spinning disk or
+object storage.
+
+
+
+
+                                                                    Scaling Vertically   |   261
+The query interface remains unchanged, with ClickHouse fetching data from the
+appropriate tier as needed. ClickHouse supports most object stores (such as S3,
+Google Cloud Storage, MinIO, and Azure Blob Storage), each with options for
+reduced-cost archival storage.
+The following SQL statement modifies the events table specifying several TTLs—data
+older than 90 days is moved to the disk s3_ia_disk, with events older than a year
+deleted:
+      ALTER TABLE events
+      MODIFY TTL
+          Timestamp + INTERVAL 90 DAY TO DISK ’s3_ia_disk’,
+          Timestamp + INTERVAL 365 DAY DELETE
+TTL policies piggyback on top of background merges to adjust the data location.
+At high volume, this can be expensive, requiring ClickHouse to scan lots of data
+in order to determine which rows to drop or move. By adding a SETTING of
+ttl_only_drop_parts=1, ClickHouse can efficiently drop aged-out data by only
+dropping the full part, rather than trying to remove row by row. This still relies
+on your data being clustered by the TTL condition. If your primary key begins with
+a time column, this is already covered, with alternative techniques only needed if this
+isn’t the case.
+An alternative approach is using a PARTITION BY on a low granularity timeframe
+matching your TTL, such as toStartOfWeek(Timestamp). ClickHouse will group
+parts by that time range, even if the timestamp is not part of the overall sorting key,
+enabling TTLs to run quickly without putting significant load on ClickHouse.
+TTL policies have even more powerful features for longer-term historical queries.
+TTLs can be selectively applied with WHERE clauses, letting you choose to keep high-
+signal data for longer (for example, aging out non-error events). They can be used
+on a column-by-column basis, or GROUP BY clauses can aggregate or downsample the
+data by only storing a summary.
+In summary, scaling within a single ClickHouse instance is about precision, not just
+power. By profiling queries, refining data models, and applying targeted optimiza‐
+tions, you can sustain low-latency performance and cost efficiency even as your
+observability workloads grow by orders of magnitude.
+
+
+
+
+262   |   Chapter 14: Efficient Data Storage with ClickHouse
+Scaling Horizontally
+Scaling horizontally builds on the principles covered earlier by extending the Click‐
+House architecture across multiple nodes and regions. In this section, we examine
+how replication improves durability and availability, how sharding enables horizontal
+scalability, and how SharedMergeTree brings cloud native elasticity through sepa‐
+ration of storage and compute. Together, these capabilities enable ClickHouse to
+scale seamlessly from a single powerful server to globally distributed observability
+deployments.
+Modern servers are powerful, and ClickHouse is designed to fully exploit their capa‐
+bilities and resources. A single well-provisioned host (CPU, RAM, NVMe SSDs) can
+handle terabytes of data with high ingest and query rates.
+Observability workloads, however, can outgrow a single host. When data size, request
+rates, or processing demands exceed one server—or when high availability and failure
+isolation are required—scaling out becomes necessary: shard for capacity and repli‐
+cate for high availability.
+
+               Where possible, ClickHouse users should scale vertically before
+               considering sharding to scale horizontally. Unlike other systems
+               constrained by Java Virtual Machine or architectural limits, Click‐
+               House can fully utilize modern hardware. Vertical scaling addition‐
+               ally minimizes the use of the slowest part of any database: the
+               network.
+               Horizontally scaling should also not be confused with high avail‐
+               ability or cross-region redundancy. This can be achieved with
+               ClickHouse through replication.
+
+
+Replication
+To improve availability and durability, ClickHouse supports data replication. In a
+sense, replication is orthogonal to sharding: each shard can be replicated to multiple
+nodes for fault tolerance. MergeTree tables can use the ReplicatedMergeTree engine,
+which relies on Keeper—a Raft-based coordination service replacement for Apache
+ZooKeeper to maintain a configurable number of replicas for each shard. On startup,
+a ClickHouse binary can start as either a server or a keeper.
+
+
+
+
+                                                                    Scaling Horizontally   |   263
+Replication in ClickHouse is based on table states—the combination of table parts
+and metadata (e.g., column names and types). As an active-active replication model,
+any node can advance the state of a table using any of the following three operations:
+Inserts
+    Add new parts.
+Merges
+   Create new parts while removing old ones.
+Mutations/DDL (data definition language) statements
+   Add or remove parts and/or modify metadata (e.g., add column).
+Each operation is performed locally on a node and recorded in Keeper as a state
+transition in a global replication log.
+A typical three-node Keeper ensemble maintains the replication log. All replicas start
+from the same log position. As nodes execute local inserts, merges, mutations, or
+DDL statements, the log is asynchronously replayed to other replicas. This eventually
+makes replicated tables consistent—queries may briefly return stale data until replicas
+converge. For most observability data, eventual consistency is good enough, but when
+stronger guarantees are required, ClickHouse supports quorum writes through the
+insert_quorum session-level setting. When enabled, an INSERT succeeds only if the
+data is written to the configured number of replicas. If quorum is not reached, the
+write fails and the inserted block is removed from all replicas.
+Let’s look at an example of a replicated table in a cluster of three ClickHouse nodes.
+The following steps illustrate how inserted data is replicated across multiple nodes
+within a ClickHouse cluster:
+
+ 1. Initially, the replicated table is empty (see Figure 14-6). Then, Node 1 receives
+    two insert statements, creating two parts (see Figure 14-7): Part A and Part B. It
+    records the metadata in the replication log, which is stored in the Keeper.
+
+
+
+
+      Figure 14-6. Two parts, A and B, are created in Node 1.
+
+
+264   |   Chapter 14: Efficient Data Storage with ClickHouse
+   Figure 14-7. An entry is added to the replication log for both Parts A and B.
+
+2. Next, Node 2 replays the first log entry by fetching it, and downloads Part A from
+   Node 1 (see Figure 14-8).
+
+
+
+
+   Figure 14-8. Node 2 downloads Part A from Node 1.
+
+3. Node 3 replays both log entries and downloads both Part A and Part B from
+   Node 1 (see Figure 14-9).
+
+
+
+
+   Figure 14-9. Node 3 downloads Part A and B from Node 1.
+
+
+                                                                  Scaling Horizontally   |   265
+ 4. Then, Node 3 merges Part A and Part B to Part C, deletes the input parts, and
+    records a merge entry to the replication log (see Figure 14-10).
+
+
+
+
+      Figure 14-10. Node 3 merges Part A and Part B to Part C.
+
+ 5. Node 2 catches up and downloads Part B from Node 1 (see Figure 14-11).
+
+
+
+
+      Figure 14-11. Node 2 downloads Part B from Node 1.
+
+ 6. When Node 1 and Node 2 get to the Merge record in the replication log, they
+    will download Part C from Node 3 or perform the merge themselves, depending
+    on the cluster settings. Afterwards, Nodes 1 and 2 will delete Parts A and B (see
+    Figure 14-12).
+
+
+
+
+266   | Chapter 14: Efficient Data Storage with ClickHouse
+    Figure 14-12. Node 1 and Node 2 download Part C from Node 3.
+
+
+
+                ClickHouse also supports backups, including support for object
+                storage. This can be used to restore a system from a cold start—
+                where no data exists in the cluster.
+
+
+
+Replication protects against hardware failures and enables automatic failover. It can
+also boost query performance. With the parallel replicas feature, ClickHouse auto‐
+matically splits the query and fans the chunks out to all replicas to process in parallel.
+
+Sharding
+When the capacity of one host is exceeded, you should add a host and split a
+table’s data into two (or more) shards to horizontally scale. ClickHouse uses a
+shared-nothing approach: shard hosts don’t coordinate, and each shard’s table is
+independent. Figure 14-13 shows a simple example of a ClickHouse cluster with two
+shards.
+
+
+
+
+Figure 14-13. ClickHouse cluster with two nodes and two shards.
+
+
+
+
+                                                                   Scaling Horizontally   |   267
+In this schema, writes are fully independent, and the application that’s inserting
+the data decides which shard to use, as shown in Figure 14-14. It’s a very flexible
+approach that supports any sharding schema.
+
+
+
+
+Figure 14-14. ClickHouse cluster with two nodes and two shards, with a Distributed
+table and a sharding key to distribute reads and writes.
+
+For convenience, you can create a Distributed table. It doesn’t store data itself, but
+acts as a “view” or a “proxy” over the local and remote tables. The inserted data can
+be automatically distributed among the cluster’s shards based on a specified “sharding
+key” derived from data (e.g., ServiceName or Region) that determines which shard a
+particular row will be stored on. The sharding key does not have to be related to the
+primary key. Alternatively, ClickHouse chooses a shard randomly on every insert for
+even data distribution across the cluster nodes.
+In this example, there is a Distributed table configured across both shards so
+clients can connect to any node and insert or select data. When inserting the data,
+ClickHouse evaluates the sharding key for each row, determines where this row
+should be stored, and routes the insert to this specific shard. When selecting the
+data, the Distributed table forwards the query to all servers hosting shards of the
+target table, where each ClickHouse server computes its local aggregation result in
+parallel. Then, the ClickHouse server hosting the initially targeted Distributed table
+collects all local results, merges them into the final global result, and returns to the
+query sender.
+
+Single-Region Observability Cluster
+A simple ClickHouse cluster for observability workloads typically consists of two
+ClickHouse nodes using ReplicatedMergeTree tables and a Keeper ensemble with
+three replicas. For reliability, it’s best to host Keeper on separate nodes. Writes can
+be load-balanced across the ClickHouse nodes to improve throughput, as shown in
+Figure 14-15.
+
+
+
+268   |   Chapter 14: Efficient Data Storage with ClickHouse
+Figure 14-15. ClickHouse cluster using ReplicatedMergeTree for multinode replication.
+
+On modern hardware, a single ClickHouse server with 32 CPU cores and 128 GB
+RAM can ingest around 20 billion events per day—peaking at roughly 300,000–
+400,000 events per second. With proper load balancing between replicas, that can
+reach 500,000 events per second. Adding more nodes will scale ingest bandwidth
+almost linearly. Thanks to strong compression within ClickHouse, observability data
+often shrinks by 10–20 times. For perspective, a single day’s raw volume of 20
+terabytes (TB) can compress down to just 1–2 TB on disk. Consider two servers, each
+with 7.5 TB of locally attached NVMe disk in a high-availability architecture (i.e.,
+each server storing a complete copy of the data): these could store at least three days
+of data before object storage was required for longer-term retention.
+Query performance in ClickHouse depends heavily on query patterns. Within this
+architecture, applying best practices such as efficient schema design, appropriate
+partitioning, and effective indexing makes it possible to achieve subsecond response
+times on typical observability workloads, even at a large scale.
+
+Multiregion Observability Cluster
+In a multiregion deployment each region handles its own ingestion. Writes are
+directed to local ClickHouse nodes, which minimizes latency, improves reliability,
+and reduces costs. A Distributed table sits on top, as shown in Figure 14-16, using
+a Region column as the sharding key—primarily for routing queries to the right
+region—while all inserts remain local.
+Intraregion scaling is achieved by adding shards and replicas within a region. This
+increases both ingestion bandwidth and query parallelism, while replicas improve
+fault tolerance.
+
+
+
+
+                                                                 Scaling Horizontally   |   269
+Figure 14-16. Multiregion observability cluster using Distributed table engines and
+ReplicatedMergeTree.
+
+Cross-region scaling is straightforward configuration and provisioning: adding a new
+region is as simple as extending the Distributed table definition with another shard
+keyed by the Region column. Queries automatically become aware of the new region,
+enabling federated analytics across all regions or scoped queries to a single region for
+efficiency.
+Geo-distributed fault isolation comes naturally with this design. If one region
+becomes unavailable, queries can continue to run against the remaining regions. Data
+remains isolated within its home region for ingestion, but the global Distributed
+table provides a unified view, ensuring both resilience and availability across the
+deployment.
+
+SharedMergeTree
+                     The ClickHouse SharedMergeTree and the Honeycomb Retriever
+                     both provide a way to separate storage from compute for high-
+                     volume analytics. They share a similar architectural idea of letting
+                     stateless query nodes read from a distributed object store rather
+                     than relying solely on local disks. However, neither Retriever nor
+                     SharedMergeTree are required to get a basic observability backend
+                     operating.
+
+
+
+
+270   |   Chapter 14: Efficient Data Storage with ClickHouse
+The SharedMergeTree table engine family is a proprietary cloud native replacement
+for ReplicatedMergeTree, optimized for shared object storage (e.g., AWS S3, Google
+Cloud Storage, Azure Blob Storage, MinIO). It powers ClickHouse Cloud and offers
+several advantages over ReplicatedMergeTree:
+There is no need for data sharding.
+    All data is backed by object storage using a single shard. Data is not replicated
+    between the nodes; instead, they become aware of the state of the single shard via
+    Keeper.
+There is a deeper separation of storage and compute.
+    Compute can be scaled horizontally, as well as vertically, with multiple nodes
+    reading from the same single shard in parallel. In this case, replicas do not hold
+    a copy of the data and rather just provide additional “replica compute” over the
+    data.
+Query execution can be shared across nodes.
+   And each node completes a subset of the required work. A higher rate of insert
+   throughput can be sustained across ingest workers.
+Quicker scale-up and scale-down operations.
+    This is because data is not replicated. It also enables scale to zero, where a replica
+    is awakened just in time.
+Lightweight, strong consistency for SELECT queries.
+    Storage costs become lower due to the use of object storage rather than more
+    expensive NVMe drives.
+Unlike ReplicatedMergeTree, replicas in SharedMergeTree don’t communicate
+directly. Instead, they coordinate via shared storage and Keeper. Keeper ensures
+nodes remain synchronized by replicating the global state modified by inserts,
+updates, and merges. Through Keeper, each node is aware of the latest data and
+maintains an up-to-date view of the single copy. Because nodes themselves don’t
+maintain state, scaling up or down is faster, with merges and mutations having a
+lower overhead. SharedMergeTree supports hundreds of replicas per table, enabling
+elastic scaling without shards. ClickHouse Cloud uses distributed query execution to
+leverage additional compute resources for a single query.
+We believe that SharedMergeTree is a well-suited choice for scaling out most observa‐
+bility workloads, as long as you are able to use a proprietary service. It offers higher
+insert throughput and lower storage costs—effectively enabling retention to become a
+nonissue.
+
+
+
+
+                                                                   Scaling Horizontally   |   271
+Visualizing Your Data
+With all of our telemetry in ClickHouse, the most critical question is: how do we
+make these capabilities more accessible to SREs and developers?
+As ClickHouse supports standard SQL, users can build their own observability tool‐
+ing on top to suit their needs. This can be useful for teams operating at extreme
+scale or with highly specialized workflows, though most users simply need a familiar
+interface that works out of the box, such as that offered by HyperDX and illustrated in
+Figure 14-17.
+
+
+
+
+Figure 14-17. HyperDX open source interface for searching logs and traces.
+
+For most teams, HyperDX—an MIT-licensed, open source visualization layer built
+natively for ClickHouse—provides an intuitive way to explore observability data.
+It offers advanced filtering, timeline views, and real-time dashboards, along with a
+Lucene-style query syntax that makes complex searches simpler than SQL. This didn’t
+exist when we were building our own UI, but had it been available, we would have
+built on it without hesitation.
+
+Using ClickHouse for Observability Workloads
+Modern observability stacks need a datastore that can absorb huge volumes, adapt to
+changing telemetry, and return answers quickly. ClickHouse meets these needs with
+its columnar architecture, MergeTree engine, and flexible schemas. This supports
+efficient ingestion, smooth evolution, advanced indexing, and scalable deployments.
+
+
+
+
+272   | Chapter 14: Efficient Data Storage with ClickHouse
+Paired with OTel and tools like HyperDX, it gives teams a fast, cost-efficient, and
+open foundation for building their own observability platforms.
+Today, many teams use ClickHouse to power custom observability systems, from
+commercial vendors to large self-managed deployments. Its performance, scalability,
+and open design provide a strong alternative to proprietary software as a service
+(SaaS) offerings.
+
+Conclusion
+We’re delighted to share this content from the ClickHouse team showing an alter‐
+native datastore implementation to contrast against the previous chapter’s detailed
+coverage of the Honeycomb Retriever engine. ClickHouse is a robust and powerful
+datastore for teams looking to build their own observability solutions. Datastores
+for observability workloads should be designed to enable fast analysis of very large
+datasets, and this chapter gives you the basis to start your own customized build.
+In the next chapter, we’ll examine a different aspect of managing telemetry data vol‐
+umes by considering sampling. At scale, a small trickle of observability data can turn
+into a torrential flood. Effective sampling strategies can help you balance resources
+and even reduce the load on the observability backend you decide to use.
+
+
+
+
+                                                                       Conclusion   |   273

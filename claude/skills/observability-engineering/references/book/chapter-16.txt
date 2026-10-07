@@ -1,0 +1,642 @@
+                                                                          CHAPTER 16
+       Telemetry Management with Pipelines
+
+
+                                   This chapter is contributed by Mike Kelly,
+                                            Founder and CEO at Bindplane
+
+
+                A Note from Charity, Liz, George, and Austin
+In the previous chapter, we looked at strategies to reduce the deluge of telemetry
+volume at the source. In this chapter, we’ll look at a different way to manage large
+volumes of telemetry data: with pipelines.
+Telemetry pipelines can help manage a variety of complexity scenarios, beyond just
+managing data volume. In simpler systems, telemetry from applications can be sent
+directly to an observability backend. In more complex systems, you may need to
+route telemetry data to multiple backends in order to isolate workloads, meet security
+and compliance needs, satisfy different retention requirements, or for a variety of
+other reasons.
+When you consider data volume on top of that, managing the many-to-many rela‐
+tionship between telemetry producers and consumers can become extraordinarily
+complex. Telemetry pipelines help you abstract away that complexity.
+In this chapter, Mike Kelly details the inner workings of telemetry pipelines, use cases,
+and adoption patterns through the lens of Bindplane: a telemetry pipeline built on
+the OTel standard. Mike is CEO of Bindplane, the company behind the project. We’re
+delighted to be able to share his perspectives with you in the context of this book.
+The rest of this chapter is told from Mike Kelly’s perspective.
+
+
+
+
+                                                                                        293
+An Introduction to Telemetry Pipelines
+If you’ve worked in observability, you’re familiar with the challenge: modern systems
+generate an overwhelming amount of telemetry. Every signal is critical (or is it?).
+Every new cluster, new service, new application, and even the expansion of legacy
+systems compounds the challenge. Observability, security, compliance, and AI are
+hungry for data, and even if you know what can be trimmed, doing that at enterprise
+scale quickly overwhelms even the best-prepared teams.
+This is the reality that many organizations find themselves in as their observability
+practice matures. When we started Bindplane, this challenge didn’t have a name, let
+alone a clear solution. OTel was in its infancy, and the term “telemetry pipeline” didn’t
+exist. Observability teams beginning to hit this limit were searching for quick fixes,
+or began designing their own systems with mixed results. It was a finger-in-the-dam
+approach of temporary patches and improvised pipelines meant to hold back the
+flood.
+In our early days, we built what we called “monitoring integration as a service.” In
+hindsight, the description simply reflected how early the space was. At the time,
+however, we lacked a vocabulary to discuss the challenge and solution set. More
+importantly, it was missing the point: customers and platforms reported that to “get
+the data in” was simply too difficult. How do you collect every signal from every
+device, and do this in a platform designed for simplicity and scale? That’s the problem
+we initially focused on solving, but in doing so, it magnified a parallel challenge we
+hadn’t yet recognized. You can instrument and collect every trace, log, event, and
+metric, and now your team is happy, and your observability platform has everything
+it needs. But the relief is short-lived, and quickly turns into difficult questions from
+the CFO, along with a growing infrastructure team that’s scrambling to manage the
+new scale issues created by all that data.
+It’s a classic scaling problem. You make it scale, and then reveal a whole range of
+new challenges. In observability, the explosion of data volume and the emergence of
+new use cases for this data have made old approaches unsustainable. The cost and
+complexity of managing telemetry at scale demand a new solution. If you’re feeling
+that pressure, you’re not alone. And this is exactly where telemetry pipelines come in.
+
+The Telemetry Pipeline Solution
+The solution starts with recognizing the problem. It’s not just that there’s too much
+data; it’s that the data flow itself was never treated as its own concern. Instead of
+every application determining where telemetry should go, a telemetry pipeline should
+become the backbone by collecting, normalizing, processing, and routing signals
+everywhere they’re needed.
+
+
+
+294   |   Chapter 16: Telemetry Management with Pipelines
+Take, for example, a power grid. Wiring every appliance directly to a power plant
+would be fragile and inefficient. This is solved by utilizing substations, routing, and
+redundancy. All that’s required for the consumer is a plug and an outlet, and the
+remaining delivery is handled. Telemetry pipelines work the same way.
+All modern telemetry pipelines share several core functions:
+
+  • Collect signals from any source emitting telemetry.
+  • Normalize and secure data into a standard model while enforcing compliance.
+  • Enrich telemetry with context to make it actionable.
+  • Reduce volume with filtering, aggregation, and sampling.
+  • Route the right telemetry to the right tool: observability, security, analytics,
+    and/or long-term storage.
+
+These functions ensure that telemetry pipelines manage end-to-end delivery for logs,
+metrics, traces, or any other signal.
+
+Why This Matters Now
+Pipeline adoption is growing exponentially because of two basic principles: cost and
+standardization. Sending everything everywhere is no longer sustainable, and OTel
+has become the vendor-neutral standard. With its Collector and libraries, teams can
+build flexible pipelines supported by every major observability and security vendor.
+Cost and standardization have made telemetry pipelines a foundational piece of
+modern infrastructure. With a pipeline in place, you can:
+
+  • Add a new observability tool without touching application code.
+  • Enforce compliance rules company-wide, from a central location.
+  • Reuse the same telemetry through multiple domains (e.g., observability, security,
+    AI and machine learning, or BI).
+
+Taken together, a well-architected pipeline transforms telemetry from a scaling issue
+into an asset.
+
+Core Functions of a Modern Telemetry Pipeline
+In the previous section, I outlined the core functions of a telemetry pipeline. Now,
+let’s go a layer deeper. Rather than a patchwork of components, you can think of a
+telemetry pipeline as a sequence of stages: collect → normalize → enrich → reduce →
+route. All of these stages are supported by two critical requirements: data resilience
+and pipeline control and observability, as shown in Figure 16-1.
+
+
+
+                                              Core Functions of a Modern Telemetry Pipeline   |   295
+Figure 16-1. Core functions of a modern telemetry pipeline.
+
+In this section, I’ll explain each stage, why it matters, and how OTel brings it to life.
+
+Collect
+Telemetry collection is the first and most important step for most observability
+practitioners. Applications, infrastructure, and devices all emit logs, metrics, traces,
+and events. A telemetry pipeline must collect every signal that matters, from legacy
+systems and cloud providers to modern microservices and greenfield deployments.
+Without a reliable collection, decisions are made on incomplete telemetry. Telemetry
+collection ensures the full context required to troubleshoot, secure, and optimize
+your systems.
+OTel has become the standard for collection. It’s open source and vendor neutral
+with industry-wide support, and able to gather logs, metrics, and traces through a
+single collector. It includes broad support for both new and legacy technologies, with
+over 100 receivers in the OTel project, including generic options like OpenTelemetry
+Protocol (OTLP), Prometheus, StatsD, Java Management Extensions (JMX), and host
+metrics. The depth of support and flexibility makes OTel an ideal building block for
+your telemetry pipeline.
+Moving away from proprietary agents and SDKs is critical. As long as collection
+is tied directly to a single destination, you will never achieve the reusability and
+standardization that a pipeline enables.
+
+Normalize and Secure
+Telemetry normalization and security is the next step. Raw telemetry is messy, and
+this stage makes it structured, consistent, and compliant. This is accomplished with:
+Parsing and coercion
+    Convert unstructured logs into structured events, fix timestamps, and enforce
+    schemas.
+
+
+
+296   |   Chapter 16: Telemetry Management with Pipelines
+Normalization
+   Transform mixed formats (for example, JSON logs or Zipkin traces) into a com‐
+   mon model such as OTLP. This prepares signals for downstream processing.
+Security and governance
+    Redact personally identifiable information (PII) and apply data access, retention,
+    and residency controls to manage compliance requirements—e.g., General Data
+    Protection Regulation (GDPR), Federal Risk and Authorization Management
+    Program (FedRAMP).
+Normalizing early ensures that all downstream data is clean, usable, and compliant,
+reducing both rework and risk later in the pipeline.
+
+Enrich
+Telemetry enrichment adds the context that makes telemetry meaningful. Raw signals
+are enhanced with metadata, business context, and external lookups. Enrichment
+includes:
+Infrastructure context
+     Attach details like Kubernetes pod, node, region, or availability zone.
+Business context
+    Add business-specific details such as customer ID, environment (prod, staging),
+    or service tier.
+External lookups
+    Resolve IPs to locations or map DNS to hostnames.
+Early enrichment makes telemetry immediately actionable and shortens time to
+detection. (For more examples on telemetry enrichment, see Chapter 6.)
+
+Reduce
+Telemetry reduction, or reducing overall data volume, is one of the biggest reasons
+teams adopt pipelines. It keeps costs under control and helps maintain a high signal-
+to-noise ratio. Modern systems generate more data than most teams can reasonably
+handle, and low-value telemetry can easily bury the data that matters most.
+The overall volume of telemetry can be reduced with:
+Filtering
+     Drop low-value logs, redundant metrics, or trivial traces.
+Deduplication
+   Consolidate repeats without losing visibility.
+
+
+
+                                               Core Functions of a Modern Telemetry Pipeline   |   297
+Aggregation
+    Roll up metrics or events to higher-level views.
+Sampling
+   Apply head, tail, or adaptive sampling to noisy sources.
+Centralized reduction preserves visibility while removing waste and noise. This
+makes it possible to adapt your reduction strategy in real time as needs change.
+
+Route
+Routing telemetry to multiple destinations is where the value of a pipeline becomes
+obvious. Once signals are standardized, enriched, and reduced, they can be used for
+multiple purposes. There are two main use cases for routing:
+Fan-out
+    Send logs to a security information and event management (SIEM), metrics to
+    APM, and events to analytics, and store high-fidelity copies in cloud storage for
+    compliance, as shown in Figure 16-2.
+
+
+
+
+      Figure 16-2. Telemetry routing to multiple destinations—observability platforms,
+      security analytics, log analytics, and archive.
+
+Flexibility
+    Add or test new tools without touching application code or reinstrumenting your
+    systems.
+Routing turns a single clean data stream into fuel for observability, security, compli‐
+ance, and AI, without duplication.
+
+Data Resilience
+Data resilience ensures telemetry keeps flowing when systems fail. Backends go down,
+networks spike, and data volumes burst. A resilient pipeline absorbs those shocks and
+
+298   |   Chapter 16: Telemetry Management with Pipelines
+ensures telemetry is delivered reliably even when parts of the system are degraded.
+That resiliency can be achieved with:
+Buffering and persistence
+    Temporary, adjustable buffers at each stage of the pipeline with optional disk
+    persistence to prevent data loss
+Retries and flow control
+    Retry logic control with exponential backoff and backpressure to avoid the
+    “thundering herd” effect or cascading failures impacting downstream consumers
+High availability and failover
+    Redundant agents, gateways, and control planes to provide continuity when
+    nodes or regions fail
+For example, in Bindplane, resilience is critical at scale. Our collectors and gateways
+buffer telemetry locally, queue it for delivery, and support failover paths when a
+backend is unavailable. This prevents gaps in observability data during outages and
+helps teams maintain trust in their telemetry.
+
+Pipeline Control and Observability
+Even the best pipeline fails without management and visibility. Pipelines are not “set
+it and forget it.” They need to be monitored, tuned, and governed. A control plane
+makes this possible, providing the capabilities that keep pipelines operationally viable
+at scale. All telemetry pipelines should include:
+Real-time visibility
+    Dashboards and metrics show throughput, error rates, and latency across the
+    pipeline.
+Policy enforcement
+     Centralized controls apply compliance rules, retention settings, and data-
+     handling policies consistently.
+Configuration management
+   Pipelines must be adjustable at runtime to roll out changes quickly, update
+   destinations, or alter reduction strategies.
+Incident response
+    Telemetry control planes make it possible to rehydrate historical data, reroute
+    flows, or isolate faulty components during incidents.
+Fleet management
+     Standard protocols such as Open Agent Management Protocol, or OpAMP,
+     define how collectors report health, fetch configurations, and receive updates.
+     Tools like Bindplane build on this to add enterprise-grade features such as
+
+
+                                              Core Functions of a Modern Telemetry Pipeline   |   299
+      versioned rollouts, remote upgrades, failover handling, and rehydration of his‐
+      torical data.
+This layer of control is what makes pipelines valuable. It lets you manage fleets,
+preview changes, and keep environments consistent so you can truly simplify and
+standardize at high scale.
+
+What You Should Remember About Core Functions
+A modern telemetry pipeline is built from a sequence of core functions. They work
+together to transform raw signals into a governed, reusable stream of data. Each stage
+builds on the last. Collecting, normalizing, enriching, reducing, routing, and ensuring
+resilience and control form the backbone of a modern telemetry pipeline.
+When they operate in harmony, telemetry shifts from an unruly firehose into a
+strategic asset that powers observability, security, compliance, and innovation. This
+foundation sets the stage for the architecture and adoption strategies that I’ll walk
+you through next.
+
+Pipeline Architecture in Practice
+So far, you’ve learned about the core functions of a telemetry pipeline. Architecture
+is where they come together in practice. How you deploy the components determines
+scalability, resilience, and manageability. Get the architecture right, and you can start
+small and scale to thousands of collectors without losing control.
+
+Core Components
+At the heart of any telemetry pipeline are three categories of components:
+Agents
+   These are lightweight OTel Collectors deployed on hosts, containers, or as side‐
+   cars. They capture telemetry as close to the source as possible with minimal
+   overhead.
+Gateways
+    These are centralized, scalable nodes that aggregate data from agents, apply pro‐
+    cessing and compliance rules, reduce volume, and route signals to destinations.
+    They are typically deployed in clusters for resilience and throughput.
+Control plane
+   This is the management layer that makes pipelines operationally viable at scale.
+   In Bindplane, this is where you configure, visualize, and update collectors and
+   gateways across fleets.
+These categories are shown in Figure 16-3.
+
+
+300   |   Chapter 16: Telemetry Management with Pipelines
+Figure 16-3. Core pipeline components—agents, gateways, and a centralized control
+plane providing orchestration and configuration.
+
+Another essential core component in Bindplane is the OTel Collector. A telemetry
+collector is the foundation of most modern pipelines. The OTel Collector has a
+pluggable architecture that includes:
+Receivers
+    For ingest (HTTP, gRPC, Kafka, Syslog, etc.)
+Processors
+    For transformations like normalization, enrichment, sampling, and batching
+Exporters
+   For sending data to backends (Prometheus, Elasticsearch, Datadog)
+Extensions
+    For cross-cutting functions like zPages, health checks, and authentication
+A single binary can run in multiple roles, which is where the flexibility shines:
+Agent
+   Runs close to workloads, performs minimal processing, and forwards telemetry
+   to gateways. This keeps the edge footprint light and reduces impact on local
+   systems.
+Gateway
+    Runs as resilient, load-balanced clusters. Gateways handle the heavy lifting like
+    reduction, compliance, routing, buffering, and queuing on dedicated nodes that
+    won’t interfere with workloads.
+
+Deployment Patterns
+How the core components come together depends on the organization’s size and
+needs. Some examples are shown in Figure 16-4.
+
+
+                                                          Pipeline Architecture in Practice   |   301
+Figure 16-4. Common scaling patterns—agent-only, agent + gateway, and multi-tier
+global architectures for high availability and cost efficiency.
+
+The flexibility of these components means they can be composed in various ways to
+suit different organizational use cases. The most common configurations include:
+Agent-only
+   This is the simplest approach. Each agent sends telemetry directly to one or more
+   backends. This works in small environments, but it doesn’t scale and it creates
+   tight coupling between sources and destinations.
+Agent + gateway
+   This is the most common production pattern. Agents forward telemetry to
+   gateways, which centralize processing, reduction, and routing. This decouples
+   collection from delivery and establishes compliance and control in one place.
+Multi-tier topologies
+   This pattern supports the needs of large, distributed organizations. Local gate‐
+   ways handle local collection, reduction, and compliance before forwarding
+   optimized signals to regional gateways. This enables high availability, disaster
+   recovery, and cost efficiency at scale.
+
+Scaling and Performance in Practice
+At Bindplane, we work with customers processing petabytes of telemetry daily across
+hundreds of thousands of OTel collectors running as both agents and gateways.
+Performance and resilience at that scale require careful planning, but with the right
+patterns, you can avoid common pitfalls, such as:
+
+
+
+
+302   |   Chapter 16: Telemetry Management with Pipelines
+Agents
+   Agents should stay lightweight. Apply minimal processing, set clear memory and
+   CPU limits, and use small local buffers only to handle short bursts of data. Their
+   primary role is reliable forwarding to the gateway layer without impacting local
+   workloads.
+Gateways
+    Gateways carry the heavy load. Scale them horizontally, add redundancy and load
+    balancing to eliminate single points of failure, and use buffering and queuing to
+    absorb bursts. Health checks should track queue depth, latency, and error rates to
+    catch issues.
+Applied consistently, these practices enable pipelines to handle massive throughput
+without data loss or degraded performance.
+
+Build-Versus-Buy Considerations
+Organizations face a key decision: build and operate pipelines themselves, or leverage
+vendor solutions. There are three main approaches to consider when navigating that
+decision, and the approach you decide to take depends on the trade-offs that work
+best for your needs, as shown in Table 16-1.
+
+Table 16-1. Comparison of three main approaches for build versus buy
+Approach     Description                   Strengths                 Challenges                  Best for
+Open         Build and operate all         Maximum flexibility       High operational burden     Teams with strong
+source/DIY   pipeline components in-       Full customization of     Requires deep in-house      engineering capacity
+             house using open source       every component           expertise                   and complex custom
+             tooling.                      No vendor lock-in         Scaling, upgrades, and      requirements
+                                                                     compliance become full-
+                                                                     time work
+Vendor       Leverage a commercial         Reduced operational       Flexibility may be          Teams that prioritize
+supported    solution that provides        overhead                  constrained                 speed and low
+             enterprise-grade pipeline     Faster time to value      Potential vendor lock-in    operational load over
+             features out of the box.      Provides enterprise       Ongoing licensing costs     customization
+                                           features out of the box
+Hybrid       Adopt open standards          Reduced operational       More complex to architect   Organizations wanting
+             (e.g., OTel, OpAMP) for       overhead                  Requires understanding      open standards with
+             pipelines while using a       Faster time to value      of both open and            enterprise reliability;
+             commercial control plane      Fleet management,         commercial tooling          increasingly common
+             (e.g., Bindplane) for fleet   governance, and cost
+             management.                   controls included
+                                           Vendor-neutral
+
+Ultimately, the decision to build or buy comes down to several organizational factors.
+For more about deciding whether to build or buy, see Chapter 29.
+
+
+
+                                                                             Pipeline Architecture in Practice    |     303
+What You Should Remember About Pipeline Architecture
+Pipeline architecture is an evolution. The smartest path is to start with an agent
++ gateway pattern so that you have best practices in place from day one and can
+expand without rework. Next, add a control plane to manage and govern your fleet
+consistently. As your needs grow, move to a multi-tier regional architecture that gives
+you resilience, compliance, and cost control at scale.
+Consider Bindplane as a reference implementation to show how this comes together:
+OTel gives you the building blocks, OpAMP brings standardized management, and
+Bindplane makes everything operational at enterprise scale.
+
+Adoption and Migration
+Few companies start thinking about pipeline architecture, where it fits, and how best
+to use it from a clean greenfield slate. More commonly, pipelines are introduced in
+brownfield telemetry architectures. By the time you’re considering adding a telemetry
+pipeline, you already have hundreds of streams running on proprietary agents. The
+challenge is adapting it to the ideal pipeline architecture.
+In this section, we’ll look at a phased strategy for introducing telemetry pipelines into
+preexisting application architectures.
+It’s rare that you’ll need to reinstrument your entire environment to gain the benefits
+of a telemetry pipeline.
+
+A Phased Path to Adoption
+At Bindplane, we guide customers through a staged approach to a telemetry pipeline:
+
+ 1. Start with a greenfield app.
+ 2. Establish best practices and future-proofing with OTel standards.
+ 3. Incrementally redirect legacy flows to the new telemetry pipeline.
+
+A phased approach delivers early wins, builds familiarity, and reduces risk by avoid‐
+ing disruptive cutovers. The process starts small and then incrementally incorporates
+more systems until the majority of your telemetry is standardized and centrally
+managed.
+
+Phase 1: Greenfield
+Start with a simple pipeline connected to a single application or service. This can be
+applied regardless of the source type. The goal is to validate the pipeline end to end
+and provide a low-risk way to build confidence in new tooling and practices. This is
+typically done with agents and gateways, as shown in Figure 16-5.
+
+
+304   |   Chapter 16: Telemetry Management with Pipelines
+Figure 16-5. Phase 1: Initial pipeline deployment with a greenfield application using
+agents and gateways under orchestration.
+
+Most organizations start by instrumenting a new microservice or existing internal
+application.
+
+Phase 2: Redirecting existing agents
+While replacing all of your existing instrumentation with OTel may be ideal, it’s not
+realistic. In cases where replacement isn’t feasible or may be too time-consuming, an
+easier path is to redirect those telemetry streams to gateways within your telemetry
+pipeline.
+You’ll shift legacy telemetry flows into the pipeline to manage compliance and reduc‐
+tion from a centralized location, as shown in Figure 16-6.
+
+
+
+
+Figure 16-6. Phase 2: Redirecting existing legacy agents to pipeline gateways for central‐
+ized compliance and reduction.
+
+OTel’s flexibility in the types of signals it can ingest makes this an easy incremental
+step toward a complete telemetry plane.
+
+
+                                                                 Adoption and Migration   |   305
+Phase 3: Replacing existing agents
+In the final phase, most of your telemetry is flowing through the pipeline, and the
+team is confident in managing it. Security and compliance standards are enforced
+consistently, and this is the point to replace legacy agents and standardize collection.
+A single method for collection and management reduces complexity and overhead.
+To that end, during this phase you’ll replace legacy agents with OTel Collectors, as
+shown in Figure 16-7.
+
+
+
+
+Figure 16-7. Phase 3: Replacing legacy agents with OTel collectors for full standardiza‐
+tion and unified management.
+
+That said, not everything is worth the lift. A fragile legacy app that no one wants to
+touch may stay in phase 2 indefinitely, and that is often an acceptable trade-off when
+modernizing your telemetry pipeline.
+
+What You Should Remember About Adoption and Migration
+Adopting new tools and migrating architecture components for your services can
+be a long and challenging process for some organizations, especially those with very
+large or broad brownfield application architectures. During your migration, you
+should keep a few best practices in mind:
+Don’t boil the ocean.
+   Focus your effort on the highest-value telemetry streams first.
+Communicate trade-offs.
+   Teams need to understand why some systems may remain on legacy instrumen‐
+   tation longer.
+
+
+
+306   |   Chapter 16: Telemetry Management with Pipelines
+Run old and new side by side.
+   Overlapping systems give you confidence and a rollback path during transitions.
+Invest in education and culture.
+    Successful migrations require not only technology changes but also building trust
+    and expertise across teams.
+Treat adoption of a telemetry pipeline as a journey. When you do, you avoid the risks
+of a disruptive cutover and you’ll see the benefits of a telemetry pipeline quickly.
+Over time, the phased approach enables you to standardize, simplify, and modernize
+without impacting operations along the way.
+
+Use Cases: Collect and Reduce, Combined
+In this section, I will summarize two of the use cases that often prompt organizations
+to look toward telemetry pipelines as a solution: collection and reduction. I’ve seen
+these have the greatest impact on demonstrating value.
+Large enterprises tend to face the same challenges:
+
+  • Too much data
+  • Too costly
+  • Too much operational overhead
+
+In one case study (as of yet unpublished), 40% of SIEM ingest was never queried.
+Millions were wasted on signals that no one used. In another, platform teams had
+to manage fleets of 25,000+ collectors across devices, fighting drift and config errors
+daily.
+The solution was a telemetry pipeline built on OTel: agent collectors at the edge, a
+gateway collector layer in the middle, and a control plane to manage it all. The aim
+is to collect once, manage centrally, and process data before it ever hits an expensive
+vendor endpoint.
+Two core functions made these customers successful:
+
+ 1. Collect: Bindplane pushes versioned configs fleet-wide, validates changes, and
+    shows real-time status. Thousands of collectors stay in sync with no manual
+    intervention.
+ 2. Reduce: The pipeline cuts noise. Drop high-churn fields, collapse duplicates,
+    sample noisy sources, and redact sensitive data. Route critical signals to your
+    telemetry backend of choice, and archive the rest to low-cost storage like Google
+    Cloud Storage or Amazon S3.
+
+
+
+
+                                                  Use Cases: Collect and Reduce, Combined   |   307
+Costs can drop by 50% or more. One customer eliminated a $2.6 million overage
+and achieved roughly $2 million in savings. Their platform and observability teams
+gained confidence and reliability with centralized management and real-time pipeline
+visibility. Compliance improved as PII was removed and security rules were enforced
+centrally. Because routing is decoupled from collection, switching or adding new
+telemetry sources or destinations became a config change rather than a reinstrumen‐
+tation project.
+
+Business Case
+Throughout this chapter, I’ve focused primarily on the technical advantages of tele‐
+metry pipelines over existing solutions. While critical, making the case for pipelines
+also means articulating their impact to those who control the budget. In this section,
+we’ll examine telemetry pipelines through a business-value lens.
+
+Cost Control
+Telemetry pipelines deliver direct financial impact by addressing one of the biggest
+pain points in observability: ingest volume. Most vendors charge based on the
+amount of data sent, meaning you pay for everything, regardless of whether it’s
+valuable or not. In fact, we’ve often worked with teams that discovered that 20–40%
+of their SIEM data was never actually queried. A telemetry pipeline solves this by
+filtering, deduplication, and sampling. Better yet, all of this happens before the data
+ever reaches expensive telemetry storage.
+An even bigger win is cost predictability. Instead of explaining why observability
+spend spiked 30% last quarter, pipelines provide real-time visibility into data flows
+and the cost drivers behind them. This turns observability from an unpredictable
+cost to a manageable and forecastable monthly invoice. CFOs stop asking why costs
+are exploding, enabling teams to focus on improving insights rather than justifying
+budgets.
+
+Vendor Neutrality
+Pipelines built on OTel remove the lock-in of proprietary agents and plumbing.
+Switching tools becomes a configuration change, not a multiyear migration project.
+This flexibility creates negotiating power with vendors and gives organizations the
+confidence to adopt new tools without the fear of disruption.
+
+
+
+
+308   |   Chapter 16: Telemetry Management with Pipelines
+Telemetry as a Strategic Asset
+At the same time, pipelines elevate telemetry from a cost liability to a strategic asset.
+Think of telemetry as raw material:
+
+  • Observability teams use it for uptime and performance.
+  • Security teams rely on it for detection and response.
+  • Compliance teams need it to enforce security policies and regulations.
+
+Without a pipeline, each team duplicates effort, reinstruments systems, and pays
+vendors to store overlapping telemetry. A pipeline unlocks a unified, clean, enriched
+stream of telemetry, fanned out to every team and tool that needs it.
+Pipelines also reduce compliance and security risk. Sensitive fields can be redacted
+before they leave your environment, with GDPR, FedRAMP, or the Health Insur‐
+ance Portability and Accountability Act of 1996 (HIPAA) controls enforced centrally
+instead of scattered across dozens of tools. This reduces breach exposure, simplifies
+audits, and ensures consistent governance without relying on downstream vendors.
+The economics are straightforward:
+
+  • Save 50% or more on vendor ingest costs.
+  • Reinvest ~10% into pipeline infrastructure.
+  • Net out at ~40% savings, while gaining more control and vendor neutrality.
+
+As telemetry grows with your business, telemetry pipelines ensure that observability
+costs don’t outpace revenue. The result is sustainable scaling, improved visibility and
+security, predictable costs, and telemetry evolving from a headache into a competitive
+advantage.
+
+The Role of Telemetry Pipelines
+Telemetry pipelines are now a core part of observability engineering. They solve the
+scaling trap that every growing system encounters: too much data, too many tools,
+and not enough control. By collecting, normalizing, enriching, reducing, and routing
+with resilience and governance, pipelines turn raw telemetry into something you can
+rely on.
+Today, telemetry pipelines are no longer optional. They are the backbone that makes
+observability, security, and compliance sustainable at scale. When you invest in a
+telemetry pipeline, you can expect lower costs, predictable spend, vendor freedom,
+and stronger governance. Your telemetry does indeed become a strategic asset.
+
+
+
+
+                                                            The Role of Telemetry Pipelines   |   309
+Conclusion
+Mike’s walkthrough of telemetry management is both thorough and compelling.
+While telemetry pipelines may not always be adopted as part of an organization’s
+observability strategy, almost all organizations face many of the pain points that this
+elegant solution addresses. We hope this chapter gives you a better understanding of
+what telemetry pipelines can do for your team and why you should use them.
+In the next chapter, we’ll round out our technical deep dives into various aspects of
+observability by examining organizational approaches to managing your telemetry
+data at scale. Once you’re capturing a large volume of telemetry across various
+services, environments, and teams, using ontologies can help mitigate the semantic
+failures inherent to diverse data.
+
+
+
+
+310   |   Chapter 16: Telemetry Management with Pipelines

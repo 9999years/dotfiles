@@ -1,0 +1,643 @@
+                                                                        CHAPTER 23
+Organizational Learning Speed Is Now Your
+ Biggest Constraint: An Open Letter to CTOs
+
+
+
+
+The most disruptive consequence of the AI era isn’t faster code; it’s that your organi‐
+zation’s learning speed has become its single greatest bottleneck. In this chapter, we’ll
+address two uncomfortable truths: (1) in an AI era, the new constraint is how fast
+your org can learn, and (2) the biggest drag on learning speed in most orgs is unpaid
+sociotechnical debt.
+Like technical debt, sociotechnical debt comes from choosing quick and easy sol‐
+utions in the moment that create more work later. Most technology shifts have
+required a corresponding change in how people work to actually succeed. But chang‐
+ing behavior is often much harder than changing tools. Organizations that haven’t
+made those behavioral changes have accumulated inefficient processes, misaligned
+leadership, and unresolved cultural problems.
+These debts show up as reduced speed, engagement, and flexibility. Left alone, they
+can limit a company’s ability to grow, learn, compete, and ultimately survive in
+fast-moving markets. For most organizations, this debt hasn’t been a dealbreaker—
+yet. Most know it’s there, but they’ve worked around it. The common attitude is:
+“we’ll fix it later.”
+Boards (and competitive threats) have been pushing execs to develop an AI strategy,
+so they can capitalize on faster delivery. And all that accumulated debt is now about
+to collect a lot of interest, because:
+
+  • In the AI era, software delivery is no longer constrained by how fast you can
+    write code. It’s constrained by how fast you can validate, understand, and learn.
+  • For software delivery, observability is what enables validation and understanding,
+    which establishes the baseline for organizational learning speed.
+
+
+                                                                                      419
+  • Most companies still rely on tools and techniques developed by IT/ops, even for
+    their own core product offerings. Those tools work well for infrastructure and
+    operators, but lack the precision, context, and connective tissue it takes for soft‐
+    ware engineers to understand their changes in production. As a result, individual
+    engineers are called upon to fill in the blanks with heroics and intuition—at the
+    precise moment when we are waking up to the reality that if our wisdom is not
+    encoded into the system, as far as AI is concerned, it doesn’t exist.
+
+Many organizations have tried to make these technical shifts, but haven’t fully
+addressed the human and organizational challenges that come with them. This chap‐
+ter identifies which sociotechnical debts are real blockers to moving at AI speed, and
+offers concrete actions to address them. We’ll introduce concepts and solutions at a
+high level here, then go deeper in the chapters that follow.
+Accelerating organizational learning requires fundamental strategic shifts in leader‐
+ship, budget, and culture. As bottom-up transformation efforts will stall without
+executive air cover (and because people typically want to read what their boss has
+read), this chapter is framed as an open letter to all CTOs.
+
+An Open Letter to CTOs
+Dear CTO,
+By now, you’ve probably survived multiple “everything changes now” moments:
+cloud, DevOps, microservices, Kubernetes, serverless, edge computing, and more.
+Each wave delivered real capability. And over time, each one revealed the same
+uncomfortable truth: most organizations change their infrastructure much faster
+than they change how they work.
+Beneath the surface, many fundamental behavioral patterns have stayed the same.
+Dev teams still act like production is what happens after development is finished, not
+like it’s the penultimate stage of the development process (and the only validation that
+ultimately matters). Production is still organized around protecting the health of the
+service against all threats, but anything that doesn’t threaten the health of the system
+is poorly understood (or it is not known). Incidents still trigger blame, heroics, and
+alert fatigue. And “transformation” still too often means adopting a new platform,
+buying new tools, and renaming some teams—without reworking the incentives and
+feedback loops that actually drive behavior change.
+Now we’re in the latest “everything changes” moment with AI. And that shift has
+revealed something exciting and new: AI doesn’t eliminate the need for engineering
+discipline. It eliminates the excuses for not having it.
+“Moving fast” used to mean shipping a few times a week without breaking produc‐
+tion. Now it means moving at the speed of AI—from idea to code to deploy to
+
+
+420   |   Chapter 23: Organizational Learning Speed Is Now Your Biggest Constraint: An Open Letter to CTOs
+learning, and on to the next idea—in a fraction of the time. That pace is not a shortcut
+around rigor; it’s a stress test of it. Like the shifts before it, AI reveals another uncom‐
+fortable truth—it doesn’t just make creating software faster; it makes everything
+faster, including your mistakes.
+That’s why this shift feels so urgent: you’re under pressure to roll out AI quickly, and
+you can see all the failure modes—drift, regressions, compounding risk—waiting for
+any organization that tries to scale speed without discipline.
+The real advantage in the AI era is being able to accelerate without crashing. Your
+engineering teams need to move swiftly and confidently. Their habits, feedback loops,
+and operational clarity need to be strong enough that AI amplifies excellence rather
+than chaos. Intuition does not scale. All the duct tape and baling wire that hold your
+systems together at the rate of change you evolved to tolerate starts flying off at 10x
+speed, let alone 100x.
+The behavioral patterns you’ve built up through cloud, DevOps, microservices, and
+beyond are about to matter a great deal. If what you’ve accumulated is sociotechnical
+debt, that’s about to become your biggest blocker. The best time to have resolved it
+was years ago. The next best time is now.
+That’s what we’re here to talk about. Which debts actually matter? Where do they fit
+into your strategic priorities? How do you fix them?
+First let’s understand which, if any, of the common sociotechnical debts apply to you.
+
+The Sociotechnical Debts That Will Hold You Back
+Sociotechnical debt is the hidden, accumulated cost of misalignments between an
+organization’s social structures (culture, teams, processes) and its technical systems
+(software, infrastructure).1 Like technical debt, not all sociotechnical debt needs to be
+(or ever can be) fully paid off. But debts that put your most important goals at risk
+must be addressed.
+Our guiding principle is this: any sociotechnical debt that prevents your teams from
+moving swiftly and confidently today will also be a blocker to their ability to acceler‐
+ate and build, ship, and validate at the speed of AI.
+These debts are not the only obstacles in your path. AI skills and literacy are vital
+for engineers, managers, and execs alike. Organizational scaffolding must be built,
+guardrails established, tools tested and bought and rolled out. But as we said in
+Chapter 1, this is not a book about AI. This is a book about observability, written for
+
+
+1 Damian A. Tamburri and Elisabetta Di Nitto, “When Software Architecture Leads to Social Debt”, in Pro‐
+  ceedings of the 12th Working IEEE/IFIP Conference on Software Architecture (WICSA 2015), Montreal, QC,
+  Canada, May 2015, 61–64.
+
+
+                                                       The Sociotechnical Debts That Will Hold You Back   |   421
+software engineering teams, derived from first principles. And the role of observabil‐
+ity in an AI-first world is more pronounced and critical than ever before.
+Whether or not the venerable SDLC will remain relevant in a post-AI world is not
+yet knowable. As many have noted, agentic development compresses all stages of the
+software lifecycle into one fluid, interactive blur. All stages, that is, except one: the
+observability aspect of the maintenance stage.
+
+
+                                   As Our Friend Boris Tane Says
+  When agents ship code faster than humans can review it, observability is no longer
+  a nice-to-have dashboarding layer. It’s the primary safety mechanism for the entire
+  collapsed lifecycle. Every other safeguard, the design review, the code review, the QA
+  phase, the release sign-off, has been absorbed or eliminated. Monitoring is what’s left.
+  It’s the last line of defense.
+  The SDLC was a wide loop. Requirements → Design → Code → Test → Review →
+  Deploy → Monitor. Linear. Sequential. Full of handoffs and waiting.
+  The new lifecycle is a tight loop.
+  Intent. Build. Observe. Repeat.
+  No tickets. No sprints. No story points. No PRs sitting in a queue. No separate QA
+  phase. No release trains.
+  Just a human with intent and an agent that executes.
+  So what is left?
+  Context. That’s it.
+  The quality of what you build with agents is directly proportional to the quality of
+  context you give them. Not the process. Not the ceremony. The context.
+  The SDLC is dead. The new skill is context engineering. The new safety net is
+  observability.2
+
+
+In the old SDLC, monitoring (or observability) isn’t explicitly named, although it is
+conventionally assumed to be part of the maintenance stage. And therein lies the
+problem. When structured, handoffs give way to fluid interactivity, and all the old
+quality gates go too. Observability is the only gate that survives, and it not only
+survives; it becomes the mechanism that validates the entire lifecycle.
+
+
+
+
+2 Boris Tane, “The Software Development Lifecycle Is Dead”, February 20, 2026.
+
+
+
+422   |   Chapter 23: Organizational Learning Speed Is Now Your Biggest Constraint: An Open Letter to CTOs
+But observability will first have to shed its skin—the accumulated layers of static
+dashboards, siloed pillars, and old policies and habits that combine to keep develop‐
+ers walled off from their code in production, unable to observe or validate with
+specificity. These are the sociotechnical debts most likely to keep you from achieving
+your goals with AI. So this is where we start. What are the debts that currently
+hamper your ability to ship “swiftly and confidently”?
+
+When Developers Live In a World of Tests, Not Reality
+In retrospect, the DevOps movement was trying to do something deceptively simple:
+build a feedback loop between developers and their code in production. The point
+wasn’t more automation; it was to bring developers closer to real outcomes—users,
+reliability, cost, performance—so they could learn from each diff, and their software
+would continuously improve.
+We failed to achieve that goal. Twenty years later, most orgs are still stuck with dev
+versus ops and a split-brain problem. Most developers live in a loop of “build, test,
+merge,” and then move on to the next task while someone else handles deploying it.
+Developer intent is forgotten and lost before it can be validated, and developers go on
+viewing production as a place they go to fix bugs sometimes—not the source of truth
+of user experience.
+In those organizations, the only team with production in their feedback loop is
+operations (also known as DevOps, infrastructure, platform engineering, SRE, etc.).
+Feedback arrives as alerts, escalations, customer complaints, and support tickets. That
+loop is necessary, but it’s laggy, lossy, and threshold-driven. It tends to surface issues
+only after they’ve grown large enough to threaten the whole system, rather than when
+they first begin to degrade user experience or product quality.
+Elite engineering teams close that gap. They wire production signals back into daily
+development so teams can learn from each release while the context is still fresh.
+That’s part of what makes “move swiftly with confidence” possible: frequent deploy‐
+ments, short lead times, lower change failure rates, and fast recovery when things go
+wrong. Elite performance doesn’t happen by luck. It happens because teams can see
+the effect of small changes and respond early.
+That gap—between teams that have closed the dev/production loop and teams that
+haven’t—has always mattered. AI makes it the ballgame. When code generation
+accelerates, the constraint shifts completely: generating code is no longer the hard
+part. Validating it and building confidence in it is. How soon can your teams detect
+the impact of a change, understand it, and adjust? How small and precise are the
+anomalies you can detect?
+
+
+
+
+                                              The Sociotechnical Debts That Will Hold You Back   |   423
+If your production feedback loop still depends on waiting for an alert or a ticket,
+AI will help you ship lots of changes very fast, while the truth about what happened
+arrives much later. That’s not moving swiftly and confidently. That’s accumulating
+risk at the speed of AI.
+A developer ships code on a Friday. On Monday morning, do they know how it per‐
+formed in production—latency, error rates, user behavior—because that’s a normal
+part of their workflow? Or, do they find out something went wrong two weeks later
+when a support ticket lands in the wrong inbox? If it’s the latter, production isn’t
+in your developers’ feedback loop. You’ve structurally chosen slower organizational
+learning. That has to change.
+Has your organization built fast feedback loops between development and production?
+Is instrumentation a habit? Can every developer pinpoint the effects of the last diff they
+shipped?
+
+When Telemetry Gets Treated Like Infrastructure, Not Product
+Here’s the debt that quietly piled up: as systems got more complex, most organiza‐
+tions kept treating telemetry the way they always had—as something ops maintains,
+something you bolt on, something you optimize for cost. They didn’t change how
+developers related to their systems. They just built bigger monitoring stacks.
+It was a reasonable response at the time. Back in 2009, a $50k monitoring bill seemed
+reasonable. Most teams were running LAMP stacks. A senior engineer could more or
+less reason about the whole system in their head. Monitoring—predefined indicators,
+thresholds, alerts—worked well enough for that world.
+Then came microservices, dynamic infrastructure, ephemeral containers, serverless,
+edge, multi-cloud. Complexity didn’t just grow; it distributed. No single person could
+reason about “the system” anymore, because the system was constantly changing. The
+right response would have been to change how teams understood their systems—to
+treat telemetry as a product capability, owned by developers, instrumented intention‐
+ally, designed for exploration. Most organizations instead chose to go broad: more
+tools, more dashboards, more alerts, more “visibility.”
+When observability emerged in the late 2010s, that choice became explicit. You could
+go deep—changing how your people understood your systems—or you could go
+broad, piling on more signals without changing any of the underlying workflows or
+architecture. Most orgs went broad. Most vendors, facing pressure from customers to
+give them “observability,” simply rebranded the products they already had. The result
+was a buffet of monitoring tools with observability logos on them.
+The bill kept growing. A Gartner reference customer went from spending $50,000
+a year on monitoring in 2009 to $24 million a year on “observability“ in 2024—a
+
+
+
+424   |   Chapter 23: Organizational Learning Speed Is Now Your Biggest Constraint: An Open Letter to CTOs
+48% year-over-year increase for fifteen consecutive years. That figure isn’t an outlier;
+observability now accounts for 20–30% of infrastructure spend at most companies.
+And yet: production is still poorly understood. Incidents still trigger blame and
+heroics. Alert fatigue is still everywhere. The cognitive dissonance for CTOs is that
+they’re paying observability prices for monitoring outcomes—large spend, sprawling
+stacks, and workflows still dominated by thresholds and painfully slow debugging.
+That mismatch was tolerable when change was slower. At AI speed, it becomes a
+critical blocker. The limiting factor has shifted from “how fast can we produce code?”
+to “how fast can we understand and validate that code in production?” AI increases
+the rate of change, and a higher change rate increases the surface area for small, gran‐
+ular failures—subtle latency spikes, partial outages, edge-case errors, cost regressions,
+correctness drift. These won’t trigger a monitoring alert. They’ll compound quietly
+until they become cascading outages. Teams that can’t see them early will find them
+late, struggle to explain them, and won’t be able to trace them back to the specific
+change that introduced them. That turns speed into risk.
+When something goes wrong in production, can anyone on the team identify what
+happened, regardless of their experience or familiarity with the system? Or, do most
+incidents start with on-call engineers searching for the senior “rockstar” who holds all
+the institutional knowledge and knows which dashboard to check? Do incidents take
+15 minutes to resolve if a particular engineer is there, and 45 minutes if they aren’t?
+If that sounds familiar, your sociotechnical practices haven’t changed. You’ve chosen
+slower organizational learning.
+Did you make the shift to truly observable systems, or did you just keep adding more
+monitoring?
+
+When Developer Tools Were Never Designed as Products
+Internal engineering tooling was never designed: it accumulated. And it accumulated
+from the infrastructure side of the house, where it was optimized for keeping systems
+running, not for helping developers understand what their code does. Developers
+were never treated like customers. Nobody ran discovery on their workflows, nobody
+optimized for their cognitive load, nobody asked what would make doing the right
+thing the easy thing.
+The result is that “add good telemetry” isn’t one task from a developer’s perspective—
+it’s a maze of decisions. Should that telemetry be a metric, a log line, a trace, a
+profiling signal, an error, or an exception? If it’s a metric, should it be a counter,
+a gauge, a timer, or a histogram? What cardinality is expected? After deployment:
+when did your code actually ship? How many other changes went out at the same
+time? Where does the telemetry you just wrote even show up? Navigating all of this
+demands deep operational knowledge and uninterrupted time. Most developers don’t
+
+
+                                             The Sociotechnical Debts That Will Hold You Back   |   425
+have either. So the desired behaviors don’t materialize—even when everyone knows
+what they are and agrees they’re important.
+Platform engineering is the organizational response to that indictment. Done right,
+it brings product and design thinking to a domain that has historically had none
+of it, treating internal developers like customers, running discovery on their actual
+workflows, and building paved paths that encode best practices into defaults, stan‐
+dard libraries, and guardrails. Reliability and observability stop being heroic acts and
+become the path of least resistance.
+But most organizations have faced a fork here, and most have taken the wrong
+turn. The first failure mode is treating platform like a project: launch it, celebrate,
+then move the team on to other work. The second is pure rebranding: renaming an
+existing DevOps or infrastructure team “platform engineering” without changing the
+operating model, discovery process, or the orientation toward developer needs. Same
+team, same incentives, same infrastructure mindset. Developers are still not being
+treated like customers. The debt persists under a new name.
+At AI speed, that gap becomes existential. AI increases throughput, which means
+inconsistent practices and missing feedback loops get amplified exponentially. Your
+wisdom must be encoded into the system—in defaults, in templates, in the path
+of least resistance—because at 10x change volume, you cannot rely on developers
+remembering to consult the right docs. If the default path is accumulated infrastruc‐
+ture cruft rather than intentional product design, both your developers and your AI
+will go off the rails. And they’ll do it faster than ever.
+Pick a developer who joined in the last six months. Ask them to instrument a new
+service correctly and show you what it does in production. Did they know where
+to start? Did they get there without pinging three people on Slack? Or, did they
+end up with something half-done because the right path was too hard to find? If it’s
+the latter, your best practices are aspirational, not operational. You’ve chosen slower
+organizational learning.
+Does your organization use product and design principles to ensure that developers
+using your internal tools naturally do the right things—because that’s the path of least
+resistance?
+
+These Debts Will Sabotage Your Adoption of AI
+If these fundamental behavioral dynamics haven’t changed in the last 15–20 years,
+why should they change now? This is a fair question, and the answer is that AI
+has exposed a pattern that was always true: delivery speed is not the same thing as
+learning speed.
+
+
+
+
+426   |   Chapter 23: Organizational Learning Speed Is Now Your Biggest Constraint: An Open Letter to CTOs
+AI makes it easier to produce software changes. But DORA’s 2025 findings underline
+the catch: rather than creating organizational excellence, AI simply amplifies the
+behaviors your organization already has. If your engineering system has strong
+feedback loops and disciplined practices, AI compounds the advantage. But if it’s
+held together by lagging signals, inconsistent standards, and operational heroics, AI
+compounds the chaos.
+That’s why the “fix it later” era is over. These behavioral debts become painfully
+visible when change volume accelerates. The best time to have built organizational
+excellence was incrementally, throughout the earlier waves of technological change.
+The next best time is before you scale the consequences. What you’ve done in the past
+and what you’re planning next determines how urgent this should be. Fixing these
+issues now is a matter of risk management.
+There’s also a fundamental shift in where developer attention should go. As code gen‐
+eration gets easier, the highest-value work for developers increasingly shifts toward
+system-level reasoning and user-centric decision making. Developers should focus
+their cognition on understanding intent, impact, and verification: delivering what
+users actually need, knowing how systems will respond, anticipating what could
+break, and using production feedback to confirm or challenge what the team believes.
+That shift is what unlocks your competitive advantage.
+But that higher-order thinking only works if the organization has already made pro‐
+duction feedback and system understanding part of daily development—supported
+by the right practices and observability capabilities, rather than delayed escalations.
+Reducing uncertainty contains costs. Empowering engineers to deliver value and
+understand their systems is what drives talent retention.
+Platform engineering is the practical bridge. It reduces cognitive burden and encodes
+best practices into the default workflows that both developers and AI tools use. That’s
+how you keep humans and AI aligned with the right way to build software, instead of
+hoping everyone remembers to consult a wiki page while shipping 10x more changes
+than ever.
+Ultimately, the “why now?” is competitive. In the short term, everyone will see a pro‐
+ductivity boost—all teams are shipping features faster than ever with AI. But without
+validation, that boost will be short lived. Engineering teams that bake production
+feedback into development will learn faster while shipping better customer experien‐
+ces. Teams that don’t will ship more changes, but they’ll just be compounding chaos—
+and that chaos will reclaim the gains through regressions, incidents, customer pain,
+and even more debt to unwind.
+In an AI era, will your team compound advantage or compound chaos? How prepared is
+your organization to win at that challenge?
+
+
+
+
+                                              These Debts Will Sabotage Your Adoption of AI   |   427
+Turning the Ship Around
+If these sociotechnical debts still exist in your organization, here’s the good news: you
+can change this. The path isn’t mysterious—it mostly comes down to deciding what
+you’re optimizing for, and then building the feedback loops to support it.
+The proven strategy is to decide: how to measure value, what to build, and who builds
+it. Then be clear on which actions need to change and ensure you have organizational
+support. Let’s break this down.
+
+Measuring Value
+The observability tools you choose will be central to driving change. The specific
+vendor matters less than whether the tools actually enable the workflows and deliver
+the value your engineers need. The right choice should be evaluated on two criteria:
+external outcomes (customer experience and business impact) and internal outcomes
+(developer capability and delivery performance).
+Unfortunately, many CTOs measure observability tools against neither. For that
+cohort, observability is about operational outcomes: is the service up or down, is
+something slow, is something erroring? It’s treated as a cost center and managed
+like one. The only times developers are expected to look at production are for
+bug fixes and incidents. In that scenario, there’s often little support for driving the
+sociotechnical changes that matter.
+Some CTOs have shifted toward measuring the value of observability through cus‐
+tomer experience and business impact. That’s a step in the right direction, but still an
+incomplete view for our goal here, which is to validate and accelerate organizational
+learning speed.
+Simply put, you must measure the value of observability against its ability to acceler‐
+ate both developer learning and delivery speed—at the same time. Getting this right
+matters enormously. This dual value is what reduces uncertainty, changes human and
+system behaviors, retains talent, and creates a flywheel that accelerates organizational
+learning. If it’s off, it slows down—or simply doesn’t help—your ability to turn things
+around. (For more detail, see Chapter 26.)
+For now, understand that observability can fundamentally change how information
+flows through your systems. You’ll use it to drive learning feedback loops.
+
+Build Good Feedback Loops
+Your engineering organization is not a factory. It’s a complex sociotechnical system.
+Engineering organizations are no longer constrained by their ability to produce code,
+they are constrained by their ability to validate that code and learn from it. That is
+why building good feedback loops is a strategic choice, not a tactical tooling upgrade.
+
+
+428   |   Chapter 23: Organizational Learning Speed Is Now Your Biggest Constraint: An Open Letter to CTOs
+Software delivery is built on feedback loops:
+
+  • Deployments: Did the change work in production?
+  • Code review: Is this safe, coherent, and maintainable?
+  • Incidents: What broke and why, and what assumptions were wrong?
+  • Product development: Are users getting value?
+
+Observability is what connects the dots and closes the loops. It’s the shared sensemak‐
+ing layer that turns production signals into understanding. When observability is fast
+and accessible, the cost of curiosity is low, and engineers learn to ask more questions.
+Systems become more transparent, teams catch small issues early, and mental models
+get refined continuously. Learning compounds, and that compounding creates the
+“swiftly and confidently” motion you’re after.
+When observability is slow, expensive, or requires specialized expertise, the opposite
+happens. Engineers stop looking. Production feedback collapses into delayed alerts,
+helpdesk tickets, and customer complaints. Systems become opaque. Teams slow
+down because uncertainty drives coordination overhead. Knowledge concentrates on
+a few overburdened experts. Learning stalls.
+This is why precise, excellent, ergonomic observability is one of the highest-leverage
+investments an organization can make. It is the infrastructure for organizational
+learning. This makes it cheap to validate each change and connect the dots between
+developer intent and customer impact, which is what you must do to move at the
+speed of AI without turning throughput into risk.
+
+Change Actions That Drive This Strategy
+A mindset shift is also necessary before teams can move swiftly and confidently at the
+speed of AI.
+Many organizations are spending more than ever on “observability,” yet still operating
+with the same mindset they developed around monitoring. The result is predictable:
+bigger stacks with bigger bills, and the same outcomes—noisy alerts, slow investiga‐
+tions, and unhappy customers.
+This mismatch is largely structural. Monitoring and observability are designed for
+different jobs. As we discussed in Chapter 1, logs and metrics were built for opera‐
+tions teams to monitor infrastructure: they enable operational outcomes. Modern
+observability was built for software development teams to understand their product
+and how users are using it; it enables software dependability and delivery outcomes.
+If your organization uses monitoring-era tools and behaviors to pursue dependability
+and delivery outcomes, it will keep getting monitoring results. The following three
+
+
+
+                                                              Turning the Ship Around   |   429
+shifts are necessary to convert observability from tool spend into organizational
+capability.
+
+Match tools to architecture and engineer workflows
+If your architecture is distributed but your observability tooling is optimized for
+monolithic-era workflows, there’s a mismatch. The cost shows up as friction: engi‐
+neers have to manually stitch together context, and feedback loops slow down.
+The legacy three pillars observability model—separate tools for metrics, logs, and
+traces—often reinforces this mismatch. It creates cognitive overhead by forcing engi‐
+neers (or AI in some cases) to decide where to start, jump between systems, reconcile
+identifiers and timestamps, and make error-prone correlations. That overhead breaks
+the fast learning cycles required to ship confidently at higher rates of change.
+The observability vendor you choose matters less than functional fit: does the tool
+enable fast, iterative investigation across signals and services, and does it support the
+workflows that engineers need to connect change to impact? Make sure your tooling
+matches the outcomes you’re building toward.
+
+Run observability as a platform, not infrastructure
+Observability shouldn’t be “owned” as a tool-operations function. The mission isn’t
+to keep dashboards alive. The mission is to make it effortless for every engineer to
+understand what their code does in production, as close to real time as possible.
+That requires a product mindset: internal developers as customers, paved paths and
+defaults, strong onboarding, and continuous improvement. It also means measuring
+success in human terms: time to understanding, ease of investigation, adoption, and
+confidence after a deploy—not just uptime and data volume.
+This is also why rebranding an existing DevOps or infrastructure team as a “platform
+team” often fails: if the operating model doesn’t change, the outcomes won’t either.
+
+Treat product observability as an investment, not a cost center
+When observability is managed as a cost center, the organization optimizes for
+reduced spend rather than increased capability. At AI speed, internal capability
+becomes the constraint. If engineers can’t see what they’re doing, throughput turns
+into risk, coordination overhead grows, and learning slows.
+Observability inherits the properties of the code you observe. If the code is a cost
+center, observing it is also a cost center. But if the code is an investment, if it’s what
+makes you money and is why you exist as a business, then building better products
+and more performant interfaces is also an investment. That’s a job for observability.
+
+
+
+
+430   | Chapter 23: Organizational Learning Speed Is Now Your Biggest Constraint: An Open Letter to CTOs
+Agentic workflows break the long-held mental model of “developers own preproduc‐
+tion, operations own postproduction.” Nondeterminism is a feature with agents.
+The only way to understand what they are doing is by instrumenting the code and
+observing what they do.
+Managing observability as an investment shifts the focus toward the outcomes you
+actually need: faster feedback loops, better understanding, and sustained delivery
+performance. We’ll cover this further in Chapter 26.
+
+Make it real
+Together, these three shifts make the earlier strategies executable. Without them, you
+can talk about AI-driven productivity gains all you want—and for a while, those gains
+will even be real. But eventually, as your team compounds risk with each uncertain
+deployment, that productivity erodes and your debts collect interest.
+Putting these shifts into practice should look something like this:
+Adopt the loop of institutionalizing a deploy, observing, and learning.
+   The best time to learn is right after you ship, while developer intent is crisp and
+   context is fresh. If you rely on incidents or escalations as the primary learning
+   mechanism, you miss most of the signal (see Chapter 25).
+Treat observability like an internal platform product.
+    Build like a product, enable developers, and optimize for adoption and time to
+    understanding so that production learning becomes routine and scalable (see
+    Chapter 28).
+Align goals and spend to business outcomes.
+    Choose tools and workflows based on the feedback loops you need to strengthen,
+    and avoid the trap of paying observability prices for monitoring outcomes.
+You’ll know these changes are working when the median time shrinks between a
+new deployment and a validated understanding of customer impact (for example,
+measured as mean time to detect and interpret impact). You should also see a shift
+in where issues are first discovered (for example, measured as the percentage of mate‐
+rial incidents first identified through internal telemetry versus customer reports or
+support escalations). And your teams should start adopting the learning loops you’ve
+provided (for example, measured as the percentage of deploys with a post-deploy
+outcome check completed within a defined window).
+With these shifts, you can lay the groundwork for your teams to accelerate their
+learning, move swiftly with confidence, and turn those productivity gains into com‐
+pounding competitive advantages.
+
+
+
+
+                                                               Turning the Ship Around   |   431
+A Letter from a CTO: How Fin Engineering
+Optimizes for Learning
+                       A Note from Charity, Liz, George, and Austin
+  To ground the strategic arguments of this chapter’s open letter in executive reality,
+  we are delighted to include this contribution from a leader who has navigated these
+  shifts firsthand. Darragh Curran, CTO of Fin (formerly Intercom), details how his
+  organization successfully operationalized fast organizational learning to transition
+  to an AI-first culture. His perspective shows how these principles translate into
+  competitive advantage in a fast-moving market.
+
+
+The thing that sparked Fin into existence was an unignorable itch to make business
+online a little less awful. To put an end to: “Dear valued customer,” “You are ticket
+number 123,” and “Do not reply to this email.” Instead, to make business online
+personal and human. Like you’d expect in a store you love: a friendly welcome,
+personalized service, and real care if something goes wrong.
+To do this, we made Fin. It didn’t magically make your business better, but for people
+who cared, it gave them the right tools. And many did care. They realized good
+service was good for business.
+These tools didn’t exist yet. The shape and surface area weren’t figured out. And
+figuring out the shape of a product—then evolving and refining it—benefits hugely
+from fast feedback loops:
+      Do a thing. Learn something. Do the next thing.
+
+That is the core function of a software team. Do it well, pair it with product vision
+and judgment, and you can build great products, fast.
+Doing a thing means putting software in customers’ hands. Until you ship, your
+software creates no value. If shipping is sluggish, risky, or error-prone, you’ll do it
+infrequently—and sluggishness infects your entire company and culture. If shipping
+is fast, reliable, and high-confidence, you’ll do it often. Frequent shipping means
+frequent learning, better decisions, and faster progress in the right direction.
+We wrote this down 13 years ago as: “Shipping is your company’s heartbeat.” It rings
+true now more than ever.
+And then came the AI wave.
+Times of change force you to ask: what really matters? What do you keep? What do
+you change?
+
+
+
+432   |   Chapter 23: Organizational Learning Speed Is Now Your Biggest Constraint: An Open Letter to CTOs
+For us, the focus on enabling incredible customer service stayed constant. But we
+saw a clear line of sight to a future where AI could actually do the work of customer
+service—and could do it faster and better than humans. That led to the birth of Fin,
+the highest-performing AI agent for customer service. We pivoted our entire research
+and development team to building it, and shifted our culture to be AI-first. Fin is now
+on a trajectory to be far more successful than our original product ever could have
+been.
+Once again, we’re in uncharted product territory: a huge amount of software to build,
+an uncertain shape, and fast-evolving technology. But that plays to our strength—
+shipping and iterating at speed. And AI itself has given us new tools and agents to
+move faster than ever before.
+But it’s also made me appreciate the most essential skill of software engineers, espe‐
+cially in an era where AI threatens to eat the job of writing code: the ability to
+understand what’s really going on in the messy, wonderful systems we create. Without
+fast understanding, you lose confidence and precision. You’re either guessing, or
+wasting endless time trying to figure things out.
+To be a great engineer, you need to be great at:
+
+  • Understanding your customers: How they use your product, what’s working,
+    what’s not
+  • Understanding your production systems: Why something is slow, why something’s
+    broken, where to fix it
+  • Understanding how your software is built and deployed: Why it’s brittle or slow in
+    places, and what it would take to improve it
+
+Each of these gets harder in the AI era, which only increases the importance of this
+core skill:
+
+  • Products are more complex. Instead of deterministic behavior, AI is probabilistic.
+    It will surprise you. It won’t just work because it worked on your machine.
+  • Production systems now depend on costly, slow, unreliable (but magical) LLMs.
+  • Development environments are cohabited by AI agents that are prolific at producing
+    “sort-of-working” code. Your job is to harness the upside and contain the down‐
+    side—while moving at speed.
+
+The complexity ratchets up, but the truth becomes clearer: the bottleneck isn’t ship‐
+ping (we’ve largely optimized that), and it isn’t even writing code (which is now easier
+than ever). The bottleneck is understanding. Developing the depth and speed to know
+exactly what to do next to make your product or system better.
+
+
+
+
+                                  A Letter from a CTO: How Fin Engineering Optimizes for Learning   |   433
+If shipping is your heartbeat, then understanding is your breathing. Thankfully, we can
+use AI tooling for faster and sharper understanding. The deeper and more effective
+your breathing, the more oxygen you pull in. In turn, that fuels sharper decisions,
+faster fixes, and better products.
+
+Conclusion
+In the AI era, your organization’s competitive advantage is no longer determined by
+how fast you can ship code, but by how fast you can validate code and learn from it.
+Observability, when operationalized as a core platform capability, is the only system
+that can bridge the gap between developer intent and production reality at the speed
+of AI. It’s the only way to accelerate without turning your increased throughput into
+systemic risk.
+In the next few chapters, we’ll unpack a number of concepts and implementation
+details that will more concretely help your teams drive this strategy. In the next
+chapter, we’ll take the next step by learning how to reexamine software delivery via
+systems thinking.
+
+
+
+
+434   |   Chapter 23: Organizational Learning Speed Is Now Your Biggest Constraint: An Open Letter to CTOs

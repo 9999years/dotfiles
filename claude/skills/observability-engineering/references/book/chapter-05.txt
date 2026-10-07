@@ -1,0 +1,928 @@
+                                                                         CHAPTER 5
+                              Structured Events Are the
+                        Building Blocks of Observability
+
+
+
+
+In Part I, we introduced differences between the three pillars and unified models
+of observability. In this chapter, we show how that unification happens by unravel‐
+ing the myth that the standard observability telemetry signals—logs, metrics, and
+traces—must inherently be managed as different datatypes.
+For years, we software engineers have been taught to squint at our systems through
+different keyholes: metrics for a pulse check, logs for the narrative, and traces for
+extended views of complex actions. Each of these views has its own tooling, with
+its own conventions and dogma, that treats each as fundamentally different kinds of
+data, collected and stored in separate silos. But the problem that separation creates
+isn’t just philosophical. The shape of the data you collect constrains the questions you
+can ask later. When you pre-decide the shape, you pre-decide the investigation.
+That siloed split that impedes your debugging abilities, however, is merely a his‐
+torical artifact. Unfortunately, many of us software engineers haven’t fully realized
+that because squinting through different keyholes is the only method we’ve known
+since we first started coding. Instead of collecting three different representations
+of the same system state, we can primarily capture one context-rich representation
+(the wide, structured event) and use that to generate the appropriate view we need
+(metric, log, or trace), on demand, from that single record.
+It’s best to show, rather than just tell. So, over the next two chapters, we will dive
+deep into deconstructing the structure, advantages, and limitations of the various
+observability telemetry datatypes. We will then show how to reconstruct them using
+a single common substrate: the arbitrarily wide, structured event—the fundamental
+building block for unified observability. In this chapter, we’ll focus on examining the
+
+
+
+                                                                                      63
+common data format (a “structured event”). Then, in the next chapter, we’ll show
+how to make structured events more useful by making them “arbitrarily wide.”
+Jeremy Morrell, guest contributor in the next chapter, is also a primary contributor
+for this chapter.
+
+What Is a Structured Event?
+To understand a structured event, you must first understand its components. Let’s
+start by defining an “event.” This is a commonly used term in software development,
+let alone observability. It’s an overloaded term with different meanings attached. So,
+we will be context-specific.
+An “event” is any piece of data emitted from your application. When you log onto
+a terminal, the buffer of characters emitted to stdout can be considered an event
+(though it is free-form text encoding only one value: a message). For practical pur‐
+poses, an event is a record of everything that occurred during a unit of work within
+your system.
+A “structured event” is an event that can be parsed into a set of key-value pairs that
+may contain many values. For our purposes, you can visualize an event as a JavaScript
+Object Notation (JSON) object with no nested fields:
+     {
+         "timestamp": "6:00:00",
+         "user_id": "123",
+         "user_action": "signup",
+         "referral": false
+     }
+For the purposes of illustrating how that data is stored and how that affects later
+questions that you can ask, let’s also imagine how that event might be written as a
+database record, where each field is mapped to a column in a database table. Here,
+we’ll include a second and similar event that happens mere seconds later:
+
+timestamp user_id user_action referral
+6:00:00         123          signup            false
+6:00:03         456          checkout          true
+
+
+Looking at events in this way is sufficiently generic, and it enables us to usefully
+model each of the three pillar datatypes (metrics, logs, and traces) to better under‐
+stand their limitations, inner workings, and how to reconsider them.
+
+
+
+
+64   |   Chapter 5: Structured Events Are the Building Blocks of Observability
+The Limitations of Metrics
+To understand the limitations of metrics, first we must be clear about what metrics
+are. Let’s start by disambiguating the term “metrics.” Unfortunately, it is sometimes
+used as a generic synonym for “telemetry” (e.g., “All of our metrics are up and to
+the right, boss!”). In this context, we understand “metrics” to mean: the scalar values
+collected to represent system state, typically stored in a time-series database.
+
+What Is a Metric?
+In 1988, by way of the Simple Network Management Protocol (SNMPv1, as defined
+in RFC 1157), the foundational substrate of monitoring was born: the metric. A
+metric is a single number, with tags optionally appended for grouping and searching
+those numbers. Metrics are, by their very nature, disposable and cheap. They have
+a predictable storage footprint. They’re easy to aggregate along regular time-series
+buckets. And, thus, the metric became the base unit for a generation or two of
+telemetry—the data we gather from remote endpoints for automatic transmission to
+monitoring systems.
+Metrics data systems are designed to efficiently collect and aggregate some value on
+a set periodic interval, such as every 60 seconds. These values are used to track some
+aspect of our system over time:
+
+  • How many HTTP requests were served?
+  • How many HTTP requests resulting in a response with a 500-status code were
+    served?
+  • What was the CPU utilization?
+  • What was the slowest response time?
+
+It’s important to note that, back in the 1980s when the first metric systems were
+developed, computer systems had orders of magnitude less memory, storage, and
+bandwidth available. Because of that lineage, above all else, metrics optimize for
+reducing data volume and resource usage.
+A metric requires a few pieces of information:
+Timestamp
+   Since we only collect values every 60 seconds, this can be rounded to the start of
+   the nearest interval (i.e., 6:16:23 => 6:16:00).
+Name
+   A descriptive name of the value being tracked, such as http.request.count or
+   cpu.utilization.
+
+
+
+                                                             The Limitations of Metrics   |   65
+Measurement
+   The value to be tracked over time, frequently (but not always) captured as a
+   single number.
+Type
+    Given a set of metric records, the metric system needs to know how to combine
+    them (more about this in the next section).
+Set of attributes
+     Also called tags, optional sets of key-value pairs that add additional context (e.g.,
+     sensor_id, server_id, region, etc.).
+Together, all of this information creates a single metric record. As a structured event,
+it might look like this:
+     {
+         timestamp: "6:00:00",
+         type: "count",
+         name: "http.request.count",
+         value: 212,
+         server_id: "web.1",
+         region: "north_america"
+     }
+It’s worth noting that in OpenTelemetry, metrics are modeled as “metric events” over
+the wire in almost exactly this fashion (see Chapter 7).
+
+Metrics Are Typically Aggregated
+Metric records are distinct from the other event types because they are typically
+combined. All metric records that share the same name, set of attributes, and fall
+within the same time interval are aggregated into a singular record.
+For example, if you are tracking how many HTTP requests your service handles, you
+can use a “counter” metric (see Figure 5-1). You’ll get a different value from each
+instance of your service, and then they are added together to get the total requests
+served per one-minute interval.
+
+
+
+
+Figure 5-1. An example of a counter metric that shows how various measurements of
+http.requests can be aggregated over one time period by adding them together.
+
+
+
+
+66   |   Chapter 5: Structured Events Are the Building Blocks of Observability
+As a different example of aggregation, if you were reading a temperature sensor every
+10 seconds, then you would have 6 measurements per minute. That can be aggregated
+as a “gauge” metric (see Figure 5-2) by dropping all but the last value. A gauge metric
+is a time-series value that can go up or down, representing values that fluctuate.
+
+
+
+
+Figure 5-2. Unlike a counter metric, which only increases, a gauge can arbitrarily
+increase or decrease and captures the instantaneous value at a specific point in time.
+
+Aggregations present some inherent limitations. As an example of a measure‐
+ment that would not work, let’s assume you received the following as average
+http.response times, per minute, per instance of your service:
+
+Timestamp Server   Response time (ms)
+6:00:00    web.1 120
+6:00:00    web.2 230
+6:00:00    web.3 200
+
+
+What questions can you answer with data that is shaped this way? For example, if you
+asked what the average response time is of this service, as a whole across all instances,
+can you get a correct answer?
+You might be tempted to average all of the values together and say that the aver‐
+age response time of the service was 183 ms. However, that simplistic approach is
+problematic because each aggregated measurement may have contained a different
+number of datapoints. Unfortunately, there is no mathematically sensible way to
+combine these measurements once you have lost data by aggregating them into an
+average.
+It’s possible to average averages. But only if the groups are the same size; otherwise,
+you must use a weighted average to get the correct overall average (which requires
+knowing the lost datapoints). If the groups had different numbers of datapoints (say,
+web.1 had 100 requests, web.2 had 57, and web.3 had 98), then an unweighted
+average of averages would be grossly inaccurate, as it gives equal weight to each
+group’s average, regardless of its size.
+If you anticipate this problem, instead, you can expose that information by collecting
+two slightly different values, such as the number of requests and the total time spent
+serving each, like so:
+
+
+
+
+                                                                The Limitations of Metrics   |   67
+ServerRequests Total response time (ms)
+web.1 100      12,000
+web.2 57              13,110
+web.3 98              19,600
+
+With these unaggregated values, you can calculate the average response time per
+instance, and also combine them all for an accurate average response time of 175
+milliseconds. The “histogram” metric type is made to enable that type of data capture.
+You can get the answer you need with the correct metric in place. However, this
+requires some guesswork. You might have just collected average response times
+across instances because that seems good enough. You may not even realize you
+needed to know what the average response time was for your service across all
+instances until a particular investigation demands an answer to that question.
+If you hadn’t thought to set up a histogram metric before you needed that answer,
+there is no way to go back now and get it. The best you can do is set it up for future
+use and hope that someday you need to ask that same question again.
+Aggregation is the key property that distinguishes metrics and what makes them
+extremely economical to use. However, it is also aggregation that hinders detailed
+analysis without already knowing what needs to be aggregated. Metrics were origi‐
+nally developed as a workaround for extremely resource-constrained systems, mean‐
+ing they skew heavily toward cost reduction at the expense of debuggability. This can
+be the right trade-off, and has historically been the correct approach in eras where
+data storage and egress were more expensive.
+
+The Inner Workings of Logs
+When metrics can’t provide enough context, as developers, we tend to reach for logs.
+Logs are intuitive for debugging. They’re often one of the first things developers
+learn. We start with “Hello, world!” and then logs stay with us forever after.
+Log files are essentially large blobs of unstructured text, designed to be readable by
+humans but difficult for machines to process. These files are documents generated by
+applications and various underlying infrastructure systems that contain a record of all
+notable events—as defined by a configuration file somewhere—that have occurred.
+For decades, logs have been an essential part of system debugging applications in any
+environment. Logs typically contain tons of useful information: a description of the
+event that happened, an associated timestamp, a severity-level type associated with
+that event, and a variety of other relevant metadata (user ID, IP address, etc.).
+
+
+
+
+68   |   Chapter 5: Structured Events Are the Building Blocks of Observability
+Traditional logs are unstructured because they were designed to be readable by
+humans. Unfortunately, for purposes of human readability, logs often separate the
+vivid details of one event across multiple lines of text, like so:
+    6:01:00 accepted connection on port 80 from 10.0.0.3:63349
+    6:01:03 basic authentication accepted for user: foo
+    6:01:15 processing request for /super/slow/path
+    6:01:18 request succeeded, sent response code 200
+    6:01:19 closed connection to 10.0.0.3:63349
+You might be used to seeing logs like this in local development, where you usually
+have a consistent stream of logs for a single test request at a time. Often, we learn
+the expected order and pattern of the logs and notice when something unusual is
+happening. While this works well in local development, that approach tends to fall
+apart when debugging issues in production at scale. Treating the logs as structured
+data can help us understand why.
+We can map these to structured events by taking the timestamp and message
+separately:
+    {
+    “timestamp: “2024”,
+    “user_id”: “630630”,
+    “action: checkout_completed”,
+    [...]
+    }
+And we can think of this set of logs on disk as the following table:
+
+timestamp message
+6:01:00     accepted connection on port 80 from 10.0.0.3:63349
+6:01:03     basic authentication accepted for user: foo
+6:01:15     processing request for /super/slow/path
+6:01:18     request succeeded, sent response code 200
+6:01:19     closed connection to 10.0.0.3:63349
+
+
+It would be complicated to create a query to retrieve just this particular set of data.
+For example, if you want to know every unique user between two time periods, you’d
+be forced to use a tool like regex (regular expression) to parse each message field:
+    SELECT DISTINCT
+      regexp_extract(message, 'authentication accepted for user: (\w+)', 1) AS user
+    WHERE timestamp BETWEEN '6:00:00' AND '7:00:00'
+      AND message LIKE 'basic authentication accepted for user: %';
+
+
+
+
+                                                              The Inner Workings of Logs   |   69
+While possible, this is also a difficult query for a database to process efficiently.
+Adding a full text-search index to the message field could help eliminate rows that
+don’t match the filters, but you still have the overhead of a relatively expensive regular
+expression engine per matched row.
+Further, modern systems no longer run at an easily comprehensible human scale. In
+legacy monolithic systems, human operators had a very small number of services to
+manage. Logs were written to the local disk of the machines where applications ran.
+In the modern era, logs are often streamed to a centralized aggregator, where they’re
+dumped into very large storage backends.
+Searching through millions of lines of unstructured logs can be accomplished by
+using some type of log file parser. Parsers split log data into chunks of information
+and attempt to group them in meaningful ways. However, with unstructured data,
+parsing gets complicated because different formatting rules (or no rules at all) exist
+for different types of log files. Even within the same log types, it’s not uncommon
+to log only specific fields per instance, resulting in further complications in data
+sequence and consistency. Logging tools are full of different approaches to solving
+this problem, with varying degrees of success, performance, and usability.
+The solution is to instead create structured log data designed for machine parsability.
+
+Turning Traditional Logs Into Structured Logs
+As structured data, the preceding example might instead look like a set of key-value
+pairs. Represented as JSON, it would look something like this:
+     {
+         "timestamp": "6:01:00",
+         "msg": "accepted connection",
+         "port": 80,
+         "authority": "10.0.0.3:63349"
+     }
+     {
+         "timestamp": "6:01:03",
+         "msg": "basic authentication accepted",
+         "user": "alice"
+     }
+     {
+         "timestamp": "6:01:15",
+         "msg": "processing request",
+         "path": "/super/slow/path"
+     }
+     {
+         "timestamp": "6:01:18",
+         "msg": "accepted connection",
+         "port": 80,
+         "authority": "10.0.0.3:63349"
+     }
+
+
+70   |   Chapter 5: Structured Events Are the Building Blocks of Observability
+    {
+        "timestamp": "6:01:19",
+        "msg": "closed connection",
+        "authority": "10.0.0.3:63349"
+    }
+That structure is helpful. If your backend treats these logs as structured data, you end
+up with a table that looks like this:
+
+timestamp message                       port authority          user     path           status
+6:01:00      accepted connection        80    10.0.0.3:63349
+6:01:03      basic authentication                               alice
+             accepted
+6:01:15      processing request                                          /super/
+                                                                         slow/path
+6:01:18      sent response code                                                         200
+6:01:19      closed connection                10.0.0.3:63349
+
+
+Now, expressing a query to “count unique users between two time periods” is much
+less complicated:
+    SELECT DISTINCT user
+    WHERE timestamp BETWEEN '6:00:00' AND '7:00:00'
+      AND message = "basic authentication accepted";
+If your datastore treated the messages as strings, with a special index for keys and
+values, that would be an improvement over needing to build regular expressions
+for everything. That can even be an interim step if you already have a mature
+log-processing system within your organization, but it still leaves much room for
+further performance optimizations.
+While clunky, this shows how you can structure log data and the types of questions
+you can answer given its shape.
+
+Is a Structured Log the Same as a Structured Event?
+At this point, you might find yourself asking: how are structured logs any different
+from structured events? The simple answer is that they aren’t. A nuanced answer
+comes down to whether your datastore treats them as structured data or as strings.
+
+Tracking a Single Operation
+In our examples, we have been looking at logs from a single operation, but any
+real production system is processing many operations at once. When trying to under‐
+stand what happened in our system, it helps to see a linear progression of logs, like we
+might see when developing locally. Many developers stumble onto the same idea: give
+
+
+                                                               The Inner Workings of Logs   |   71
+each request a unique ID and add it to each log line. That could look something like
+this:
+
+timestamp request_id message                              port authority            user    path      status
+6:01:00         7kX9m            accepted                 80       10.0.0.3:63349
+                                 connection
+6:01:03         7kX9m            basic                                              alice
+                                 authentication
+                                 accepted
+6:01:15         7kX9m            processing                                                 /super/
+                                 request                                                    slow/
+                                                                                            path
+6:01:18         7kX9m            sent response                                                        200
+                                 code
+6:01:19         7kX9m            closed                            10.0.0.3:63349
+                                 connection
+
+
+Now we can find all of the events from a specific request with a simple filter:
+     SELECT *
+     WHERE request_id = '7kX9m'
+Distributed tracing adds a few more concepts. A simple mental model of distributed
+tracing to start with is “a set of events that all share the same ID.” We’ll build on this
+model next.
+
+The Inner Workings of Distributed Traces
+Distributed tracing, or just tracing, is simply a way to represent an interrelated series
+of events. Importantly, tracing also includes a hierarchy and sequence of events
+within its data model. Unfortunately, for newcomers, tracing can seem like deep
+magic. OpenTelemetry can seem mysterious and complex (see Chapter 7).
+Many vendors treat instrumentation code like fancy, unknowable magic that gets
+sprinkled in, and it just “does stuff ” to your app: “Install our SDK or agent. Don’t
+worry about it too much.”
+It doesn’t help that in mature, battle-tested tracing libraries, the code itself tends to
+become cryptic over time, contorting itself to avoid edge cases, work across many
+environments, and optimize code paths to avoid impacting the performance of its
+host applications.
+So, it’s no wonder that most developers approach tracing libraries as unknowable
+opaque boxes. We add them to our applications, cross our fingers, and hope they give
+us useful information when the pager app on our phone goes off at 2 a.m.
+
+
+
+72   |   Chapter 5: Structured Events Are the Building Blocks of Observability
+But tracing is likely a lot simpler than you’d expect. Let’s peel back the layers to
+demystify tracing into a mental model that looks a lot like “fancy logs” combined with
+“context propagation” (in other words, “passing some IDs around”).
+
+A Brief Introduction to Distributed Tracing
+Since many developers are newer to traces, we’ll start with a quick crash course. Let’s
+begin with the name.
+Tracing is a fundamental software-debugging technique wherein various bits of infor‐
+mation are logged throughout a program’s execution for the purpose of diagnosing
+problems. Since the very first day that two computers were linked together to
+exchange information, software engineers have been discovering the gremlins lurking
+within our programs and protocols. Tracing a process from end to end is incredibly
+effective at flushing them out.
+Elusive issues buried in the seams persist despite our best efforts, and in an age when
+distributed systems are the norm, the tried and true debugging techniques we use
+have been adapted to meet more complex needs.
+Distributed tracing extends that familiar debugging concept to track the progression
+of a single request—called a trace—as it’s handled by various services that make
+up an application. Tracing in this sense is “distributed” because in order to fulfill
+its functions, a singular request must often traverse process, machine, and network
+boundaries.
+The popularity of microservice architectures has led to a sharp increase in debugging
+techniques that pinpoint where failures occur along that route and what might be
+contributing to poor performance. Anytime a request traverses boundaries—such
+as from on premises to cloud infrastructure, or from infrastructure you control
+to software as a service (SaaS) that you don’t, and back again—distributed tracing
+can be incredibly useful for diagnosing problems, optimizing code, and improving
+reliability.
+That led to a sharp rise in popularity for distributed tracing. It also meant that several
+approaches and competing standards emerged to accomplish that task. Despite their
+design differences, one thing that all distributed tracing implementations share is that
+they are designed to help you understand system interdependencies.
+System interdependencies can obscure problems and make them particularly difficult
+to debug unless the relationships between them are clearly understood. For example,
+if a downstream database service experiences performance bottlenecks, that latency
+can cumulatively stack up. By the time latency is detected three or four layers
+upstream, identifying which component of the system is the root of the problem
+can be incredibly difficult because now that same latency is being seen in dozens of
+other services.
+
+
+                                                     The Inner Workings of Distributed Traces   |   73
+Showing those interdependencies is done, essentially, by interconnecting a series of
+logs. That approach works well across several services and systems. As it turns out,
+that approach also works for singular processes running on the same machine; it
+connects seemingly discrete objects to the same logical unit of work you wish to
+understand.
+To show how this works, we’ll demonstrate by building a rudimentary tracing library
+from scratch later in this chapter. But first, let’s cover the necessary components
+needed to form a distributed trace.
+
+The Components of Tracing
+To understand the mechanics of how tracing works, we’ll use an example to show the
+various components needed to assemble a trace.
+To quickly understand where issues may be happening between interdependencies,
+it’s useful to show waterfall-style visualizations of a trace, as shown in Figure 5-3.
+Each stage of a request is displayed as an individual chunk in relation to the start time
+and duration of a request being debugged.
+
+                     Waterfall visualizations show how an initial value is affected by a
+                     series of intermediate values, leading to a final cumulative value.
+
+
+
+
+Figure 5-3. This waterfall-style trace visualization displays four trace spans during one
+request.
+
+Each chunk of this waterfall is called a trace span, or span for short. Within any given
+trace, a span is either the root span—the top-level span in that trace—or, it is a span
+that is nested within the root span. Spans nested within the root span may also have
+nested spans of their own. That relationship is sometimes referred to as parent-child.
+For example, in Figure 5-4, if service A calls service B, which calls service C, then for
+that trace, span A is the parent of span B, which is in turn the parent of span C.
+
+
+74   | Chapter 5: Structured Events Are the Building Blocks of Observability
+Figure 5-4. A trace that has two parent spans. Span A is the root span and is also the
+parent of span B. Span B is a child of span A and also the parent of span C. Span C is a
+child of span B and has no child spans of its own.
+
+Note that a service might be called and appear multiple times within a trace as
+separate spans, such as in the case of circular dependencies or intense calculations
+broken into parallel functions within the same service hop (i.e., single network
+call). In practice, requests often traverse messy and unpredictable paths through a
+distributed system.
+To construct the type of view needed to show any path taken, no matter how com‐
+plex, we need five pieces of data for each component:
+Trace ID
+    We need a unique identifier for the trace we’re about to create so that we can map
+    it back to a particular request. This ID is created by the root span and propagated
+    throughout each step taken to fulfill the request (by passing that same ID to each
+    subsequent span).
+Span ID
+    We also need a unique identifier for each individual span created. Spans contain
+    information captured while a unit of work occurred during a single trace. The
+    unique ID enables us to refer to any particular span within the chain whenever
+    we need it.
+Parent ID
+    This field is used to properly define nesting relationships throughout the life of
+    the trace. A parent span will propagate its ID to any of its children. A parent ID is
+    absent in the root span (that’s how we know it’s the root).
+Timestamp
+   Each span must indicate when its work began.
+Duration
+   Each span must also record how long that work took to finish.
+
+
+
+
+                                                     The Inner Workings of Distributed Traces   |   75
+That’s it. Those are all of the fields absolutely required in order to assemble the
+structure of a trace. With just those fields, you can create an interconnected series of
+structured logs that show you what happened during any end-to-end transaction.
+In distributed traces, you’ll typically find a few other helpful fields to identify what
+these spans are or how they relate to your system. For example:
+Service name
+    For investigative purposes, you’ll want to indicate the name of the service (or
+    location) where this work occurred.
+Span name
+    To understand the relevance of each step, it’s helpful to give each span a descrip‐
+    tive name to identify or differentiate the work it captures. For example, names
+    could be intense_computation1 and intense_computation2 if they represent
+    different work streams within the same service or network hop.
+Span attributes
+    To capture information about the operation beyond just the duration, each span
+    has a collection of key-value pairs. This is where you can capture that a given
+    HTTP request returned an http.response.status_code of 200. Any additional
+    information that would go in a log line should be added here.
+Pragmatically speaking, just with that data, we should be able to construct the type of
+waterfall visualization that lets us reason about system interdependencies.
+Now, let’s assess how structured logs can become a trace.
+
+Turning Logs Into Distributed Traces
+To demonstrate how logs can be converted to traces, we’ll create a distributed trace
+from scratch. Let’s start from the beginning: a simple log line.
+Consistency is useful in logs for searchability. We’ll start by ensuring each log has a
+consistently formatted timestamp or includes a searchable field like name:
+     function log(name, attributes) {
+       console.log(
+          JSON.format({
+             timestamp: new Date().getTime(),
+             name,
+             ...attributes,
+          })
+       );
+     }
+
+
+
+
+76   |   Chapter 5: Structured Events Are the Building Blocks of Observability
+That code outputs a line that looks like the following:
+    {
+        "timestamp": 1725845013447,
+        "name": "user-authenticated",
+        "userId": "1234",
+        "remaingingRateLimit": 100
+    }
+Because we need to include a duration, we’ll include a helper function to track the
+execution time for any given subtask:
+    function logTiming(name, lambda) {
+      let startTime = new Date().getTime();
+
+        // run some subtask
+        lambda();
+
+        let durationMs = new Date().getTime() - startTime;
+        log(name, { durationMs });
+    }
+The invocation and output could look like so:
+    logTiming("query-user-info", () => {
+      db.fetchUserInfo();
+    });
+
+    // ...
+
+    {
+        "timestamp": 1725845013447,
+        "name": "query-user-info",
+        "durationMs": 12
+    }
+Congrats! With a name, timestamp, and duration, we’re almost halfway to creating
+trace spans. Let’s add the remaining required fields: trace ID, span ID, and a parent
+span ID.
+In practice, spans are only useful when they contain a handful of other fields to
+describe system state (similar to a structured log). We’ll cover those in-depth in the
+next chapter. For now, you can safely ignore these. Just know that all other fields can
+be added as additional keys and values in an attributes map.
+In code, it could look something like this:
+    let span = new Span("api-request");
+    let response = await api("get-user-limits");
+    span.setAttributes({ responseCode: response.code });
+    span.End();
+    console.log(span);
+
+
+
+
+                                                          Turning Logs Into Distributed Traces   |   77
+     // ...
+
+     class Span {
+       constructor(name, context = {}, attributes = new Map()) {
+         this.startTime = new Date().getTime();
+         this.traceID = context.traceID ?? crypto.randomBytes(16).toString("hex");
+         this.parentSpanID = context.spanID ?? undefined;
+         this.spanID = crypto.randomBytes(8).toString("hex");
+         this.name = name;
+         this.attributes = attributes;
+       }
+
+         setAttributes(keyValues) {
+           for (let [key, value] of Object.entries(keyValues)) {
+             this.attributes.set(key, value);
+           }
+         }
+
+         end() {
+           this.durationMs = new Date().getTime() - this.startTime;
+         }
+     }
+The output would be:
+     Span {
+       startTime: 1722436476271,
+       traceID: 'cfd3fd1ad40f008fea72e06901ff722b',
+       parentSpanID: undefined,
+       spanID: '6b65f0c5db08556d',
+       name: 'api-request',
+       attributes: Map(1) {
+          "responseCode": 200
+       },
+       durationMs: 3903
+     }
+That could be formatted as an equivalent structured event or log line:
+     {
+         "startTime": 1722436476271,
+         "traceID": "cfd3fd1ad40f008fea72e06901ff722b",
+         "spanID": "6b65f0c5db08556d",
+         "name": "api-request",
+         "responseCode": 200,
+         "durationMs": 3903
+     }
+
+                     In this example, we generated a root span (we know this because it
+                     has an undefined parentSpanID). Therefore, we did not carry over
+                     that field into our JSON.
+
+
+
+
+78   | Chapter 5: Structured Events Are the Building Blocks of Observability
+As you can see, spans are essentially the same as structured logs when represented in
+this view. They just contain some fancier data. This is why we have nicknamed traces
+as “fancy logs.”
+Now let’s create the interconnections in our example by generating several child
+spans.
+
+Traces Are Collections of Spans
+So far, this example is very simplistic. Traces are best to see interdependent events.
+Let’s use our rudimentary library to create a collection of spans that could represent
+different units of work in one end-to-end transaction.
+As covered earlier, interrelated relationships are mapped using span ID, trace ID, and
+parent span ID. These three different IDs make up a trace context.
+The first two are simple. The parent span ID is what allows a system to create a
+directed acyclic graph (DAG) out of each trace once it has received each individual
+span. When rendered as a tree, this results in a waterfall view, as shown in Figure 5-5
+(but it’s important to remember that waterfall is only one possible visualization of the
+trace data).
+
+
+
+
+Figure 5-5. The trace parent span (GET /profile/user) has no parent ID. Its two child
+spans (get-profile-photo and get-profile-data) have the parent ID of the root
+span. The child of the get-profile-photo span (get-photo-caption) has the parent
+ID of its parent, which is not the root span.
+
+Trace Context
+Trace context is what interconnects all of our “fancy logs.” To do so, our context only
+really needs to track two values: the trace ID and the ID of the current span. When we
+create a new span, we can inherit the spanID if one exists, generate a new spanID, and
+set the new context:
+
+
+                                                       Turning Logs Into Distributed Traces   |   79
+     let context = {
+       traceID: "cfd3fd1ad40f008fea72e06901ff722b",
+        spanID: "6b65f0c5db08556d",
+     };
+We need some way of passing this context around our application. We could do this
+manually:
+     let { span, newContext } = new Span("api-req", oldContext);
+Indeed, this is how it is done in the OpenTelemetry Go SDK. However, in many other
+languages this is done implicitly and handled automatically by the library. In Ruby
+or Python, you can use a thread local variable, but in Node.js you would use the
+AsyncLocalStorage API.
+At this point, it helps to wrap our span creation in a helper function:
+     import { AsyncLocalStorage } from "node:async_hooks";
+
+     let asyncLocalStorage = new AsyncLocalStorage();
+     let EMPTY_CONTEXT = {};
+     asyncLocalStorage.enterWith(EMPTY_CONTEXT);
+
+     async function startSpan(name, lambda) {
+       let ctx = asyncLocalStorage.getStore();
+       let span = new Span(name, ctx, new Map());
+       await asyncLocalStorage.run(span.getContext(), lambda, span);
+       span.end();
+       console.log(span);
+     }
+
+     startSpan("parent", async (parentSpan) => {
+       parentSpan.setAttributes({ outerSpan: true });
+       startSpan("child", async (childSpan) => {
+         childSpan.setAttributes({ outerSpan: false });
+       });
+     });
+And with that, we have the core of our tracing library done. It would output traces
+that look like so:
+     Span {
+       startTime: 1725850276756,
+       traceID: 'b8d002c2f6ae1291e0bd29c9791c9756',
+       parentSpanID: '50f527cbf40230c3',
+       name: 'child',
+       attributes: Map(1) { 'outerSpan' => false },
+       spanID: '8037a93b6ed25c3a',
+       durationMs: 11.087375000000002
+     }
+
+
+
+
+80   |   Chapter 5: Structured Events Are the Building Blocks of Observability
+    Span {
+      startTime: 1725850276744,
+      traceID: 'b8d002c2f6ae1291e0bd29c9791c9756',
+      parentSpanID: undefined,
+      name: 'parent',
+      attributes: Map(1) { 'outerSpan' => true },
+      spanID: '50f527cbf40230c3',
+      durationMs: 26.076625
+    }
+
+As before, these can also be represented as JSON. This example shows how distributed
+traces are essentially the same as structured logs, except with additional fields that
+show how the various child spans (or related logs) are connected.
+
+Dynamically Generating the Right System Views
+So far, we’ve mostly shown how each fundamental telemetry datatype can be broken
+down into structured JSON—a.k.a. our “structured event.” But how does that get
+recomposed into the right view needed for your investigation? Let’s use a concrete
+example that shows how to dynamically generate a metric from the structured events
+you’ve captured.
+Let’s say our system has a shopping cart service that is instrumented to emit wide,
+structured events. In this example, our shopping cart service is used by several other
+services in our stack. Therefore, events for that service are typically written as trace
+spans. How can we use those events to generate a P99 latency metric time series?
+A typical span using this service might look like:
+    {
+        "timestamp": "2025-11-08T01:23:45.678Z",
+        "service": "shopping-cart",
+        "event_name": "transaction_completed",
+        "duration_ms": 312.7,
+        "status": "ok",
+
+        "http.method": "POST",
+        "http.route": "/checkout",
+        "http.status_code": 200,
+
+        "user_id": "823ab778",
+        "session_id": "s9f2ch74",
+        "order_id": "o_1188296",
+        "cart_items": 4,
+        "payment_provider": "stripe",
+        "region": "us-east-1",
+        "device_type": "mobile",
+        "build_id": "cart-6c1a12",
+
+
+
+
+                                               Dynamically Generating the Right System Views   |   81
+         "trace.trace_id": "9b0f2c1g8d2k",
+         "trace.span_id": "4a2189fg9cz8",
+         "trace.parent_id": "..."
+         ...
+     }
+
+An event captured in this format contains duration_ms, which is the latency we’ll
+measure in our desired metric. Presuming we have captured a number of similar
+structured events, you can derive a P99 metric time series (i.e., a summary of the
+hundreds of datapoints that occurred within one particular minute of interest). If
+our data looks like this example, we could generate P99 latency for all shopping cart
+transactions into one-minute buckets, with a query like this:
+     WITH cart_tx AS (
+       SELECT
+         date_trunc('minute', timestamp) AS minute,
+         duration_ms
+       FROM structured_events
+       WHERE service = 'shopping-cart'
+         AND event_name = 'transaction_completed'
+         AND status = 'ok'
+         AND duration_ms IS NOT NULL
+     )
+     SELECT
+       minute,
+       PERCENTILE_DISC(0.99) WITHIN GROUP (ORDER BY duration_ms) AS p99_ms
+     FROM cart_tx
+     GROUP BY minute
+     ORDER BY minute;
+Note that this event also contains other high-context fields like user, region, build,
+device, etc. (which we’ll explore further in Chapter 6). These attributes are preserved
+within the event so that, later, we can slice the P99 by any other desired dimension
+without reinstrumenting.
+Let’s say we want to see P99 by region (or any other dimension). We don’t need to
+have already captured a metric that includes those dimensions. Instead, we simply
+add it to SELECT and GROUP BY without any schema changes needed:
+     SELECT
+       date_trunc('minute', timestamp) AS minute,
+       region,
+       PERCENTILE_DISC(0.99) WITHIN GROUP (ORDER BY duration_ms) AS p99_ms
+     FROM structured_events
+     WHERE service='shopping-cart'
+       AND event_name='transaction_completed'
+       AND status='ok'
+     GROUP BY minute, region
+     ORDER BY minute, region;
+
+
+
+
+82   |   Chapter 5: Structured Events Are the Building Blocks of Observability
+If you needed to refresh P99s continuously, you could do things like keep a stream‐
+ing quantile sketch per time bucket (and optional dimension keys). At this point,
+more sophisticated views simply become a data-processing problem. Building on the
+streaming example, you could hold short grace periods to catch late events, before
+finalizing the aggregation. You could adjust the quantiles for further small-grained
+accuracy, using t-digest or HDR histograms. Or you could do anything else you need,
+depending on situational requirements.
+Why this approach works is that it lets you decide, during the course of any given
+investigation, what data shape you need to answer your questions. You didn’t store
+an aggregated metric and discard any of the additional context; rather, you derived a
+metric from a complete set of facts. Instead of pre-deciding the data shape and boxing
+yourself into pre-deciding the investigation, you capture an entire set of facts and
+post-decide the necessary shape.
+From a single, wide, structured event, the P99 metric is just one of many possible data
+shapes you could choose to answer today’s question without limiting tomorrow’s. For
+example, you could:
+
+  • Recompute P99 with different windows (5 minutes, 1 hour), filters (only
+    device_type='mobile'), or conditions (http.status_code >= 500), with no
+    telemetry configuration deployment or re-ingestion required.
+  • Derive other views from the same events: a log-like narrative (SELECT time
+    stamp, user_id, duration_ms, http.route …), or a trace by stitching on
+    trace.*_id.
+  • Avoid the classic metric pitfalls of pre-aggregation, which discards the very fields
+    you’ll need later to explain why P99 got worse.
+
+This example span and accompanying queries are simplistic, but already you can see
+the benefits that this approach unlocks. Throughout further chapters of this book,
+we’ll build on these examples.
+
+Conclusion
+To understand the basic building block for unified observability, we unraveled the
+structure, commonalities, and limitations of the three common telemetry types—
+logs, metrics, and traces.
+Metrics are quick, cheap, and easy because they aggregate by design. That’s also why
+they’re lossy and narrow. Once you’ve averaged, bucketed, or rolled up the results,
+you can’t later reconstruct any data that you didn’t keep. That makes certain questions
+unanswerable after they’ve been written into the metric format.
+
+
+
+
+                                                                         Conclusion   |   83
+Logs, originally optimized for human readability, contain a narrative. At scale, how‐
+ever, that story can quickly become a congressional library of unindexed prose: full
+of extraneous data, expensive to sift, and brittle to parse. Structured logs solve that
+problem, but still often only show a fragmented snapshot for any given unit of work.
+Traces can provide the missing connective tissue, because they’re simply interrelated
+logs with context propagated to show how one unit of work fans out across various
+services.
+If your experience in software development has revolved around the legacy three pil‐
+lars observability model, consider this chapter a gentle but firm nudge to reconsider
+the limitations it imposes by segmenting views. The shape of the data you collect con‐
+strains the questions you can ask later. Unifying datatypes by decomposing metrics,
+logs, and traces into arbitrarily wide, structured events removes those constraints.
+The arbitrarily wide, structured event captures all relevant context for a unit of work
+(inputs, discovered context, conditions, outcomes, etc.) so that, after the fact, you
+can slice along any dimension, aggregate them into summary time series, go back to
+read the narrative in any given log, or stitch them into an end-to-end transaction.
+It’s our view that divisions that exist as historical artifacts shouldn’t dictate how we
+instrument or investigate. The best representation of system state for any future
+investigation is one that allows data to be reshaped on demand. Unified observabil‐
+ity removes historical limitations so that your immediate questions, not your data
+model’s past, are what sets the boundaries of what you can learn.
+In this chapter, we covered the “wide, structured event” part of the building block.
+But why is it “arbitrarily” wide? In the next chapter, we look at concrete examples
+of all the context-rich data that you can and should capture inside your structured
+events.
+
+
+
+
+84   |   Chapter 5: Structured Events Are the Building Blocks of Observability

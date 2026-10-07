@@ -1,0 +1,415 @@
+                                                                        CHAPTER 10
+         The Role of AI Agents for Observability
+
+
+                                  This chapter is contributed by Boris Tane,
+                                       Founder and CEO of Coreplane Labs
+
+
+                A Note From Charity, Liz, George, and Austin
+In this chapter, we’re going to dive deeper into the role of AI and agents in the world
+of observability practices, and how they can help you implement observability-driven
+development.
+We need to say this part out loud: this is one of the chapters that risks aging in dog
+years. The agentic AI space is moving fast. Models are improving, context windows
+are expanding, and the ways people build and operate agents are changing so fast that
+any advice we give could feel dated by the time you read this. So, rather than try to
+predict the exact shape of the tooling landscape, we are going to focus on something
+more durable: how to think about this problem space and which first principles
+should guide your decisions as the technology continues to evolve.
+Today’s agents are typically constrained by incomplete context, uneven tool use, and
+limits on what they can hold in working memory. Some of the advice in this chapter
+is a function of those limitations. But we hope that the deeper lesson you’ll take from
+this content isn’t about any one particular limitation or architectural pattern.
+Observability has always been about the tension between context and precision.
+Whether held by humans or machines, the outcome will continue to depend on the
+quality, completeness, and accessibility of the context available to them.
+To be clear, we authors are under no illusion that this space will do anything but keep
+up the dramatic rate of change. However, we believe the principles in this chapter
+should hold for the foreseeable future: instrument richly, preserve context, design
+strong feedback loops, and be mindful of where automation helps and where the best
+
+
+
+
+                                                                                      161
+  judgment is possible. The exact tools and techniques may change. The need for these
+  principles will not.
+  The rest of this chapter is written from Boris Tane’s perspective.
+
+
+The way engineers understand and operate software is changing in ways that would
+have seemed far-fetched just a few years ago. Observability has always been about
+giving humans better tools to make sense of their systems: better dashboards, bet‐
+ter query languages, better alerting pipelines. The feedback loops that have shaped
+software engineering for decades—the cycle of writing, deploying, observing, and
+fixing—were built on the assumption of a human at every gate, synthesizing signals,
+and making judgments about what to do next.
+That assumption is being quietly dismantled, and the implications for how we think
+about observability are significant. As AI agents begin to take a seat at the software
+development table—surfacing data but also reasoning over it, acting on it, and
+increasingly shaping the systems that produce it in the first place—we are witnessing
+an inflection point for the entire software development lifecycle. This shift promises
+a world where agents handle the mechanical investigative groundwork, but it also
+creates a new, urgent responsibility for human engineers: providing the high-fidelity
+context that these systems require to operate safely.
+This chapter explores the practical utility of agents within observability, identifies the
+boundaries where they fall short, and argues that the gap between success and failure
+continues to come down to a single underlying problem: context.
+
+What Is an AI Agent for Observability?
+In Chapter 7, an AI agent was defined as a software harness that combines a genera‐
+tive LLM and some subset of tools, or remote procedure calls exposed through an
+API. For observability, AI agents use an LLM as their reasoning engine, and the
+tools give it the ability to take actions such as querying databases, calling other APIs,
+writing and executing code, or triggering automated workflows.
+Unlike a chatbot that simply responds to questions in a single turn, an agent can
+pursue a goal across multiple steps—deciding what to do next based on what it learns
+along the way and adjusting its approach when earlier assumptions turn out to be
+wrong. Applying that to an observability workflow means that an agent could follow
+a complex decision tree when an alert is triggered, such as shown in Figure 10-1.
+
+
+
+
+162   |   Chapter 10: The Role of AI Agents for Observability
+Figure 10-1. This diagram illustrates an observability agent’s role in an automated
+incident response workflow. Triggered by a P1 checkout error alert, the agent performs
+a multistep investigation: it analyzes telemetry trends, traces, and logs while inspecting
+code configurations.
+
+In this example, the agent identifies a timeout mismatch in the stripe-client and
+provides a root-cause summary with a suggested fix, demonstrating how agents add
+value through complex, cross-system correlation rather than simple queries.
+In Figure 10-1, the agent’s workflow starts with a P1 alert for a high error rate on the
+checkout service. It then shows the agent querying the telemetry store for error-rate
+and latency trends, pulling slow or failing traces, correlating logs from affected
+services, and checking the codebase for configuration details. In this example, the
+agent discovers that a retry timeout in stripe-client is set too low relative to the
+upstream SLA, and then returns a root-cause summary and suggested fix.
+
+
+
+                                                        What Is an AI Agent for Observability?   |   163
+Observability agents are most useful when they can perform multistep investigations
+across telemetry and system context, not just answer a single query. The example
+paints a compelling picture. While this example is used to illustrate the principle, it’s
+important to note that parts of this workflow already work today.
+As of the publishing of this book, AI agents are already able to respond to alerts and
+perform tool calls across both telemetry data and codebase. Agents fall short when
+the data sources are too disparate, with poor labeling—leading the agent to go round
+in circles, trying to reason about unrelated data. However, the underlying technology
+is improving quickly.
+While workflows like this can be prototyped, the path from “parts of this work” to
+“you can trust this in production at scale” is where things get complicated. Before you
+consider building anything serious on top of agent-powered observability tooling, it’s
+important to understand why things get complicated.
+
+The Pitfalls of Querying Without Context
+One of the simplest ways to begin integrating an agent into your observability work‐
+flows is by asking it to query your telemetry data for analysis; in other words, you’re
+delegating data retrieval.
+Give an agent access to your telemetry data, and let it answer questions in natural
+language: “What’s causing the spike in errors?” or “Which service has the highest
+latency over the past hour?” or “Show me all logs from the payments service in
+the last 30 minutes.” By granting an LLM access to your telemetry store, you can
+bypass the hurdle of complex query languages. For teams that spend hours wrestling
+with complex query languages, having a natural language interface is a genuine
+improvement.
+While this is a natural place to start, the problem with this common agent integration
+approach is that querying in isolation produces poor results. The resulting failure
+modes are instructive because they reveal the fundamental limitation of agents oper‐
+ating without sufficient context:
+The agent doesn’t know what it doesn’t know.
+    When an experienced engineer investigates an incident, they begin with a
+    hypothesis that is shaped by weeks or months of accumulated context. For
+    instance, they know the payments service tends to misbehave after deployments
+    to a specific downstream dependency. They might know a particular upstream
+    API has been flaky since the infrastructure team migrated it last quarter. They
+    also know what “normal” looks like on a regular Tuesday afternoon, versus a
+    Tuesday afternoon following a long weekend. An agent querying telemetry data
+    cold has none of that. It will find what the query returns, which may be accurate
+    but is often beside the point.
+
+
+164   |   Chapter 10: The Role of AI Agents for Observability
+Naming is chaos in production.
+   Services get named by whoever created them, at whatever stage of a company’s
+   growth that happened to be, and the names accumulate rather than converge.
+   You will have user-service, users-svc, svc-user, and legacy-user-api all
+   doing related things in the same system, with varying degrees of documentation.
+   An agent without a canonical map of that nomenclature will confidently draw
+   conclusions from incomplete or misattributed data, and it will do so without
+   flagging that it might be wrong.
+The data surface is enormous.
+    A moderately complex production system might produce millions of spans per
+    minute across dozens of services. Without knowing which signals are meaningful
+    in a given context, an agent will either miss the relevant pattern in an ocean
+    of noise or surface correlations that are technically present in the data but
+    operationally irrelevant. Knowing what to look at is itself a form of expertise, and
+    that expertise has to come from somewhere.
+Correlation is not causation, and agents often conflate the two.
+    Agents (again, limiting to those using LLMs) are good at finding patterns in data,
+    but they are not inherently good at distinguishing “these two things happened at
+    the same time” from “this thing caused that thing.” In a distributed system where
+    dozens of services are constantly interacting and covarying, spurious correlations
+    are abundant. Without an explicit topology model and some sense of the causal
+    structure of the system, an agent attributing a root cause is doing something
+    closer to educated guessing than analysis.
+You might get surprisingly good results by piping error logs directly to an LLM in a
+small, well-named, well-instrumented system where the services are few enough to
+reason about in a single prompt. But the systems that matter most to organizations—
+the ones where getting observability right is genuinely critical to the business—are
+the ones that are large, messy, and built over years by rotating teams with different
+conventions. Those are exactly the environments where naive agent approaches break
+down most visibly.
+
+Proven Use Cases for Observability Agents
+Agents are not just a future promise projected onto an incomplete present. There are
+areas where they are already adding real value in the observability space. Understand‐
+ing what those areas have in common is as useful as understanding the individual use
+cases.
+Let’s look at three proven use cases where agents demonstrate a high degree of value.
+
+
+
+
+                                                  Proven Use Cases for Observability Agents   |   165
+Incident Response
+When an alert fires, the first 15 minutes of an incident are often consumed by the
+same mechanical investigative steps: pulling the relevant dashboards, querying recent
+logs, checking what was deployed in the last few hours, and mapping the blast radius
+across dependent services.
+This work is important but largely procedural, and it is well-suited to an agent. An
+agent can execute those steps faster than a human, run several queries in parallel, and
+surface a structured summary of the situation before the on-call engineer has even
+fully oriented themselves.
+The best implementations here are careful about scope. They use agents to augment
+the on-call engineer rather than attempting to automate incident resolution end
+to end. The agent handles the investigative groundwork; the human interprets the
+summary, applies domain judgment, and makes the decision about what to do.
+Given where reliability and trust in autonomous agents currently sit, this division of
+responsibility is both practical and appropriate.
+
+Explaining Errors and Patterns in Telemetry Data
+One of the most underappreciated use cases for agents in observability is translation:
+taking raw telemetry signals and producing coherent, plain-language explanations of
+what they mean. A stack trace, a slow trace waterfall showing cascading latency, an
+anomalous shift in a metric’s distribution—these things require genuine expertise to
+interpret, and that expertise is unevenly distributed across engineering teams.
+An agent that can look at a trace and explain that “this shows a sequential chain
+of database calls where each one waits for the previous to complete, which is a
+classic N+1 query pattern introduced by an ORM (object-relational mapping) mis‐
+configuration” is compressing hours of learning and debugging into something a
+junior engineer can act on immediately. This matters both for incident response,
+where time is the constraint, and for building organizational understanding over
+time by surfacing patterns that engineers might otherwise not have the bandwidth to
+investigate.
+
+Improving Instrumentation Quality
+Using agents to help with instrumentation is a use case that often doesn’t get
+enough attention in discussions about AI and observability, but it can give you great
+long-term leverage (for a deep dive on improving instrumentation with agents, see
+Chapter 7).
+Getting teams to instrument their code well is genuinely difficult. Developers under‐
+stand, in the abstract, that they should add spans with meaningful attributes, emit
+
+
+
+166   |   Chapter 10: The Role of AI Agents for Observability
+structured wide events with rich context, and propagate distributed tracing head‐
+ers across service boundaries. In practice, instrumentation is consistently an after‐
+thought. It gets added inconsistently, by whoever last touched a given file, and the
+quality degrades over time as the codebase grows and the people who set the original
+conventions move on.
+Agents are well-positioned to address that gap. Given a function, a service boundary,
+or a pull request, an agent can identify what instrumentation is missing, what is
+structured poorly, and what does not conform to the team’s conventions, and then
+implement improvements correctly and consistently. Best practices like wide events,
+proper attribute naming, and appropriate log levels—which take years to develop as
+institutional knowledge and spread unevenly across teams—can be encoded into an
+agent’s context and applied at the point of code authorship rather than bolted on after
+the fact.
+Across all three of these use cases, what will make or break your success is how much
+context your agent has over your system. With poor context or vague prompting,
+agents produce generic output that looks plausible but does not fit the system or
+the team’s conventions. An agent instructed to “add observability to this service”
+without knowing your instrumentation library, your attribute naming conventions,
+your service’s role in the broader architecture, or your logging standards will produce
+something that compiles but does not help. With precise, rich context, the same agent
+produces output that a senior engineer would approve and merge without significant
+changes.
+Along these lines, there are a few additional places that agents can be incredibly
+useful. Let’s look at those use cases as well.
+
+Observability-Adjacent Use Cases for Agents
+Beyond the core observability workflows, there is a whole category of operational
+work that teams have historically been poor at, not because the work is technically
+difficult, but because it requires sustained attention and is consistently crowded out
+by more urgent priorities. Agents are well-suited to a lot of this work.
+Alert quality is a perennial disaster in most engineering organizations. Alerts get
+added during incidents or out of anxiety, tuned rarely if ever, and accumulate over
+time into a wall of noise that engineers learn to ignore. Teams end up with hundreds
+of active alerts, many of which fire regularly and are silently acknowledged without
+investigation because everyone knows they are not meaningful.
+An agent can audit an alert configuration against actual incident history and traffic
+patterns, identify which alerts correlate with real user-facing problems, flag which
+ones fire constantly without ever leading to meaningful action, and propose specific
+threshold adjustments based on observed baselines. Importantly, this can be done
+
+
+                                                Observability-Adjacent Use Cases for Agents   |   167
+continuously rather than as a periodic cleanup exercise that never quite makes it to
+the top of the backlog.
+Service level objectives suffer from a related problem. Defining good SLOs requires a
+real understanding of traffic patterns, historical reliability, the distribution of error
+types, and what users actually experience. Most teams either skip SLOs entirely, set
+them at whatever feels intuitively reasonable without grounding in data, or copy a
+template from a blog post and apply it without adapting it to their system.
+An agent with access to historical performance data and a model of the services
+can propose SLO definitions that are grounded in observed behavior. It can identify
+which SLOs are being approached before they are breached, and can surface trends
+that indicate a service is drifting toward unreliability before it becomes an incident.
+(For detailed guidance on using agents for SLO creation, see Chapter 11.)
+Both of these represent work that teams universally agree is important but struggle
+to prioritize because the cost of not doing them is diffuse and deferred. Agents make
+this category of work tractable by removing the activation energy required to get
+started and by operating continuously rather than in occasional bursts of attention.
+While the use cases we’ve covered demonstrate the high leverage that agents can
+provide in controlled scenarios, their effectiveness is fundamentally tethered to the
+environment they inhabit. But as we increasingly rely on more automation, we also
+risk losing the institutional knowledge that makes providing rich context possible.
+
+The Production Problem: The Mental
+Model That’s Disappearing
+Production environments are messy, and that messiness is a fundamental property
+rather than a failure of discipline. Services accumulate over years of changing pri‐
+orities, changing teams, and changing infrastructure constraints. Names drift as
+organizations restructure. The team that originally built a service has turned over
+twice, and the documentation, if it ever existed, was last updated 18 months ago. A
+critical business path runs through four different languages, three cloud providers,
+and a legacy service that nobody wants to touch but everyone depends on. There are
+operational quirks that only two people know about, and one of those people left six
+months ago.
+When an experienced engineer investigates a production issue, they navigate this
+complexity using a mental model that has been assembled over months or years of
+working with the system. For example, they know the topology of services: which
+things call which other things, where the critical paths are, and which dependencies
+are known to be unreliable. They know the nomenclature: that auth-proxy and api-
+gateway are the same service, depending on which team you ask, and that orders-v2
+
+
+
+168   | Chapter 10: The Role of AI Agents for Observability
+is what actually processes checkouts despite the name suggesting otherwise. They
+know the history: that the telemetry from the inventory service has been partially
+broken since the Q3 migration and its error rates cannot be taken at face value. All
+of this knowledge is carried implicitly, and it shapes every query they write and every
+hypothesis they form.
+For an agent to be effective in production, it also needs access to that mental model,
+represented explicitly as context that it can reason over, as shown in Figure 10-2.
+
+
+
+
+Figure 10-2. A decision flow centered around available operational context.
+
+An agent may need rich context around concepts like service topology, naming
+conventions, critical paths, known quirks, or recent incidents. With poor context,
+the agent issues generic queries, gets an incomplete picture, and reaches incorrect or
+shallow conclusions. With rich context, the agent can run targeted queries, identify
+relevant signals, and arrive at an accurate diagnosis. The biggest differentiator in
+agent effectiveness is not the model alone, but the completeness and quality of the
+operational context it has available.
+The context that an observability agent needs to cover may include several distinct
+layers of knowledge:
+Service topology
+    What calls what, what depends on what, where the critical paths run, and which
+    services are at the edges versus at the core of the system
+
+
+
+
+                                  The Production Problem: The Mental Model That’s Disappearing   |   169
+Naming conventions
+   A canonical mapping of service names, their aliases, their owners, and what they
+   actually do
+Deployment context
+    What has changed recently, which services have active deployments, and where
+    the risk surface is elevated
+Known issues
+   Long-running bugs, degraded dependencies, services that are under maintenance
+   or running in a degraded mode
+Recent incidents
+    What went wrong in the last 30 days, which services were involved, how long
+    they were degraded, what the blast radius was, and whether the root cause was
+    ever actually confirmed
+Business context
+    What a given error rate or latency change actually means for the business, which
+    endpoints are revenue-critical, and what the acceptable thresholds are from a
+    user impact perspective
+The uncomfortable reality is that maintaining and providing this context so that an
+agent can be successful is getting harder over time, not easier. With the rise of coding
+agents that write and deploy code with limited human supervision, the engineers who
+would have built up that mental model through the ordinary process of authoring,
+debugging, and operating software are increasingly removed from the details. Code
+gets written and shipped at a pace that makes it difficult for any individual to main‐
+tain a coherent picture of the whole system, and the organizational knowledge that
+would have accumulated around a service through the ordinary cycle of incidents
+and postmortems forms more slowly. The mental model becomes fragmented and
+incomplete.
+Agents operating in production need to compensate for this erosion of institutional
+knowledge. They need to be given—explicitly and in a maintained form—the context
+that engineers previously held in their heads. Building that context layer, keeping it
+current as the system evolves, and making it available to agents at the moment it is
+needed, is one of the most important and least-solved problems in this space. Teams
+that treat it as a first-class engineering concern will get significantly more out of their
+agent integrations than teams that treat it as something the agent should figure out on
+its own. (For more detail on increasing organizational learning speed, see Part VI of
+this book.)
+
+
+
+
+170   |   Chapter 10: The Role of AI Agents for Observability
+The Need for Context
+We are watching the software development lifecycle get reinvented in real time.
+Observability is at the center of that shift, because it’s both a tool that agents use and
+a domain that agents are beginning to operate in. For decades, the cycle of writing,
+deploying, observing, and fixing assumed a human at every step. In the AI era, that
+assumption is being eroded simultaneously at multiple points in the cycle.
+Coding agents write and modify code. Deployment pipelines automate the path
+to production with decreasing human checkpoints. Observability agents monitor
+running systems and surface findings. The role of the engineer is shifting from direct
+execution toward direction: setting context, reviewing outputs, and making judgment
+calls at the boundaries where automation is not yet reliable enough to be trusted
+alone.
+The pace of change in AI is fast—faster than most organizations’ capacity to adapt
+(see Chapter 24). Tools and patterns that were clearly experimental six months ago
+are now running in production today. What works is changing quickly, and the space
+is full of genuine uncertainty about what the right architectures and workflows look
+like.
+What won’t change is the underlying principle: just like their human counterparts,
+agents are only as good as the context they’re given. That is true for incident response,
+for instrumentation quality, for alerting, for SLOs, and for everything else in the
+observability space. The teams that will get the most out of AI in their observability
+practice are the ones that invest seriously in building and maintaining that context
+layer—the machine-readable equivalent of the mental model that senior engineers
+carry and that has historically lived only in people’s heads.
+The tooling will keep improving. The models will get better. But the context problem
+is yours to solve.
+
+Conclusion
+Boris provides a salient look at how to navigate the fast-changing world of AI
+with regard to observability. Observability has been, and continues to be, highly
+dependent on context to reach the correct conclusions. Inevitably, how that context
+is gathered and who holds it throughout an investigation will change. But we believe
+the principles outlined in this chapter will continue to be true, even as the underlying
+technology rapidly evolves.
+In the next chapter, we’ll cover how to use SLOs for alerting and to trigger inves‐
+tigations. As you’ll learn, SLOs are the best fit for alerting when working with
+high-observability systems because they focus on the “who” and “what,” and leave the
+observability tooling free to explain the “how” and “why.”
+
+
+                                                                          Conclusion   |   171

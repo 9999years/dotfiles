@@ -1,0 +1,262 @@
+                                                                                        CHAPTER 27
+   Diagnosing Your Observability Investment
+
+
+
+
+If you’ve felt growing pressure to “cut observability costs,” you’re not alone. Observa‐
+bility spend has climbed steadily for years. According to Gartner,1 the cost of observa‐
+bility has been rising at least 40% per year for the past 15 years straight. Observability
+is now the second largest software line item in R&D organizations—second only to
+cloud—and most orgs spend somewhere between 10–25% of their infrastructure bill
+on observability tools.
+In the last chapter, we talked about how to make the business case for observability.
+It’s rarely pleasant when leadership or finance starts asking for justifications. But cost
+pressure can be useful when it forces us to ask hard questions, like is our investment
+working?
+That question often gets misread as “can we justify this line item?” It shouldn’t.
+The actual question is, “did we buy the right capabilities, and are we getting the
+right returns?” Many organizations are experiencing a disorienting mismatch—for
+example, paying for observability as if it were a strategic capability while operating it
+like a cost center and using it like monitoring. If you aren’t getting the returns that
+you feel you should based on what you’re paying, you might be right.
+In this chapter, we’ll show you how to diagnose your observability expenditures.
+If you decide to invest in better observability, it may cost you. Or it may not:
+outrageously high bills are the most common consequence of poor tool fit, so you
+might actually pay far less to get better results. Either way, you should be able to point
+to real outcomes: tighter feedback loops, richer understanding, faster learning.
+
+
+
+
+1 This information was collected from the Gartner webinar, “I&O Leaders, Get Control of Your Observability
+  Costs”, recorded in early 2025.
+
+
+                                                                                                         479
+Before you start slashing costs, start with a proper diagnosis: is your observability
+delivering on the capabilities you need it to?
+
+Don’t Pay Observability Prices for Monitoring Outcomes
+In the last chapter, we identified two different feedback loops to focus on, depending
+on your organization’s biggest bottleneck. These loops require different investments.
+That doesn’t necessarily mean they require different tools or products,2 but they do
+need to be considered and evaluated as different problems:
+Operational loops
+   Protect system stability: detect, respond, recover, prevent recurrence.
+Developer learning loops
+   Accelerate learning and validation of code shipped: deploy, observe, learn, adjust.
+These loops are complementary, and most organizations need both. But they repre‐
+sent different priorities and require different capabilities. A common failure mode is
+conflating them: buying tools and building practices that mainly support operational
+workflows while expecting the learning gains that only come from developer learning
+loops. In Chapter 23, we called this “observability prices for monitoring outcomes.”
+If your focus is operational outcomes, the right governance model is a cost center.
+Cost centers optimize for reduced spend, predictable overhead, and coverage. These
+budgets get squeezed when money is tight. Unfortunately, if operational stability is
+your biggest priority, those cuts can be genuinely harmful.
+
+The Firefighting Trap
+There’s a trap that teams fall into when they overprioritize operational loops. Teams
+that pride themselves on their firefighting and incident management often can’t
+explain why fires keep starting. Incident response expertise is valuable, but opera‐
+tional feedback loops are the longest, lossiest, and most expensive kind in terms of
+downtime, customer impact, and lost revenue (see Chapter 25).
+Alerts and escalations cannot be the only way you learn about your systems. Opera‐
+tions should be your goalie, the last line of defense when everything else fails. If your
+goalie is making 50 saves a game, your defense is not working.3
+
+
+
+
+2 Given unlimited time, money, and engineering creativity, all data tools are effectively fungible. You can debug
+  production using Excel spreadsheets if you must, and some engineers have in fact done so. The question is
+  not “is it technically possible?” but “is this the best use of your time and resources?”
+3 The metaphor keeps going. If your goalie is the only one who is trying to score, you’re really screwed.
+
+
+
+480   |   Chapter 27: Diagnosing Your Observability Investment
+Spending cuts hurt observability because they usually mean ingesting less data. That
+creates blind spots, which directly lead to higher operational risk, more downtime,
+and higher long-term costs (a counterintuitive result). Cost pressure also tends to
+produce tool sprawl, degraded data quality, and a slower ability to recover from and
+learn from incidents.
+
+               A useful diagnostic question here is: what percentage of your
+               observability investment goes toward fighting fires versus prevent‐
+               ing them?
+
+
+
+An Investment Posture Mismatch
+With developer learning loops, the right governance model is strategic investment.
+Strategic investments optimize for capability growth, learning speed, and competitive
+advantage. They’re evaluated by what they produce, and they’re much easier to
+defend when money is tight.
+
+               A useful diagnostic question for strategic investments: does it pro‐
+               duce organizational capabilities that affect business metrics?
+
+
+
+
+It’s worth reiterating that neither the cost center nor the strategic investment gover‐
+nance models are wrong. But you can’t get faster development cycles or learning
+speed outcomes with cost center governance. This mismatch is what creates the
+frustration that leadership and finance are expressing when they pressure you. We’ll
+spend the rest of this chapter examining what to ask in order to diagnose whether
+your observability investment is working.
+
+Activities Versus Learning
+When engineering teams make strategic investments, it’s common to take on a set of
+new activities meant to change outcomes. But there’s a meaningful difference between
+activities and learning. Activities are the specific tasks, methods, and resources your
+teams use day to day. Learning is the cognitive change, the skill acquisition, and the
+actual knowledge gained from those experiences. Activities are the means; learning is
+the outcome.
+
+
+
+
+                                         Don’t Pay Observability Prices for Monitoring Outcomes   |   481
+When feedback loops are long, laggy, and lossy, you lose the mechanisms that enable
+learning. Many “productivity” investments turn into activities and reliability theater
+instead of genuine learning:
+
+  • Chaos engineering without attribution becomes disruption.
+  • Feature flags without validation become complexity.
+  • Progressive delivery without detection becomes a slower deployment pipeline.
+
+In each case, observability closes the loop by providing attribution, validation, and
+detection. That closing is what turns activities into learning. You don’t capture
+the value of your productivity investments until your organization actually learns
+something.
+
+                     Useful diagnostic questions here: For each practice you’ve invested
+                     in, can you point to the feedback mechanism that turns it into
+                     learning? What percentage of the time is it being used?
+
+
+
+
+How to Know If Your Investment Is Working (or Not)
+The dual mandate from the last chapter—internal measures for productivity, external
+measures for core differentiators—is what you used to make the business case for
+observability. How it gets implemented will vary by organization. If you don’t have
+much experience translating technical outcomes into business needs, that can be a
+real challenge. However, understanding if your investments are paying off can be
+relatively simple.
+For operational loops, your investment is working if:
+
+  • Time to identify known causes is decreasing.
+  • Alert quality is improving (fewer false positives, more actionable ones).
+  • Incident escalation rates are dropping.
+  • Recovery is getting faster.
+
+For developer learning loops, your investment is working if:
+
+  • Engineers can answer novel questions about production.
+  • Deployment frequency is going up while batch sizes are coming down.
+  • More engineers can debug independently, not just the same few people.
+
+
+
+
+482   |   Chapter 27: Diagnosing Your Observability Investment
+  • Time from hypothesis to validation is shrinking.
+  • The number of issues found by engineers is going up, while the number of issues
+    that customers find and escalate via support is decreasing.
+
+If your observability spend has gone up but none of these indicators have improved,
+or the set of indicators you were targeting have not improved, then the investment
+isn’t working.
+High spend with few returns over a long period is usually what triggers questions
+from finance. If spend is being questioned and you can’t point to capabilities or
+concrete improvements, the uncomfortable answer might be: the investment didn’t
+deliver.
+When an observability investment doesn’t deliver, it usually isn’t a communication
+problem. It’s evidence that something needs to change—tooling, instrumentation,
+organizational approach, or all three.
+
+Advice for Observability Investments
+Beyond the diagnosis of your current observability investment, the following advice
+provides a set of targeted, practical steps you can take to proactively manage it as an
+investment instead of a cost center:
+Identify the point of diminishing returns on each investment.
+    Yes, track and manage the cost of your telemetry. But also ask, “Where can
+    we make targeted investments in observability that will unlock disproportionate
+    business value?” This means understanding your specific differentiators, compet‐
+    itive position, and strategic priorities. For every targeted investment you make,
+    figure out where the point of diminishing returns sets in and cap it there.
+Quantify your gaps in visibility.
+   If you have experienced downtime or outages as a direct consequence of your
+   weak observability or inability to connect cause and effect, consider preparing
+   an impact statement. An impact statement is a comprehensive assessment that
+   goes beyond immediate revenue loss to quantify the full financial, operational,
+   and reputational damage caused by a system interruption. These are designed
+   to expose “hidden” costs, such as employee downtime, SLA penalties, customer
+   churn, and so on.
+Implement telemetry pipelines with tiered service.
+    This is the only cost-effective way to scale a heterogeneous environment, where
+    not all services are equally important. Consider defining at least two tiers of
+    service, “low” and “high” (most companies end up adding a third which is
+    somewhere in the middle):
+
+
+                                                       Advice for Observability Investments   |   483
+          1. Services in your critical path might be defined as ones that are revenue
+             generating, customer facing, or under active development. They get wide,
+             rich, distributed traces or canonical log data at a high tail-based sample
+             rate—that’s the “high” level of observability.
+          2. Services that are stable, decoupled, and not customer-facing might just get
+             end-to-end health checks and a synthetic or two—that’s the “low” level.
+             Control the verbosity and telemetry level with feature flags, so you don’t have
+             to redeploy your instrumentation just to change which signals are emitted.
+Invest in attribution.
+    We previously referred to this as “observability for your observability.” Cost is a
+    vital component of architecture, and so are tokens. One of the most wonderful
+    aspects of the modern, unified telemetry model is that you can pack hundreds
+    and hundreds of attributes into every single trace or event. Tag every request,
+    session, or transaction with the cost of running it, which line of code it came
+    from, which normalized queries it executed, and so on.
+There are many, many creative uses for attributes and attributions, but one of our
+favorites is assigning a budget to each team and letting them track and manage their
+own observability budgets. As we said in Chapter 24, good observability enables
+self-awareness in humans and self-governance in teams. This is a good example of
+how that works.
+
+Conclusion
+If you’re hearing “we need to cut observability spend,” that’s a signal that’s less about
+cost and more about outcomes. Cost pressure is often the moment that organiza‐
+tions are forced to ask the question they should have been asking all along: is the
+investment working? Remember, you don’t have to justify a line item: you need to
+demonstrate that capabilities are materializing for your organization. Are those dol‐
+lars converting into tighter feedback loops, faster understanding, and faster learning?
+Cost anxiety most often arises from a mismatch in expectations—paying for observ‐
+ability as if it were a strategic capability, while operating it like a cost center and
+using it like monitoring. You must be clear on your organizational priorities. Are
+you building operational loops that protect stability, or developer learning loops that
+accelerate learning and validate change in production?
+
+
+
+
+484   |    Chapter 27: Diagnosing Your Observability Investment
+You don’t have to guess whether your investment is paying off. If operational invest‐
+ment is working, you should see faster identification of known causes, improving
+alert quality, fewer escalations, and faster recovery. If developer learning investment is
+working, you should see things like:
+
+  • Engineers answering novel questions about production
+  • Higher deploy frequency with smaller batch sizes
+  • Broader debugging capability beyond a small set of experts
+  • More issues detected internally before customers complain
+
+In the next chapter, we’ll look at how to build a coalition, defang the resistance, secure
+a mandate, and drive organizational change through rocky waters.
+
+
+
+
+                                                                          Conclusion   |   485

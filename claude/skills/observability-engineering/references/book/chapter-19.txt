@@ -1,0 +1,1025 @@
+                                                                      CHAPTER 19
+         Observability for Mobile and Frontend
+
+
+                                This chapter is contributed by Hanson Ho,
+                                            Android Architect at Embrace
+
+
+               A Note from Charity, Liz, George, and Austin
+We continue our look into observability use cases by exploring the world of mobile
+and frontend applications. Backend applications and infrastructure are generally
+controlled: you have a known OS, predictable resources, uniform networking, stable
+time synchronization, etc. With frontend or mobile systems, you generally inherit
+the environment: thousands of device models, OS, and browser versions; unreliable
+cellular networks; resource throttling; captive portals; ad blockers; and concurrent
+processes.
+When you control deployments, configs, and sampling, and can correlate across
+consistent infrastructure, it’s safe to say that observability happens within bounds:
+the problem surface is mostly within your backyard. When dealing with frontend or
+mobile applications, observability happens beyond the fence and in actively hostile
+territory. You can’t control the runtimes, networks, or versions, and you have to be
+extremely careful with taking any action that impacts device performance, available
+bandwidth, user privacy, or cost.
+As such, many of the observability practices discussed earlier in this book must be
+adapted to fit in the frontend and mobile worlds. This chapter, written by Hanson Ho,
+details considerations for observability in frontend and mobile. Matt Klein also con‐
+tributes a section on considerations for telemetry management for mobile systems.
+We begin with Hanson’s perspective.
+
+
+
+
+                                                                                    343
+Status Quo for Mobile and Frontend
+For developers who work on mobile and web apps, the term “observability” is still
+relatively new—if they know it at all. Those familiar with the term may mostly think
+about it as an evolution of monitoring and ops practices for distributed systems. For
+frontend or mobile engineers building websites and apps, it may seem synonymous
+with the production telemetry they are used to—like stability issues or user actions
+like taps and page navigation. The latter is commonly referred to as real user moni‐
+toring (RUM), error tracking, or crash reporting when used by development teams to
+determine what the user is doing in the app when problems occur.
+On mobile and web, this data is often aggregated at the client and then sent to a back‐
+end system to compute familiar metrics like daily crash rate and time to first paint.
+These metrics summarize the state of the app in production and provide insight into
+common problems users are experiencing. Unfortunately, the ability to slice and dice
+this data is not great beyond some easily obtained dimensions like locale and app/OS
+versions, making it difficult to find particular cohorts or ask interesting questions
+when looking for deeper insights.
+Production telemetry for mobile and web apps is primarily used in two ways: to
+surface and quantify problems at runtime, and to provide additional datapoints
+to help developers reproduce the problems internally. This is done by examining
+specific problem reports along with metadata describing the execution context and
+RUM events on the same device around the same time, in order to narrow down the
+code path that could have led to the problem. Investigations tend to require access or
+knowledge of the underlying code, as the data itself is generally not enough.
+In classic monitoring approaches, the nature of the instrumentation (where problems
+are identified on the device and reported) means that you generally have to know
+the kinds of problems you are interested in finding beforehand. That means that this
+kind of telemetry is not expected to be used to answer unanticipated questions. The
+mobile and web app debugging workflow relies heavily on first reproducing the issue,
+and then debugging the root cause locally. Luckily, unlike distributed systems, even
+the trickiest of problems (if identified) can be reproduced on a single device. We are,
+after all, dealing with a single app running on a single device.
+Here’s an example of how this data is used:
+
+ 1. A few seemingly related crashes, identified by similar stack traces, happen across
+    a variety of app screens. The top of the stack trace suggests a NullPointerExcep
+    tion (or NPE) during view-tree traversal.
+ 2. The crashes are a minority of cases—most of those screens load correctly without
+    error.
+
+
+
+344   |   Chapter 19: Observability for Mobile and Frontend
+ 3. RUM data can be used to find correlations with these crash events: looking
+    through the RUM data of a few sessions that ended in this crash, there’s always a
+    click on a specific button whose label contains non-ASCII characters.
+ 4. With that knowledge, you examine the source code for that button and find
+    an assumption about the nature of the string used for the label. If it contains
+    non-ASCII characters, it triggers a code path resulting in an NPE.
+ 5. By combining the recorded crash telemetry and the RUM event correlation via
+    a session, you can pinpoint the precise conditions needed to reproduce the issue
+    and identify the root cause.
+
+While production telemetry can be used in this way to surface some app stability
+issues, more subtle problems that are harder to determine like client-side perfor‐
+mance degradation aren’t typically reported, unless it’s automatically collected by
+first-party tooling. There are a number of reasons why this is the case, but none of
+them are that mobile and web developers don’t care about performance; they just
+approach the problem differently.
+For the most part, performance changes on mobile and web are monitored through
+the use of synthetic benchmark tests that run locally or in CI (e.g., macrobenchmarks
+on Android), or through a synthetic testing suite. These tests are preferred to pro‐
+duction data by devs because they overcome the biggest shortcoming of production
+telemetry: the inability to control the execution environment. Synthetic performance
+tests enable devs to lock down key performance determinants like hardware and
+device state, which means runs are more repeatable and the iterations are more
+comparable. With that setup, you can detect small but statistically significant changes
+more easily, without requiring the large sample sizes and magnitudes of change
+needed if production data were used. The downside of this is that your coverage is
+only as good as the workflows that are benchmarked and tested. This makes this a
+reasonable but ultimately imperfect solution, especially if your goal is to understand
+how the user is experiencing your app.
+Another kind of telemetry collected in production is what is known as “product
+analytics.” Unlike telemetry used to identify and debug issues, this data is used by
+product managers and other parts of the business to determine which features of the
+app the users are actually using. Interestingly, the line between this type of telemetry
+and RUM and stability events can be quite blurred, as they tend to model the same
+app and user behaviors.
+The difference between the two is often not what is being proxied, but how the recor‐
+ded telemetry is actually used, as well as the types of tooling and vendors involved in
+collecting this data. For instance, the same page view might be logged by a product
+analytics vendor’s SDK so that product managers can create DAU (daily active users)
+
+
+
+
+                                                      Status Quo for Mobile and Frontend   |   345
+graphs for their feature, and also by a RUM vendor’s SDK so that developers can see
+the events leading up to a crash.
+But product analytics are usually not connected to the production telemetry used by
+developers because they go into a totally different data set. This is why a common
+and frustrating problem you might encounter on a mobile and frontend team is the
+irate product manager, wondering why a key metric of theirs dropped since the last
+version was shipped, with a team that can’t explain why because all of their own
+dashboards are green.
+
+Instrumentation Limitations
+Mobile and web apps are used in contexts that are under constant change, so even the
+most stable and performant ones are not free of problems that impact user experience
+(UX). Many of these, like crashes, can be and are routinely detected and resolved
+using production telemetry, aided by RUM data and contextual metadata to narrow
+down the reproduction workflows. For important events and workflow performance
+that are reported as telemetry and properly contextualized, engineers that know the
+code should be able to quantify and solve any problems they reveal.
+But one limitation of the production telemetry that’s collected on mobile and web
+apps is that they can be really noisy due to the variety of factors that can impact run‐
+time. To mitigate that, you need to model all the relevant factors that affect runtime
+and record it as metadata along with your telemetry. This process can be difficult
+given the wide array of relevant contextual information, but unless that is done,
+problems that only impact certain users may not be easily discoverable. Without
+knowledge of the precise dimensions that are material to a particular workflow, you
+can’t distinguish between your user cohorts or tease out the signal from the noise.
+In practice, only the static, easy-to-capture metadata on mobile and web are captured,
+which often leaves the dataset lacking enough context to do all but the most basic of
+filtering. If you want to group by app version or language, for example, that should
+not be a problem. But if you want to sort users by something difficult to get and
+model like network connection strength, or something ephemeral like UX, you’re
+generally out of luck. Often, it’s key dimensions like this that are difficult to obtain
+that provide the most useful insight in your analysis of app performance.
+This leads to the obfuscation of major problems that greatly (but narrowly) impact a
+small number of users. For example, an issue that impacts only 1% of your users may
+not move the P50 very much—maybe not even P99, depending on the magnitude of
+the change. The reason why this is happening may also not be clear, even if you have
+all the right exemplars.
+Problems like this on mobile and web can’t merely be deemed outliers because those
+who are affected, no matter how small a percentage of your user base they represent,
+
+
+346   |   Chapter 19: Observability for Mobile and Frontend
+are totally and completely affected. That 99% of other users aren’t impacted matters
+not at all to them. If your DAU is 100 million, and 1% of those users are experiencing
+performance that is 2x worse, that’s a million people who are affected. This means
+that even if you have the right instrumentation to surface a particular problem, you
+may not be able to see it easily.
+And therein lies another problem: in practice, many important events and workflow
+performances aren’t even captured as telemetry. Typically, only obvious errors like
+crashes or common workflows, like app startups that can be automatically captured,
+are recorded as such. But we all know the myriad ways a mobile or web app can
+perform poorly without crashing that leads to user frustration, like when some
+important workflow is too slow for the user (by some unknowable definition). And if
+that slowness isn’t from a workflow that can be automatically instrumented like app
+startup or network requests, the chances of user frustration resulting from it being
+reflected in your collected telemetry would be pretty low. In other words, there are
+whole classes of problems that are effectively invisible to most app developers due to
+a lack of telemetry.
+While the instrumentation friction described isn’t unique to mobile and web apps—as
+bespoke code needs bespoke instrumentation—the problem is a lot more glaring, as
+most important workflows important to an app are also unique to it. This means they
+couldn’t be easily and automatically instrumented like that of the relatively determin‐
+istic execution of backend services. The increased level of friction, along with other
+factors, make manual instrumentation in mobile and web apps relatively rare. So,
+compared to distributed services, code from these apps are far less instrumented.
+It follows that when the situation calls for it, manual instrumentation is still not
+done as often as it should be because it’s just not something that mobile and web
+developers are used to doing. It’s a vicious cycle. And in the rare case that they
+are done, complex workflows spanning multiple screens and components—where
+execution happens on multiple threads sequentially, unbeknownst to the instrumen‐
+tation—consist of instrumentation that is inherently difficult to maintain. All this
+in tandem results in a substantial universe of important events and workflows in a
+mobile or web app that aren’t reflected in production telemetry.
+What’s more, even with the right telemetry and metadata, assessing the impact of a
+crash or performance regression on users can be nontrivial because the raw numbers
+aren’t enough. Different users are impacted differently in a technical sense (e.g.,
+varying degrees of change). So, if you’re looking at metrics with little segmentation—
+as most mobile and web developers are used to—the impact may not even be perceiv‐
+able. What does it mean to users when your P75 app startup time increased by 20%?
+What if P50 increased 80%, but only for folks using Android 12 and below?
+Also, different users react to the same level of performance regression differently.
+Further, performance degradation matters more in some workflows than in others.
+
+
+                                                           Instrumentation Limitations   |   347
+Even if you can quantify the regression down to how users are affected individually,
+how that impacts their overall UX or desire to use your app in the future can vary
+as well. For some, a 20% slowdown is barely noticeable. For others, it can push
+them over the edge in terms of losing patience with your app. For some, even major
+slowdowns don’t affect usage because their workplace has mandated the use of your
+app. For others, even a bit of perceived decrease in performance can trigger a switch
+to a competitor’s app. So, while it’s great to know the actual magnitude of change, it’s
+only part of the picture when assessing user impact.
+Raw performance telemetry, even combined with good instinct, can only go so far
+in terms of telling you how badly users are affected by app problems. To more objec‐
+tively assess that, there needs to be, at minimum, a correlated change in some other
+metrics for which you are more certain of the user impact, like DAU or revenue. By
+bringing in data that the business cares about, it takes you into the realm of product
+analytics, which are generally not related to telemetry used for observability. Why is
+that? The reason may be more ridiculous than you think.
+Suffice it to say, while the current usage of production telemetry brings some
+value to mobile and web app developers, there are a lot more questions that they
+cannot answer—important questions that can help identify and quantify app prob‐
+lems impacting users and businesses negatively. With the lessons learned in driving
+improved observability in distributed systems, we can make similar changes to how
+we collect and use telemetry on these notoriously unstable platforms so that the
+investment in the infrastructure can be further leveraged—solving problems that
+even the operators of the most well-instrumented distributed systems can only dream
+of.
+But first, there’s that mountain of challenges that need to be overcome.
+
+Overcoming Domain Challenges
+Bringing the kind of observability used by backend engineers to mobile and web
+presents some unique challenges that are inherent to the domain. Some of them are
+technical—though the nontechnical, sociological ones are perhaps just as impactful in
+creating barriers that stymie the use of production data by engineers in understand‐
+ing the unknown-unknowns. Much of these have to do with the status quo, both in
+observability (or o11y) and in the mobile and web development communities, which
+combine to create problems that inhibit adoption of observability on mobile and
+web—problems that are not typically seen in the backend.
+
+Recognizing the Problem
+The first domain challenge to overcome is the prevailing complacency present in the
+mobile and web development communities. For the most part, mobile and web devs
+
+
+348   | Chapter 19: Observability for Mobile and Frontend
+are satisfied with the options they have for tracking down and solving performance
+and reliability problems in production. This is because they often believe that the
+current state of the art tooling would solve all their problems, if only their company
+would pay for it.
+But the ideal they strive for isn’t observability as the backend understands it, and
+it has a much lower ceiling than what is possible. What they typically look for in
+production tooling are better diagnostic capabilities and identification for known
+problems, and they lean on CI tooling to detect performance regressions introduced
+by code changes based on benchmarks.
+In particular, it’s the prevailing thought in the community that performance regres‐
+sions are best kept in check using synthetic performance tests. These tests run in
+controlled environments as part of CI, so material change to performance can be
+identified before or soon after a commit has been merged. The goal of never unknow‐
+ingly shipping a performance regression is laudable, but the implicit limitation of it
+is that you’re only finding regressions in your code when specific workflows happen
+under specific device and runtime conditions, which may not necessarily mirror
+real-world runtime conditions faced by users.
+This strategy is generally pretty good at uncovering pervasive regressions in key
+workflows. Identifying which workflows matter most should be straightforward, as
+should prioritizing tests around them. It’s not totally free of complications, however:
+the workflows you consider most important or most used may not be the most
+vulnerable to performance regressions, nor necessarily the most critical to get right
+—some workflows have an outsized impact on user satisfaction, if perhaps only
+psychologically. This points to a broader challenge of needing to know what problems
+you’re looking for in instrumentation, which is anathema to addressing problems that
+are unknown-unknowns.
+The next part of the equation is harder to resolve: how do you determine the specific
+device and runtime conditions that you should always test against? The problem with
+production is that there isn’t any one set of conditions that will get you a high degree
+of coverage when you’re talking about an app that the general public can access. The
+variance across multiple dimensions—whether it be device quality, browser and OS
+versions, concurrent app execution, network availability, etc.—means that whatever
+set conditions you have for your tests, you know the majority of your users wouldn’t
+be under those precisely.
+In fact, that much is recognized in these tests: they are repeatable by design, with
+as few variations in the execution environment as possible, which is the opposite of
+what you get in chaotic, heterogeneous production environments. These conditions
+under which the tests are run are designed to maximize the ability to surface code
+regressions, which comes at the expense of being realistic. But that’s really a feature,
+not a bug.
+
+
+                                                         Overcoming Domain Challenges   |   349
+In other words, the ideal setup for determining mobile and web performance regres‐
+sion hinges on having predefined workflows running under unrealistic conditions.
+While it’s great for doing what it’s designed to do, it’s not a great way to understand
+what’s happening in production, especially when the most problematic issues tend to
+be the ones you don’t anticipate.
+Mobile and web devs recognize this limitation, so they use production data to fill
+in that gap. But the gap they perceive is not in identifying nonobvious problems,
+but in quantifying the severity of obvious problems, and getting the right diagnostic
+information to solve or reproduce them. This is especially important when a new
+release gains adoption, as devs want to know if they’ve introduced any new issues that
+their tests didn’t find—and if they did, they want to know how to reproduce and solve
+them.
+The last part is crucial: it’s understood that knowing the codebase is a requirement
+to use production data to solve problems in mobile and web. But it’s not expected
+that one can simply look at the data and know exactly where the problem lies. This
+is why on larger teams, the key function of mobile on-calls is to be a master triager,
+not necessarily the person fixing the issues. This assumption is so ingrained in the
+community that devs don’t expect they can narrow down the root cause of most
+complex issues based on production data alone, which means they don’t look for it in
+their tooling.
+This means that, explicitly or implicitly, the majority of mobile and web developers
+feel good about the role that production data plays in their day-to-day work. Some
+may wish that more app state and behavior are captured so that there’s more runtime
+information to work with when issues surface, but they don’t expect any more out
+of production data than what they’re getting: diagnostic info and the surfacing of
+obvious issues. Worse yet, some believe that they are already getting all they can get
+out of production telemetry! This complicity has stunted the growth of observability
+on these platforms. It’s the curse of being “good enough.”
+
+Instrumentation Difficulties
+There are many ways in which poor performance and reliability can manifest them‐
+selves in mobile apps—and do so without crashing. But while crash reporting is
+well-supported in the mobile ecosystems, generic performance instrumentation is
+not. This leaves a whole swath of problems that are not quantified by existing
+telemetry coming from mobile apps, which means they are effectively invisible to
+app developers.
+Why is generic performance monitoring—such a seemingly important feature—sup‐
+ported so poorly in both mobile and web ecosystems? Properly instrumenting an app
+and ensuring that the telemetry reliably gets back to your datacenter is surprisingly
+complex. And when you have it, the data—collected from heterogeneous sources
+
+
+350   |   Chapter 19: Observability for Mobile and Frontend
+under varying conditions—tends to be quite noisy, so it may not be able to detect
+nonobvious issues unless you have a large sample. It’s yet again a vicious cycle: it’s
+hard to do and not always useful, so people don’t do it; if people don’t do it, there
+isn’t market demand for first-party or vendor solutions; this makes it harder for the
+community to adopt en masse; and this then reduces demand.
+What makes instrumentation and telemetry collection on mobile and web so com‐
+plex? Let’s first talk about app architecture.
+
+Application architecture
+For distributed systems, the backbone of observability telemetry are distributed traces
+augmented by related wide events, aggregated and properly contextualized. Notewor‐
+thy incidents don’t generally arise from detecting a small number of outlier events;
+they arise with the whole system’s performance degrading (or with leading indicators
+suggesting that degradation can be expected soon). So, to know when your system’s
+behavior gets to a point of noteworthiness, you model its performance—all of it.
+Particularly, latency and execution duration should be monitored, because slower
+generally means worse, so detecting slowdowns (along with failures) becomes a key
+determinant of system health.
+In fact, you can go a long way into high-level summarization of a distributed system’s
+behavior and performance by using a distributed trace to capture execution duration,
+code paths, and errors. You may need more data and context to know what’s going
+on under the hood, but the answer of whether it’s doing what it’s expected to do
+in a timely manner can be answered through the performance data. This is because
+backend services have one job: to process requests and return the results. And a
+distributed trace gives you the bones of that.
+For mobile and web apps, that simply isn’t the case. There isn’t an automatically
+instrumentable workflow that summarizes an app’s behavior—one whose trace can
+determine whether the app is in a healthy state. Unlike backend services, usage of
+these apps follows nonlinear paths, and success is not purely determined by execution
+duration, but by whether the user gets what they were looking for out of using
+the app. In other words, little can be known if you only had traces around process
+execution. The fact that a user lingered on a screen for 10 minutes is not an indication
+of whether the app is behaving well or poorly. So if you created a span to represent it,
+its duration will not necessarily tell you much about how the app is performing.
+Instead, the best way to model the usage of a mobile or web app, especially when the
+users encounter unexpected behavior, is through recording telemetry for important
+events (like crashes) or for workflows (like payment). But therein lies the problem: if
+an event or workflow isn’t explicitly captured by instrumentation, it effectively doesn’t
+exist for observability purposes, because there’s no way to passively or implicitly
+model them. In practice, this means that events and workflows that aren’t easy to
+
+
+                                                          Overcoming Domain Challenges   |   351
+instrument or couldn’t be done automatically without direct intervention from app
+developers are usually not recorded as telemetry. You may get data about crashes
+and app startup, but not about unanticipated out-of-memory errors, or your bespoke
+payment workflow failing due to a client-side validation error.
+The main reason that manual instrumentation of workflows on mobile and web is
+so difficult is because you have to identify not only the workflow, but the precise
+area in the code that represents the beginning and end of that workflow—as well
+as everything in between that can add additional context. All of these could reside
+in different modules written and maintained by different teams. And threading
+the needle through all of them is only the first step—ensuring that code changes
+unbeknownst to the instrumentation writer don’t break the instrumentation is the
+second, even more difficult step.
+In other words, the “trace the execution” idiom that allows new telemetry to be
+associated with the “current” trace on the executing thread doesn’t apply. A workflow
+on mobile or web that can be thought of as a single trace can, and often is, executed
+serially in disconnected chunks across multiple threads and screens, all connected
+loosely by bespoke components within the app that don’t share any execution context.
+Basically, the logical grouping cannot simply be divined by looking at the code, and
+there isn’t an implicitly shared context that ties them today.
+With a service inside of a distributed system, modeling its execution as a span and
+then adding wide events to give more details is relatively straightforward: start a span
+when a request is received, end it when it finishes, and ensure all events are associated
+with the current span—which is often just whatever span was last started on the
+running thread. The trace matches up nicely with the execution of the service. On
+mobile and web, you have to know where you want to start the workflow and where
+you want to end it. Unless it’s built into the app architecture, this otherwise requires
+knowledge of the code and how all the components work together.
+Given that a workflow can cross multiple components, it means that knowledge of the
+instrumentation has to be embedded pretty tightly into the business logic of the code.
+This can be tricky because different parts of the code enabling that workflow may not
+contain a shared context. So the simple act of knowing which span to stop may be
+challenging if you can’t do something like “stop whatever span is active on the current
+thread.” This makes the complexity of instrumentation increase with the amount of
+instrumentation that is present, which is a tricky proposition when you want good
+coverage.
+
+Life in a chaotic, remote sandbox
+Overcoming instrumentation friction caused by app architecture may be nontrivial,
+but it can be done. What is more difficult, if not impossible, to overcome is the
+extraction of relevant information on mobile and web platforms, and delivering the
+
+
+352   |   Chapter 19: Observability for Mobile and Frontend
+telemetry to the server reliably. Mobile and web apps are essentially processes run in
+sandboxed environments at the whim of the user and OS. App developers have little
+control or visibility into the underlying system resources, or when execution starts
+and stops. This limits the degree to which the app can provision enough memory and
+CPU cycles to run the app properly, and also restricts the types of information that
+the instrumentation has access to in order to explain performance.
+Is a particular instance of a span an outlier caused by poor hardware, code regression,
+or the fact that a YouTube video is playing concurrently? The available runtime
+context can suggest plausible reasons (e.g., low-end device model), which can then
+be corroborated with more data points (e.g., all workflows on this model are varying
+degrees of slow). But the APIs afforded to apps to extract that context in production
+are restricted to only what that app process has access to due to privacy reasons—
+mobile devices and browsers, after all, can be seen as multitenant devices. As such,
+they aren’t nearly exhaustive, particularly when it comes to what’s running on the
+device concurrently with the execution of the app. So you are left with many potential
+causes of performance degradation that are not represented in the data.
+And even when your instrumentation is able to capture and contextualize the right
+telemetry, that telemetry must first be sent over the internet to your servers before it
+can be consumed. That it has to be done by processes living at the mercy of the user
+and OS—over spotty network connections with limited bandwidth and high latency
+(if a network connection exists at all)—means that recording the telemetry locally is
+just the first step in the long journey to observability.
+This point is especially pertinent because an app’s ability to record and send telemetry
+is most unreliable when it’s running low on resources or operating under suboptimal
+conditions, which is precisely when telemetry is the most useful. Making sure teleme‐
+try is reliably delivered when everything is working fine is easy. But the challenges are
+tenfold when your process isn’t being scheduled and the memory pressure is causing
+so much garbage collection that it makes your app unresponsive, increasing the
+likelihood that a user will manually terminate the app without your instrumentation
+being able to save and send the telemetry it has recorded in memory.
+The insidious implication is that unless you can quantify data loss, you wouldn’t
+even know what data you’re missing, because lost telemetry will be skewed toward
+situations when the app is having issues. So while the data you collect may suggest
+that your app and users are doing fine, that may not be the case: telemetry from
+problematic situations is lost at a much higher rate than from stable ones. This
+could lull you into a false sense of security—a delusion that everything is fine simply
+because errors and slowdowns aren’t being reported.
+
+
+
+
+                                                          Overcoming Domain Challenges   |   353
+Applying Local Storage and Real-Time
+Control to Mobile Observability
+                                       This section is contributed by Matt Klein, CTO at bitdrift
+
+In some ways, mobile observability is the “final frontier” of observability practice.
+While the importance of server-side observability is well-established at this point,
+very few mobile teams have any observability practice other than crash monitoring.
+This is unfortunate for two reasons.
+First, in mature mobile applications, typically over 99.9% of user sessions are crash-
+free. This means that the ability to understand subpar behavior (functionality bugs,
+hangs, performance issues, rage taps, rage quits, and so on) is actually much higher
+leverage when aiming to improve UX, yet most teams don’t have access to any tools
+that can help.
+Second, as an industry, we love to talk about our server-side success rate and all of
+the tools that we have at our disposal to understand why we aren’t achieving the
+requisite number of nines. Yet, as I like to say, a 99.99% success rate at the server-side
+edge doesn’t mean much when malformed JSON is being sent via a 200 OK response,
+causing the app’s golden flow to simply stop working. I’ve stopped counting the
+number of times this has happened in my career; it’s certainly not theoretical.
+So if mobile observability is arguably the most important observability—as it allows
+us to understand what our customers are actually experiencing when using our
+products—why isn’t it more established? The reason is that it’s extremely hard to do
+well, and efforts to simply take the architectures and methodologies that have worked
+well in the server world and apply them to mobile have failed time and time again.
+So, what makes mobile observability difficult and different from the server world? A
+few things:
+Long release cycles
+   Due to the epically long release cycles inherent in mobile, the simple act of
+   adding a log or analytic event can take weeks for initial rollout, and months if
+   not years to reach the entire population of app users. This means that all things
+   being equal, mobile engineers would like to add as much logging and analytics as
+   possible ahead of time in case the data is needed. However this is unfortunately at
+   odds with the fact of the next challenge.
+Users caring about data usage
+    Users that are on metered data plans care deeply about how much data an
+    app is using, and will notice if an app is using “too much.” Furthermore, even
+    if users have unlimited data, slow networks and sporadic connectivity mean
+    that observability data is sharing available bandwidth with critical application
+
+
+354   |   Chapter 19: Observability for Mobile and Frontend
+    traffic—i.e., sending too many logs can materially impact the performance of
+    the main application. Note that nearly every large mobile app has measured that
+    perceived application performance (time to first interaction, delay when moving
+    screens and clicking buttons, etc.) impacts conversion and core business metrics,
+    so this is not an academic concern.
+Sporadic connectivity
+    Unlike on server, sporadic or poor connectivity on mobile must be considered a
+    normal event and not an outlier. This means that observability systems must plan
+    ahead for sophisticated batching, local storage, and so on, or enough data will be
+    lost to impact the reliability of the observation system.
+Unplanned termination as the norm
+   Because apps can be terminated at any time and may not be able to run in the
+   background, mobile observability systems must plan for this case—similar to
+   how sporadic connectivity might be dealt with.
+Huge cardinality and cost
+   Depending on the app, a relatively small server infrastructure may support hun‐
+   dreds of thousands or even millions of monthly active mobile users. Storing
+   individual telemetry for each active user is very costly, so aggregation and sum‐
+   marization systems are typically needed for mobile observability.
+Naive implementation of local storage for observability data, impacting user interface
+(UI) performance
+    While mobile apps can be multithreaded, in general a single “main” thread is
+    used for drawing the UI and handling user input events. Care must be taken
+    to not block the main thread unnecessarily or the app’s frame rate and general
+    responsiveness may suffer. This is particularly important for local storage of
+    observability data which needs to be durably stored due to several of the previ‐
+    ously described issues. Thus, the observability implementation needs to carefully
+    consider how logging data is processed and stored so as to not adversely impact
+    app performance.
+We have established that mobile observability is as important, if not more important,
+than server observability. We have also established that mobile observability is very
+challenging, and applying server observability methodologies directly is unlikely to
+yield a satisfactory result, both in terms of cost and data quality. So, what then?
+We need to step back, start from first principles, and design an observability system
+tailor-made for mobile—one that provides excellent data quality, at a satisfactory
+price point, and with high performance.
+
+
+
+
+                             Applying Local Storage and Real-Time Control to Mobile Observability   |   355
+Fundamentally, an observability system made for mobile needs to reconcile two
+competing goals:
+
+ 1. It takes a really long time to add telemetry (let’s assume for now that all telemetry
+    is wide events and that traces/metrics can be derived from those events), so
+    developers should have a way to add as many logs as possible before shipping the
+    app.
+ 2. We can’t ingest all telemetry at all times from hundreds of millions of mobile
+    devices, for both cost and performance reasons.
+
+It turns out there is a way to satisfy both of these requirements, though it requires
+a fundamental shift in how we think about our observability practice. The way to
+accomplish this is via coupling local storage of telemetry data with a real-time control
+plane that can instruct every device on what telemetry to send for ingestion. Let’s
+unpack these concepts in more detail:
+Local storage
+    Instead of sending every single log line over the network to a server-side
+    log ingestion system, we can instead store all of the logs locally in a high-
+    performance circular buffer of finite size. The circular buffer itself is persisted
+    to disk. This solution solves multiple difficulties described previously:
+          • Developers can log as much as they want because, by default, logs don’t leave
+            the device, which mitigates concerns around high ingestion costs and app
+            performance overhead for telemetry collection.
+          • Disk persistence means the telemetry survives unplanned app terminations.
+          • High performance means that the act of logging has minimal impact on app
+            functionality, especially the main thread and UI performance.
+Real-time control plane
+    Instead of devices aimlessly pushing all telemetry in real time to a remote inges‐
+    tion service, we use an intelligent bidirectional streaming connection between the
+    ingestion service and the device. The server provides instructions to the client
+    about what data to send under what conditions. And the client sends data in
+    response to those instructions.
+These two changes (local storage and a real-time control plane) may sound small, but
+the implications are profound. Instead of sending all the data all the time, we now
+have the ability to send a large amount of data when we need it, and none when we
+don’t. This “fidelity dial” means that operators can decide how to get the best value
+from their telemetry ingestion, and change it on the fly if our needs shift.
+
+
+
+
+356   |    Chapter 19: Observability for Mobile and Frontend
+Let’s look at a couple of examples of changes to workflows:
+For monitoring purposes
+    Synthetic metrics can be derived from logs (both counters and histograms) and
+    sent directly from devices in a highly efficient and compressed form. The metrics
+    that are sent can be changed immediately and without any app deployments,
+    meaning that if monitoring needs change, the ingested data can be changed.
+For debugging purposes
+    The entire circular buffer can be ingested to produce a “session replay.” This can
+    be done in response to highly specific conditions (i.e., a finite state machine sent
+    from server to client tells the device what conditions to look for). For example,
+    “Wait for the user to view the checkout screen. If the user leaves the checkout
+    screen or 15 seconds have passed without a checkout, increment a counter and
+    dump a full session with session replay.”
+Using local storage, real-time control, and matching conditions based on finite state
+machines, it now becomes possible to debug highly specific scenarios depending
+on the need at hand. From looking at specific cohorts (all users in a geographic
+area on a particular app version on a particular device model) to even debugging a
+single specific user (very common in customer support scenarios), local storage and
+real-time control make it easy to accomplish whatever targeting is needed. Further,
+building the entire system on top of arbitrarily wide, structured events means that
+user journeys, session replays, and so on can all be derived on demand.
+Mobile observability certainly has unique challenges. Its importance requires unique
+solutions, and our willingness to set aside long-established methodologies that have
+largely worked well on server—cost control has not worked well on server, and
+similar issues plague naive mobile solutions.
+By replacing the “simple pipe”—which streams all data from device to server with
+a smart system based on local storage and real-time control—we can reduce costs
+and vastly increase productivity by allowing mobile developers to log to their hearts
+content in every app release, while giving them access to this bounty of extra signal
+when they actually need it.
+Further, we can finally provide real observability to mobile engineering teams across
+the industry that, in many ways, are decades behind their server peers in their
+ability to dig into the unknown-unknowns, previously only having access to crash
+monitoring. Crashes are important, but they are a minute piece of the overall puzzle.
+The future is bright in the mobile observability world, and our end users will thank us
+for providing more delightful and less buggy apps.
+
+
+
+
+                              Applying Local Storage and Real-Time Control to Mobile Observability   |   357
+What to Observe and Why
+Matt Klein’s section highlights a subtle but important differentiating factor of observ‐
+ability in mobile and web: we are not observing one complex system, but many,
+many simple ones. Aggregates create summaries not of a series of connected nodes
+and services acting to serve the same set of incoming requests, but of millions and
+millions of unrelated processes running on different devices, operated by different
+users, each with different usage goals and expectations.
+Mobile observability is akin to surveying a heterogeneous population; truths are
+summaries that describe cohorts of users with shared characteristics, ephemeral or
+concrete. Conclusions about the behavior of one application instance running on
+one device controlled by one user can only tell you but so much about a different
+instance running on a different device controlled by a different user. Insights have to
+be qualified, locked to the particular context from which they were derived.
+The variability of P50 and P99 can be vast on mobile and web simply because the
+operating conditions are wildly different. It’s no fault of the application if devices
+from 10 years ago are running alongside brand new ones. It follows that knowing
+what the P50 experience is can only tell you so much about what P99 may be. That
+fact alone should make folks who only benchmark with a single device worry about
+how representative their data is of what their users experience.
+To put it another way, knowing what the P50 duration is for a workflow in a dis‐
+tributed system tells you what you can expect to happen when more requests come
+in, in terms of performance, assuming a normal amount of variability. Knowing what
+the P50 duration is for a workflow in a mobile app doesn’t tell you very much about
+what you can expect at all, unless the execution context is very similar to that of the
+instance that provided the P50 value. It’s perfectly reasonable if a cold app startup P50
+is 1 second while the last measurement is 10 seconds, if the device generating that last
+measurement was released nine years ago.
+This is why the sets of tooling and use cases that help the discovery of problems and
+then give insight into how those problems can be solved can be very distinct. The
+former requires sifting through the data to identify small cohorts of similar users, to
+find issues that impact them that aren’t obvious because they don’t impact everyone,
+while the latter is about finding enough details about the experiences of the impacted
+cohort so that you can understand why they are impacted. The former requires
+breadth while the latter requires depth—perhaps to a degree that isn’t feasible to
+capture in production.
+What this means is while production telemetry can tell you quite a bit about the
+state of the app and device, various factors make it so that the depth of data you can
+capture at runtime pales in comparison to the kind information you have access to
+when you can reproduce the issue locally.
+
+
+358   |   Chapter 19: Observability for Mobile and Frontend
+For instance, the Android platform gives you the ability to take profiling data of your
+device while your application is running. This is a feature of the OS, and it provides
+information not only about your app’s process, but also all the other processes that are
+running on the device, as well as low-level system information like CPU scheduling,
+memory, and hardware states. Android apps simply aren’t granted the permission to
+access that kind of system data, and even if they were, the data volume would be too
+large for it to be feasibly captured and transmitted at runtime in a way that doesn’t
+affect UX.
+This is why, for debugging purposes, Android devs have traditionally preferred local
+tools that give all the diagnostic information you would want. And the fact that
+issues are always reproducible if they are well-understood means that if observability
+tooling can provide that understanding, devs would have the data they need to do
+their job without asking more from it.
+As such, discovering nonobvious app issues and pinpointing the precise conditions
+under which issues are reproducible are the dual primary goals of mobile observabil‐
+ity. Current tooling available to most mobile and web developers falls short of these
+goals, but production telemetry combined with context is extraordinarily well-suited
+to address them. Finding diagnostic information, while useful, is only a secondary
+goal.
+
+Opportunities for Improvement
+While the challenges for creating observability in mobile and web applications are
+unique and nontrivial, the opportunities that it presents can be described similarly:
+unique and nontrivial. The reason for that comes down to having direct access to
+a source of data that has previously been untapped by observability practitioners:
+users. Not only can users provide telemetry through their actions that aren’t normally
+accounted for, but that data also comes with rich context from which cause and effect
+can be inferred at the workflow instance level. That direct linkage is invaluable for
+finding needles in haystacks, when deducing from aggregates becomes difficult as
+conditions narrow and sample sizes dwindle.
+The unique and nontrivial opportunities to leverage data from users is what makes
+all the toil to overcome the myriad challenges of mobile and frontend observability
+worthwhile, to see all the work bear fruit. The juice, as they say, is worth the squeeze.
+
+Making Observability User-Focused
+Traditionally, instrumentation of distributed systems mostly produces telemetry that
+models the execution of services: how long they took to execute, whether the execu‐
+tions encountered any errors, and the context under which they run. Users of the
+application, meanwhile, are an abstraction—the makers of requests—and their role
+
+
+                                                          Opportunities for Improvement   |   359
+can largely be summarized by the kinds of requests they make and the parameters on
+those requests. So it’s not a large leap to say that they are pretty well represented in
+existing observability systems, assuming request parameters are properly captured to
+contextualize the associated telemetry.
+Even when observability moved to the mobile and web spaces, we largely replicated
+the same behavior when it comes to instrumentation: what is happening in the app
+and how well is it performing? Even when the telemetry is the direct result of user
+actions (e.g., RUM events), what we capture is still very matter-of-fact events that
+we can observe: screen taps, page navigation, application startup duration, and so
+on. But stopping there means ignoring a key advantage of making mobile and web
+apps observable—our ability to directly observe in its entirety a single user and/or
+session—and how we can leverage that connection to increase what we ultimately
+want to understand: UX.
+Trying to tie together telemetry for a given user or session in a distributed system is
+possible and potentially very useful. However, knowing all the requests from a single
+user or session can only tell you so much about how the user is experiencing the app,
+because so much of what happened between requests is not known to the backend.
+Why is there a two-minute gap between request A and request B? Is that reasonable?
+There is only so much you can glean about why requests are made when you only
+have data from your backend.
+But what if you have access to all that is happening on the app itself? Knowing that
+an attempt at checkout was made but ultimately not followed through with, as well as
+what happened during the session after the initial attempt and what potential factors
+could have caused it—that’s when you can start applying observability techniques
+to understand not only application behavior, but also user behavior. Once you have
+telemetry that models user actions related to other telemetry and context collected
+from the app, that’s when your observability becomes truly user focused.
+After all, isn’t the whole point of all this to ensure that users have good experiences
+when they use your app? Experience is hard to understand directly when users are an
+amorphous abstraction of request makers. But when you can get data that ties users
+to app telemetry over a long period of time, you can paint a much clearer picture of
+how their usage might vary depending on the UX.
+A wise person once said that the nines don’t matter if your users aren’t happy. If you
+have a mobile or web app and you don’t try to quantify user happiness using data
+collected on the client side, are you even doing observability right?
+
+
+
+
+360   |   Chapter 19: Observability for Mobile and Frontend
+Quantifying User Experience
+Before going further, it’s important to be more concrete about what is meant
+by “quantifying user happiness.” Too often, vendors make up easy-to-understand
+“scores” that sum up the quality or stability of an app because evaluating said app
+along multiple complex dimensions is, well, too complex for most stakeholders. Simi‐
+larly, “happiness” sounds a bit like sentiment analysis, which is, at best, an imprecise
+notion to quantify.
+To proxy the quality of UX via telemetry in such a way that it’s stable and useful for
+observability, neither generic algorithmic aggregates of metrics nor fuzzy sentiment
+analysis would stand up to scrutiny. We need something that will consistently be
+sensitive to change in UX, all else being equal. In other words, it has to be relatively
+unbiased events from the app, or metrics that derive from it.
+Stepping back a bit, the reason users use an app is to accomplish a goal: look at
+pictures, buy an album, order some food. UX describes the journey a user has from
+the moment they pick up their phone to the moment they accomplish what they
+set out to do. A good UX—like if the app launches quickly, the UI is responsive,
+and there are minimal delays—tends to allow a user to quickly do what they set out
+to do with little frustration. Conversely, a bad UX—like if the app launches slowly,
+is unresponsive to user actions, or has confusing UI—often causes users to give up
+before they can accomplish their goal.
+Mobile and web apps, due to their proximity to the user, can gather telemetry that
+describes the user experience and intention and whether their goals are achieved.
+While instrumentation can only record what’s happening in the app, there are events
+that can be used as proxies for user intention and outcome achievement, which
+means we can correlate them with other telemetry and context in order to under‐
+stand the factors that lead to a higher likelihood of a user intention being met with a
+positive outcome. The ability of telemetry to do this—and to describe and reflect user
+intention and outcome, along with the runtime context—is what makes observability
+“user focused.”
+To extend this further, one can assume that if a user wants to do X, they are happier
+if they were able to do X. While there are many reasons why a user who expresses an
+intention doesn’t ultimately achieve a successful outcome, one can assume that bad
+UX—including poor performance and bugs—is one of them. Therefore, this source
+of users not achieving a positive outcome can be seen as something the app can
+directly control. Something that completely removes all friction from the process (i.e.,
+as soon as an intention is expressed, a positive outcome is achieved) will make failure
+nearly zero. Conversely, something about UX that is so bad that it prevents users
+from achieving a positive outcome, will make failure the only outcome.
+
+
+
+
+                                                         Opportunities for Improvement   |   361
+Therefore, user happiness can be proxied by the degree to which users achieve
+a positive outcome—which in turn can be proxied by the likelihood that a user
+who expresses an intention ultimately achieves one. So, something as simple as
+“checkout completion rate”—which could be calculated by taking the number of
+complete checkouts in an ecommerce app and dividing it by the number of checkout
+attempts—can be seen as a metric that captures user happiness (i.e., did the user do
+the thing they wanted to do?).
+
+Adapting Existing Approaches
+Now, you might be thinking: isn’t this just product analytics (i.e., the kind of data
+that product managers use to determine which features are used)? In a way, that is
+true. The actions modeled by user analytics products are similar to the user intention
+and outcomes described here. The difference is that other than static context that
+can be used for basic segmentation, product analytics data isn’t tied to telemetry that
+describes the UX and app performance.
+This is where user-focused observability provides utility: it ties together previously
+siloed data used by both product managers and devs so that they can mutually
+explain each other, allowing user behavior changes to be correlated with app perfor‐
+mance data and quantifying the real impact of regressions in terms that the business
+understands. By linking a particular instance of a successful or failed use journey with
+all the context and telemetry that is collected in the past and concurrently, you have a
+means to explain why the journey was or wasn’t successful.
+Too often, product managers with access to product analytics will find changes to
+conversion funnel data but, based solely on the data, cannot explain why. This is
+because product analytics merely reports what happened and to whom, nothing
+more. Mobile engineers are then tasked with finding out the reason, often knowing
+little more than the timeframe in which the change was perceived. But because
+mobile apps are relatively simple—at least compared to distributed systems—the root
+causes of many issues can be isolated simply by looking at the changes to the app that
+were made around that time.
+While this workflow is generally good enough, there are many cases where it isn’t.
+If the issue is nonobvious, multifactorial, affects only a subset of users, or is not
+even caused by a change in the code, the amount of time that could be lost to
+investigations could be significant—if the root causes can be determined at all. This
+is where user-focused observability shines, and it’s not trying to isolate the root cause
+using only the data, just that there is a user-impacting problem to investigate.
+Being user focused flips the paradigm of observability from something that first
+relies on detecting anomalies with the app and then determining user impact, to one
+where you first detect user impact and then determine the underlying app anomalies
+causing said impact. This switch eliminates the question of whether an app issue is
+
+
+362   |   Chapter 19: Observability for Mobile and Frontend
+impacting users given that the reason why it was found in the first place was due
+to users being impacted. There will be no more debating whether a 20% increase
+in P75 startup time merits an investigation. You will have data correlated with the
+increase—potentially even more if you were running an experiment.
+
+Applying User-Focused Observability
+User-focused observability flips the traditional paradigm: instead of detecting techni‐
+cal anomalies and guessing their impact, you first detect user impact and then isolate
+the underlying technical anomalies. This switch ensures that every investigation is
+centered on a material problem affecting UX or business key performance indicators
+(KPIs).
+
+Iterative Analysis Process
+The goal is understanding how user behavior is impacted by app behavior through
+the direct linking of user intentions and outcomes with app telemetry and metadata
+at the workflow level, which can then be verified repeatedly at a statistically signifi‐
+cant level in aggregate. The crux of this process relies on the ability to filter the
+data by a variety of dimensions in order to tease out the relevant ones so that the
+differences between cohorts is statistically significant.
+The process plays out when a difference in user behavior is detected—when we iterate
+to isolate pertinent dimensions that are correlated with the change, and identify other
+correlations that could be investigated further to provide even more clues as to the
+areas in the app where the root cause(s) may lie.
+Given the noise inherent in the production data that is collected on mobile and
+frontend apps whose usage may be cyclical, there will be false positives and dead
+ends. But the idea is that any repeatable pattern of correlation suggests some root
+cause, and it’s the observability practitioner’s job to determine whether it’s caused by
+something under their control, which is often the case.
+Let’s take a look at a fictional example to show how user-focused observability can
+help track down app issues in production that are otherwise difficult to identify.
+
+Example: Food Delivery App
+FakeBurger is a food delivery app with tens of millions of daily active users globally.
+An important metric monitored by product managers is “checkout rate,” defined as
+how often a checkout workflow that starts is completed successfully. That is, when a
+user shows sufficient intention to order food from a restaurant, they go through the
+workflow to pay for it successfully. While this metric can fluctuate during the day due
+to a number of factors, in the aggregate, there’s a range within which that metric is
+expected to be.
+
+
+                                                      Applying User-Focused Observability   |   363
+The checkout rate is important to the business because drops may indicate an
+increase in the friction experienced by users doing the main thing the FakeBurger
+app is used for: ordering food. It can be viewed as a proxy of how happy users are
+with the app, at least in the narrow sense that they were ultimately able to do what
+they set out to. A change to this rate may not necessarily indicate that something
+about the app has changed, but changes to the app can definitely affect this positively
+or negatively. A decrease of the checkout rate could mean lost sales in the short term
+and customer churn in the long term, so it’s an important one to keep an eye on.
+In terms of the telemetry to calculate the checkout rate, we can model this in a
+number of ways. The key data required are two events (e.g., start_checkout and
+end_checkout) that are linked by some unique ID wherein the second event knows
+it’s associated with the first, and the first event can be recorded without requiring
+the second event to have happened. Depending on the backend, this could be a struc‐
+tured log, two structured logs, a span, or whatever can keep track of this information.
+While the telemetry tells you what happened in the app, contextual metadata that
+distinguishes one checkout instance from another can tell you why it succeeded or
+didn’t. For FakeBurger, they passively collect context like sessionId, userId, and
+app version for all the telemetry they record. For workflows they are especially
+interested in, such as checkout, they add unique and relevant metadata that help
+further contextualize the telemetry, like payment type, discount code, previous app
+screen, and so on.
+It’s important to note that much of the contextual metadata isn’t directly represented
+in the data sent to the server in API calls. In other words, app-only concepts like
+the previous screen that the user was on are not represented in telemetry used for
+backend observability. That this metadata describes factors that can cause the app
+to behave differently means that they represent important information that can help
+explain user behavior and app performance—data that would otherwise be lost if
+telemetry weren’t collected from the mobile app. FakeBurger has learned the hard
+way that looking solely at backend data is not enough to understand what the end
+users experience in their app.
+In addition, other RUM telemetry collected by the app during the session—such as
+user navigation and screen taps—can also be considered contextual metadata with
+which to differentiate checkout instances. It could help answer important questions
+like “what did the user do during the checkout?” and to document app states that are
+otherwise lost.
+As mentioned before, FakeBurger uses the checkout rate as a proxy to user happiness
+and satisfaction with the app. When it changes to a degree that is statistically signifi‐
+cant—after controlling for the expected time and date-based fluctuations—they will
+know it’s very likely that the status quo with the app has changed: whether it’s due to
+
+
+
+364   |   Chapter 19: Observability for Mobile and Frontend
+the UI being modified, a new app bug, a change in the user base, or even a change to
+the instrumentation implementation.
+Changes like this in mobile apps tend to coincide with a new app version, feature
+rollout, or significant shift to the user base (e.g., entering a new market with users
+who behave differently in aggregate than existing users). This is why after a new app
+version is released and reaches a critical mass, FakeBurger mobile engineers look
+at how key metrics like checkout rate have changed in production. They not only
+look at these in aggregate for the whole population—they also split out data in other
+ways, like comparing data from the new version to the rest of the population, as
+well as comparing the magnitude of difference in some sample groups when previous
+versions were rolled out.
+The reason they split the data in multiple ways is so each view can corroborate
+the others, as different comparisons carry different embedded biases. For instance,
+splitting users by new and old versions during a specific time period will show a
+difference. This is because early adopters of new FakeBurger versions tend to have
+better phones, making slowness-related abandonments less likely and checkout rates
+higher than those of late adopters, who abandon checkouts at a higher rate due to
+performance-related issues.
+As is apparent in this example, simply determining whether a change to the checkout
+rate in production is caused by an app change is nontrivial. Doing that justice is
+outside the scope of this chapter and book, but let’s assume they are able to determine
+whether a change is caused. When they do, they can ask questions like the following:
+
+  • Was there a cohort within the population for which the drop was outsized?
+  • Did any other metrics change?
+  • When you split out the sessions that contained a failed checkout and compared
+    the data before and after the checkout rate drop, were there any differences in
+    terms of the metadata or events that occurred prior to the failure?
+
+The telemetry and metadata that FakeBurger records around the checkout workflow
+will be able to answer these questions for them. Through this data—after it’s properly
+processed and made available via dashboards—mobile engineers and SREs alike are
+able to find app issues like the following, which would be difficult to surface were it
+not for user-focused observability:
+
+  • UI bugs not explicitly logged that add friction or prevent users from checking out
+    (e.g., the “Next” button rendering below the fold)
+  • A new discount code format that disabled the “Submit” button the first time the
+    user enters the checkout flow—resolved only by abandoning and re-entering it
+    a second time (potentially occurring without a new app version, as it might not
+    have been caused by a client change)
+
+                                                     Applying User-Focused Observability   |   365
+  • Serious errors occurring infrequently enough not to move top-line app metrics
+    in a statistically significant way, but which disproportionately impacted checkout
+    rate by affecting heavy users
+  • Multiple small glitches introduced over time, each too infrequent to move app
+    metrics on their own, but collectively degrading the UX enough to impact con‐
+    version rates
+
+Through user-focused observability, FakeBurger is able to not only identify regres‐
+sions but also further ask the data questions that they had not initially anticipated
+asking. The reason is that they center on what matters first—user experience—and let
+telemetry and metadata explain their changes. They will no longer only chase changes
+to telemetry (not knowing which actually matters to their users and their business),
+but instead focus on metrics that they know for sure move the needle. They let the
+data suggest avenues of investigation or causes that they wouldn’t otherwise think of
+in the chaotic environment of end user–facing mobile and web apps.
+
+Mobile and Frontend Applications Deserve Observability
+Observability on mobile and frontend applications needs to center users and their
+experiences in order to maximize the utility provided by the unique perspective of
+telemetry and metadata gathered that way. Instead of trying to isolate small problems
+within the app in a sea of noisy and inconclusive data, it’s better to turn that around
+and identify changes to user behavior and, through the data, provide reasons as to
+why that might be the case.
+The paradigm shift of looking first for user impact before app-level problems can be
+jarring for developers who are used to looking at production data solely for more
+information about app problems. Instead, user-focused observability goes a level
+higher and identifies problems in the UX that are perhaps correlated with app-level
+problems that are less easy to detect unless you know what to look for. It reduces the
+size of the haystack in which you have to find the needle and, in doing so, ensures
+every haystack you look through is causing material problems in UX and impacts
+KPIs.
+This is only possible through user-focused observability, because we have the ability
+to model user intentions and outcomes alongside traditional app telemetry and meta‐
+data—linking them directly rather than just inferring correlations in the aggregate.
+Not only is that difficult to do on the backend, but the data used is missing a
+pertinent source entirely: what is happening in the app that the end-user is actually
+using.
+
+
+
+
+366   |   Chapter 19: Observability for Mobile and Frontend
+So, while data coming from mobile and frontend clients may be noisy, incomplete,
+and difficult to consistently obtain in a timely manner, it represents a treasure trove
+of valuable data that you can’t otherwise obtain. The juice may be hard to squeeze,
+but its sweetness hits like nothing else.
+
+Conclusion
+Hanson provides a very thoughtful and detailed look of the many challenges that
+are unique to the world of observability when applied to mobile and frontend appli‐
+cations. Paired with Matt’s insights on managing telemetry storage and transmission,
+we get a comprehensive look at the various challenges that happen when considering
+performance across a global network of incredibly diverse devices that have unpre‐
+dictable and often unreliable network connections.
+In the next chapter, we’ll look at other observability use cases focused on performance
+by considering system profiling. You’ll learn how to optimize infrastructure decisions
+and cost models using the observability data you’ve collected.
+
+
+
+
+                                                                       Conclusion   |   367

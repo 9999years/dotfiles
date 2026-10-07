@@ -1,0 +1,757 @@
+                                                                       CHAPTER 2
+                  How Code Crosses Over: Validating
+                    Developer Intent in Production
+
+
+
+
+Developers develop preproduction, operators operate postproduction, and deploys
+mark the handoff point with a switch. This groove is etched so deeply that many
+companies don’t even let developers look at their code in production. At other compa‐
+nies, it’s just so awkward and cumbersome and difficult, and the payoff so minor, that
+they don’t even try.
+The dev/ops divide has persisted because it reflects both the need for change and the
+need for stability, in a way that maps neatly to org charts, budgets, and goals. But
+AI is collapsing the distance between writing code and understanding what it does
+in production—indeed, AI is forcing all the stages of the SDLC to blur and combine
+and be reinvented. An agent doesn’t know if it’s designing, testing, or coding. What
+matters is intent, context, and validation.
+When code crosses over, it must be validated—not just in theory, with testing, but
+in reality. There are many techniques for validating code in production. These are
+not new. But they have never been widely adopted, because they are complicated
+and deploying them is hard. AI is challenging this from many sides: by making it
+technologically easier to achieve, by applying competitive pressure, and by upending
+the economics of code production.
+This chapter covers the practices that make that possible. They form a flywheel:
+each one enables the next, and together they accelerate and amplify each other’s
+capabilities. But all must be grounded in precise, context-rich observability.
+
+
+
+
+                                                                                    19
+We stand at the precipice of a new era in software development. In the past, our code
+was handcrafted; in the future, it will be generated. That much seems clear. How we
+get there seems far less clear. How does code cross over? There are tools, practices,
+and principles that can help, and they run through production.
+We’ll start with a question that sounds simple but isn’t: what makes software good?
+
+What Makes Software Good?
+The quality of software is inseparable from what the software is meant to do. This
+might seem obvious, but it’s easy to lose sight of.
+Should you be writing code using AI as fancy autocomplete or should you be
+orchestrating fleets of agents? Is Rust or Go a better language? These questions are
+unanswerable in the abstract, but they are answerable if you begin with “for what
+purpose?” followed by “under which constraints?”
+
+Good Software Serves Its Purpose
+Software runs the world these days, so “purpose” has enormous range and variability.
+The same goes for software practices—they are rarely good or bad; they simply serve
+a purpose. So, should we stop doing code reviews? Should we put developers on call?
+The answer is always, “It depends.” What are you trying to achieve? Who is your user,
+who are your builders, and how does your goal serve them?
+It would be a waste of time to worry about writing fault-free code if you are a
+seed-stage startup in search of product market fit, but it would be the most important
+consideration of all if you’re working on the Mars rover or a nuclear launchpad.
+There are many attributes of purpose, but the time horizon you are building for is
+worth calling out separately, because this is where the cost of software is set, and it has
+implications for every other decision you make.
+
+Good Software Delivers Efficiently Over Time
+The cost of software has always been defined by the cost of maintaining it, not the
+cost of developing it. When people say, “It was never about the code,” this is often
+what they mean.
+Software relied upon must be maintained. Libraries need upgrades. Bugs need fixing.
+Features must be added and scaling limits increased.
+How much do those changes cost in time, effort, and user impact? The higher that
+cost, the more expensive and less efficient your software becomes—measured in
+missed opportunities and lost revenue, morale, brand trust, and customers.
+
+
+
+20   |   Chapter 2: How Code Crosses Over: Validating Developer Intent in Production
+In the past, “good code” meant elegant code. When human cognition is a gate for
+every change, readability is a good proxy metric for code that will be less expensive to
+extend and maintain over time.
+To sum up: good software is software that fulfills its purpose, for as long as it’s
+needed, as efficiently as possible.
+
+The Maintenance Horizon: Disposable
+Code Versus Durable Code
+The difference between disposable and durable code is not about whether the code
+was generated with AI or written by hand. The difference is in how they are changed,
+which is derived from the maintenance model.
+Writing software has historically been extremely difficult and time-consuming.
+Because of this, we have treated code in production like a sacred relic—unlike
+immutable infrastructure, which we happily destroy and regenerate all day long.
+That regeneration is possible because we understand it: what “good enough” looks
+like and what commitments it must deliver. If we understand it, we can regenerate
+it; regeneration is proof. This has liberated generations of developers from having to
+understand or think about how infrastructure is implemented.
+We have not yet made the shift from durable code to durable systems with regenerable
+code, although the economics of code abundance would seem to make this an
+inevitability, at least for some workloads (as discussed in Chapter 32). What we have
+for now are the durable model for change management and the disposable model for
+change management.
+
+Durable Code Is a Model for Mutating and Maintaining Code in Place
+The durable code model prioritizes stability and continuity over all other considera‐
+tions. It does this because that is actually the fastest, cheapest way to change a com‐
+plex system where we don’t have any record of developer intent, user expectations, or
+dependency commitments. All of these things are bound up in the artifact of code.
+We do not know which of our changes will be disruptive, or who or what it will
+disrupt. Mostly, we find these things out when we break them.
+The most reliable way to change durable code is by applying a series of small,
+contained diffs to a baseline that is assumed to be good. Small batch changes shrink
+the blast radius when things go wrong.
+“There is no test you can run that would let me trust a new snippet of code more
+than the code already running in production.” This is a truism where durable code is
+concerned. Currently running code is a known quantity—or at least, a stable quantity
+
+
+                                   The Maintenance Horizon: Disposable Code Versus Durable Code   |   21
+composed of many unknown commitments. And there are plenty of situations where
+returning a predictable, consistent result is more important than returning the “right”
+or “best” result.
+This is often a function of dependencies. No user wants their interface to change in
+subtle ways throughout the day, or for buttons to pop up in random places that are
+inconsistent with the mental model for the product. User expectations have a change
+budget that is smaller than you might think. Persistence problems can be similarly
+sticky. (It is no coincidence that both of these are about reconciling at the point where
+bits meet atoms.)
+Durable code prioritizes stability over other considerations, but that comes at a cost.
+Maintenance is expensive. Every change is gated on understanding. If you don’t have
+to maintain code as durable code, you really probably shouldn’t.
+
+Disposable Code Is a Model for Avoiding Maintenance Costs
+If the cost of software is defined by what it costs to maintain, disposable code is cheap
+because you don’t even try to maintain it. You aren’t trying to anticipate and account
+for how it will scale into next year, or sweat over its readability for future generations.
+You just build what you need today.
+If you want to add a function, you add a sentence to the spec and generate it all over
+again. Generate 10,000 variants and let them fight it out, if you feel like it. It’s so cheap
+and easy, it feels like magic.
+This doesn’t mean that disposable code has no quality requirements. Sometimes it
+doesn’t, but sometimes it does. The “you only live once” (YOLO) mode is fine for
+prototypes and experiments. But upgrades and migrations are some of the most
+exciting use cases for disposable code, and they definitely need tests and safety
+checks. Anything that runs in production code must meet a higher bar for quality.
+But you’re not going to maintain that migration script; you’ll just generate a new one
+next time. Therefore, the cost of maintenance remains low.
+
+The Maintenance Horizon Is Not Always Knowable Up Front
+How good a piece of code needs to be isn’t always clear in advance. The delineation
+tends to emerge over time. When you are iterating rapidly on design mocks or
+prototypes, you never know which one is going to click. The “one-off quick hack” that
+becomes load-bearing over time is a long-running joke.
+When disposable code graduates to durable, you should put it through the same pro‐
+cess as you do any other durable code, whether that means test coverage, peer review,
+or something else. Always add instrumentation and observability, and monitoring or
+service level objective (SLO) coverage if needed.
+
+
+22   |   Chapter 2: How Code Crosses Over: Validating Developer Intent in Production
+There are many purposes that software can serve, and just as many definitions of
+“good software.” However, for software services running in production, there are
+some common standards of reliability, understandability, and maintainability that are
+commonly thought of as “production quality.” Another term for this is dependability.
+
+Production Quality Code Is a Function of Dependability
+In Chapter 1, we discussed software dependability—a set of properties we typically
+associate with running highly available services in production.
+When code graduates to production, it begins to accrue commitments. Its behaviors
+turn into expectations, intended or not, and user expectations should be honored. If
+we fail to meet expectations, we break user trust. This is why we have a higher bar for
+production code.
+However, we cannot care about all software equally. How do we know where to spend
+our focus?
+
+Identifying the Critical Path
+Not all software has to be good, but the software in your critical path probably does.
+Start by writing down what you think is in (or out) of the critical path. Does everyone
+on your team agree? What about the adjacent teams?
+Ask yourself: what happens if this code breaks? If the answer is “not much,” then
+the code can be a little sloppy. If the answer is “we could be in The New York Times
+tomorrow,” or “we lose $20 million in high-frequency trading fees for every minute
+of delay when the markets open,” or “someone could die,” then this code needs to be
+good.
+You may be tempted to make everything beautiful, but that’s a waste of time. Some
+code is like the local post office: solid and functional, nothing fancy. And some code
+is like a cathedral: inviting the awed stares of passing tourists and built to stand for
+centuries. (OK, maybe not quite, but the metaphor stands.)
+Frequency, criticality, visibility, and blast radius are your compass for identifying the
+software in your critical path:
+
+  • If the code runs rarely or invisibly, or if breaking it will have little impact on the
+    business: that code doesn’t matter. It’s just scaffolding.
+  • If the code runs rarely and invisibly, but handles core business functions like
+    payroll or security: it needs to be solid, “post office” caliber code.
+  • If the code runs constantly, it carries the business, and users are acutely sensitive
+    to its performance characteristics: this is your cathedral.
+
+
+
+                                           Production Quality Code Is a Function of Dependability   |   23
+                    Important Caveat
+                    Any code with a blast radius that could take down critical code
+                    is also critical code.1 Tools like isolation and modularization are
+                    critical for reducing blast radius.
+
+Once software sits in your value stream—once other people and functions depend on
+it—it stops being a toy and becomes your business. This can happen accidentally as
+well as on purpose, so it’s worth auditing this list occasionally.
+The critical path is not static; it changes often. The hard part is noticing when new
+dependencies have crept in, or identifying when a piece of throwaway code is now
+load-bearing. Mind the gaps.
+
+The Closer You Get to Persisting Data,
+the More Cautious You Should Be
+Here’s one (unscientific) rule of thumb: the closer you get to writing bits out to disk,
+the more paranoid you should be about making changes.
+The code in databases, operating systems, filesystems, and medical devices are likely
+to use the durable code model for the foreseeable future. It may never be possible to
+extract and define all the commitments, dependencies, and behaviors outside of the
+code itself, or they may be too tightly coupled to low-level hardware characteristics.
+As anyone who’s ever done a major database version upgrade on a busy production
+database knows, even very subtle changes can compound to unpredictable results at
+the application layer.
+The further up the stack, the more forgiving mistakes can be. You can redeploy, roll
+back, or fix it in post. But persistence problems have a nasty little habit of being
+permanent. Mistakes in database migrations, schema changes, and storage layouts
+can be irreversible. You can’t un-corrupt a database table. You can’t easily undo a
+schema change that millions of records have been written against.
+This isn’t a reason to avoid AI assistance in these areas; it’s just a reason to apply
+it differently—with more human understanding, more conservatively staged rollout,
+and more observability before, during, and after any changes to the persistence layer.
+
+
+
+
+1 Who among us has not been taken out by a rogue cron job? Let them cast the first stone.
+
+
+
+24   | Chapter 2: How Code Crosses Over: Validating Developer Intent in Production
+Development to Production: Tools for Crossing Over
+The dev/ops divide that locates development on the left and operations on the right,
+divided in the middle with a binary switch, is unhelpful for a number of reasons.
+Deploys in complex distributed systems are not binary; they are a process of building
+confidence over time.
+Code crosses over boundaries all the time. The crossover from dev to prod likely
+happens every day. It should be boring.2 And it can be boring—with the right tools.
+The following practices form a sequence: your “test-in-prod” toolkit. Each one
+unlocks the next. Together, they help your code safely graduate into production—the
+phase where code meets reality, and it either serves its purpose and begins to earn
+your trust or it doesn’t.
+Most people who have tried these tools have gotten mediocre results. Not because the
+tools don’t work (they do), but because they were running them on three pillars-style
+observability: pre-aggregated metrics, logs that don’t correlate with metrics, and
+traces that don’t correlate with anything. The tools are only as good as the signal
+underneath them. This is why the first practice in this chapter is a prerequisite for
+good results.
+
+Practice 0: Give Yourself the Gift of Rich Data and Precision Tooling
+In ecology, a keystone species is one whose impact on the ecosystem is disproportion‐
+ate to its abundance. Remove it and the ecosystem doesn’t just degrade—it collapses
+into something fundamentally different. Modern observability is the keystone prac‐
+tice of the software delivery ecosystem. (We will talk about this in much greater depth
+in Chapters 24 and 25.)
+Every other practice on this list is dramatically more valuable with high-quality
+observability. Feature flags are more useful when you can slice and dice by any arbi‐
+trary subset of flags before exploring the results. Canary deployments are only useful
+if you can compare the canary requests against the baseline. Automated rollbacks are
+only safe if the signal triggering them is precise and trustworthy.
+This is why it’s practice 0, not practice 7. Observability is the foundation, not the
+cherry on top. If you build these practices on top of aggregated metrics and tradi‐
+tional logs, you too will get mediocre results and conclude that the tools don’t work.
+
+
+
+
+2 The more difficult crossovers are from one production system to another production system, under heavy
+  load.
+
+
+                                                      Development to Production: Tools for Crossing Over   |   25
+The tools work. But they rely on rich signals: high-cardinality, wide, structured
+events, and telemetry that preserves the relationships between fields rather than
+destroying them at write time. You also need to be able to select the signal with
+scalpel-like precision: aggregate at read time, select any arbitrary subset of fields,
+compare any subset against another subset, handle high-cardinality fields, etc. This
+means a columnar store, and the rest of the criteria we described in Chapter 1.
+
+Alternative options
+We get it: most developers don’t actually get a say in which tools are available to them.
+And the overwhelming majority of teams do not have access to modern observability
+(at least not yet). So, here are some hacky ways to approximate the effects.
+If you’re doing agentic development on a local dev environment, consider stashing
+traces in DuckDB, an open source columnar database, or in Apache Iceberg.
+If you are locked into a multiyear contract with a three pillars vendor and you
+can’t get out of it, there are ways to start improving your application telemetry
+immediately.
+Start by standardizing on either logs or traces. Not both.
+If traceability is not a top pain point for you, logs are the better choice. Follow the
+principles of canonical logs—wide, structured log events, organized around each unit
+of work or service hop. Make them as wide as you can, preserving as many bits of
+context in attributes as possible. Propagate important context along from service to
+service (you can do rough traces this way too).
+If tracing is already a pain point, standardize on traces, and then load them up with
+context in much the same way.
+Data is made valuable by context—it grows exponentially, combinatorially more
+valuable as you widen the dataset. Make it as valuable and as rich as your tools will
+allow you.
+
+Practice 1: Build a Feedback Loop Between
+Developers and Production
+Given the durable code model that exists today, the best practice we have for captur‐
+ing and validating developer intent is as follows:
+
+     • Instrument your code as you write or generate it.
+     • Get your code into production immediately.
+     • Autodeploy from CI/CD if possible.
+
+
+
+
+26    | Chapter 2: How Code Crosses Over: Validating Developer Intent in Production
+  • Go and look at your changes in production, through the lens of the instrumenta‐
+    tion you just wrote.
+  • Ask yourself, is it doing what you thought it would? Does anything else look…
+    weird (technical term)?
+
+It sounds faintly ridiculous, but this really is the gold standard for capturing and
+validating developer intent: “Look at it before you forget what you were trying to
+do.” Any other record of developer intent must be inferred from Slack threads, task
+trackers, documentation trails, etc. and is significantly less reliable.
+We do not think this state of affairs will survive much longer; in order to collaborate
+with AI agents effectively, we must capture developer intent and encode it into the
+system in a way that is legible to agents.
+It’s exciting to think about solving this problem. After all, having development and
+operations exist in two disjoint sets of heads, with no feedback loop connecting
+cause with effect (developer intent with production consequences), is exactly what
+has caused so much frustration, disconnection, and degradation in quality over the
+years.
+Observability is what creates the feedback loop. The quality, speed, and precision of
+your observability sets the quality, accuracy, and usefulness of the feedback. If all you
+know is that your system was 99.99% before you deployed and is 99.99% after you
+deployed, you know nothing useful. Aggregates conceal a multitude of sins.
+It has often been cumbersome and frustrating for developers to try and find their
+telemetry in traditional three pillars-style tools. Infrastructure tools typically rely
+heavily on dashboards, which must be constructed to surface changes in telemetry. AI
+is swiftly bringing down the cost of this tax. You should be able to get the telemetry
+you need, when you need it, served up on a platter in your development environment
+and/or Slack instance. MCP (Model Context Protocol) also lowers the barrier to entry
+by letting you explore and follow the trail of breadcrumbs without having to master
+the minutiae of an incredibly complicated set of buttons and knobs.
+The most important thing to remember is this: the development process does not
+end when code is merged. “Development” is not followed by production. The work
+of development extends through the process of deploying and validating. You are not
+finished building until you know it works.
+The interval immediately after code is born, when it first encounters the chaos of the
+real world, is one of the most important stages of development. It’s your first and best
+opportunity to spot any bugs or puzzling behaviors; after that, it will be up to your
+users. Most teams let this moment slip by, unmarked and unobserved. Don’t.
+
+
+
+
+                                            Development to Production: Tools for Crossing Over   |   27
+Practice 2: Test Your Code Before You Deploy It
+We include this step just to be explicit. Yes, we are vocal advocates of testing in
+production—but as a complement to preproduction testing, not as a replacement.
+A powerful test suite has never been more needed than it is now, in the era of
+generated code, despite its limitations. Many software engineers equate tests with
+correctness. We suggest the true purpose of tests is to prevent known classes of
+problems from recurring and give you enough confidence to begin validating in
+production. Those are narrower goals than most teams implicitly assume when they
+measure coverage.
+The most valuable tests are the ones that protect things most likely to break in
+expensive ways:
+Unit tests
+    For logic that is complex and easy to regress
+Contract tests
+   Across team, org, or third-party boundaries
+Integration tests
+     At the seams between services, where implicit contracts live
+End-to-end tests
+   Less useful in practice than in theory—expensive to write and maintain, and
+   flaky in practice (though SLOs, as the operational version of these, are typically
+   more useful and robust)
+A large suite of perfunctory tests is a maintenance burden and a time sink that
+adds little value. AI agents writing tests for code they just wrote will blithely apply
+the same assumptions to both. Do your tests validate developer intent, or merely
+implementation?
+If your test suite passes, and your tests are exemplary, the confidence you have earned
+is that the mistakes you find in production will be new mistakes.
+That’s it. That’s the bar. It’s a surprisingly high one. To reach it, you will have to
+be disciplined about capturing novel errors, odd behaviors, and other surprises in
+production and wrapping them back into your test suite.
+Production is where code grows up, where beautiful computing theory meets messy
+reality. In any contest between “how it should work” and “how it does work,” reality is
+likely to have the last word.
+That is why we expect the test landscape to broaden over the next couple of years,
+to focus less obsessively on preproduction, stubbed-out tests, and to focus more
+on property-based testing, behavioral tests, and characterization tests—all of which
+
+
+28   |   Chapter 2: How Code Crosses Over: Validating Developer Intent in Production
+are less oriented around correctness and more around stability and continuity of
+expectations.
+
+Practice 3: Instrument Your Code and Validate in Production
+This continues to be a controversial statement, so let’s get it out of the way: everyone
+tests in production. Even if you have 100% coverage of every known type of test,
+even if you test in staging—even if you spin up a perfect replica of your production
+infrastructure, capture 24 hours of production traffic, and replay it all on your
+replica—it will still be a test when you deploy to production, because every deploy is a
+unique and irreplicable intersection of events.
+Acknowledging this fact is the first step toward doing it well.
+Software engineers have historically lived in the world of code. But code is not the
+system. The system is the unique intersection of code, infrastructure, user behaviors,
+builders, operators, and data over time. The system matters most, not the code; the
+system is what users experience and what businesses rely on.
+But code is uniquely powerful, because code can be instrumented. Instrumentation is
+how your code reports back to you from production. Good instrumentation reveals
+the system from the inside out, tracing the exact same route as your users do,
+revealing the world from their perspective. Yes, that is what we’re saying: when done
+well, instrumentation is a bit like an endoscopy.
+This is why we said in Chapter 1 that instrumentation is a product decision, not an
+infrastructure decision. This is why instrumenting your own code is in a different
+category than infra logs and metrics. Logs and metrics are scanning from the outside,
+but instrumentation is running a little camera up and taking a look for yourself.
+Observability with high cardinality and rich context is having full control of the
+camera to zoom into nooks and crannies, zoom out to get the big picture, or move
+around to get a better look.
+Look for any opportunity to orient yourself in the instrumentation. Stash the line
+number of the code that generated a trace span in a span attribute. Put the line
+number of the code that generated the query in a query comment…and the query
+comment as an attribute on your log or trace. Story query fingerprints, normalized
+queries, and query comments in attributes if you can.
+The combination of OpenTelemetry (OTel) and large language models (LLMs) has
+transformed the experience of auto-instrumentation since we wrote the first edition.
+OTel has given us a wealth of reusable, well-documented patterns from open source
+software, which all LLMs are trained on. As a result, it is now genuinely easier to
+write code with instrumentation than without.
+
+
+
+
+                                            Development to Production: Tools for Crossing Over   |   29
+But instrumentation is only the beginning. What you do with it is validation. Your
+ability to validate your changes in production—or have AI agents do the validating
+for you—will be enabled (or constrained) by the context and cardinality of your data,
+and your ability to precisely select and compare the parts that matter to you.
+There is a lot of talk right now about how to move the source of developer intent
+out of the code and into some kind of specification or architecture model, from
+which the code can be generated instead of the other way around. We love this. For
+now, instrumentation in production is the living spec, the record of what the system
+has been asked to do and how it responded, not in theory but in truth. Accept no
+substitute.
+
+Practice 4: Decouple Deploys from Releases Using Feature Flags
+Deploying code and releasing code are two different acts that serve different needs;
+feature flags are how you separate the two. If you fail to separate and treat them
+differently, you will serve at least one of them poorly—possibly both. The difference is
+this:
+
+     • A deploy is the process of building, testing, and rolling out changes to your
+       production software.
+     • A release is the process of changing user experience in a meaningful way.
+
+“Meaningful” is a subjective threshold. Most orgs allow bug fixes and small changes
+to ship continuously, but large changes are usually gated and tied to some other
+company goals or events. This may be to minimize change fatigue in users or to
+create marketing momentum via press releases or company events.
+
+Feature flags for deploys
+Deploys should be happening constantly; releases are more variable. Deploys are an
+engineering problem, while releases are governed by marketing and/or product. The
+tool that allows us to decouple these governance models and promote peace and
+harmony in the land is called “feature flags.” Flags can be very fancy and expensive, or
+they can be a table in a database with two simple columns, but they are a mandatory
+component of modern software systems for many good reasons. Let’s begin with
+engineering.
+As we discussed, the safest way to change durable code is by issuing a steady stream
+of small, bounded changesets against a baseline that is known or assumed to be good.
+Big diffs are scary diffs, because we don’t actually understand the implicit contracts
+we have with our users. We also have no way of preserving and generating code from
+
+
+
+
+30    |   Chapter 2: How Code Crosses Over: Validating Developer Intent in Production
+developer intent, so the safest way to test it is to validate by hand before you forget
+what you were trying to do. Get each diff into production, stat.3
+
+                   The best practice is to have CI/CD deploy automatically after
+                   stamping out an artifact—at least to a canary or internal produc‐
+                   tion environment (something with real users). This is an ideal
+                   practice for multiple reasons: to isolate each set of changes, to
+                   make the interval as short as possible, and to make the interval
+                   predictable.
+                   If you limit each deploy to one set of changes, you can establish
+                   expectations around ownership. Notify the developer when their
+                   changes are going out, and when the deploy is complete they can
+                   validate the results.
+                   Batched-up changes are a recipe for breakage. If you’re bundling up
+                   changes from 20 different people to go out at once, it’s 20 times as
+                   likely that one of the changes will break and they will all have to get
+                   rolled back and debugged.
+                   Developers should be able to treat merges and deploys like an
+                   atomic action. If they merge, their code is on the release train and
+                   will go out in a set amount of time by default. If they don’t want it
+                   to go out, don’t merge.
+
+Feature flags for releases
+Releases, on the other hand, are usually owned by product or marketing. Sometimes
+a new feature needs to be turned on at precisely 10 a.m., timed to line up with an
+important announcement or TV spot.
+When you release something, you want it to have already been tried in production.
+You do not want to be kicking off an hour-long deploy process at 9 a.m. and nerv‐
+ously hoping it doesn’t fail and roll back for some flaky reason. You want to flip a flag
+at precisely 10:00:00 and have it immediately roll out globally.
+That is the basic separation of duties: deploys for engineering, and releases for
+product or marketing. But engineering has many, many other uses for feature flags.
+
+Advanced uses
+Using feature flags, you can land diffs and deploy them even when they are nowhere
+near ready for public consumption, which enables you to validate as you go instead of
+in one big bang. You can grant access to a set of internal users, or let customers opt
+themselves into experimental features. You can define sets of users by region, pricing
+
+
+
+3 At Honeycomb, we have a sticker that says, “Undeployed code ages like fine milk.”
+
+
+
+                                                       Development to Production: Tools for Crossing Over   |   31
+plan, language, or any other characteristic, and use those inputs to define what
+they can access. You can deploy to 1% of Brazilian users first, or a representative,
+randomized sample set from each time zone around the world, and progressively
+increase those percentages as your confidence increases.
+Best of all, you can disable access to code, features, products, or landing pages
+instantly when something goes wrong, instead of needing to land a diff, build an
+artifact, and deploy a second time, or roll the dice on some infrequently exercised
+rollback path.
+Feature flags are the foundational primitive for testing—safely—in production. Flags
+are not new. But managing flags and using them extensively can get a bit complicated
+and fiddly. They have been a heavy lift for some engineering teams due to the
+overhead of implementation and immaturity of tooling, but AI has brought the cost
+down significantly. Rolling out flags and maintaining them is a lot less labor-intensive
+these days.
+The combination of modern observability and feature flags is worth more than the
+sum of their parts. Indeed, this is where the amplification effects of the flywheel
+really kick in. Your ability to target precise and controllable slices of production with
+feature flags, combined with the ability to pick out the same precise and controlled
+slices of telemetry and compare them against the baseline or any other slice—this is
+where things start to get fun.
+But we’re not finished yet. There is one more practice that should come standard in
+every production toolbox: progressive deployments.
+
+Practice 5: Invest in Progressive Delivery,
+Canaries, Automated Rollbacks
+The flywheel closes here. You have context-rich, combinatorially powerful data that
+you can slice and dice or visualize over time as a trace, with no dead ends. You
+auto-instrument your code via OTel patterns as you generate or develop the code, and
+receive notifications in your development environment when something is off. You
+test your code before you merge, then test again after it’s been deployed, using the
+MCP to explore and look for patterns or outliers as well as validating your intent. You
+have separated deploys and releases using feature flags.
+The only thing left to do is implement some form of progressive delivery, health
+checks, and automated rollbacks.
+There are many variants of progressive delivery, but the three most common are:
+Blue-green deployments
+    Where you spin up a copy of a service and flip traffic over at the router or
+    load-balancer level, and then drain and decommission the older set
+
+
+32   |   Chapter 2: How Code Crosses Over: Validating Developer Intent in Production
+Canary deployments
+   Where you deploy to a single node or small slice of users, validate that it works,
+   and then deploy to everyone
+Rolling deployments
+     Where you replace instances one at a time or in small batches
+Each variant has trade-offs in terms of speed, cost, complication, and ability to roll
+back. For the purposes of this section, we’ll assume you use rolling deploys.
+It is absolutely the case that feature flags and rolling deploys can get complicated.
+There’s a reason companies have historically hesitated to invest in these guardrails
+until they are large enough to have a dedicated release engineering team (or teams,
+plural, or even a release department).
+But there is an equally important reason why every company at scale has this. At some
+point, you have to give up the grip of relying on individual heroics to validate code in
+production, and this is the way you do that. Fortunately, for those of us who do not
+work at the scale of Google or Meta, AI has brought the cost and complexity down
+within reach. If you plan on setting AI agents loose in production, this is the flywheel
+you need to know about.
+
+                When we were at Facebook in the early 2010s, the process of
+                rolling a change out to production took all week. Hundreds of diffs
+                were in flight at any given time.
+                A developer would land a diff, which would get built, tested, then
+                spun up in a container version of production, and tested again;
+                this process would repeat through multiple sandboxes and staging
+                environments. If the diff survived, it would go out to intern.face‐
+                book.com (the site employees used for work) and be left to bake for
+                a week.
+                When the diff was ready to roll out to production, it would be
+                shipped to 1% of a particular country (which shall remain name‐
+                less) and monitored for a while, and then the percentage got slowly
+                dialed up. Over the next day or two, other regions would receive
+                their own canaries and their percentages would get dialed up.
+                The new binary was subjected to a barrage of health and wellness
+                checks at each step. If it failed any health checks, it would automati‐
+                cally revert and bounce back to the developer who submitted it.
+
+We have heard from many people who report having disappointing experiences with
+canaries and rolling deploys. A representative story:
+    “We deployed to 1% of traffic, and then checked our dashboards. We made a special
+    dashboard that showed the canary requests compared to the rest of prod as a baseline.
+
+
+                                               Development to Production: Tools for Crossing Over   |   33
+     Everything looked fine. Latency was normal. Error rates were normal. Everything
+     looked normal. So we manually approved and rolled it out to the rest.
+     Everything looked fine…and it was fine, until we hit 70% and every request started
+     queueing up trying to hit the same row lock on the database. What good are canaries if
+     they can’t even catch most problems?”
+
+Yeah, this story comes in many guises. There are the error rates too small to pick out
+of the noise, threshold effects, canary sample biases, aggregates that bucket or smooth
+over outliers, cascading failures, thundering herds and retry rates, contention on
+resources upstream or downstream, a structurally unrepresentative sample, or prob‐
+lems that don’t percolate up to the metrics you’re watching, such as data corruption.
+You cannot predict everything that will happen in production. But there are two
+powerful techniques you can use to improve the robustness of your deploys over
+time.
+The first is the same thing you do with preproduction tests: set the bar at “make
+new mistakes.” Any time you experience a failure, wrap it back into your suite of
+automated health checks. Never fail the same way twice. It’s a higher bar than it
+sounds like.
+The other thing you can do is validate developer intent. Production is a very, very
+noisy place, and if you’re relying on your ability to spot a problem visually on a
+dashboard or relying on SLOs to catch it, or any other a priori detection method,
+you are only going to spot the really big problems—the ones that pose a threat to
+the operational health of the system at large. You won’t spot the subtle ones or the
+behavioral shifts.
+Modern observability changes this. When you have precision tooling and rich data‐
+sets, with lots of context and high cardinality, and you know what you’re looking for,
+you can find it. Even if it’s only a handful of requests against a noisy background of
+tens of millions.
+When you can compare arbitrary cohorts—users on the new build versus users on
+the old build, filtered to a specific endpoint, broken down by user tier—you can
+detect a regression in 1% of traffic. You can see that the new build is 40% slower for
+users on the enterprise plan hitting the billing endpoint. That signal is available at 1%.
+By the time it’s moving aggregate metrics, it’s already affecting a lot of people.
+This can be tedious for humans to check by hand after every deploy, many times a
+day, every time a diff lands. But AI agents? They don’t mind at all.
+The last piece of the flywheel is following each change into production, validating
+it, and doing a rollback if any of your automated checks are violated. Automated
+rollback logic and escalations are the safety net. Of course, a rollback is only trustwor‐
+thy when the signal that triggers it is trustworthy. Which brings us back to practice
+0—because flywheels, naturally, are circular.
+
+
+34   |   Chapter 2: How Code Crosses Over: Validating Developer Intent in Production
+Bonus Practices: Traffic Splitters, Capture/Replay, Strangler Figs
+Finally, here are a few special-purpose tools we’d like to put on your radar. They are
+exceptionally valuable tools to have around, as a complement to your characterization
+and property testing plans:
+Capture/replay
+   This is the gold standard for “as close to prod as you can get without being prod”
+   testing. These mostly get wheeled out for sticky database upgrades, but they have
+   other uses.
+     You might take a snapshot of the database, then capture 24 hours of production
+     query traffic, then restore the snapshot, warm it up, and replay the stored queries
+     against the snapshot under a variety of conditions (different versions, hardware,
+     concurrencies, as-fast-as-possible versus by-original-timestamps, etc.), and reset
+     the snapshot between each run.
+Traffic splitters
+    Using a traffic splitter is a common, if hacky, trick for diffing requests over the
+    wire. If you are trying to rewrite an API server, you might set up a traffic splitter
+    in front of the old API and new API, fork the request and send to both, and
+    compare and diff the responses. Then, return the old API response to the user
+    and drop the new API response on the floor. Write any differences out to a log.4
+Strangler fig
+    This term originated and was popularized by Martin Fowler. It is not a tool, but
+    a technique for rewriting and migrating legacy codebases. This involves building
+    transitional architecture around the legacy code, defining interfaces, extracting
+    parts, linking to the old code and the new, decoupling data sources logically,
+    sending writes to the new source, backfilling data, switching reads to the new
+    source, and finally deprecating the old code.
+Sounds complicated, doesn’t it? It is. But all production code will eventually become
+legacy code. Building components with good, observable seams from the start is one
+of the best gifts you can give your future self.
+
+Observability Is the Feedback Loop of Feedback Loops
+More than ever, observability plays a pivotal role in creating good software. Observ‐
+ability is the sense-making apparatus of production systems. If fast feedback loops
+are the key to developer productivity, observability is the meta feedback loop—the
+feedback loop of feedback loops.
+
+
+
+4 That works for reads. For writes, of course, you would need to put a replica of the database behind NewAPI.
+
+
+
+                                                      Observability Is the Feedback Loop of Feedback Loops   |   35
+At every step—whether you’re landing a diff, running a test suite, deploying to a
+canary, flipping a feature flag, reverting a changeset, etc.—your ability to swiftly,
+precisely identify the state of reality is what grounds you. There are many ways to
+construct and optimize these feedback loops, but the speed, precision, and accuracy
+of your observability will determine your ability to understand and act.
+Observability alone cannot solve problems of collaboration, skill depth, team velocity,
+business alignment, or creativity. But it is a critical component of most of the answers
+to many of these problems, in ways that are often underappreciated.
+
+The Work of Development Is Not Done
+Until It’s Working in Production
+One of the most overused metaphors in software development is referring to a
+project as “changing the engines out of a plane in midair.” But it gets repeated for
+a reason. That really is what it feels like any time you do a complicated rewrite or
+migration or an upgrade.
+The shift from handcrafted servers to immutable infrastructure taught us that muta‐
+bility is the enemy of understanding. The durable code artifacts we have today have
+been accruing meaning, intent, expectations, and commitments for as long as they’ve
+been in production. That’s why rewriting or replacing them is so painful—we literally
+do not know what promises our system has made. The only way to detect them is
+slowly, carefully, leading with observability first at every step.
+Practices 0 through 5 are the tools that every developer should have in their kit.
+Together, they give you the ability to validate your changes in production. The devel‐
+opment stage does not end when you merge your code; it extends through the deploy
+process and crosses over into production for as long as it takes to gain confidence
+there.
+You are not done building until you are confident it works. The only way to develop
+that confidence is to instrument your code and observe it in production.
+
+Conclusion
+These practices—feature flags, instrumentation, progressive deployments—aren’t
+new. Teams have been using them for years, with mediocre results; not because
+the practices were wrong, but because the underlying signal was weak and lacked
+precision. You can’t automate rollbacks on signals you don’t trust.
+What’s changed is the cost. AI has made auto-instrumentation easier, feature flags
+simpler to manage, and progressive delivery more automated. The implementation
+overhead that kept these practices out of reach for most teams has dropped. And the
+cost of skipping them has never been higher: the rate of change is dialing up and the
+
+36   |   Chapter 2: How Code Crosses Over: Validating Developer Intent in Production
+human review is dialing back. Guardrails aren’t optional in this world; they are how
+we make velocity safe.
+The cost of software is defined by the cost of its maintenance. Any opportunity you
+have to not maintain and update code in production, you would be wise to take. As
+long as the expectations and commitments our software makes remain implicit, this
+will be the case.
+The organizations that equip developers with these tools will also be prepared to let
+AI agents work autonomously in production, catch regressions early, and ship with
+confidence. The ones that don’t will flounder. It’s never been easier to write and ship
+code, but it’s as hard as ever to understand it.
+Production is reality. Observability is how you understand it. Everything else follows.
+In the next chapter, we move from the sociotechnical strategy of production owner‐
+ship to the technical emergence of observability itself, distilling the lessons of the past
+to define the context-rich data structures required for a dependable reality.
+
+
+
+
+                                                                            Conclusion   |   37

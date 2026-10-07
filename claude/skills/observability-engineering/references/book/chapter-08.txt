@@ -1,0 +1,491 @@
+                                                                          CHAPTER 8
+ Getting Started with Observability Analysis
+
+
+
+
+In Part II of this book, you learned about the fundamentals of instrumenting your
+code to emit telemetry. But that’s only half of the equation. Collecting the right data
+is a fundamental requirement, but the true measure of observability is what you can
+learn about your systems from that data.
+This chapter looks at how gathering the telemetry data you learned about radically
+changes how you’re able to understand the behavior of your code. Working in high-
+observability systems, the analysis techniques you’ll use differ drastically from those
+you typically use in more traditional, low-observability systems.
+We’ll start by examining the analysis techniques used in low-observability systems.
+Those approaches heavily rely on prior system familiarity and experience for inves‐
+tigators to successfully find answers. In contrast, with high-observability systems,
+investigators start with a structured process—the core analysis loop—that leads them
+to the correct source of issues. That difference results in both leveling the playing
+field when identifying issues and quickly accelerating the fixing of them.
+The core analysis loop can be accomplished manually, but it’s best when automated.
+In looking at how to automate analysis, we’ll consider the roles that both humans and
+computers play in creating effective debugging workflows. We’ll provide guidance
+when using AI assistants to automate telemetry data analysis. By demonstrating these
+analysis techniques, you’ll understand why systems with a high degree of observabil‐
+ity let you identify issues that are impossible to detect with low-observability tooling.
+
+
+
+
+                                                                                      135
+Debugging from Known Conditions
+Prior to modern observability tooling, system and application debugging meant that
+you started from what you already knew. What does this particular threshold-based
+alert tell me I should be investigating? What does “normal” look like on this dash‐
+board I’m seeing, and how does that compare to what is currently displayed?
+Think back to when you first joined a new team and knew little about the system you
+were investigating. It’s likely you first needed to accumulate a fair amount of system
+knowledge and understanding of what “normal” meant before you could jump into
+an incident and lead the investigation.
+When you’re new, it can seem downright magical when the most senior members of
+an engineering team approach their troubleshooting workflows. Somehow, they just
+know which questions are the right ones to ask. They instinctively know the right
+places to look. But that intuition isn’t magic; it’s more like accumulated scar tissue.
+With repeated exposure to previous system failures, they’ve memorized the various
+failure modes, the weird edge cases, and the dashboards or graphs that usually point
+at the right places to look.
+Engineering team managers often understand that phenomenon quite well, because
+they’re usually the ones responsible for somehow bottling that “magic.” They urge
+their senior engineers to write detailed runbooks in an attempt to identify and solve
+every possible “root cause” they might encounter out in the wild. A scramble occurs
+to document the escalating collection of dashboards the team has accumulated and
+what each of them means.
+Some documentation is essential: ownership, escalation, dependencies, and a few
+solid entry-point queries. But the time spent creating those runbooks and document‐
+ing dashboards is largely wasted in vain, because modern systems rarely fail in pre‐
+cisely the same way twice. And when they do, it’s increasingly common to configure
+an automated remediation that can correct that failure until someone can investigate
+it properly.
+Anyone who has ever written or used a runbook can tell you a story about just how
+woefully inadequate they are. Perhaps they work to temporarily address technical
+debt: there’s one recurring issue, and the runbook tells other engineers how to
+mitigate the problem until the upcoming sprint when it can finally be resolved.
+More often—especially with distributed systems—a long, thin tail of problems that
+almost never happen are responsible for cascading failures in production. Or, five
+seemingly impossible conditions will align just right to create a large-scale service
+failure in ways that might happen only once every few years.
+
+
+
+
+136   |   Chapter 8: Getting Started with Observability Analysis
+                            On the Topic of Runbooks
+ The assertion that the time spent creating runbooks is largely wasted may seem a bit
+ harsh at first. To be clear, some documentation you’ll find in runbooks is essential.
+ For example, for every service, you should capture basic information, including
+ which team owns and maintains the service, how to reach the on-call engineer,
+ escalation points, other services that this service depends on (and vice versa), and
+ links to good queries or dashboards that serve as entry points to understanding its
+ performance.
+ However, maintaining a living document that attempts to contain all possible system
+ errors and resolutions is futile and dangerous. That type of documentation can
+ quickly go stale, and wrong documentation is perhaps more dangerous than no docu‐
+ mentation. In fast-changing systems, instrumentation itself is often the best possible
+ documentation, because it combines intention (what are the dimensions that an
+ engineer named and decided to collect?) with the real-time, up-to-date information
+ of live status in production.
+
+
+Yet engineers typically embrace these dynamics as “just the way that troubleshooting
+is done.” After all, that’s how debugging has worked for decades. But is that the best
+we can do?
+Must we first intimately understand all parts of the system—whether through direct
+exposure and experience, documentation, or a runbook? Then we look at our dash‐
+boards and then we…intuit the answer? Or maybe we’re supposed to just make a
+guess at the root cause, and then start looking through our dashboards for evidence
+to confirm our guess?
+Even after instrumenting your applications to emit observability data, you might still
+be debugging from known conditions. For example, you could take that stream of
+arbitrarily wide events and pipe it to tail -f and grep it for known strings, just
+as troubleshooting is done today with unstructured logs. Or you could take query
+results and stream them to a series of infinite dashboards, as troubleshooting is done
+today with metrics. You see a spike on one dashboard, and then you start flipping
+through dozens of other dashboards, visually pattern-matching for other similar
+shapes.
+Collecting better telemetry data isn’t what enables you to debug unknown conditions.
+How you analyze that data is what makes all the difference.
+At Honeycomb, it took us quite some time to figure this out, even after we’d built our
+own observability tooling. Our natural inclination as engineers was to jump straight
+to what we know about our systems. In Honeycomb’s early days, before we learned
+to stop debugging from known conditions, what better observability helped us do
+
+
+
+                                                       Debugging from Known Conditions   |   137
+was just jump to the right high-cardinality questions to ask about the hundreds of
+dimensions captured in our events.
+If we’d just shipped a new frontend feature and were worried about performance,
+we’d ask, “How much did it change our CSS and JavaScript asset sizes?” Having just
+written that instrumentation, we would know to figure that out by calculating maxi‐
+mum css_asset_size and js_asset_size, and then breaking down performance by
+build_id. If we were worried about a new customer who was starting to use our
+services, we’d ask, “Are their queries fast?” Then we would just know to filter by
+team_id and calculate the P95 response time.
+But that’s still debugging from known conditions. What happens when you don’t
+know what’s wrong or where to start looking? What if you don’t have the faintest
+idea of what could be happening? The key shift isn’t just jumping further along in the
+process; it’s how you investigate when you don’t yet know the story.
+When you don’t yet know the story, then instead you must debug from first
+principles.
+
+Debugging from First Principles
+Debugging from first principles is the practice of treating your understanding as pro‐
+visional until you can verify it with evidence. A first principle is a basic assumption
+about a system that was not deduced from another assumption. In philosophy, a first
+principle is defined as the first basis from which a thing is known. Debugging from
+first principles means using a methodology to understand a system scientifically.
+Proper science requires that you do not assume anything. You must start by question‐
+ing what has been proven and what you are absolutely sure is true. Then, based on
+those principles: you form hypotheses, test them against your telemetry, and repeat
+until the explanation fits the observed behavior.
+One of the most practical capabilities unlocked by modern observability is that
+the investigative process becomes both methodical and teachable. While intuitively
+jumping straight to the correct answer is wonderful, it becomes increasingly imprac‐
+tical as complexity skyrockets (and it definitely doesn’t scale).
+Instead of requiring everyone to become a system wizard for your team to achieve
+velocity, you can rely on a repeatable loop that guides investigators toward the condi‐
+tions that actually explain the problem. This capability becomes even more essential
+in modern systems, where the sources of issues are often multicausal: what happens
+when you’re wondering what went wrong, and the answer is “13 different things”?
+That methodical and teachable loop is the foundation of analysis in high-
+observability systems.
+
+
+
+138   |   Chapter 8: Getting Started with Observability Analysis
+Using the Core Analysis Loop
+The core analysis loop is hypothesis-driven debugging: propose, test, refine. Form
+hypotheses, explore the data to confirm or deny them, and iterate based on what you
+learn.
+That approach is not only more scientific than relying on intuition and pattern-
+matching, but it also democratizes the act of debugging. Using the core analysis loop
+is more rigorous than intuition-based troubleshooting, as it tends to reward curiosity
+and careful observation over pure system familiarity.
+Success when debugging no longer skews mostly toward the most experienced engi‐
+neers. Instead, anyone who is most curious or most diligent about observing their
+code in production can become the best investigator. That means even someone with
+very little knowledge of the system should be able to jump in and debug any given
+issue.
+Let’s look at how that occurs.
+First, debugging from first principles typically begins when something signals that
+system conditions aren’t normal; a customer report, a shift in performance, or an
+alert. (For effective alerting, see Chapter 11.)
+Regardless of the notification source, at this point you know that something is wrong
+(e.g., slow), but you don’t know exactly what. Begin the process: query system teleme‐
+try to form an initial hypothesis, validate or invalidate that hypothesis with data, and
+iterate until you systematically arrive at an answer. Figure 8-1 shows the four basic
+steps of the core analysis loop.
+
+
+
+
+Figure 8-1. The core analysis loop.
+
+
+
+                                                         Debugging from First Principles   |   139
+The core analysis loop works like this:
+
+ 1. Start with the overall view of what prompted your investigation: what did the
+    customer, anomaly, or alert tell you?
+ 2. Verify that what you know so far is true: is a notable change in performance
+    happening somewhere in this system? Data visualizations can help you identify
+    changes of behavior as a change in a curve somewhere in the graph.
+ 3. Within that change of the curve, search for common dimensions that exist there
+    but that aren’t present in the baseline performance area (outside of the curve).
+    Approaches to accomplish that might include:
+      a. Examining sample rows from the area that shows the change: are there any
+         outliers in the columns that might give you a clue?
+      b. Slicing those rows across various dimensions looking for patterns: do any of
+         those views highlight distinct behavior across one or more dimensions? Try an
+         experimental group by on commonly useful fields, like status_code.
+      c. Filtering for particular dimensions or values within those rows to better
+         expose potential outliers.
+ 4. Do you now know enough about what might be occurring? If so, you’re done!
+    If not, filter your view to better isolate this area of performance as your next
+    starting point. Then return to step 3.
+
+This loop lets you move forward without needing a preexisting mental model of
+every subsystem. You can use it as a brute-force method to cycle through all available
+dimensions until you identify which ones explain or correlate with the outlier within
+the graph (but remember not to confuse correlation with causality). This method
+holds true, regardless of how familiar you already are (or aren’t) with the system in
+question.
+Of course, that brute-force method could take an inordinate amount of time and
+make such an approach impractical to leave in the hands of human operators alone.
+An observability tool should automate as much of that brute-force analysis for you as
+possible.
+
+
+
+
+140   |   Chapter 8: Getting Started with Observability Analysis
+Automating the Brute-Force Portion of the Core Analysis Loop
+The core analysis loop is a method to objectively find a signal that matters within a
+sea of otherwise-normal system noise. The brute-force work in that loop is churning
+through all of the noisy data to identify a signal that’s different. Computers are great
+at that.
+Rather than manually searching across rows and columns to coax out patterns, auto‐
+mation can retrieve the values of all dimensions, both inside the isolated area (the
+anomaly) and outside the area (the system baseline), diff them, and rank which fields
+and values are most strongly associated with the anomalous behavior. Automating
+that loop very quickly surfaces likely causal factors and gives an investigator the next
+best place to look.
+For example, you might isolate a spike in request latency and, via an automated core
+analysis loop, get back a sorted list of dimensions ranked by how often they appear
+within that area. You might see the following:
+
+  • request.endpoint with value batch is in 100% of requests in the isolated area,
+    but in only 20% of the baseline area.
+  • handler_route with value /1/markers/ is in 100% of requests in the isolated
+    area, but only 10% of the baseline area.
+  • request.header.user_agent is populated in 97% of requests in the isolated area,
+    but 100% of the baseline area.
+
+At a glance, that highlights what’s different about the particular requests you care
+about—whether that be one deviation or dozens. As a concrete example, we’ll look at
+the Honeycomb BubbleUp feature to show an automated core analysis loop.
+With Honeycomb, you start by visualizing a heatmap to isolate a particular area
+of performance you care about. Honeycomb automates the core analysis loop with
+BubbleUp: you point and click at the spike or anomalous shape in the graph that
+concerns you, and draw a box around it. Then, BubbleUp computes the values of all
+dimensions both inside the box (the anomaly you care about and want to explain)
+and outside the box (the baseline), and it compares the two and sorts the resulting
+view by percentage of differences, as shown in Figure 8-2.
+
+
+
+
+                                                         Debugging from First Principles   |   141
+Figure 8-2. A Honeycomb heatmap of event performance during a real incident. Bub‐
+bleUp surfaces results for 63 interesting dimensions and ranks the results by largest
+percentage difference.
+
+In this example, we’re looking at an application with high-dimensionality instrumen‐
+tation that BubbleUp can compute and compare. The results of the computation are
+shown in histograms using two primary colors: blue for baseline dimensions and
+orange for dimensions in the selected anomaly area (blue appears as dark gray in
+the print image, and orange as lighter gray). In the top-left corner (the top results in
+the sort operation), we see a field named global.availability_zone with a value
+of us-east-1a showing up in only 17% of baseline events, but in 98% of anomalous
+events in the selected area (Figure 8-3).
+
+
+
+
+142   | Chapter 8: Getting Started with Observability Analysis
+Figure 8-3. In this close-up of the results from Figure 8-2, the orange bar (light gray
+in the print image) shows that global.availability_zone appears as us-east-1a in
+98% of events in the selected area, and the blue bar (dark gray) shows that’s the case in
+only 17% of baseline events.
+
+This information has been tremendously helpful. We now know the conditions that
+appear to be triggering slow performance: a particular type of instance in one particu‐
+lar AZ is much more prone to very slow performance than other infrastructure we
+care about. In that situation, the glaring difference pointed to what turned out to be
+an underlying network issue with our cloud provider’s entire AZ.
+Not all issues are as immediately obvious as this underlying infrastructure issue.
+Often, you may need to look at other surfaced clues to triage code-related issues.
+The core analysis loop remains the same, and you may need to slice and dice across
+dimensions until one clear signal emerges, similar to the preceding example.
+In this case, the example is drawn from an actual incident. We contacted our cloud
+provider and were also able to independently verify the unreported availability issue
+when our customers also reported similar issues in the same zone. If this had instead
+been a code-related issue, we might decide to reach out to those users, or figure out
+the path they followed through the user interface (UI) to see those errors, and fix the
+interface or the underlying system.
+This is why arbitrarily wide, structured events matter: you need enough context
+to slice, dice, compare, and explain. Metrics typically cannot provide the necessary
+dimensionality. Logs can sometimes be correlated into event-like structures—pre‐
+suming you have correctly appended all the request IDs, trace IDs, and other headers,
+and then done a great deal of postprocessing to reconstruct them into events. But that
+still requires the ability to aggregate those logs at read time and perform complex,
+custom querying against the aggregation.
+
+
+                                                           Debugging from First Principles   |   143
+In other words, even the manual version of the core analysis loop is unattainable
+without the basic building block of arbitrarily wide, structured events. And if it can’t
+be done manually within your observability tooling to begin with, then it can’t be
+automated.
+The core analysis loop is a useful exercise to practice manually, to better understand
+exactly how the interesting causal dimensions get surfaced. However, automation
+is much more practical. Automation doesn’t replace investigation. It removes the
+repetitive, time-consuming comparison work so humans can focus on interpretation
+and decision-making.
+Because debugging from first principles does not require prior familiarity with the
+system, automation of the core analysis loop can be done simply and methodically,
+without the need to seed “intelligence” about the application being debugged.
+That begs a question around how much intelligence should be applied to this number
+crunching. Is artificial intelligence and machine learning the inevitable solution to all
+our debugging problems?
+
+Automating Analysis with Generative AI
+In the first edition of this book, we wrote about the misleading promise of AIOps
+(artificial intelligence for operations)—a term coined by Gartner in 2017 to describe a
+functional intersection with observability that used machine learning to reduce alert
+noise and improve anomaly detection. At the time, we wrote that AI could only help
+if clearly discernible patterns existed and if it could be trained to use ever-changing
+baselines to model its predictions. Back then, that was a training pattern that had yet
+to emerge in the AI world.
+We summed up the challenge of using AI as a tension between humans and
+machines, suggesting that we let computers do what they do best (churn through
+massive datasets to identify interesting patterns) and fuse that with what humans do
+best (add cognitive context to the interesting patterns that sift signals from noise). But
+now, in the era of generative AI, computers might arguably be able to do both. How
+does that impact today’s considerations for automating analysis of observability data?
+The pace of forward progress in the generative AI space is breathtaking, which
+presents a challenge for this book: can we write guidance that might not be obviated
+by the time you read this paragraph? With that in mind, instead we’ll focus on
+process by discussing modes of analysis and how they intersect with the humans ulti‐
+mately accountable for decisions and system reliability. We’ll also look at how you can
+best prepare yourself for integrating agentic AI into your observability engineering
+practice.
+
+
+
+
+144   |   Chapter 8: Getting Started with Observability Analysis
+The telos of observability is ultimately understanding and, through that understand‐
+ing, to improve. Agentic AI systems rely solely on humans for the sense-making
+part of an investigatory loop—the “what” in “what are you trying to understand”
+mentioned earlier. Thus, you should begin your consideration of agentic tools by
+understanding where the AI sits in respect to the human: are the tools a copilot, a
+commander, or a caretaker? Let’s explore these three personas so that you can identify
+them.
+
+Agentic AI Personas
+The “copilot” sits alongside the human as they work to analyze an issue, investigate a
+performance regression, or generate further hypotheses. The copilot may have access
+to tools in order to independently execute tasks, or may use only what is provided
+by the human operator. Ultimately, the operator is using the agent as an extension
+of their knowledge and expertise. In return, the human must evaluate the output of
+the agent and steer it toward the correct place to look for answers and hypotheses. A
+practical example of this model is using ChatGPT or Claude Desktop to analyze stack
+traces, pictures of distributed trace data, and code in order to generate new queries or
+reason through function execution.
+The “commander” is a step toward autonomy. In this mode, the human generates
+tasks and goals for an agent, which then goes to implement or run them with less
+oversight. A commander has access to tools, which enable the agent to write and
+run code, access remote data sources, surf the web, or almost anything else. Goals
+can be more fuzzily defined. For example, “Why is my service slow?” is a valid
+question. The agent will use its abilities to both interpret the question and determine
+an answer. Further, it can also offer solutions. An example of this type of agent is
+Cursor or Claude Code. Humans may choose to provide direct step-by-step oversight
+with these agents, or allow them to run in the background working on tasks, but they
+provide a level of separation between the work being performed and the operator.
+Commensurately, that separation also offers a weaker transference of understanding
+to the operator.
+Lastly, the “caretaker” becomes not only autonomous, but also unmoored from direct
+human supervision. Rather than responding to queries or tasks, caretakers are passive
+observers with strictly defined goals. For example, these agents may be initialized
+with access to runbooks or other knowledge artifacts and placed in the path of alerts
+or deployments with a set of rules: “After a deploy, check each endpoint with a new
+feature flag, look up the ticket for that flag to understand why it exists, and see if
+the goal was attained” or “When an alert fires, go collect all relevant information
+and provide three hypotheses about what’s happening, and then post them in the
+appropriate incident channel.”
+
+
+
+
+                                                   Automating Analysis with Generative AI   |   145
+These agents are not science fiction: state-of-the-art generative AI models and
+machine learning technology puts them within reach, and interesting work is being
+done in this area.1 Crucially, caretaker agents require a significant amount of knowl‐
+edge transfer from humans to the agent as they are created or configured. The agent
+must be taught about the idiosyncrasies of your system.
+
+Using Agentic AI for Observability in Practice
+Considering these types of agents points us to a fundamental question: where does
+the context live? Is it in the mind of the human, or has it been properly transferred
+from human to agent? These are somewhat nuanced situations that will change as the
+technology evolves. However, let’s consider what is true, regardless, in each of these
+cases.
+Telemetry data quality is paramount. While a human may be able to cope with minor
+differences in attribute patterns or field naming across different services, those same
+subtle changes can have much larger implications to the quality of AI analysis. Does
+the primary actor have enough context to cope? One thing to note in these personas
+is that as the autonomy of AI increases, so does the amount of potential error—and
+the degree of error compounds.
+If you’re working with a copilot, you can just start a new session when the AI
+loses the plot. A commander may take erroneous actions, but you’ll have some
+opportunities for more immediate oversight. A caretaker that collates incident data
+independently has many more opportunities for small interpretation errors to cas‐
+cade into further service impacts, wasted time, loss of trust in tools, and even data
+loss or corruption.
+Humans still matter—a lot. Irrespective of mode, goal, or tool, humans still own the
+outcomes. You will be responsible for the context the agent has, the goals that it seeks
+to achieve, and the outcomes of its behaviors.
+As you experiment with agentic AI for observability, remember to embrace failure
+and uncertainty. A common critique of AI agents is that they’re wrong. We would add
+some color to that critique. Often, it is less of a problem that the agent is wrong, and
+it’s more that the agent is optimized for confidence.
+A casual observer of this space may be under the impression that “hallucinations” are
+a major issue in AI agents. There’s nuance to that take, and state-of-the-art models
+have better mitigated hallucinations. Far more likely is that the agent makes a rational
+
+
+
+
+1 Some interesting recent papers in this area include “Recommending Root-Cause and Mitigation Steps
+  for Cloud Incidents using Large Language Models”, “Building AI Agents for Autonomous Clouds”, and
+  “X-lifecycle Learning for Cloud Incident Management using LLMs”.
+
+
+146   |   Chapter 8: Getting Started with Observability Analysis
+decision or inference based on the knowledge it has, and that response is perceived as
+irrational to its human observers based on their implicit knowledge.
+That means it may take an agent more attempts to come to the same conclusion
+about an issue than it takes for a human; the agent must freshly reconstruct the sys‐
+tem state each time. It might run multiple “incorrect” queries on its way to building
+a correct one. Here, your role as an operator is to ensure that the agent has the best
+information available so that it may steer itself in the right direction.
+Let’s illustrate that concept in practice. An AI agent observed a telemetry field named
+slow_request that was always true when requests were over 300 milliseconds, and
+otherwise false. There was no other metadata available to this agent about what this
+field meant, and it could not determine any other immediately obvious cause.
+The agent’s conclusion is that the requests were slow because of the slow_request
+attribute; it posits that perhaps this attribute indicates a load test, or that it is possibly
+used as a feature flag. In reality, this attribute simply indicates that the request took
+over 300 milliseconds. After adding a description explaining why this field exists, and
+why it would be true, the agent then omits it from its analysis.
+The more autonomous that agentic AI becomes, the more critical it becomes for a
+need to provide better context about the environment. AI agents have specialized
+needs, but those needs are very human-like. AI needs accurate, succinct, and timely
+documentation about the systems it’s observing in order to reach better conclu‐
+sions. Generative AI agents need high-quality telemetry data—not just normalized
+attributes and names, but semantic consistency, human-readable descriptions, and an
+ability to quickly search and enumerate the telemetry space. They need the freedom
+to investigate and iterate rapidly on hypotheses, but they also need guardrails and
+checks against potentially destructive actions.
+In short, many of the things that you can do to improve system analysis with agentic
+AI also improves the ability of humans to perform the core analysis loop. (For a
+deeper dive into this topic, see Chapter 10.)
+
+Conclusion
+Achieving a high degree of observability requires more than collecting the right
+telemetry. It requires analysis practices that work under any degree of uncertainty.
+The core analysis loop provides a repeatable, first-principles method for investigation
+that works well regardless of the complexity of your system. It works incredibly well
+for effective fault localization, but it can become very time-consuming for humans as
+data volume grows.
+Automation makes it practical to apply the core analysis loop in even the most com‐
+plex systems. Whether automated programmatically or by pairing with AI agents, the
+
+
+                                                                             Conclusion   |   147
+workflow can be greatly accelerated. But that only further emphasizes the premium
+for collecting high-quality telemetry quality and capturing an abundance of system
+context. When you build your telemetry so that agents can reason about it safely and
+correctly, you also make it easier for humans to do the same.
+Now that we’ve covered the basics for effectively analyzing observability data, we’ll
+shift our focus to look at how that gets applied. Sometimes it’s you or an agent as the
+one proactively looking for anomalies in the system. Other times, those anomalies in
+the system are the ones that come looking for you.
+
+
+
+
+148   | Chapter 8: Getting Started with Observability Analysis

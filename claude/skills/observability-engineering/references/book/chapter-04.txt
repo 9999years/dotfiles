@@ -1,0 +1,493 @@
+                                                                        CHAPTER 4
+           Getting Started with Instrumentation
+
+
+
+
+Now that we’re on the same page about overarching theories and the origins of
+observability as a practice, we’ll get into concrete details about technical fundamen‐
+tals and implementations. We will begin by examining the fundamentals of instru‐
+mentation.
+There’s an old business adage that roughly says, “you can’t improve what you don’t
+measure.” That idea rings true for the systems you build with a high degree of observ‐
+ability. Because there are so many different functional aspects of modern application
+systems, in practice, we must collect an increasingly vast amount of data in order to
+fully understand them.
+As you’ll see in this section of the book, generating and collecting telemetry data
+is the foundational cornerstone of an observable system. Given a sufficient volume
+of telemetry data to work from, it’s possible to understand any given state of your
+system—no matter how novel or bizarre. However, before we start talking about data
+analysis, we first need to dig into what a “sufficient volume of telemetry data” means.
+Let’s dive into what it takes to properly instrument your systems.
+This chapter provides an introduction to instrumentation, and it offers considera‐
+tions when generating telemetry and regarding where that telemetry is sent. As a soft‐
+ware engineer responsible for ensuring application reliability, these considerations
+must be essential to your workflows.
+We also briefly introduce concepts that all software engineers must know
+when approaching observability: the OpenTelemetry project (an open source and
+vendor-neutral instrumentation framework), deployment strategies, and practical
+considerations like customization, costs, and sampling. This chapter focuses on
+introductory-level information, but we will build much further upon these concepts
+throughout the course of this book.
+
+
+                                                                                     51
+Instrumentation Basics
+What is instrumentation in software engineering? It’s the practice of adding code to
+your applications so that they emit data about what’s happening as your software
+runs. You use that data to understand its behavior, measure performance, or diagnose
+runtime errors.
+To use an analogy, modern observable systems are akin to flying home at night,
+looking out the window, and gazing down on bustling city lights. Thousands of
+lights will flicker on and off, traffic will flow across intricate pathways, and complex
+patterns of activity can be beautiful to observe but difficult to understand without the
+right vantage point.
+Just as city planners need traffic sensors, population monitors, and utility meters to
+understand how their metropolis functions, software engineers need instrumentation
+to understand how their applications behave in production. One of the authors of this
+book came up with that comparison after a few days of intensive planning work for
+this book. Clearly, that work took its toll, but we think the analogy stands.
+You can think of instrumentation as installing sensors and meters throughout your
+application’s sprawling metropolis to report on everything from how long database
+queries take, to which features users are actually using, to what happens when errors
+occur. That telemetry data becomes the foundation for observability, or your ability
+to understand and explain any state your system can get into, no matter how novel
+or complex. The more comprehensive the instrumentation, the more granular your
+understanding becomes.
+Without proper instrumentation, debugging production issues becomes an exercise
+in detective work with insufficient evidence. You might know that users are experi‐
+encing slowness, but you won’t know which specific operations are slow, for which
+users, or under what conditions. If you don’t start with proper instrumentation,
+you’ll find yourself adding log statements after problems occur, waiting for issues to
+reproduce, and making educated guesses full of logical leaps in an attempt to arrive at
+elusive root causes with even more elusive contributing factors.
+With good instrumentation, you can approach problems systematically, following the
+data to understand exactly what happened and why. This part of the book will teach
+you how to implement good instrumentation.
+
+The Vocabulary of Telemetry: Logs, Metrics, and Traces
+Before diving into instrumentation strategies, it’s helpful to understand the types of
+telemetry data your applications can emit. Take this with a grain of salt for now
+(we will explain more about telemetry datatypes in the next chapter), but most
+
+
+
+52   |   Chapter 4: Getting Started with Instrumentation
+readers who are new to modern observable systems will think of these as what is also
+sometimes referred to as “the three pillars” of observability: logs, metrics, and traces.
+While this book doesn’t promote the idea of “pillars,” we want to emphasize the
+importance of these datatypes for telemetry for observability. Each type serves a
+particular purpose, and it’s important to know which type of data to reach for when
+instrumenting an application.
+Historically, these datatypes have served different purposes and answered different
+questions about your system’s behavior. For the purposes of this chapter, we’ll unpack
+the historical uses and connotations of these datatypes, and how to collect them
+(before breaking them down further).
+Logs represent discrete events that happened in your application at specific points in
+time. The content of your logs might capture when a user logged in, when a payment
+was processed, or when an error occurred. Traditional logs were often unstructured
+text designed for human reading, but modern logging practices emphasize structured
+logs with consistent key-value pairs that machines can easily parse and analyze. A
+well-structured log entry might look like:
+    {
+    “timestamp: “2024”,
+    “user_id”: “630630”,
+    “action: checkout_completed”,
+    [...]
+    }
+Metrics represent numerical measurements of your system over a period of time.1
+They answer questions like “How many requests per second is my service handling?”
+or “What’s the 95th percentile response time for my API?” Metrics are typically cap‐
+tured as numeric values that aggregate or summarize data. Instead of storing infor‐
+mation about every individual request, you might store a counter that increments
+with each request, or a histogram that tracks the distribution of response times. That
+aggregation makes metrics efficient to store and query, but it also means you lose the
+ability to drill down into any context behind the sum.
+Distributed traces (also known more simply as “traces”) represent the journey of a
+single transaction as it flows through a system. When a user places an order on your
+site, that request might trigger calls to several dependent services to update inventory,
+calculate shipping, process payment, and email a receipt. A trace captures all of these
+operations as a connected sequence, showing you the timeline of what happened and
+where time was spent. Each step in this sequence is called a span, and spans can
+contain their own detailed information about what occurred during that operation.
+
+
+
+1 For more detail on the foundational datatypes of metrics, please see the OpenTelemetry Metrics Specification.
+
+
+
+                                                     The Vocabulary of Telemetry: Logs, Metrics, and Traces   |   53
+As noted in Chapter 1, these datatypes have been historically managed and stored
+separately, even though they complement each other. Each telemetry type has a use
+case for which it is best suited. Logs give you detailed context about individual events.
+Metrics give you aggregate views of system health and performance trends. Traces
+give you end-to-end visibility into complex operations that span multiple services.
+In the next chapter, we’ll look at ways to optimize for and unify these use cases
+to achieve a high degree of observability. For now, let’s focus on modern instru‐
+mentation approaches that make it easy to emit rich telemetry that serves multiple
+purposes.
+
+OpenTelemetry: The Universal Language for Observability
+Historically, observability vendors required the use of their own proprietary agents
+and libraries to collect telemetry from your applications. If you wanted to try a
+different vendor or send data to multiple backends, you’d need to rethink your entire
+instrumentation strategy and, often, face a scenario where you’d need to rip and
+replace existing agents and code. That created a frustrating lock-in scenario, where
+your initial choice of observability tool dictated how you could instrument your code.
+OpenTelemetry (or OTel) emerged as the solution to that problem. It’s an open source
+project that provides vendor-neutral APIs, libraries, and tools for collecting telemetry
+from your applications. Think of OTel as a universal translator that lets your applica‐
+tions speak a common language that any observability backend can understand.
+The power of OTel comes via its separation of concerns. Your application code
+uses OpenTelemetry APIs to emit telemetry, but the actual destination for that data
+is configurable. You can send the same instrumentation data to multiple backends
+simultaneously, making it easy to evaluate different observability tools or maintain
+redundancy. You can even change your backend completely without touching your
+application code by just updating the destination configuration. As a result, library
+authors can also safely call the API knowing it will default to performing no opera‐
+tions and thus have no overhead unless configured.
+Out of the box, OTel supports automatic instrumentation for popular frameworks
+and libraries. That means you can get basic telemetry flowing with minimal code
+changes. For a typical web application, you might only need to add a few lines of
+configuration in order to automatically capture HTTP requests, database queries, and
+calls to external services. Automatic instrumentation gives you immediate visibility
+into common actions to understand your application’s behavior without extensive
+manual instrumentation.
+But the real strength of OTel becomes apparent when you start adding custom instru‐
+mentation specific to your business logic. While automatic instrumentation captures
+the technical plumbing of your application, custom instrumentation captures the
+
+
+54   |   Chapter 4: Getting Started with Instrumentation
+domain-specific operations that matter to your business. For example, custom instru‐
+mentation might be used to capture user registration flows, order processing pipe‐
+lines, or how content recommendation algorithms perform. The simple reality of
+business applications is that they have many unique aspects that automatic instru‐
+mentation simply cannot and will not understand.
+
+Automatic Instrumentation Versus
+Custom Instrumentation
+Inevitably, most engineers will ask whether they should use automatic or custom
+instrumentation. The answer is to use both. The distinction between automatic and
+custom instrumentation represents different approaches to capturing telemetry, each
+with its own strengths and appropriate use cases.
+Automatic instrumentation works by intercepting common operations in your appli‐
+cation framework and libraries. When you make an HTTP request, query a database,
+or call an external service, automatic instrumentation can capture details about
+these operations and how they relate to each other without any explicit code on
+your part. Modern automatic instrumentation is remarkably sophisticated, capable
+of understanding complex frameworks and extracting meaningful telemetry with
+minimal configuration.
+The primary advantage of automatic instrumentation is in its breadth of coverage
+with minimal effort. You can instrument dozens of common operations across your
+entire application by adding just a few lines of configuration. That minimal effort will
+give you immediate visibility into the basic technical health of your application with
+data like response times, error rates, dependencies, and resource usage.
+However, automatic instrumentation can only capture what it understands about
+technical operations across the lowest common denominator for all applications.
+It can’t understand your business logic, domain-specific workflows, or application-
+specific error conditions. For example, automatic instrumentation might tell you that
+a database query took 200 milliseconds, but it won’t tell you that this query was part
+of a user registration flow that failed because the email address was already in use.
+Custom instrumentation fills that gap by capturing telemetry that is specific to your
+application’s business logic. That’s what enables you to understand the state of things
+like user actions, business processes, and domain-specific operations. For example,
+custom instrumentation might capture when users complete specific workflows,
+when background jobs process certain types of data, or when business rules trigger
+specific decisions.
+The most effective observability strategies combine both automatic and custom
+instrumentation. Automatic instrumentation provides comprehensive coverage of
+
+
+
+                                      Automatic Instrumentation Versus Custom Instrumentation   |   55
+the technical plumbing and the skeleton of how everything fits together. Custom
+instrumentation attaches insight into business operations and user experience, adding
+muscles to that skeleton.
+Teams may initially be shocked when they turn on automatic instrumentation in
+production—the level of detail can be overwhelming and often counterproductive.
+Customizing your instrumentation isn’t just about adding more; it’s also about know‐
+ing what to take away. Developing an intuition for what’s valuable in different envi‐
+ronments can pay dividends. For example, recording every database call and Redis
+query may be useful locally, but in production those small spans can add up to a real
+performance impact.
+As your system matures, you’ll likely find that custom instrumentation becomes
+increasingly valuable for understanding the aspects of your application that matter
+most to your business. In Chapter 7, we’ll cover this entire topic in more detail,
+along with specific guidance on instrumenting for both common and less-common
+application architectures.
+
+Ownership of Instrumentation
+One of the most important decisions your team will make in the course of an
+observability initiative is who owns the instrumentation strategy and how it evolves
+over time. In traditional monitoring, instrumentation was often the responsibility of
+a dedicated operations team that added monitoring after applications were deployed.
+That reactive approach often led to gaps in coverage and instrumentation that didn’t
+align well with the actual structure and business logic of applications.
+Modern observability requires a shift in ownership. The engineers who write the
+application code are best positioned to understand what instrumentation would be
+most valuable. They know which operations are critical to the business, which code
+paths are most complex or error-prone, and what context would be especially helpful
+during debugging. When developers own instrumentation, it becomes part of the
+design process rather than an afterthought.
+However, that shift in ownership doesn’t mean every software engineer needs to
+become an expert in observability tooling. Instead, successful organizations establish
+patterns and conventions that make it easy for developers to add good instrumenta‐
+tion without deep expertise. Those conventions might include techniques like provid‐
+ing standard libraries to more easily propagate common instrumentation patterns,
+code review guidelines that ensure new features include appropriate telemetry, or
+documentation that explains when and how to add custom instrumentation (for a
+more in-depth look, see Part VI on observability governance).
+Your instrumentation strategy should evolve alongside your application. As your
+system grows more complex, as you learn from production incidents, and as your
+
+
+56   |   Chapter 4: Getting Started with Instrumentation
+understanding of user behavior deepens, so too will your instrumentation needs
+evolve. In other words, instrumentation isn’t a one-time setup task. As a software
+engineer, you should build the evolution of instrumentation into your development
+process to ensure that your observability capabilities keep pace with your system’s
+complexity.
+In time, you will establish instrumentation as a primary deliverable in your develop‐
+ment process, just as you have with tests (see Chapter 9, on the parallels between
+test-driven development and observability-driven development). When planning
+new features, your team should explicitly discuss what telemetry would help you
+best understand how those features behave in production. During code reviews, your
+team should evaluate whether the proposed changes include a sufficient level of
+instrumentation. When conducting post-incident reviews, your team should identify
+gaps in telemetry that made the investigation more difficult than necessary.
+If it hasn’t already, instrumentation will become an integral part of your ongoing
+software development workflows.
+
+Building a Custom Instrumentation Strategy
+Developing an effective custom instrumentation strategy requires thinking systemat‐
+ically about what aspects of your application behavior would be most valuable to
+understand. Rather than instrumenting everything, focus on the areas where visibility
+will have the most impact on your ability to operate and improve your system.
+Start by identifying the critical user journeys in your application (see Chapter 11).
+Critical user journeys are the sequences of operations that users must complete
+successfully in order for your business to function. Of course, the specific details
+will vary across industries and use cases. But, as an example, let’s suppose you have
+an ecommerce application. Business-critical user journeys for you might include
+things like user registration, product search, cart management, and checkout. Or,
+let’s say you have a content-management platform. Then, critical user journeys might
+include content creation, publishing, and consumption workflows. Instrumenting
+these journeys gives you visibility into the health of your core business operations.
+Consider the error conditions that are specific to your domain. While automatic
+instrumentation might capture HTTP 500 errors, it won’t understand business-
+specific failures like “insufficient inventory,” “invalid coupon code,” or “user not in the
+correct experiment group for this operation.” Custom instrumentation can capture
+those domain-specific error conditions along with the context needed to identify,
+understand, and resolve them. Be sure to distinguish temporary versus permanent
+failures, as well as failures that are or are not actually actionable by an IT team.
+
+
+
+
+                                                   Building a Custom Instrumentation Strategy   |   57
+It can take practice when you’re first thinking about what to capture. To get started,
+try thinking about the questions you frequently need to answer during incident
+response or when analyzing system performance:
+
+     • Which users are being affected?
+     • What are the key stages of my pipelines?
+     • What feature flags are in use?
+
+Remember that instrumentation is not just about capturing what happens. Instru‐
+mentation exists to capture any additional context that also helps you understand why
+it happened. Include relevant business context like user segments, feature flags that
+were active, or the source of a request (for more in-depth examples, see Chapter 6).
+That type of contextual information often makes the difference between quickly
+resolving an issue and spending hours trying to reproduce and understand it.
+As your custom instrumentation evolves, you’ll want to establish patterns and
+conventions that make it easy for all developers to add consistent custom instru‐
+mentation. That might include standard attributes that should be included in all
+business-operation traces, naming conventions, or templates for instrumenting com‐
+mon patterns like background job processing or API endpoints (for more tips, see
+Chapter 31).
+Remember that your custom instrumentation needs will evolve as you become more
+immersed in these concepts and as your understanding of your system deepens. After
+major incidents, you’ll begin to find opportunities for additional instrumentation
+that could have helped you detect or resolve similar issues more quickly. When
+you find yourself repeatedly digging through logs or manually correlating data to
+understand system behavior, you’ll likely identify new custom instrumentation that
+could simplify that analysis.
+The goal is to build instrumentation that not only helps you understand what’s
+happening in your system, but also empowers you to ask and answer better questions
+that you haven’t even thought of yet. Recall that systems with a high degree of
+observability give you the ability to understand and explain any state your system can
+get into, no matter how novel or complex. Great instrumentation captures a high level
+of context and provides the foundation for great observability.
+That said, as you build custom instrumentation, it’s tempting to try to capture every
+possible piece of information. While some observability tools are built to work with
+that strategy, for others that choice may not be practical. Time-series databases have
+explicit design constraints that lead to poor outcomes when the cardinality of a
+metric becomes too high. Full-text search databases require indexing and precompu‐
+ted schemas. Too much instrumentation can create noise that makes it harder to
+
+
+
+58    |   Chapter 4: Getting Started with Instrumentation
+find the signal you actually need, and it can increase costs and operational overhead
+without providing proportional value.
+
+Cost Considerations, Volume
+Management, and Processing
+Inevitably, you’ll end up needing to manage the volumes of telemetry data that
+properly instrumented applications produce. The fact of the matter is, most traffic
+is boring and commonplace, and so is the data for that traffic. But some traffic
+is interesting, or essential to understanding what’s happening. Determining how to
+manage data along these lines isn’t a simple calculus, and there are many levers
+that you have access to for performing this management and balancing trade-offs.
+We won’t cover all of those options in-depth here, but we will introduce the basic
+concepts and considerations. In later chapters, these topics are discussed further.
+
+Processing and Pipelines
+It’s common to process telemetry data before storing it, regardless of the type of
+instrumentation you use. For example, you may need to drop or transform data to
+reduce its volume or perform extraction or conversion of data into other formats. You
+might also need to do things like perform data normalization or filter out personally
+identifiable information before sending your telemetry to a backend for storage (see
+Chapter 16).
+When you’re writing instrumentation into your code, you should be agnostic to
+backend capabilities for the sake of portability, and try to defer processing decisions
+until later in the telemetry-collection process. After all, you don’t know exactly what
+telemetry data you might need in your investigations. If any data captured becomes
+problematic, it’s much easier to remove specific details that turn out to be unneeded
+rather than to be left wanting for attributes that were never collected to begin with.
+Additionally, you should consider the scaling implications of your instrumentation
+strategy, design, and implementation. For example, not all users of an instrumenta‐
+tion library will require global replication or remote procedure calls with submillisec‐
+ond response times. Some will, but not all. Good instrumentation design takes that
+variability into account. In cases like these, you can use techniques like telemetry
+layering (see Chapter 7).
+
+Cost Considerations and Volume
+You can capture all the telemetry you want, but what does it cost? Just about every‐
+thing in your instrumentation strategy can be quantified in terms of cost.
+
+
+
+
+                                       Cost Considerations, Volume Management, and Processing   |   59
+Some costs are clear, such as the amount of storage, memory, or computation
+required to both store and query the data. These costs are typically incurred as a
+bill from an external vendor if you bought an observability solution. Or, they could
+be incurred as internal costs measured in both infrastructure and labor required to
+create and maintain custom-built observability solutions (see Chapter 29).
+Many costs are more hidden. For example, a poor instrumentation strategy can lead
+to confusing data or disjointed datasets. If data is scattered across 10 or 15 different
+tools, you’re likely paying hidden costs like cognitive overload and friction when inci‐
+dent responders are unable to quickly triage and correctly diagnose issues after alerts
+are triggered. Those costs often manifest visibly as delayed incident-resolution times,
+but the factors behind that increase are often invisible to executive stakeholders. In
+addition, cost-management practices have an overhead on developer productivity
+and incident resolution—trying to understand why spans are sampled out, or creat‐
+ing convoluted workarounds to reduce metric cardinality.
+We’ll discuss these costs further as we examine choices between buying and building
+observability solutions. For now, keep in mind that there’s no such thing as a free
+lunch. Teams that are deciding to build versus buy may account for obvious costs
+like labor and infrastructure, but are often surprised by less readily apparent costs.
+For example, self-hosted telemetry datastores often still incur costs for things like
+network egress, which can quickly escalate while transferring telemetry data between
+availability zones, regions, clusters, datacenters, and so forth.
+Most often, the overhead required to collect and transmit a trickle of telemetry
+data over the network for backend systems is quite small and manageable. However,
+when working at scale, distributed or cloud native workloads can turn that into a
+flood of data, especially if instrumentation is misconfigured. Various solutions exist
+for managing telemetry data at scale, such as utilizing telemetry pipelines to buffer
+high-resolution data locally, while shipping aggregated data across the network (see
+previous callouts for these concepts).
+However, there is one specific element of cost control and volume management that
+deserves special attention in this introductory chapter: telemetry sampling.
+
+Essential Concepts for Sampling
+Rather than recording 100% of all generated telemetry, sampling is the practice of
+selectively deciding what data to keep (the collected sample) and discarding the rest.
+In general, we believe it is a best practice to sample all telemetry data, regardless of
+the scale at which you operate: sampling lets you capture truly valuable data while
+discarding irrelevant noise.
+Conceptually, there are only two ways of sampling data: you can sample either before
+or after it gets emitted.
+
+
+60   | Chapter 4: Getting Started with Instrumentation
+Before
+Sampling before data gets emitted happens in various ways. For example, there’s one
+very common method for pre-emitted telemetry sampling that most developers don’t
+often appreciate: metrics. Metrics are a form of sampling. They are numerical values
+that are calculated by choosing measurements and dimensions, and then aggregating
+all measurements that occurred over a specified time interval. The individual events
+that occurred during that interval are considered noise and get discarded. Only the
+pre-aggregated summary value remains.
+A more-often realized form is something like probability-based head sampling, which
+is a simple technique that boils down to “only sample a percentage of my traces or
+logs.” Head sampling works very well for services operating at a truly high volume,
+but the simple probability-based approach presents significant drawbacks for services
+not operating at enormous scale.
+Let’s say your service has uniform traffic patterns and you only care about aggregate
+statistics. If that’s the case, then this approach favors a reduction in overall telemetry
+data volume at the cost of potentially missing outliers or long-tail issues. In other
+words, in a scenario where we are only keeping a 1% sample of telemetry data, it’s
+entirely likely that an error that only occurs 0.1% of the time would be completely
+missed. Again, for services operating at enormous scale, 0.1% of traffic is still a
+massive amount of traffic, but for anything less, you risk losing valuable error data by
+head sampling.
+Sampling data before it gets emitted (at the source) most often favors resource effi‐
+ciency over data fidelity and completeness. It is also oblivious to concerns upstream
+or downstream of its decision-making. For example, there is no way to know if
+a downstream service call results in an error at the time that a head-sampling
+decision must be made. If what you’re after is a high degree of observability, the head-
+sampling trade-off is almost entirely skewed toward saving on cost at the expense of
+debuggability.
+
+After
+The second form of sampling happens after telemetry data is emitted. Unlike head
+sampling, this form of sampling should be used to optimize for telemetry data fidelity
+and completeness. A wide variety of techniques can be used for this purpose.
+For example, with distributed traces, you can use tail-based sampling. Tail-based
+sampling is a technique where all spans for a trace are collected and buffered before
+a sampling decision is made. That way, you can apply processing logic and rules to
+examine the entirety of the transactional record to determine whether or not this
+specific record is worth keeping.
+
+
+
+
+                                       Cost Considerations, Volume Management, and Processing   |   61
+In other words, with tail-based sampling, you could examine each trace or log line
+entirely before making a decision to keep or discard. Does this trace look just like the
+thousands of other 200 OK status requests you’ve recorded over the last hour? Or did
+it capture something more significant that indicates it is worth keeping?
+Techniques for effective telemetry sampling are sophisticated and nuanced because
+they ultimately must take into account specific rules or considerations for your
+business. For this introductory content, we won’t unpack how to sample effectively
+any further. But we do think it’s imperative to point out that not all the telemetry
+you generate is necessarily worth keeping. Remember, all telemetry has some level of
+cost. Practiced effectively, sampling is one of the most effective levers you can use to
+manage observability costs (for in-depth techniques, see Chapter 15).
+
+Conclusion
+You can’t improve what you can’t measure. Instrumentation is the foundational cor‐
+nerstone of your observability experience. Every software engineer must learn to
+integrate instrumentation into every facet of the development lifecycle. You will rely
+on automatic instrumentation to quickly reveal the basic vital signs of operational
+health in your application. You’ll rely on custom instrumentation to understand the
+health of your business functions.
+You’ll need to think about instrumentation holistically and form a cohesive strategy
+for its ownership and evolution. More than likely, you’ll add that instrumentation to
+your code via OpenTelemetry. As a software engineer, you may not be involved in all
+of the intricacies for managing observability costs, but you should have at least some
+fundamental understanding of the techniques used to do so and their implications.
+This chapter introduces concepts that all engineers should know, and we’ll continue
+to unpack those further in the remainder of this book.
+Next, we’ll explore another telemetry-related concept that is fundamental to learning
+about systems with a high degree of observability. It’s only possible to move from a
+three pillars model to a unified model of observability by removing the erroneous
+distinctions between the telemetry types you know as logs, metrics, and traces.
+
+
+
+
+62   |   Chapter 4: Getting Started with Instrumentation

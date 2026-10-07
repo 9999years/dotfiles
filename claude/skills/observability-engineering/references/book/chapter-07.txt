@@ -1,0 +1,845 @@
+                                                                        CHAPTER 7
+                                    Instrumenting Your Code
+                                         with OpenTelemetry
+
+
+
+
+OpenTelemetry promises a unified standard for telemetry. But, for the uninitiated,
+it can sometimes feel a bit overwhelming in its complexity. There’s a dizzying array
+of terminology, a broad application programming interface (API) and SDK surface
+area, and a learning curve sometimes described as more of a “learning cliff.” Should
+you use zero-code or library instrumentation? Which signals should you emit? Is
+switching to OTel even worth the effort?
+This chapter is not an in-depth guide for everything you need to know about OTel.
+For that, we recommend reading Learning OpenTelemetry by Ted Young and Austin
+Parker (O’Reilly, 2024). Here, we’ll focus on making OTel less intimidating and more
+practical to approach. Think of this as your set of ropes, harnesses, belay devices,
+helmets, and situational awareness training so that you won’t fall off of that learning
+cliff.
+In this chapter, we’ll cover fundamental design philosophies to help you understand
+why and how OTel is built as the project you see today and how to gauge when it
+is (or isn’t) a good fit. We’ll also guide you through understanding trace-first design
+principles in complex architectures you’re likely to encounter. From there, we’ll
+dive into trade-offs behind its various signal types and how to use them effectively.
+Lastly, we’ll also show you how AI-assisted coding helps with OTel instrumentation,
+especially when migrating from other existing frameworks.
+
+
+
+
+                                                                                    113
+What It Means to Use OpenTelemetry
+In Chapter 4, we introduced the city-planning analogy, where instrumentation acts as
+the sensors and meters that provide system insight. Now, imagine you’re responsible
+for building and integrating those very sensors into your analytics pipeline.
+You might find that some data is semantically linked (for example, traffic sensors
+that count the number of vehicles at an intersection and the status of the traffic
+lights themselves), yet it arrives in different formats, with different field names, and
+with different ideas about units and meaning. You’d need to spend time transforming
+signals into a normalized shape, documenting the changes, and then repeating the
+cycle whenever a sensor changes, a vendor sunsets a product, or a “compatible
+replacement” emits slightly different data.
+If a sensor failed and the company that made it was out of business, or a new version
+emitted different data, you’d need to rebuild your pipeline in order to maintain your
+analytical integrity. Even if you manage to stitch it all together, you still end up with
+a firehose of partially duplicated information, and you’d be on the hook for making it
+coherent and usable.
+OTel exists to reduce that burden. It provides an open standard for how telemetry is
+created, transmitted, and interpreted. It also provides semantic conventions (shared
+meaning for names and metadata) so you can swap components without rebuilding
+your entire pipeline. In practice, that means less vendor lock-in, fewer painful migra‐
+tions, and cleaner cost controls because you’re collecting what you mean to collect.
+In our analogy, it would guarantee that you don’t have to worry about changing out
+sensors or updating your analysis tools; the same data will be emitted and will work
+in the same ways even with different components.
+The project’s ambitions extend beyond providing a common format. The goal is for
+telemetry to be native to the libraries, frameworks, runtimes, and infrastructure you
+already use; rather than being a bolt-on afterthought. When a rich braid of unified
+telemetry already exists, it enables a world where engineers can easily add business-
+specific context as needed, where telemetry and observability are transferable skills,
+and where observability is the default state of high-quality software.
+In practice, that means your software system emits the right signals at the right level
+of abstraction, without bespoke configurations or transformations.
+What does it mean for your team to use OTel? Like all good software questions,
+the answer is “it depends.” This chapter is written for developers and site reliability
+engineers who are instrumenting applications and services (backend, frontend, full
+stack) and who want guidance on patterns, boundaries, and practical techniques.
+
+
+
+
+114   |   Chapter 7: Instrumenting Your Code with OpenTelemetry
+Effective Instrumentation With OpenTelemetry
+You can start using OTel without writing any new code. There’s a bevy of zero-code
+instrumentation libraries, agents, and other solutions that will generate metrics, logs,
+and traces from the most popular libraries in every language. The hard part isn’t
+generating telemetry; it’s generating useful telemetry.
+Effective instrumentation is a bit like sculpting: you’re deciding what to keep and
+what to throw away. In this section, we’ll focus on boundaries, span and attribute
+naming, and how to choose the right telemetry signals to support the questions you
+actually need to answer.
+
+Trace-First Telemetry
+The biggest difference between OTel and many older instrumentation approaches is
+context. “Context” is an overloaded term—it can refer to the state of what’s happening
+inside a system, the data structure used to encode and propagate unique identifiers
+between functions and processes, or the specific values stored inside that structure.
+We’ll demystify “context” by examining how OTel designs instrumentation. OTel is
+described as “trace-first” because context is the glue that makes the rest of the model
+work. If you emit traditional metrics and logs without context you can still get value,
+but you miss the main benefit. In OTel, all telemetry signals can be associated back to
+a specific request, transaction, or unit of work as long as an active context exists.
+Being trace-first is important because context propagation is how that identity moves
+through your system. There are two types:
+Interprocess propagation
+     The identity crosses process boundaries, often via HTTP headers using W3C
+     TraceContext that include trace ID, parent span ID, plus optional baggage (arbi‐
+     trary key-value pairs) set earlier in a transaction.
+Intraprocess propagation
+     The identity flows through methods, threads, coroutines, or components inside a
+     process boundary.
+Example 7-1 shows a simplified Java illustration of both types.
+
+Example 7-1. Interprocess and intraprocess propagation examples.
+
+// Injecting context into outgoing HTTP request
+TextMapSetter<HttpRequest.Builder> setter = (carrier, key, value) ->
+    carrier.header(key, value);
+
+HttpRequest.Builder requestBuilder = HttpRequest.newBuilder().uri(uri);
+W3CTraceContextPropagator.getInstance()
+
+
+                                              Effective Instrumentation With OpenTelemetry   |   115
+      .inject(Context.current(), requestBuilder, setter);
+
+// Extracting context from incoming HTTP request
+TextMapGetter<HttpServletRequest> getter = new TextMapGetter<>() {
+    public String get(HttpServletRequest req, String key) {
+        return req.getHeader(key);
+    }
+    public Iterable<String> keys(HttpServletRequest req) {
+        return Collections.list(req.getHeaderNames());
+    }
+};
+Context extractedCtx = W3CTraceContextPropagator.getInstance()
+    .extract(Context.current(), request, getter);
+// Making extracted context current for this thread
+try (Scope scope = extractedCtx.makeCurrent()) {
+    // All spans created here inherit the parent from extractedCtx
+    Span span = tracer.spanBuilder("child-operation").startSpan();
+    try {
+        doWork();
+    } finally {
+        span.end();
+    }
+}
+
+HTTP is a common carrier for interprocess propagation, but it’s not the only one.
+Context can travel through a variety of methods, including message queue envelopes,
+environment variables, gRPC or other remote procedure call (RPC) framework head‐
+ers, etc.—anywhere you can attach metadata reliably.
+In languages like Java, or others with threads and strong concurrency primitives,
+intraprocess propagation is often as simple as establishing a scope (e.g., wrapping a
+method or block in a try, so you can easily capture failures) and then creating spans
+within it. Any metrics or logs emitted inside that scope inherit the active context as
+well.
+Helpfully, low-level management of context like this is probably something you won’t
+need to do, especially if you use automatic instrumentation.
+At this point, a common thought often occurs: “If context is flowing, should I create a
+span for every function?” In most systems, that’s the wrong instinct.
+Another important part of OpenTelemetry’s design is that telemetry should be lay‐
+ered; meaning that you should use the right signal for the right purpose. For instance,
+spans should model meaningful units of work: discrete operations that matter to
+performance and reliability.
+
+
+
+
+116   |   Chapter 7: Instrumenting Your Code with OpenTelemetry
+Two questions help determine whether you should create a span:
+
+ 1. Is it “interesting”? Does the work meaningfully impact performance (e.g., latency
+    or failures) for the overall request?
+ 2. Is it “aggregable”? If you group this span by name and/or attributes, will it
+    produce useful trends and comparisons?
+
+Table 7-1 demonstrates some practical examples of determining whether you should
+create a span.
+
+Table 7-1. An example guide for determining whether to create a span
+Operation                 Interesting?                                Aggregable?                                Create a
+                                                                                                                 span?
+HTTP request handler      Yes: variable latency, can fail, boundary   Yes: group by route, method, status code   Yes
+                          crossing
+Database query            Yes: input/output bound, variable           Yes: group by query type, table, operation Yes
+                          latency, failure prone
+External API call         Yes: network latency, dependency            Yes: group by endpoint, service, status    Yes
+                          failures
+Cache lookup              Yes: distinguishes fast versus slow paths Yes: group by cache name, hit/miss           Yes
+Message queue             Yes: async boundary, processing delays      Yes: group by queue, message type          Yes
+publish/consume
+Private helper function   No: trivial CPU, predictable duration       No: too granular, no meaningful            No
+                                                                      groupings
+Loop iteration            Maybe: if iteration is slow                 No: unbounded cardinality per request      No
+Getter/setter             No: no meaningful duration or failure       No: nothing to group by                    No
+Input validation          No: fast, predictable                       Maybe: could group by validation type      No
+(pure CPU)
+Input validation          Yes: schema fetch can fail/be slow          Yes: group by schema, validation result    Yes
+(with input/output)
+Business logic            No: just calls other instrumented code      No: duration is sum of child spans         No
+orchestration
+Business logic            Yes: meaningful state change, can fail      Yes: group by transaction type, outcome    Yes
+transaction or saga
+
+There’s an art to creating a good trace. In practice, it’s all too common to err on the
+side of too many or too few spans. Too many spans makes analysis expensive and
+unhelpful (a trace with millions of spans is far too detailed and rarely actionable). Too
+few spans often means collapsing minutes (or hours) of work into a single opaque
+handler that still leaves you guessing at optimizations or effective ways to monitor
+and alert.
+
+
+
+
+                                                                   Effective Instrumentation With OpenTelemetry        |   117
+You’ll also notice a pattern that seems adjacent to Conway’s law:1 traces tend to mirror
+organizational boundaries (e.g., a group of developers or the microservices they
+manage). Resist that urge. Hold preference for spans that map to true component and
+service domain boundaries—even if that means crossing team lines—because that’s
+what makes traces useful during incidents.
+If your trace has a hundred two-millisecond spans, you probably have too many. Roll
+them up: combine them into a single span, or represent the details as an attribute. For
+fine-grained performance questions, profiling (see Chapter 20) is often a better tool
+for merging function executions into useful data.
+
+
+                        The Perils of Automatic Instrumentation
+  Auto-instrumentation often errs on the side of producing too many unactionable
+  spans, metrics, or logs in the pursuit of thoroughness across signal types. This isn’t
+  malicious; it’s a reasonable default in a general-purpose library. You are responsible
+  for making defaults sane within your environment.
+  Most of the time, you should prefer not duplicating telemetry unless you really need
+  to. A common pattern is to keep traces sampled. It’s expected that users will have
+  different collection rules or sampling strategies across signals.
+  It’s very useful to emit histograms for accurate and high-resolution counts of rate,
+  error, and duration (RED) metrics from HTTP or gRPC endpoints in addition to
+  trace data, especially for high-throughput services. Histograms can be stored cheaply,
+  even if you have to rely on head sampling to reduce overall trace throughput.
+  If you’re drowning in noise, turn it off: drop or sample out specific instrumentation,
+  or replace it with custom spans and processors that summarize small work into
+  attributes on a parent span.
+
+
+Traces for Common Architectural Patterns
+Most distributed tracing models (and OTel in particular) fit request/response archi‐
+tectures well: a client sends a request, the service does work, it calls dependencies,
+and the entire transaction can be visualized into the common “waterfall” trace
+representation.
+The further your system architecture drifts from the request/response pattern, the
+more challenging it becomes to design your traces. Let’s walk through a few patterns.
+
+
+
+1 Conway’s law describes the link between the communication structure of organizations and the systems they
+  design. For example, if a company has a fragmented communication style, its products and systems are also
+  likely to reflect that fragmentation.
+
+
+118   | Chapter 7: Instrumenting Your Code with OpenTelemetry
+Tracing streaming architectures
+Second to the request/response pattern, one of the most popular and widely used
+system architectures is stream processing, where data flows across queues, buses,
+and topics. It’s used for everything from extract-transform-load (ETL) jobs such as
+processing of financial records or inventory management, to event-driven business
+workflows, to planet-scale aggregation for social media applications, and more.
+Tracing stream-processing models is tricky for two reasons:
+
+ 1. The smallest “unit of work” you can instrument isn’t always the most useful unit
+    of work to optimize.
+ 2. The things you’d like to alert or measure in these pipelines often have more to do
+    with the trace shape itself rather than the spans that comprise the trace.
+
+Specifically, developers often want to measure pipeline metadata like stage dwell
+times (“How long are consumers waiting for new messages and what do those
+messages have in common?”), or the amount or ratio of successful-to-failed stages
+(common for developers implementing step functions or finite state machines atop of
+queues).
+Some architectures, like event sourcing, present additional challenges. For example,
+when every logical action in a pipeline is a mutation or series of mutations against a
+golden event, what exactly is considered the root span, and when does that occur?
+OTel can still help, but you’ll usually need a blend of signals and a little design. Don’t
+try to answer everything with spans alone. For example, let’s say you have a workflow
+that looks like this:
+    orders-api (produces OrderPlaced)
+    → topic: orders.events
+      ├ payment-svc (consumes OrderPlaced, produces PaymentAuthorized/Declined)
+      ├ inventory-svc (consumes PaymentAuthorized, produces ItemReserved/Backorder)
+      ├ shipping-svc (consumes ItemReserved, produces ShipmentCreated)
+      └ reconcile-job (nightly batch over events store)
+The first requirement is proper context propagation: serialize context into the mes‐
+sage envelope when you publish, and then extract it when you consume. For Apache
+Kafka and similar queue or message bus systems, message envelopes make this
+straightforward.
+The orders-api service emits a trace span like messaging.publish with attributes
+such as system, destination topic, message ID, and relevant business details (transac‐
+tion ID, customer ID, etc.). That span is marked as a “producer” span (as opposed to
+“client”), and its context is serialized into the message envelope of the OrderPlaced
+event and then written to the topic.
+
+
+
+                                               Effective Instrumentation With OpenTelemetry   |   119
+As consumers read those messages, they extract the context from the envelope and
+create corresponding messaging.process spans. Those spans are linked to the parent
+via “span links,”2 but not as direct children. When the consumers write new messages
+back, they would repeat the process; a producer span for the new message type, and
+so forth.
+A useful approach is to store and hash a unique identifier for each transaction and
+propagate that through the entire pipeline. That propagation ties all of these traces
+together directly, rather than having to walk the tree in reverse. Span links can also
+help you relate these events together across multiple traces.
+Conceptually, this shifts from creating one trace with a single root and many children
+into a timeline of traces that occur at different times. Because each logical transaction
+carries a unique correlation ID, you can easily pull all relevant spans into a result set,
+and then visualize them as needed.
+That view can provide you with the relevant shape of your pipeline and the ability
+to understand the performance of each stage, but it has trade-offs. While providing
+excellent visibility into a single message’s journey, it can be tricky to generalize that
+approach for investigations at the fleet level.
+In that instance, OpenTelemetry’s metric exemplars can help. An exemplar is an
+annotation on a particular metric point that associates it with a specific trace and
+span. While your spans and traces provide deep insight into how each specific stage
+or consumer is performing, metrics can provide top-level insight into the pipeline as
+a whole—and they’re also where you should focus your frontline alerting.
+Your pipeline metrics look more like counters emitted by each stage showing success
+or failure (with attributes mirroring your span data, but at a lower cardinality—so
+you don’t necessarily want to put the transaction ID on each measurement, but you
+should add the consumer name). Emit a metric for successful and failed jobs, and
+then calculate and alert on the ratio through failed_total, processed_total per
+stage, type, region, etc. That lets you proactively alert on unusual Kafka behavior by
+creating histograms that track the time from publish to process, and use exemplars to
+attach your outlier datapoints to specific consumer traces.
+If you’re working with step functions and are concerned about the number of stages
+per transaction, that’s another good use case for histograms. Record the number of
+stages at the terminal stage and, optionally, use baggage to pass down the number
+
+
+
+2 Span links allow developers to represent complex graphs of service dependency and relationship, even across
+  domain or physical boundaries. For example, a consumer of a public API may trace their outbound request to
+  the API, and the receiving server may create a new (internal) trace that preserves the link to the third party’s
+  original trace. This is a feature that to this day has not been heavily utilized, but has interesting potential
+  applications.
+
+
+120   |   Chapter 7: Instrumenting Your Code with OpenTelemetry
+of consumers touched. Some of these measurements may also be available from
+automatic instrumentation or by translating existing infrastructure metrics into OTel
+format (e.g., Kafka broker health, queue length, etc.). Conveniently, much of this
+is automatic as long as you’re recording your metrics inside active spans in your
+process. If you’re properly passing your context around and managing it in-process,
+this part is already done for you.
+
+Asynchronous work and jobs
+For fan-out/fan-in or scatter-gather work patterns, the important decision is less
+about span topology and more about how the request is presented to the user (or
+caller). Let’s suppose you have a video-processing pipeline that accepts uploaded
+content and then renders it into a consistent format for storage and presentation:
+    POST /render → orchestrator
+      ├ publish task.transcode
+      ├ publish task.thumbnail
+      └─ publish task.caption
+    workers process → orchestrator joins when N succeeds or deadlines
+
+The root span for these cases is the POST. You can choose to use parent–child or
+producer–consumer relationships, depending on how you’re electing to monitor the
+application and the expected results. Either way, the root span should contain links to
+each child process, and have a final summarization span that rolls up the results.
+Alerting often belongs on the entry point (POST) or on specific child tasks, depend‐
+ing on service architecture or ownership (Conway’s law really does rule everything
+around us). In this case, metrics may be less useful than pure spans because there’s no
+shared infrastructure that you can optimize other than network links.
+Next, let’s consider something similar but with a much longer time horizon, such as
+nightly jobs. Suppose you have a nightly workflow that compiles inventory reports
+from thousands of suppliers, all of whom have subtle differences in their data format‐
+ting. Extracting and transforming that data can take hours (and in some cases, days)
+before it’s loaded into a business intelligence database. A logical representation of the
+work could look like the following:
+    scheduler → [job.run nightly_etl] (ROOT)
+                  ├ etl.extract
+                  ├ etl.transform (hours)
+                  ├ etl.load
+                  └ report.write
+In this scenario, you should avoid the temptation to turn the transform steps into
+direct child spans. Long-running jobs introduce the “million children trace” hazard.
+Instead, as recommended earlier, model each stage as its own trace and relate the
+stages with links and correlation identifiers. One challenge with that approach is that
+
+
+
+                                               Effective Instrumentation With OpenTelemetry   |   121
+your parent span may not necessarily complete until all children are complete. There
+are a few strategies to solve this problem, but they have trade-offs.
+One option is to follow the disjointed ETL process elucidated earlier. You won’t have
+a single root span for the job. Instead, you have a producer trace that’s linked to
+your child traces. The downside is that it can be challenging to correlate all of your
+child traces together. Alternatively, you can have a root span that you’re building up
+in-memory (or in a file), adding heartbeat events or status events as stages complete,
+which get closed and written out at finish.
+The “Occam’s razor” solution to this problem is to periodically flush the root span
+with updated timestamps as the child jobs progress. But that approach is not recom‐
+mended, as the vast majority of tracing datastores don’t handle updates to existing
+spans. In most cases, they are either rejected or cause undefined behavior.
+In these situations, metrics or logs can also help by providing intermediate status
+reports that you can monitor without breaking the span and trace data model. As
+long as you’re preserving trace context through your child–consumer processes and
+calls, you can associate metrics back to their underlying traces.
+When deciding which trade-offs to favor, it can be useful to ask yourself and your
+team what your exact concerns are, and then use the answer to guide your thinking.
+Are you checking a box for requirements, or are you trying to understand and
+optimize the individual performance of these jobs?
+If your primary goal is a safety net rather than fine-grained performance optimiza‐
+tion, consider a “wide event” approach: a single summarization span (or log event)
+with hundreds or thousands of attributes that contain a significant amount of meta‐
+data about the job that gets written at completion, with rich metadata about what
+succeeded, what failed, and why. This is useful for tracking changes over time without
+dealing with the overhead of creating a well-formed discrete trace.
+
+Serverless
+Most of the guidance thus far applies to serverless, but the constraints change the
+trade-offs. There are also a few specific tips and considerations specifically when
+running in AWS Lambda.
+First, you should probably favor using custom instrumentation for your serverless
+functions rather than relying on automatic instrumentation. While OTel instrumen‐
+tation libraries for serverless exist, the resource constraints of serverless environ‐
+ments mean it’s ideal to limit the spans you create in your functions. A single
+well-designed span per invocation, rich with attributes capturing the details of a few
+key events, often beats a sprawling hierarchy that burns cold-start time and memory.
+
+
+
+
+122   | Chapter 7: Instrumenting Your Code with OpenTelemetry
+Specifically, in AWS, an interesting (albeit somewhat work-intensive) strategy is to
+use stateless Lambda tracing. In short, emit lightweight events from the function and
+let a stateful OpenTelemetry Collector (with custom processors) build a map that
+assembles them into a span (see Figure 7-1). This approach reduces the need for
+statefulness in libraries and context management in the serverless function runtime,
+at the cost of more complex Collector-side logic you’ll need to implement. If perfor‐
+mance is a paramount concern, it might be worth that trade-off for you. Ideally, the
+type of extension layer necessary to accomplish this will be provided natively by more
+serverless providers in the future.
+
+
+
+
+Figure 7-1. A logical diagram of using a stateless SDK in the serverless runtime layer
+to forward events to a stateful SDK and Collector in an extension layer. This technique
+allows for improved reliability and performance while minimizing cold start times and
+enables use of a consistent set of configuration management for Collectors.
+
+From a practical perspective, you’ll most likely need to use a mix of techniques
+for serverless instrumentation with OTel. Different serverless platforms will offer
+different hooks and service-specific extensions to create and emit telemetry data
+postexecution but presleep, and this data is often not emitted in native OTel for‐
+mats. That data can be correlated post hoc through association across a universally
+unique identifier (UUID) or some sort of invocation ID. In this case, you’ll need to:
+use telemetry pipelines or transforms to route the data to the same place as your
+other telemetry; use a query layer that allows for federated queries across multiple
+datastores; or batch, join, normalize, and forward these events together. As OTel
+continues to mature and gain wider adoption, we hope that these platforms will offer
+native OTel solutions for their users.
+
+Extended Berkeley Packet Filters
+So far, this chapter has assumed that it’s possible for you to modify your code in
+order to perform instrumentation. The reality in some organizations is that doing so
+often requires a level of cooperation between observability engineers and software
+development teams that is either slow, infeasible, or flat out impossible. In these cases,
+extended Berkeley Packet Filter (eBPF) technology can help.
+
+
+
+
+                                               Effective Instrumentation With OpenTelemetry   |   123
+eBPF programs run in the Linux kernel itself,3 outside of user space, and enable
+observability at a different level of abstraction than previously covered techniques.
+eBPF is unique in that its programs are designed to be small, self-contained, low
+overhead, and very safe—they cannot corrupt memory or crash. Because they run
+outside of a process, they incur no additional runtime overhead and they can be
+enabled or disabled without requiring a restart of the process, or recompilation.
+OTel supports eBPF instrumentation through the OpenTelemetry eBPF Instrumenta‐
+tion (OBI) package. OBI gathers metrics and traces from HTTP/HTTPS and gRPC
+services written in a variety of languages and allows for propagating trace context
+through services. It’s best understood as an accelerator and a gap filler that can
+enhance existing instrumentation efforts, rather than something that replaces them
+entirely.
+For instance, OBI allows you to capture kernel-level detail about network operations
+that would not be available to your applications. It allows you to propagate traces
+through legacy services where you would otherwise lose visibility. A full discussion
+of its capabilities, configuration, and limitations is beyond the scope of this book, but
+we’ll touch on a few other key capabilities.
+It carries some operational concerns, aside from the aforementioned limit on gener‐
+ated telemetry. Potential conflicts may exist with other eBPF programs and you must
+configure them carefully to avoid this. They may also need elevated permissions
+depending on the deployment. If you aren’t running OBI as an administrative user
+(a.k.a. root), then you’ll need to enable specific permissions for the process.
+Currently, OBI and other eBPF-based instrumentation solutions offer real value,
+and future work in this area promises to unlock more. Perhaps we’ll see channels
+for extracting state from requests, allowing for custom attributes to be added to
+span data or metrics. That could narrow the gap between “observing execution” and
+“understanding intent.” For now, you should think of OBI and related tools as a way
+to quickly generate tracing data for uninstrumented systems (e.g., to populate service
+maps), extend traces through uninstrumented services, or generate instrumentation
+as a part of debugging kernel-level behavior.
+So far, we’ve covered options when instrumenting and strategies for designing traces
+for common architectural patterns that go beyond simple request/response. Quality
+traces are foundational when using OpenTelemetry because they connect everything
+else. If you don’t have good traces, there’s a lot of value you won’t get from your
+metrics or logs either.
+
+
+
+
+3 Microsoft is currently working on an eBPF layer for Windows, which can be viewed on the GitHub reposi‐
+  tory. This will enable some pretty exciting use cases!
+
+
+124   | Chapter 7: Instrumenting Your Code with OpenTelemetry
+Next, we’ll zoom out and talk about layered telemetry and how you can use traces,
+metrics, and logs together to achieve better observability outcomes.
+
+Metrics, Spans, Logs, Events—Oh My?
+Layered telemetry is the practice of using the right signal at the right level of detail for
+the outcome you need. OTel makes this easier because shared context can correlate
+signals back to the same request. We’ll examine OpenTelemetry’s design and seman‐
+tics so you can choose the right mix of signals when observing your system.
+As mentioned previously, OTel is trace-first, given its ability to correlate signals
+through a shared distributed context layer. In practical terms, trace-first correlation
+unlocks three benefits:
+
+ 1. Developers can layer signals that provide multiple “views” of the same work
+    without regard for any downstream sampling or ingestion decisions.
+ 2. Operators can balance accuracy, visibility, and cost in observability pipelines for
+    operational efficiency.
+ 3. Telemetry consumers can drill down from a high-level symptom to the telemetry
+    signal that explains what’s happening in production, and how it relates to their
+    goals.
+
+OTel instrumentation should embrace a multisignal approach, but it’s more nuanced
+than simply duplicating data. A useful three-question test for choosing signals is:
+
+ 1. What needs causality and full-request context for consumers? (traces)
+ 2. What needs inexpensive long-term storage and/or fast alerting? (metrics)
+ 3. What is rare versus common, and what are the audit requirements? (logs or
+    events)
+
+Sometimes you’ll layer two signals intentionally. For example, a common pattern
+for HTTP servers is to emit both a span and a histogram metric for each handled
+request. That gives consumers flexibility during investigations. If your HTTP service
+has a particularly high throughput, you could head-sample your traces. Histograms
+would provide last-ditch alerting for errors and duration outliers, and potentially
+reveal deeper correlation into unsampled spans. Business-critical or sensitive func‐
+tions—such as billing events or service level agreement (SLA) conformance data—
+benefit from having isolated, event-only pipelines, even if your primary observability
+signals for those transactions are span-based.
+The technique is called layering (instead of duplication) because you’re providing
+multiple views depending on the needs of consumers. A suitable analogy would be
+using a microscope: the closer you zoom in, the more detail you see. The job of your
+
+
+                                                Effective Instrumentation With OpenTelemetry   |   125
+instrumentation is to provide the right level of detail at the right level of abstraction
+to reveal the necessary view of system performance.
+In practice, that means starting with traces at your service boundaries. Think of these
+traces as the glue between all of your other signals. Next, you can layer on aggregated
+metrics at that same boundary, but with fewer dimensions and attributes. The key is
+in realizing those metrics don’t need to be separate instrumentations in your code.
+You can use the OpenTelemetry Collector or other observability pipelines in order to
+generate metrics directly from the span data (see Chapter 5).
+
+                    Sampling and Span Metrics
+                    It’s worth mentioning that generating accurate metrics from spans
+                    is difficult (or impossible) if you apply head sampling! There is
+                    work in the OpenTelemetry project to add support for probabilistic
+                    head sampling, allowing for more accurate calculation of metrics
+                    from head-sampled data, but it’s currently experimental.
+
+Once you know what to emit, you need to name it. Names should be descriptive,
+unambiguous, and easy to group by. Don’t put identifiers or variable route compo‐
+nents in names. Instead, identifiers should be replaced with a description, and the
+variable component moved to an attribute value. For example, GET /users/profile/
+349827487124 becomes GET /users/profile/{user.id}.
+In general, names for spans (or logs) should follow dot notation with snake case
+separators (like_this) for multiword phrases. Consult the OpenTelemetry semantic
+conventions for many examples. Similarly, metrics should have consistent names
+across services. In OTel, you should prefer metadata (such as the type information)
+on a metric to communicate what it is, rather than encoding it into a name. For
+example, http.server.request.duration_ms should be http.server.request.dura
+tion.
+
+                    Schema-Driven Telemetry
+                    An emerging practice is to define your telemetry conventions in
+                    a schema file, similar to how semantic conventions are structured,
+                    and use tools like OpenTelemetry Weaver to validate the emitted
+                    telemetry at compile and runtime. Weaver allows you to generate
+                    code as well, creating helpers for implementing the signals defined
+                    in the schema.
+
+Most teams adopt OTel in brownfield systems. This means that migrating your
+instrumentation can present an opportunity to use schemas as an artifact and source
+of truth, which builds shared agreement on what different attributes mean.
+
+
+126   |   Chapter 7: Instrumenting Your Code with OpenTelemetry
+Sample your existing telemetry data and normalize it into a new, OTel-flavored,
+harmonized format. Create a namespace for your organization, and use it to collect
+org-wide concepts: service owners, business units, cost centers. Bake them into a
+schema so teams stop reinventing field names. Check these schemas into source
+control, and use them to aid your migration and to help your AI-assisted coding
+efforts (for a more in-depth look, see Chapter 16).
+Consistency and documentation is not optional. We’ve seen telemetry environments
+with dozens of conflicting attribute keys for the same logical value, even within a
+single signal type. That duplication and confusion is costly for everyone in the middle
+of an incident: it wastes valuable time and significantly lengthens investigation. That
+becomes worse when AI is introduced because models can’t reliably infer which
+field is canonical, and they’ll often confidently build incorrect conclusions using the
+wrong data.
+Be thorough with your telemetry data. Include units as attributes on your signals, and
+avoid mixing them on the same key. Normalize groupable keys like name and route,
+or other entry points into your system. Practice defense in depth (DiD) for user data:
+hash potentially sensitive values, use SDK- and Collector-level processors to filter or
+use allowlist attribute keys and values, and leverage transform processors to filter out
+common personally identifiable information (PII) like identity numbers. Preference
+stable hashes for potentially sensitive data—like user identifiers—and ensure that you
+can reverse them through an internal API, preferably something that can be scripted.
+Now that we’ve covered what to emit and how to shape it, there’s still the practi‐
+cal part: actually coding all of that instrumentation. Historically, that’s been time-
+consuming human labor. Today, AI can help perform much of the grunt work—if you
+use it deliberately.
+
+Using AI Agents to Instrument Your Code
+Before we start, we’ll again acknowledge that we understand the perils of committing
+to writing about AI techniques in a textbook. As of this writing, several AI agents
+such as Claude Code, Cursor, Gemini CLI, and dozens of others are widely in use. By
+the time you read this book in print, it’s entirely possible they’ve become obsolete in
+favor of some new technique.
+However, we believe there’s general guidance that will continue to hold true when
+coding OTel instrumentation into your applications, even in the era of AI agents. Let’s
+examine where they shine and what they shouldn’t handle.
+
+
+
+
+                                                   Using AI Agents to Instrument Your Code   |   127
+What Is an Agent, Anyway?
+Agents, as defined by Anthropic engineer Hannah Moran in 2025, are “models using
+tools in a loop”. Let’s unpack that statement so we can understand how AI agents can
+help instrument our code.
+When we talk about AI agents, we’re broadly referring to software harnesses that
+(at a minimum) combine a generative LLM (e.g., OpenAI’s GPT-5, Claude Sonnet,
+Gemini, etc.) and some subset of tools. In this context, a “tool” is a procedure call that
+is exposed to the model through its API. Crucially, tools enable models to execute
+deterministic function calls in software.
+Consider an LLM in isolation. It predicts the next token of a prompt, based solely on
+the data it’s been trained on. A model that’s tuned to function as a chatbot will do
+something similar, but each turn (or, back-and-forth request and response) is added
+to the conversation, and the model continues its prediction based on that entire
+history.
+A chat model alone can answer questions, but it can’t reliably inspect an entire
+codebase, read the right docs at the right time, edit files safely, and validate the result.
+Instrumentation work requires all of these capabilities.
+Reductively, an agent is just a harness that gives the model those abilities—similar
+to what we, as developers, need to do our jobs day-to-day. Agentic tools can be any‐
+thing from shell access, to specialized web search tools (returning results in formats
+optimized for LLMs), to integrations with software as a service (SaaS) datastores or
+observability databases.
+The end result is that agents can be effective partners for adding instrumentation,
+especially during migrations from existing libraries or frameworks to OTel, where the
+work is repetitive but still needs judgment.
+
+Instrumentation with Agents
+Historically, one of the biggest challenges in getting developers to add instrumenta‐
+tion to their software is that it’s viewed as toil. And, honestly, it’s often a tedious and
+formulaic process.
+But the source of value isn’t typing span builder calls. The value is in everything we’ve
+discussed so far: the instrumentation strategy you develop. The value is in what you
+instrument, how you name it, and what questions it helps you answer.
+Agents can help with both halves of that equation. In practice, two working modes
+matter: planning and execution.
+
+
+
+
+128   |   Chapter 7: Instrumenting Your Code with OpenTelemetry
+In planning mode, you take your specifications and prompts, feed them to the agent,
+add appropriate context (e.g., references to user stories, tickets, related artifacts,
+software goals, OTel documentation, etc.), and ask the agent to work with you on
+creating an instrumentation plan. No code yet—just a spec you can review to identify
+span boundaries, names, and attributes.
+Planning mode is especially valuable for new services and for migrations: it’s easier
+to design once and have the agent implement as it goes, rather than retrofitting a
+sprawling codebase later. In this phase, you’ll decide how to instrument, what to
+instrument, and which attributes and signals are critical. If you’re using schema tools
+(like Weaver), a great artifact from planning is a schema spec and a short set of rules
+to add to your agent’s memory.
+In execution mode, use caution if you’re working in a brownfield environment. You
+should give the agent patterns to follow and rules on how to adapt. AI models will
+imitate whatever patterns are most common in your repos, whether those patterns
+are good or bad. Brownfield systems are rarely consistent. So, often, this means
+your agent will need to implement small, specific, and targeted fixes that can be
+generalized into scripts or instructions. Keep changes small enough that code review
+actually works.
+A useful pattern with agents is to have them automate the automation. Rather than
+asking the agent to edit a number of files manually, have it identify patterns that
+should change and write a script to make changes programmatically. For example,
+have an agent write a script that identifies all custom metrics (using some heuristics),
+and then tell it to analyze each result and determine what kind of change makes
+the most sense (e.g., converting the metric to a span attribute, deleting it entirely, or
+changing its type).
+If you don’t already have them (and most teams don’t), consider “telemetry tests” that
+capture diagnostic output before and after a telemetry migration. Perhaps use your
+agent to first create those tests, and then use it to compare the semantics against
+each other. You can also do that with auto-instrumentation: if you’re migrating from
+a proprietary APM (application performance monitoring) agent to OTel, capture the
+telemetry from both and ask your AI agent to diff them. This is exactly the kind of
+repetitive comparison AI is good at.
+Finally: share rules. Treat agent instructions like shared tooling. Check them into
+version control, keep them simple, and make them consistent across the team. An
+emerging pattern is the idea of “agent skills,” which are instructions for an agent that
+can be shared among teams, individuals, and organizations.
+
+
+
+
+                                                   Using AI Agents to Instrument Your Code   |   129
+                   Treat Agent Rules Like Software
+                   Prompting is a form of programming. If your team is relying on
+                   agent workflows, test them.
+                   For example, create a small daily continuous integration (CI) job
+                   that uses your AI agent to generate or modify an appropriate arti‐
+                   fact (e.g., library, toy app, etc.), instruments it to your standards,
+                   runs it so that it emits telemetry to a test backend with an MCP
+                   (Model Context Protocol) integration, and then independently
+                   evaluates the outputs.
+
+
+Useful Strategies for Agents
+AI models reward clear, concise, accurate instructions or documentation. They’re
+bad at implicit nuance, sarcasm, or other forms of ambiguity. They’re also great at
+sounding confident when wrong. Plan accordingly.
+That said, some prompting folklore is outdated. You don’t need to bribe models with
+rewards or threaten them with punishment.4 Extra emotional language often makes
+outputs worse, not better. What matters for successful instrumentation is managing
+context (or chat history) and giving crisp constraints.
+Here are a few patterns we’ve seen work when asking agents to perform instrumenta‐
+tion, or coding tasks in general:
+Manage agent context.
+   Agents will go offtrack as their context fills up, and they have a recency bias. Use
+   features like subagents where an independent agent process performs repetitive
+   work in isolated contexts, or keep an external task file in markdown that the
+   agent periodically updates, especially for long-horizon tasks.
+Work in small chunks.
+   You’ll get better and more consistent results by focusing on a single file, or even a
+   part of a file, at a time. Periodically commit your changes to source control, and
+   don’t be afraid of throwing things away and rolling back if the agent goes off the
+   rails.
+Don’t be afraid of disposable code.
+   You can use agents to build tiny, fit-for-purpose instrumentation tools. Throw
+   them away when you’re done. You can even use an agent to build your own
+   agent! This is especially useful for migrations as there’s probably a lot of docu‐
+   mentation you have access to. Consolidate and compile it, distill it down into
+   system prompts and reference files, then build your agent around that core.
+
+
+4 James Padolsey, “Tipping AI for Better Responses?”, March 20, 2024.
+
+
+
+130   | Chapter 7: Instrumenting Your Code with OpenTelemetry
+    Tailor the agent to a specific service, or programming language, or internal
+    framework, etc. The tighter the specificity, the likelier you’ll get good results with
+    minimal oversight.
+Let AI help write the documentation.
+    Use an agent to read through your existing libraries or code and have it create
+    your initial state as a schema file in any format you prefer. Iterate to ensure it has
+    accurate telemetry descriptions. You can even feed it any existing observability
+    primitives (dashboards, alerts, etc.) so that it knows how the data is used. With
+    that initial state, use it to generate planned diffs, or create mappings to existing
+    OpenTelemetry concepts.
+Bring observability into the software development loop.
+    Beyond migrations, having real-time observability data integrated into an AI
+    agent can be powerful for developers. It reduces context switching for devs, and it
+    allows your agent to make better choices based on real data rather than guesses.
+As a real world example, one of the authors was implementing a feature that involved
+fetching data and needed to know a good default for page size. The agent was able to
+query telemetry data and determine the P50, P99, and P9999 size of result sets for the
+feature in question, and how long those database queries took in production. Rather
+than guessing or context switching to find out manually, the agent quickly calculated
+an optimal number of items to display per page, using real-world data.
+None of this replaces engineering judgment. But used thoughtfully, agents can reduce
+the cost of doing instrumentation well, and make it easier to keep your telemetry
+consistent as your codebase grows.
+
+Conclusion
+OpenTelemetry can feel overwhelming at first, but the core idea is straightforward:
+model system behavior with shared context, emit signals with consistent semantics,
+and layer telemetry so operators can move from high-level symptoms to concrete
+causes.
+In this chapter we covered trace-first design and context propagation, practical span
+boundaries, trace strategies for streaming and asynchronous architectures, and spe‐
+cial considerations for serverless and eBPF-based instrumentation. We also covered
+how metrics, traces, logs, and events fit together—and how to choose the right signal
+for the job.
+Finally, we discussed how AI agents can reduce the toil of writing and migrating
+instrumentation when you pair them with a real plan, consistent conventions, and
+reviewable execution. While the features and capabilities of AI will surely change
+
+
+
+                                                                          Conclusion   |   131
+quickly, these guidelines illustrate how to balance human engineering judgment with
+AI’s emerging capabilities.
+At this point you should be well-equipped to generate actionable telemetry from your
+services. Next, we’ll pivot from creation to analysis: how to make sense of all the data
+you’re now collecting.
+
+
+
+
+132   | Chapter 7: Instrumenting Your Code with OpenTelemetry
+                                                                           PART III
+                                           Analysis Workflows
+
+
+
+
+Part II covered the practical skills for instrumenting your code and generating tele‐
+metry. Now we look at what to do with that data.
+Analysis is the other half of the technical foundation. Instrumentation without anal‐
+ysis is just logging into the void. This part covers how to actually use telemetry—
+across development, deployment, and production—and we recommend it for most
+readers.
+Chapter 8 introduces the core analysis loop: a repeatable workflow for sifting through
+telemetry data, surfacing patterns, and finding the source of issues quickly. The goal
+is to lead with data rather than intuition. This chapter also covers how to automate
+parts of that loop, including how to use AI assistants effectively.
+Chapter 9 looks at how observability should shape developer workflows day to day—
+while coding, deploying, and monitoring what’s running. By showing how analysis
+makes deployments more reliable, it also works backward into how instrumentation
+should be woven into the development lifecycle. AI-assistant guidance is included
+here too.
+Chapter 10 is a guest-contributed chapter by Boris Tane, founder and Chief Executive
+Officer (CEO) of Coreplane Labs, on using AI agents in observability workflows.
+The agentic space is moving fast, but there are durable patterns for working with
+these systems effectively. The considerations apply regardless of which AI tools you’re
+using.
+Chapter 11 takes on the problems with traditional threshold-based alerting and
+shows a better path: service level objectives (SLOs). You’ll learn how the telemetry
+from Part II can be used to define SLOs, why wide structured events are the right
+foundation for service level indicators (SLIs), and how to build them—with AI
+assistance where it helps.
+In Part IV, we go deep on the internals—instrumentation, telemetry collection, stor‐
+age, and alerting—for those who want to understand how it all works under the
+hood.

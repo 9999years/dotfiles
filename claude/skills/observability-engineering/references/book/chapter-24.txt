@@ -1,0 +1,577 @@
+                                                                       CHAPTER 24
+        Systems Thinking for Software Delivery
+
+
+
+
+In the previous chapter, we explored how AI amplifies the existing behaviors of your
+organization. The critical question then becomes: how do we optimize the specific
+behaviors that define organizational learning speed? To answer this, we must look
+beyond isolated tools and examine software delivery as a complex sociotechnical
+system.
+Every complex system has points of leverage, and software delivery is no different. By
+taking a step back from individual tools and looking at the system as a whole, we can
+find the right leverage points to accelerate organizational learning.
+The 2025 DORA report describes this need bluntly: “successful AI adoption is a
+systems problem, not a tools problem” (page 4). It also states, “when AI dramatically
+accelerates software development, our control systems—that’s us—must also speed
+up....We need fast feedback loops—faster than ever—to match AI-accelerated code
+generation” (page 9).
+In this chapter, we’ll use systems thinking to illustrate the feedback loops that shape
+incentives, norms, workflows, and technical capabilities. We’ll look at what sociotech‐
+nical systems are, what levers shape them, and the essential role observability plays in
+creating effective feedback loops. You’ll learn which information flows to target—and
+why those produce better results than changing budgets, metrics, or org charts.
+
+Sociotechnical Systems
+Let’s start by using systems thinking to examine the software delivery process. Systems
+thinking means holistically understanding complex problems by viewing them as
+interconnected wholes, rather than as isolated parts. Systems thinking focuses on the
+relationships, patterns, and feedback loops between elements to show how actions in
+one area affect the entire system.
+
+
+                                                                                     435
+The first thing to acknowledge about software delivery is that it’s a sociotechnical
+system. As shown in Figure 24-1, a sociotechnical system is any system where
+technology and human behavior are deeply intertwined. Changing the technology
+changes organizational behavior, and changing organizational constraints changes
+system behavior.
+
+
+
+
+Figure 24-1. People and structure influence what work gets done, how it gets done, and
+what gets prioritized. The technical subsystem and its demands shape cognitive load,
+handoffs, failure modes, and the structures that form around them. These forces are
+reciprocal. You can’t solve one side and move on; the system is continuously coproducing
+outcomes.
+
+Your production environment isn’t just code and infrastructure; it’s also the teams
+that operate it, the structures they work within, the incentives they respond to, and
+the communication patterns they rely on. People, structure, incentives, processes, and
+constraints all shape each other.
+The behaviors you want are produced (or suppressed) by how those elements inter‐
+act. You must adjust and adapt for both in order to drive meaningful change.
+
+You Must Optimize Both the Social and Technical at the Same Time
+The Trist principle states that organizations must jointly optimize their social and
+technical systems for peak performance. Improving one while ignoring the other
+reliably produces suboptimal outcomes.1
+Every technical decision (architecture, tools, platforms) has social implications (team
+structure, hiring, processes), and every social decision has technical ones. At senior
+
+
+
+1 Eric Trist, The Evolution of Socio-Technical Systems: A Conceptual Framework and an Action Research Program
+  (Ontario Ministry of Labour, 1981).
+
+
+436   |   Chapter 24: Systems Thinking for Software Delivery
+levels, both managers and individual contributors need a grounded understanding of
+both the technical reality and the organizational dynamics around it.
+In practice, the most common violation of this principle is when managers, directors,
+and vice presidents make all the important tool decisions without consulting the
+engineers closest to the problem. Engineering executives often believe their technical
+skills are sufficient to represent both sides of the system, even if they haven’t written
+production code in a decade. Sometimes they are right. But getting buy-in from the
+people who will have to live with these decisions and own them is never a bad idea.
+Remember that your goal is to change how your sociotechnical system learns. There
+are many obstacles in your way. Management is often frustrated by the slow pace of
+progress. Engineering cycles often slip away into firefighting. You will want to throw
+simple solutions at these problems.
+Unfortunately, you can’t hire your way out of this problem (many have tried). You
+can’t buy your way out of it with more tools (many have tried).
+But you can fix it—together. And systems thinking is the place to start.
+
+Changing Information Flows
+In her seminal work on systems thinking, Donella Meadows identified a hierarchy of
+intervention points in complex systems.2 The weakest are surface-level adjustments:
+tweaking budgets, changing metrics, shifting locations. These create temporary
+effects the system quickly absorbs and neutralizes.
+If your organization carries the unresolved sociotechnical debts from Chapter 23,
+surface-level tweaks won’t help—those are what got you here. You need to apply force
+at points of leverage to create lasting change. The most powerful interventions change
+the information flows that govern how the system behaves.
+An information flow is the transmission of data, signals, or knowledge between
+components of a system—influencing how the system acts, adapts, or maintains
+stability. Changing information flows changes what people can see. That changes
+their decisions and behaviors.
+Effective change isn’t about how much effort you apply—firefighting consumes enor‐
+mous energy but doesn’t change the system. To change the system, you need leverage
+points and feedback loops.
+When you change your observability, you change the information dynamics that
+govern how hundreds of other decisions get made, every single day. It’s a change to
+your underlying sociotechnical OS.
+
+
+
+2 Donella H. Meadows, Thinking in Systems: A Primer (Chelsea Green Publishing, 2008).
+
+
+
+                                                                             Sociotechnical Systems   |   437
+Observability is an information flow. It’s your code reporting back from production
+with vital information about your users, your product, your system, and your code.
+Most people understand this. Less widely understood is the role observability plays
+in sociotechnical systems: it creates cyclical information flows—feedback loops. No
+observability? No feedback loop. Just a chaotic mess of causes and effects happening
+all over, with no logical link between them.
+This focus on feedback loops as the core point of leverage is the foundation for
+everything that follows.
+
+How Feedback Loops Drive Change
+Most organizations are swamped. Resources are overcommitted, goals are slipping,
+teams depend on other teams that are also behind, and constant firefighting makes
+progress hard. With so little slack capacity, how does anyone move forward?
+The only way out is to identify key feedback loops and address them upstream. That
+work will create shifts so that teams can go from fighting raging bonfires every day,
+to fighting smaller trash fires every few days, to fires that can be easily stomped out
+to—ultimately—preventing the matches from being struck in the first place.
+Software delivery is composed of feedback loops. A feedback loop exists whenever
+actions influence outcomes, and outcomes influence future actions, as shown in
+Figure 24-2. Did a team invest in great tools because they were such a great team? Or
+did investing in better tools make them a better team? (The answer to both: yes!)
+
+
+
+
+Figure 24-2. A simple feedback loop: actions influence outcomes, which influence future
+actions. Both arrows represent observability.
+
+
+
+
+438   |   Chapter 24: Systems Thinking for Software Delivery
+There are two types of feedback loops: amplifying and balancing. These describe
+whether a loop accelerates change or resists it. All organizations have both.
+
+Amplifying Feedback Loops Accelerate Change
+An amplifying feedback loop (also known as a “reinforcing” or “positive” loop,3 as
+shown in Figure 24-3) is a self-reinforcing cycle, where a change in the system trig‐
+gers a response that increases the original effects, causing the changes to accelerate.
+If you dropped a rock at the top of a snowy mountain, snow would stick to it as
+gravity rolled it downhill, making it heavier, stickier, and faster as it rolled, until
+it became (or set off) an avalanche. If you dropped the same rock at the bottom,
+without the downhill slope to kickstart a loop, you would get…a dent in the snow.
+
+
+
+
+Figure 24-3. Gravity and momentum take whatever is happening (snow accumulating
+on a rolling snowball) and make more of it happen (the snowball gets bigger).
+
+Amplifying loops can spiral upward into virtuous cycles or downward into death
+spirals. They amplify whatever you’ve put into them. Amplifying loops are the source
+of exponential, nonlinear effects in organizations, and they are a powerful driver of
+change.
+
+Balancing Feedback Loops Create Stability and Equilibrium
+A balancing (or “negative”) loop counters change by pushing in the opposite direc‐
+tion, as shown in Figure 24-4. If you heat a room, the thermostat will kick in to
+regulate the temperature. Without it, the room becomes an oven.
+
+
+3 In business, they sometimes call this a “flywheel.”
+
+
+
+                                                        How Feedback Loops Drive Change   |   439
+Figure 24-4. A thermostat regulates temperature. Once the room drops below 75 degrees,
+it warms. Once it exceeds 75 degrees, it cools. The system reinforces equilibrium.
+
+Balancing loops create stability and maintain equilibrium. They resist spiraling into
+growth or decline, and they are the source of most self-regulating and persistent
+effects in organizations.
+
+Small Shifts Can Trigger Massive Changes
+When a long-stable situation suddenly experiences dramatic collapse or upheaval,
+it’s rarely attributable entirely to some new force in the system. More likely, an
+amplifying loop has been straining against a balancing feedback loop for quite some
+time, until a small shift in circumstances overwhelmed its ability to balance.4
+This is often the story behind a talent exodus: a company seems to have stable reten‐
+tion for years, but then loses half its senior engineers in three months. Beneath the
+surface, dissatisfaction had been building for years: arbitrary promotions, canceled
+initiatives, few advancement opportunities—an amplifying loop. But inertia, golden
+handcuffs, and a tough job market kept people in place—a balancing loop.
+Then one well-respected engineer quits, lands somewhere great, and posts about
+it online. Other unhappy employees realize that leaving is possible; the balancing
+loop is removed. More leave. The perception forms that “everyone’s leaving,” and
+departures snowball until it becomes a reality.
+
+
+
+
+4 In proverbial terms, this is often cited as “the straw that broke the camel’s back.”
+
+
+
+440   |   Chapter 24: Systems Thinking for Software Delivery
+The Difference Between a Virtuous Cycle and
+a Death Spiral Is the Ability to Self-Correct
+The difference between a virtuous cycle and a death spiral is rarely about intent. It’s
+about whether the system can see clearly enough to correct itself. Let’s look at an
+example.
+Suppose team A decides to break up their monolith. They spin off one new service, it
+works well, deployment gets faster, and they feel accomplished. They create another,
+and then another. A virtuous cycle begins.
+In the virtuous scenario, they instrument each service carefully, tracking cross-service
+latency, deployment frequency, and failure rates. When their eighth service starts
+causing timeouts and cascading failures, they see it immediately in their traces and
+are able to understand why. They recognize they’ve hit the limits of their operational
+maturity and pause. They invest in better tooling, improved debugging, and more
+on-call training. Then they resume. The feedback loop gave them the visibility to
+self-correct.
+Now suppose that same team had no ability to see small failures—basic logs and
+metrics, no traces or precision tooling. When the eighth service causes the same
+problems, they may not even notice. If they do, they can’t explain why. They guess
+that “better service isolation” is the answer, so they create three more services to “fix”
+the dependencies, which makes debugging even harder. Incidents start taking longer.
+They add more services to “simplify,” and conditions degrade further. Engineers start
+leaving because nothing works. Two years later, the system is unmaintainable and the
+team is working on a costly rewrite.
+The intent in both scenarios was identical. The engineers were always trying to do the
+right thing. The difference was whether the team could see clearly enough to know
+when to stop, adjust, or reverse course.
+
+Feedback Loops in Software Delivery Systems
+Feedback loops are continuously at work in your software delivery organization. As
+mentioned in Chapter 23, all core capabilities are loops:
+
+  • Deployment: I shipped code. → What happened? → Adjust.
+  • Code review: I wrote this. → Does it meet our standards? → Improve.
+  • Incidents: Something broke. → What and why? → Fix and learn.
+  • Product development: We built this feature. → Are users getting value? → Iterate.
+
+
+
+
+                                                Feedback Loops in Software Delivery Systems   |   441
+Each loop requires sensing, interpretation, and response. Observability is the sense
+mechanism that enables all of your feedback loops to function. It’s the information
+channel that connects actions to consequences across deployments, incidents, and
+product decisions.
+When sensing is degraded—lossy, laggy, unpredictable, wrong, or missing—organi‐
+zations adapt in ways that reduce productivity. They slow down, batch changes,
+introduce heavyweight approval processes, and institutionalize workarounds. The
+system becomes safer in the short term but slower and less adaptable over time.
+The quality of your observability plays a key role in how your sociotechnical systems
+interpret, respond, and take future actions. Let’s look at how signal quality translates
+into outcomes.
+
+Observability in Amplifying Loops
+Amplifying loops accelerate and escalate with each iteration, making them powerful
+drivers of behavior change. Without good observability, your software development
+loops are far more likely to spin into doom loops than build toward virtuous cycles.
+Here are three concrete examples.
+
+The confidence loop
+High-quality observability creates a confidence loop, building the confidence to
+deploy more frequently, leading to small-batch releases that are easier to debug. Fast
+feedback enables faster issue detection, which decreases MTTR. Engineers learn to
+trust their ability to fix problems quickly, so they take more risks and move faster.
+The loop builds momentum with every cycle.
+Poor observability triggers the opposite: fear of the unknown leads to infrequent
+deployments. Changes pile up, deployments become large and failure-prone, and
+incidents take longer to resolve. Deployments become something to fear. The team
+slows to a crawl.
+
+The learning accumulation loop
+The learning accumulation loop is a virtuous cycle that rewards curiosity and creates
+more of it. Engineers who can easily find answers ask more questions. They build
+deeper, more accurate mental models, which enables faster debugging. Their intu‐
+itions improve, driving continuous exploration—and expertise compounds, as shown
+in Figure 24-5.
+
+
+
+
+442   |   Chapter 24: Systems Thinking for Software Delivery
+Figure 24-5. An amplifying loop escalates with each repetition until acted upon by
+another force or new information. Amplifying feedback loops are the greatest drivers of
+change in an organization.
+
+But when answers are hard to find, engineers stop asking questions, as shown in Fig‐
+ure 24-6. The system becomes opaque and teams rely on shallow pattern-matching,
+and critical knowledge concentrates in a few individuals, creating serious institutional
+risk if they leave.
+
+
+
+
+Figure 24-6. An amplifying loop can also be the source of exponential degradation. In
+most cases, the intent is the same. Observability gives people the clear, timely informa‐
+tion they need to self-correct.
+
+The intention behind amplifying feedback loops and death spirals is usually the
+same. People generally try to do their best. The difference in direction is driven by
+whether they have enough clear, timely, accurate observability data to identify what’s
+happening and self-correct.
+
+
+                                                 Feedback Loops in Software Delivery Systems   |   443
+The system quality loop
+The system quality loop is one where robust observability lets engineers detect and
+resolve small anomalies in real time—like subtle latency spikes and edge-case errors.
+That creates a clean baseline, making future issues easier to spot and allowing quality
+to compound.
+Without it, small defects accumulate into a “normally broken” state. New prob‐
+lems are masked by background noise. Teams get trapped in a firefighting cycle,
+addressing only the most catastrophic failures while reliability and resilience steadily
+degrade.
+
+Observability in Balancing Loops
+Balancing loops play a critical role in ensuring continuity and stability of operations.
+But in order to balance, they need timely, accurate information.
+Without good observability, balancing loops fail to provide balance or equilibrium;
+instead they create wild oscillations or freeze up into risk aversion and stasis.
+
+Incident involvement breadth
+During major incidents, teams pull in more people for faster resolution and broader
+learning. But too many people creates coordination chaos, while too few means
+missed learning opportunities. The system should match incident participation to
+complexity and learning value.
+Without observability, teams either create incident mobs (where everyone gets pulled
+in, and nobody knows who’s doing what) or exclude everyone except the hero engi‐
+neer (where learning doesn’t spread and that person just burns out). They can’t tell
+whether more people helped or just created confusion, and they swing between “all
+hands on deck” and “too many cooks.”
+With observability, teams can measure resolution time against participation, and
+track learning spread against coordination overhead. They can detect patterns, like
+“engineers who shadow more than three incidents learn to resolve independently,
+but shadowing more doesn’t help.” They can build structure—defined roles, spectator
+modes for learners, recordings for broader sharing. The system calibrates: the right
+people in the room to solve it, the right people observing to learn from it.
+
+Observability cost and usage regulation
+Engineers instrument systems and run queries, consuming storage, compute, tokens,
+and network resources. If they have no visibility into what that costs, they can’t
+self-regulate.
+
+
+
+
+444   | Chapter 24: Systems Thinking for Software Delivery
+Without observability of observability, teams experience either cost explosion (“our
+bill just hit $2 million a month—turn everything off!”), followed by overcorrection
+when finance complains (as shown in Figure 24-7), or cost anxiety that leads to
+underinstrumenting critical systems. They can’t tell which metrics nobody looks at or
+which queries are scanning terabytes uselessly.
+
+
+
+
+Figure 24-7. Without visibility into consumption, costs grow unchecked until finance
+complains—then observability teams slash cardinality and drop the most valuable data.
+
+However, with real-time observability of their usage, teams can see exactly what’s
+driving costs:
+
+  • “The checkout service is generating 60% of our trace volume but only 10% of our
+    queries reference it.”
+  • “This one dashboard query scans 500 gigabytes (GB) every time it loads and
+    nobody has looked at it in three months.”
+
+They can identify high-cardinality explosions:
+
+  • “Adding user_id as a dimension multiplied our metric cardinality by 10,000x.”
+
+They can measure value:
+
+  • “The fraud detection team runs $5,000 worth of queries per month but that
+    instrumentation caught a $2 million incident in 10 minutes.”
+
+
+
+
+                                                 Feedback Loops in Software Delivery Systems   |   445
+They can optimize intelligently—increasing sampling where it matters, removing
+unused metrics, and tuning retention by datatype. Costs stay bounded while coverage
+expands where it counts. Teams use instrumentation to make targeted investments
+based on expected returns instead of rocketing back and forth between runaway
+spending and reactive scarcity. And if each team has a budget, they can manage to
+that budget, as shown in Figure 24-8.
+
+
+
+
+Figure 24-8. With real-time cost visibility, teams can self-correct and stay within budget.
+
+The meta insight is that you can’t regulate what you can’t measure. Observability
+about observability is about taking the same sociotechnical practices, context-rich
+data, and precision tools that you use in production and applying them to your own
+use of observability. This closes the loop and lets organizations invest strategically
+rather than lurch between overspending and panic cuts.
+
+Partial Feedback Creates Systemic Distortions
+So far in our examples, we’ve assumed that observability is either very good or very
+poor. Reality is usually more nuanced.
+Inconsistent observability quality can be more damaging than uniformly poor
+observability. A false sense of security builds while risk quietly accumulates. High-
+quality observability needs to be present throughout the critical paths of your soft‐
+ware delivery organization. When it isn’t, the effects ripple everywhere:
+Feedback is lossy: you only see part of what happened.
+    You deploy a change and the error rate doesn’t spike, so you assume it worked.
+    But you’re not seeing that latency increased for a specific customer segment, or
+    that a code path is swallowing errors, or that the change broke an edge case
+    affecting 0.5% of users.
+      You make decisions based on incomplete information. You might even double
+      down on the bad behavior—“that deploy went fine, so let’s do more like that”—
+      when it actually caused problems that you just can’t see.
+
+
+
+
+446   | Chapter 24: Systems Thinking for Software Delivery
+Feedback is laggy: you see what happened, but only much later
+    You ship on Tuesday. A customer complains on Friday. By then, you’ve shipped
+    40 other changes. You can’t isolate cause and effect, and the feedback loop cycle
+    time is so long that you can’t iterate on what you learn.
+    You’re flying in the dark. You’re making the next decision before you know if the
+    last one worked. That’s like trying to learn to ride a bike when the bike’s response
+    is delayed by 30 seconds; you’re going to crash.
+Feedback is unpredictable: sometimes you see things and sometimes you don’t.
+    A cryptic error appears on your dashboards—twice a day? Three times? It’s hard
+    to tell because the ingestion pipeline sometimes hiccups. You can’t tell if you’re
+    seeing a real pattern or just gaps in the data.
+    When this happens, engineers stop investigating intermittent issues because
+    they’ve learned they can’t trust what they’re seeing. The feedback loops exist
+    in theory but fail in practice.
+Feedback is wrong: the signal is misleading.
+    Your metrics say everything is fine, but customers are angry. Or alerts fire con‐
+    stantly for nonissues, so engineers learn to ignore them. Eventually, your teams
+    start missing real problems.
+    False positives and false negatives both destroy the feedback loop—one by creat‐
+    ing noise that drowns out signal, and the other by creating false confidence.
+    Engineers learn that the observability system lies to them, so they route around it
+    with intuition and heuristics.
+Feedback is missing altogether: it’s an open-loop system.
+    This may be the most insidious of all. You’re making changes with no way
+    to know if they worked—or even worse, you do have a way, but no one ever
+    looks. Every deployment is a coin flip. Engineers develop superstitions and self-
+    imposed constraints—the classic, “don’t deploy on Fridays.” Because engineers
+    have no way to confidently connect cause and effect, problems strike with no
+    warning. The system is degrading over time in countless small ways, but nobody
+    can see them until they are big enough to fail catastrophically. So, catastrophic
+    failures are all you get. This is like driving with your eyes closed and only turning
+    the wheel after you hit something. Of course you’re going to drive slowly: you’re
+    terrified, and you should be.
+Degraded feedback doesn’t just slow you down; it actively makes you worse. With
+good feedback, you learn from every action and apply it to the next. With bad
+feedback, you learn the wrong lessons, building incorrect mental models and losing
+trust in your ability to change things safely. So you stop changing things, and the
+system ossifies.
+
+
+
+                                                Feedback Loops in Software Delivery Systems   |   447
+And because these are amplifying loops, degradation accelerates. Slow feedback leads
+to less frequent deploys, which means even slower feedback. Lossy feedback leads to
+incorrect fixes, which create more problems and add more noise.
+The worst part is that engineers adapt to broken feedback loops by creating work‐
+arounds that become institutionalized. They may create elaborate test environments
+that can never replicate production, change approval boards that slow everything
+down, or runbooks that are perpetually out of date. They may establish “safe deploy‐
+ment windows” and “deploy freeze periods,” despite evidence that these make things
+worse.
+All of these are theatrical attempts to add safety when you can’t see what your code
+is doing. What you end up with is an organization optimized for not breaking things
+rather than making things better. Which may even sound prudent, until you realize
+that in a competitive landscape, standing still is falling behind.
+
+Leverage Points in Sociotechnical Systems
+Observability is a powerful capability, but it operates within a larger hierarchy of
+system influence. To apply force for maximum impact, you need to find leverage
+points—places where a small shift produces large changes everywhere else.
+In software delivery, information flows and feedback loops are powerful leverage
+points. But there are others outside the domain of observability.
+
+Leverage Points and the Limits of Observability
+In Thinking in Systems, Donella Meadows describes 12 leverage points in any complex
+system, ordered roughly by their power to produce change.
+The following is an abbreviated subset in the context of software delivery, from
+highest to lowest impact. While points 1, 2, and 3 are not explicitly about information
+flows, they do require high quality signals in order to function and course correct.
+And points 4, 5, and 6 are exactly within the domain of observability:
+
+ 1. Goals: The goals refer to the purpose or function of the system. They’re the
+    highest leverage point available to most executives. Individual contributors who
+    don’t “own” the goal can and should play a vital role in vetting and influencing
+    the goals that are set.
+ 2. Self-organization: Self-organization is the ability to add, change, or evolve system
+    structure. Resist the urge to read this as being about org charts: this is about
+    agency and autonomy, especially at the team level.
+
+
+
+
+448   |   Chapter 24: Systems Thinking for Software Delivery
+ 3. Rules: Rules, followed or not followed, lead to incentives, punishments, and
+    constraints. The right guardrails add consistency and predictability, and prevent
+    everyone from writing their own database from scratch.
+ 4. Information flows: This refers to who does or doesn’t have access to information.
+    Missing or flawed information flows are among the most common sources of
+    dysfunction in any system. Information can also be lost in a flood of undifferenti‐
+    ated detail.
+ 5. Amplifying feedback loops: These are the source of explosive change. The more a
+    loop works, the more power it picks up to do more work.
+ 6. Balancing feedback loops: Though not drivers of change, they are essential none‐
+    theless. As Meadows says, “a system with an unchecked reinforcing loop ulti‐
+    mately will destroy itself ” (page 155). Balancing loops are reservoirs of stability
+    and resilience.
+
+Goals, autonomy, and rules are extremely powerful points of leverage, and while good
+observability can help you design, build, and refine these things, it can’t overcome the
+lack of them.
+Feedback loops that are timely, precise, and relevant enable self-awareness in humans
+and self-governance in teams. They generally produce the right sociotechnical system
+behaviors without needing constant correction or oversight.
+Excellent signal and fast feedback loops will never compensate for a lack of purpose,
+disempowerment, or unchecked chaos in the system. But it’s equally hard to set the
+right goals without good information.
+
+Push in the Right Direction
+One final caution: Meadows observes that people embedded in a system tend to
+intuitively sense where the problems are. They can describe the system, identify the
+forces at work, and guess with remarkable accuracy where the best leverage points
+are.
+However, people have a pronounced tendency to push the right leverage point in the
+wrong direction.
+Deploys are a classic example. Everyone knows that deploys introduce change, and
+change can be hard. Earlier generations of software professionals saw this too—and
+responded by introducing change advisory boards, monthly release trains, and a slew
+of processes that made it slower, harder, and more dangerous to ship. They found the
+right leverage point, but they pushed the wrong way.
+Something to remember as you go looking for leverage points to push in your own
+organization.
+
+
+
+                                                  Leverage Points in Sociotechnical Systems   |   449
+Conclusion
+Let’s go back to the overarching goal: AI makes your ability to move swiftly with confi‐
+dence more important than ever. The limiting factor for how fast your organization
+can move is increasingly how fast you can validate and learn from the code you just
+shipped.
+AI amplifies the systems you already have. Fast, accurate feedback loops compound
+your gains. Slow, lossy loops compound your failure modes. More buggy code
+shipped means less understanding, and more complexity to navigate means moving
+at a slower pace, with fewer chances to learn.
+This is why observability is such a powerful leverage point. It is the only intervention
+that can turn amplifying loops into virtuous cycles while also stabilizing balancing
+loops toward self-regulation and healthy persistence.
+“Observability” is many things: a type of software, a flow of information, and the
+sense mechanism that creates feedback loops from cause and effect. When you
+improve the quality of this signal, it becomes an accelerant that unlocks agency
+and makes coordination easier. Improving it doesn’t just make one thing better—it
+accelerates every feedback loop and thus your organization’s ability to learn, decide,
+and adapt.
+In the next chapter, we’ll apply these sociotechnical systems concepts specifically
+to observability. In successive chapters, we’ll show you how to diagnose your cur‐
+rent state, make the business case, and drive the necessary change inside your
+organization.
+
+
+
+
+450   |   Chapter 24: Systems Thinking for Software Delivery

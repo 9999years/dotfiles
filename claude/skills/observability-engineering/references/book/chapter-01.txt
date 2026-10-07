@@ -1,0 +1,585 @@
+                                                                        CHAPTER 1
+                                          What Is Observability?
+
+
+
+
+The topic of observability has generated a steady supply of attention and buzz over
+the past 10 years, ever since it was first introduced to the field of software develop‐
+ment. However, as with most complex topics, a surging tide of practitioner adoption
+and interest in observability was swiftly countered by a wave of oversimplification
+and appropriation, fueled by hype and marketing budgets.
+When you see this cycle play out repeatedly, it is easy to be cynical: maybe words
+just don’t mean things when money gets involved. It’s worth taking a step back to
+consider: why did we all get so excited in the first place? What was so revelatory, and
+why did it matter?
+This chapter examines the mathematical origins of the term “observability,” and how
+the software development industry has interpreted it and adapted it to our world.
+We also look at the tectonic plates that are colliding at almost every company right
+now, between the old ways (which evolved out of server ops and still dominate the
+ecosystem) and the new ways—derived from first principles and far more expansive
+in capabilities, yet swimming upstream against the way things have always been done.
+Along the way, we’ll argue that observability isn’t just a debugging technique or
+a category of tooling; it’s a property of software dependability, as fundamental as
+reliability or availability.
+Observability as a concept was born out of necessity, when traditional tools and
+techniques simply could not keep up with the long tail of novel problems coming out
+of our increasingly complex systems.
+Our best guess is that AI will be the thing that forces teams to finally move away from
+the operator model of telemetry and toward a more unified model, the way business
+data did in the 2000s. Observability is the last line of defense for AI-generated code,
+and agentic behavior is inherently unpredictable and changes over time. The only way
+
+
+                                                                                      3
+to know what it’s doing is with context-rich data and precision tooling as it runs in
+production.
+Then again, we thought the same thing 10 years ago. We thought there was no way
+the three pillars model could survive the complexity of microservices, serverless, and
+polyglot persistence. But somehow, it did. We are engineers, not prognosticators.
+We have a lot to pack into this chapter. Let’s get started.
+
+The Origins of Observability
+The term “observability” was coined by engineer Rudolf E. Kálmán in 1960, in a
+paper that we now cite as the birth of modern control theory—the mathematics
+of systems you want to steer toward a desired state despite noise, disturbance, and
+incomplete information.1
+Kálmán’s key insight was that observability and controllability are duals. A system
+you cannot observe is, in a precise mathematical sense, a system you cannot control,
+and vice versa.
+For Kálmán, observability meant asking the question: given the outputs you can
+measure, can you infer the complete internal state of the system? If yes, the system is
+observable. If no, some internal state is permanently hidden, and no amount of clever
+engineering will recover it, because the information was never captured to begin with.
+Software borrowed this from systems engineering. Like most things we borrow, it
+arrived with some of the original meaning intact and some parts lost in transit. (The
+controllability part has no equivalent in software.)
+But when we apply the principles of observability to the squishier domain of soft‐
+ware, it opens up radical new ways of interacting with and understanding the code
+you write.
+
+Applying Observability to Software Systems
+Software engineering has a long, rich history of borrowing from other domains:
+biology, architecture, and every type of engineering. We can do this in software
+because we are less tethered to physical constraints. The farther up the stack you
+go, the more you are unconstrained by practicalities like gravity, mass, or the speed
+of light. The only structure we get is the structure we give ourselves, using logic,
+language, and metaphor.
+
+
+
+
+1 Kálmán, Rudolf E. 1960. “On the General Theory of Control Systems”. IFAC Proceedings Volumes 1, no. 1
+    (August): 491–502.
+
+
+4    |   Chapter 1: What Is Observability?
+Software may not be grounded in any of the constraints of its constituent parts—
+atoms, electrons, fiber optics, and so on—but software has its own constraints and
+considerations to worry about. And the principles behind Kálmán’s definition of
+observability have proven useful for reasoning about modern software systems.
+Our systems and practices have changed continually over the years. Our understand‐
+ing of observability has changed as well.
+In the first edition, we described observability as a new breed of tooling, defined
+by the capabilities you could unlock by rethinking data storage and analysis. This
+definition ruffled many feathers—and understandably so, since it implied that more
+traditional tools afforded no observability whatsoever. We came to disfavor it for a
+different reason: it emphasized features and capabilities, but what people actually care
+about are outcomes.
+We have come around to a more encompassing view since then, which is that
+observability is a property of software systems, like reliability or performance. We will
+argue that the observability of your software is a core attribute of its dependability.
+“Dependability” is another borrowed concept (from systems engineering, this time)
+we now rely on. Software dependability is typically expressed on a spectrum ranging
+from low to high, as are each of its attributes.
+Let’s start by examining the other properties of software dependability. Then, we’ll
+look at how to measure the property of observability.
+
+Properties of Software Dependability
+Software has eaten the world. Every time we call a friend, take the train, or get paid,
+we rely on a massive invisible web of software behaving more or less as expected,
+despite the evergreen fact that all hardware will break and all software has bugs.
+Failures are a fact of life. The software industry may have made only modest gains
+at preventing bugs, but we’ve done a lot to make our systems more resilient to them.
+As technology plays an even greater role in our lives, our tolerance for unpredicta‐
+bility has decreased. This makes dependability—“the trustworthiness of a computer
+system”—a central concern of our era.
+Software dependability cannot be quantified numerically. There’s no such thing as
+a dependability score of 9 or a grade B+ for dependability. Some components, like
+availability, often get measured with nines—e.g., uptime that is 99.9%, 99.99%, or
+99.999% available. You can measure seconds of availability, but that metric tells you
+nothing about dependability. Nines don’t matter if users aren’t happy.
+
+
+
+
+                                                   Applying Observability to Software Systems   |   5
+Luckily, there’s a well-established path for measuring dependability characteristics.
+In 1995, Jean-Claude Laprie proposed a framework for measuring software dependa‐
+bility by evaluating six complementary properties that together describe a system’s
+overall trustworthiness:2
+Availability
+    The ability of the system to deliver services when requested
+Reliability
+    The ability of the system to deliver services as specified
+Maintainability
+   The ability of the system to undergo repairs and evolution
+Safety
+    The absence of catastrophic consequences
+Confidentiality
+   The absence of unauthorized information disclosure
+Integrity
+     The absence of improper system alterations
+To assess dependability, you have to look at three things together: what the system
+is supposed to do (functions), what it actually does (behavior), and how it’s built
+(structure). This applies across both hardware and software, including the environ‐
+ment they operate in—and, crucially, the people who interact with the system. Laprie
+defined software systems as inherently sociotechnical.
+That last point is important and easy to overlook. You can’t fully analyze dependabil‐
+ity by staring at code. The humans in the system are part of the system.
+
+Observability Is a Property of Dependable Software
+In the mid-1990s, Laprie’s framework was comprehensive enough to collectively
+describe software dependability, just like monitoring was enough to meet the reliabil‐
+ity needs for systems of the era.
+Monolithic systems were relatively predictable. The problems you’d encounter in
+production were mostly binary: the site was either up, or it was down. (Sometimes, if
+you were unlucky, it had a third state: inexplicably slow.) Monitoring was well-suited
+to this. It detected whether a service was up, down, or underperforming, and engi‐
+neering teams responded with break-fix work to restore availability.
+
+
+2 Laprie, Jean-Claude. “Dependability — Its Attributes, Impairments and Means.” In Predictably Dependable
+    Computing Systems, edited by Brian Randell, Jean-Claude Laprie, Hermann Kopetz, and Bev Littlewood.
+    ESPRIT Basic Research Series. Springer, 1995.
+
+
+6    |   Chapter 1: What Is Observability?
+In the modern cloud era, many infrastructure failure modes are abstracted away
+and handled by the platform. Monoliths gave way to microservices. The industry-
+wide push to improve resiliency made everything more distributed, bringing many
+second-order effects. The most significant of these was a radical change in how we
+think about availability.
+The cloud era ushered in a sprawling zoo of partial failure states. The previously
+rare third state—inexplicable slowness with no smoking gun—became the most com‐
+mon failure mode: a partially degraded load balancer; a hardcoded config pointing
+to us-east-1 from containers in India; a dependency running on another team’s
+infrastructure, behind an API, where you can’t even see what it’s doing. Sounds like a
+Monday.
+Simple monitoring systems can tell you that your system is mostly up or down. More
+sophisticated monitoring can tell you where something is slow. But monitoring can’t
+tell you why. You need all three to resolve issues in production.
+Software dependability now has to include how quickly faults are detected, how
+quickly their sources can be identified, and how effectively teams can reason about
+why those faults are occurring, even when they are quite small. In other words, you
+need to be able to do this at any level: from a high-level view of the entire system,
+down to each network hop between services in a given session, and any subset or
+combination of requests in between.
+This is why we believe it’s time to add a seventh property to Laprie’s list:
+Observability
+   The ability to understand or debug any given system state
+This isn’t a minor amendment. We’ll spend the rest of this book unpacking why it
+belongs there and how to achieve it.
+
+How Observable Is Your Software?
+Properties of dependability, like reliability, security, and maintainability, aren’t meas‐
+ured numerically; neither is observability. But you can reason about it qualitatively,
+and that’s a useful place to start.
+Fault detection is relatively straightforward: do you know an issue is occurring before
+your customers report it? If you’ve managed a modern cloud application, you know
+how common it is for monitoring to miss critical issues. Your customer support team
+flags a spike in complaints, so you check the dashboard but everything looks fine—if
+that sounds familiar, you have a fault detection problem.
+
+
+
+
+                                                           How Observable Is Your Software?   |   7
+Triage—figuring out where an issue is occurring—gets harder as architectural com‐
+plexity increases. In low-observability systems, this often manifests as alert storms:
+a failure in one underlying system triggers dozens or hundreds of alerts in others.
+When a critical dependency fails, do you know exactly where to look? Or do you have
+to check multiple sources and sleuth your way to the source of the cascade?
+Understanding why an issue is occurring is usually the hardest part. Once you’ve
+found the source, you have to figure out what caused it. Identifying the causal trail
+can be very challenging, but it’s the meta process where teams struggle most: figuring
+out how they figured it out, and encoding the trail of breadcrumbs into the system
+instead of living exclusively in the heads of senior engineers and manifesting as
+intuitive leaps.
+As Scotty from Star Trek once said: “I could tell you the speed that we were traveling
+by the feel of the deck plates.” Good for you, Scotty, but that doesn’t help the rest of
+the crew. Can we get the current warp speed displayed where others can see, please?
+Can any engineer on your team, regardless of experience, quickly diagnose complex
+issues by interrogating the data your system emits? Or does a correct diagnosis
+require deep institutional knowledge and a sixth sense?
+The answer to that question is how observable your software is. The changes that AI
+is bringing to the industry will make this exponentially more relevant.
+
+
+                                             Cardinality
+    In mathematics, cardinality refers to the number of elements in a set. In databases,
+    it means the number of unique values in a column. A column called Status that
+    contains “true” or “false” has a cardinality of 2, while a universally unique identifier
+    (UUID) or any other unique set of values has the highest possible cardinality.
+    High-cardinality data is the most descriptive and identifying type of data, and it is
+    vital for observability. Think of all the most useful attributes you would like to search
+    or group by: build number, commit hash, container ID, span ID, user ID, app name,
+    query hash, etc. All of which are high cardinality, and that is why they’re useful.
+    High-cardinality values can be downsampled (e.g., bucketing last names by prefix,
+    or replacing all HTTP error codes with “5xx”), but this cannot be undone. If you
+    aggregate the data before writing it out to disk, you can never put Humpty back
+    together again.
+    Cardinality is a never-ending nuisance for teams that rely heavily on metrics. High-
+    cardinality data is the most valuable data, but metrics aren’t built to handle it. A
+    single metric can increase your bill by tens of thousands of dollars per week if enough
+    cardinality slips into the data unnoticed.
+
+
+
+
+8    |   Chapter 1: What Is Observability?
+In a software system with a high degree of observability, you should be able to:
+
+  • Understand any system state that your application may have gotten itself into,
+    even completely novel ones, without shipping new code to handle it (which
+    would imply you needed to know about it to find it).
+  • Compare one set of feature flags against any other set, then break down and
+    group by endpoint, API key, query hash, or any other combination of interesting
+    dimensions, with no limits on cardinality.
+  • See how users are interacting with the feature you just shipped. Trace by transac‐
+    tion request, browser session, mobile app session, or chat history.
+  • If any of your service level objectives (SLOs) are burning hot, you should be
+    able to select the violating events and surface any patterns. (“The spike in slow
+    requests is coming from read replicas in Australia, from a build ID we just
+    deployed to 1% of canaries using flags x, y, and z; the client error string says DNS
+    is timing out.”)
+  • Find outliers. Any kind. Easily.
+
+To answer these questions, you need precision, flexibility, and (ideally) speed.
+Software systems with lower degrees of observability are ones where these questions
+can only be answered with an enormous investment of time and manual labor, or by
+an expert who can practically intuit the answers.
+
+Two Competing Models for Telemetry:
+Three Pillars Versus Unified Data
+Any tool can be evaluated by how well it helps you achieve a high degree of observ‐
+ability. The principles are what matter—and the principles behind the two most
+common approaches are very different.
+These two tectonic plates are on a collision course with each other right now, all over
+the industry, as the immovable rock of “how we’ve always done things” meets the
+unstoppable force of AI and competitive pressures. Will engineering teams upgrade
+their tool kit, or will the three pillars adapt and prove impossible to dislodge? We’ll
+find out.
+
+The Three Pillars Model
+The first plate is the old way. We call it the “three pillars”—metrics, logs, and
+traces—but that’s a polite fiction. There are far more than three types of signals:
+errors, exceptions, profiling data, product analytics, security events, etc. Each type of
+signal gets streamed off and stored in its own special silo, as shown in Figure 1-1.
+
+
+                               Two Competing Models for Telemetry: Three Pillars Versus Unified Data   |   9
+Figure 1-1. How the three pillars model stores telemetry.
+
+Each type of signal is shipped off and stored in its own separate silo. Metrics go to a
+time-series database (TSDB), logs go to a log-aggregation service, and traces go to a
+tracing service. If the code generates exceptions, errors, profiling data, or any other
+signals, each would be stored in its own silo.
+To illustrate the point, consider a simple web checkout request, like this:
+     GET /api/checkout trace_id=7f3a9c user_id=u_8821 200 OK 142ms
+It would generate at least three distinct sets of telemetry data: metrics, logs, and a
+trace, as shown in Figures 1-2, 1-3, and 1-4, respectively.
+
+
+
+
+Figure 1-2. The metrics don’t know anything about the specific request. They store coun‐
+ters and percentiles aggregated across all requests. They’re useful for knowing something
+is wrong, but not for understanding “why” or “for whom.”
+
+
+
+
+Figure 1-3. The logs tell you what happened in sequence, and you can see individual
+field values like user_id and duration. But to answer “what was slow?” you’d have to
+mentally reconstruct the timeline from the timestamps.
+
+
+10   |   Chapter 1: What Is Observability?
+Figure 1-4. The trace answers that question instantly. You can see that db.query_start
+consumed 89 milliseconds of the 142 milliseconds, and most of that was in db.execute.
+You can see where most of the time went (into db.execute). Because that shares a
+trace_id with the logs, a unified tool can join them.
+
+Most of the software engineers in this industry have never used anything but the
+three pillars approach and its silos. Why? Because infrastructure and operations have
+always owned the tooling, and the three pillars suit their needs.
+If you work in infrastructure, you likely operate hundreds or thousands of compo‐
+nents that you did not write and cannot change. Third-party code is going to emit
+what it wants to emit; you get little say. You just have to put it somewhere and make
+the best of it.
+That’s infrastructure, and it generates a roaring stream of logs and metrics at all times.
+The obvious solution is still the right solution: store the metrics in a metrics store,
+and store the logs in a logging store. And preferably cheap—these signals have some
+value, but not much.
+That’s the infrastructure problem. The development problem is different.
+For the code that your team actually writes—the services that define your company,
+your competitive differentiators, your product—you have complete control over what
+gets emitted, how it’s structured, and where it goes.
+You are not stuck taking whatever the code emits and making the best of it. You can
+instrument deliberately. You can make good decisions about what context to preserve,
+which relationships to maintain, and how to organize your telemetry to preserve
+optionality for your future self.
+And it unlocks tremendous value if you do so.
+
+
+
+
+                              Two Competing Models for Telemetry: Three Pillars Versus Unified Data   |   11
+                       For the rest of this book, we’ll use “traditional” or “legacy observ‐
+                       ability” to describe these older practices. We’ll use “three pillars
+                       model” or “multiple pillars model” when we are explicitly referring
+                       to the practice of siloing off signal types, and “modern observabil‐
+                       ity” or “unified model” for the newer approach.3
+                       We’ll treat observability as a spectrum: the traditional, three pillars
+                       style produces a low degree of observability, while the approach we
+                       advocate produces a high degree.
+
+For the most part, teams haven’t been doing that. They’ve been handed ops tools
+and told to make do—applying an infrastructure model designed for code you don’t
+control to the code that matters most. Metrics and logs made sense for the router.
+They’re a significant mismatch for the billing service.
+This matters because if the true cost of software is measured by the cost of maintain‐
+ing it, telemetry is probably the most powerful leverage point you have. Telemetry
+is your code talking back to you from production, telling you what’s happening.
+The decisions you make about how to emit, store, and analyze that data are not
+infrastructure decisions but product decisions. Most teams have been making them by
+default, not by design.
+The first tectonic plate, in short, is a set of tools built for operators and inherited
+by engineers. But it has accumulated enough ecosystem gravity that it remains the
+default—so deeply embedded in team structures, vendor relationships, and the ergo‐
+nomics of muscle memory that most organizations never question it.
+
+The Unified Storage Model
+The second tectonic plate, the unified storage model, is the newer way of storing
+telemetry, derived from first principles, as shown in Figure 1-5. An example is shown
+in Figure 1-6.
+All the telemetry that describes a request is stored once, preserving as much context
+and many relationships as possible, either in arbitrarily wide, structured log events,
+called “canonical logs,” or as spans and traces.
+
+
+
+
+3 We have tried using “observability 1.0” for the three pillars and “observability 2.0” for wide, structured,
+     traceable log events. This also ruffled many feathers, so we stopped. We are not trying to offend or cast
+     aspersions on other tools or other vendors; indeed, we are trying to not offend. The three pillars model
+     is the right model for third-party code and infrastructure use cases, just like the traceable, context-rich,
+     high-cardinality model is right for code you develop in-house. We have never heard a vendor argue that this is
+     untrue, only that it’s rude to say so. Our goal is to be precise, not rude. But our ultimate loyalty must be to the
+     reader.
+
+
+12     |   Chapter 1: What Is Observability?
+Figure 1-5. How the unified storage model stores data.
+
+
+
+
+Figure 1-6. An example of one wide, traceable structured log event with 24 dimensions.
+Note how rich context plus high-cardinality data gives you the ability to pick out any
+arbitrary subset of requests with extremely high precision.
+
+
+
+
+                              Two Competing Models for Telemetry: Three Pillars Versus Unified Data   |   13
+These principles are worth naming explicitly, because they represent a genuinely
+different set of assumptions about what telemetry is for:
+Data is made valuable by context, and that value increases combinatorially, not linearly.
+   Each additional piece of context you append doesn’t give you one more thing
+   to query; it makes the entire dataset exponentially more valuable4 by giving you
+   new combinations with every field that already exists. The relationships between
+   fields are the most powerful part of the data. Those relationships should be kept
+   as intact as possible, not fragmented across silos. The technical term for this is
+   “high dimensionality.”
+Details are the most identifying part of any dataset.
+    High cardinality—user IDs, trace IDs, build IDs, session IDs, any field that can
+    take millions of distinct values—is a superpower, not a problem to be engineered
+    away because metrics systems can’t handle it. The things that make each request
+    unique are precisely the things that let you find it later.
+Pre-aggregation is a one-way trip.
+    If you aggregate your telemetry at write time, you can never un-aggregate it.
+    The bucket is permanent. If you store raw events or traces, you can derive any
+    aggregate on the fly—including ones you haven’t thought to define yet. The cost
+    of pre-aggregation is the permanent destruction of future investigative options.
+You don’t know what you don’t know.
+    Preserve optionality for your future self by storing trace data or wide, structured
+    log events (also called “canonical logs”) in raw form, so you can aggregate at
+    query time. Any schemas, indexes, or aggregates at write time create dead ends.
+    A telemetry system that forces you to define your questions in advance is one
+    where you will only ever find what you expected to look for.
+Static dashboards have limited value.
+     What you need is flexibility and explorability: the ability to slice and dice, zoom
+     from aggregate to individual request and back, and follow a trail of breadcrumbs
+     wherever it leads. An investigation should feel like being in conversation with
+     your data, but this requires preserving the relationships between datapoints. A
+     static dashboard is a stock phrase; a dynamic interface is a conversation.
+Fast feedback loops are everything.
+    Queries that take minutes break your train of thought. If you can’t iterate
+    rapidly—asking a question, getting an answer in seconds, asking the next—then
+    you’re not exploring; you’re filing tickets.
+
+
+
+4 If you have a wide, structured event or a trace that has 29 attributes, and you add a 30th attribute, it adds as
+     much value as the entire preceding 29 attributes combined.
+
+
+14     | Chapter 1: What Is Observability?
+We’ll go deeper on this history in Chapter 3 (and the rest of this book). For now, it’s
+worth noting: we didn’t invent these principles and we weren’t the only ones to have
+this idea. Rich, structured data backed by a columnar store that supports high cardin‐
+ality and interactive exploration is how business intelligence (BI) software has worked
+for at least 20 years. Marketing teams run funnel analysis, cohort comparisons, and
+ad hoc exploration against billions of events as a matter of routine.
+Imagine trying to run your sales pipeline off predefined buckets of metrics, and you’ll
+get a sense of just how much software engineers have been fumbling around in the
+dark, using infrastructure tools to answer questions those tools were never designed
+or priced for.
+
+
+                                     Dimensionality
+  “Dimensionality” refers to the number of dimensions, features, or independent
+  attributes a dataset possesses. It is a measure of the complexity and size of the data in
+  mathematics and machine learning.
+  In the context of observability, dimensionality refers to the number of unique fields
+  in your structured log events or traces. High-dimensionality datasets are critical for
+  observability (and for AI) because it is a way of measuring the richness of your
+  context.
+  If a structured log has four dimensions or attributes, you can combine them in 15
+  possible ways. The math escalates quickly:
+  4 fields
+        6 pairwise combos, 15 possible combinations
+  8 fields
+        28 pairwise combos, 255 possible combinations
+  30 fields
+       435 pairwise combos, 1.1 billion possible combinations
+  This is why the three pillars model is so costly. When you scatter signals across siloed
+  tools by type, you don’t just lose some of the value; you lose most of it.
+
+
+To be fair, those BI tools used to cost a king’s ransom, but that’s no longer an excuse,
+and it’s no longer the only option.
+These two plates are not compatible. You can’t store your data in one place and
+also in three places. They represent fundamentally different assumptions about what
+telemetry is for, how it should be stored, and what questions it should be able to
+answer.
+
+
+
+                               Two Competing Models for Telemetry: Three Pillars Versus Unified Data   |   15
+Understanding which plate you are resting on (and what it would take to move)
+is one of the most important questions facing engineering organizations today, as
+they grapple with a surge of AI-generated code and get ready to support agentic
+workflows.
+
+Observability Is the Validation of Developer Intent
+For the past decade, the argument for observability has mostly centered on developer
+productivity and incident response. Both real, both valuable. And both, it turns out,
+are vastly understated as framings for what’s actually at stake.
+The entire software development lifecycle (SDLC) is being radically upended at this
+very moment. When agents can write, test, review, and ship code faster than people
+can, verifying that code becomes the bottleneck.
+Telemetry is what’s left. It’s the last line of defense, the safety mechanism for the whole
+collapsed and compressed lifecycle.
+The field of software engineering has a long and storied tradition of treating produc‐
+tion systems like a foreign land, one they may travel to when called on to fix a gnarly
+bug, but not their preferred locale. If a bug makes it to production, as goes this line of
+thought, a developer must have failed in some way.
+This has always been wrong. The line between bug and behavior is not always clear.
+What code will do in the chaos of production is not always knowable. By introducing
+nondeterminism as a feature, not an emergent property, AI shatters these fictions for
+good.
+Only production is production. Test in prod, or live a lie.
+
+The Agentic Incursion Has Just Begun
+What’s coming soon for most (and already here for many) are agents running in pro‐
+duction. Not just writing code, but also testing it, deploying it, running it, observing
+it, and acting on what they find. (See Chapter 10 for more on the topic of agents and
+observability.)
+Agentic investigations are not deterministic. They change over time as they learn new
+things. Agents put the lie to the idea that preproduction testing can ever be sufficient.
+The only way to learn what an agent will do is by instrumenting it and observing what
+it does in the real world.
+All the wisdom and connective tissue that senior engineers carry around in their
+heads—check latency by build ID after a risky deploy, watch cache behavior for days
+after a schema migration, look for N+1 query patterns when billing jobs slow down—
+needs to be encoded into the system, or it doesn’t exist.
+
+
+16   |   Chapter 1: What Is Observability?
+Agents running in production can only be as good as the data they have access
+to. Agents need context, relationships, and a diversity of sources. They need some
+ontological grounding via semantic conventions, and data with enough precision
+detail to track subtle changes over time. Most of all, they need us to think critically
+about the intuitive leaps we make and convert them into breadcrumbs of context,
+cardinality, and other clues.
+High degrees of observability gives agents a fast, exploratory feedback loop with
+real, precise signals. Is this build ID showing elevated latency on this endpoint? Is
+this feature flag variant producing different error rates than the control? Is this user
+cohort experiencing something the rest aren’t? The three pillars require intuitive leaps
+to move between pillars. Unified, high-cardinality, and context-rich telemetry do not
+require such leaps.
+
+Guardrails Are Having a Moment
+This is an exciting time to be in software. There’s a necessary and important conver‐
+sation happening right now about which guardrails you need to test in production in
+order to validate developer intent safely and dial it up incrementally.
+Feature flags, progressive delivery, canary deployments, SLOs, characterization tests,
+automated rollbacks, etc.—these techniques are not new. They’ve been available for
+years (more on this in Chapter 2). Everybody agrees it would be great to have
+them, yet most organizations do not have them. Implementing these tools has been
+time-consuming and hard, putting them well out of reach for the median engineering
+organization.
+AI changes this calculation in two directions at once. It is an enabler—it makes many
+of these things easier, including auto-instrumentation, anomaly detection, and the
+kind of systematic validation that used to require dedicated platform teams. And it
+is a forcing function—your competitors are using AI to build products and features
+at unprecedented speeds, and the pace of change is not going to slow down to wait
+for you. If you want to go fast, you need guardrails. If you want to cross over from
+handcrafted, artisanal code to the software factory, that’s how you get there.
+This is our opportunity to bring the engineering values we have long endorsed to the
+mainstream—ownership, agency, a blending of disciplines. But none of it is possible
+unless you can trace your intent into production and validate precisely what it is
+doing.
+
+
+
+
+                                                         Guardrails Are Having a Moment   |   17
+Conclusion
+Although observability has been around for half a century, observability in software
+systems is a recent adaptation. For software systems, observability is a property of
+dependability: it measures your ability to understand or debug any given system state,
+represented on a continuum.
+Modern systems are so complex, widely distributed, and resilient that mild degra‐
+dations of service (and other unintended consequences of intentional change) are
+harder than ever to identify and diagnose. Many leaders seem to be pinning their
+hopes on AI SRE and agentic solutions to save the day. The extent to which this will
+work is not yet known, but our track record with “magic” is not outstanding.
+The three pillars approach (logs, metrics, and traces) works well for infrastructure,
+but not for software development use cases. The pillars lack precision and depth.
+Engineers have always bridged that gap with intuition and acts of heroism, but agents
+can’t do that.
+Storing all the signals together and widening the data is a technological and social
+step change. It solves the problems of correlation and cardinality that have plagued
+the three pillars and makes it possible to understand or debug any system state,
+regardless of complexity, at a much more efficient price point.
+In the next chapter, we will talk about how to build confidence in your code as it
+crosses over to production.
+
+
+
+
+18   |   Chapter 1: What Is Observability?
