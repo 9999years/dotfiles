@@ -15,16 +15,13 @@
 
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "jujutsu";
-  version = "0.43.0";
+  version = "0.46.0";
 
-  # workspace: CLI support for colocated workspaces
-  #
-  # See: https://github.com/jj-vcs/jj/pull/8834
   src = fetchFromGitHub {
     owner = "jj-vcs";
     repo = "jj";
-    rev = "a0e7ebe7b037e822c506fcf6308055f8eecfb48a";
-    hash = "sha256-y7yBZlFcBkWU8rLKTv4BoU4ld16fH6dFZ6EVGdNV0Tw=";
+    rev = "v${finalAttrs.version}";
+    hash = "sha256-5A443Cjlbu3+46F1Ynfu8FSOOy1yjZSgFnCbg6dMzzk=";
   };
 
   patches = [
@@ -33,15 +30,23 @@ rustPlatform.buildRustPackage (finalAttrs: {
     # See: https://github.com/jj-vcs/jj/pull/9645
     # See: https://github.com/jj-vcs/jj/issues/8281
     (fetchpatch {
-      url = "https://github.com/jj-vcs/jj/commit/2113c52eee93d0a39d700c81981f9a58d7570c58.diff";
+      url = "https://github.com/jj-vcs/jj/commit/eb102785cbc33e5201ad1418d5bcc98ecd881b33.diff";
+      hash = "sha256-ibLa9WHqPRSJosuv4oHCXcbepRo1aFsSm+nPzDWdp0I=";
+    })
+    (fetchpatch {
+      url = "https://github.com/jj-vcs/jj/commit/b9d92ada3cb623192a3e42ac059b1616c5ac8306.diff";
+      hash = "sha256-dIEB7gAl44blhcjInLbDcvFoJyTiAwEic7KPqMoXvzo=";
+    })
+    (fetchpatch {
+      url = "https://github.com/jj-vcs/jj/commit/2e79d34b75e050de1c932b0bee9c0e9caeaa0a64.diff";
       excludes = [
         "CHANGELOG.md"
       ];
-      hash = "sha256-LTn5DOCxkEEbfQut+nuVpLt/BCbJBYZ1BRr5adhpx/s=";
+      hash = "sha256-hobKcwzT+FbN2QlKPNy4ojcdoFvjSciHvmU0nMzdm28=";
     })
   ];
 
-  cargoHash = "sha256-0yD9WuIPIuYA9vk2qG0ycauuaRBFsakIJ8Rkf2p4Ayo=";
+  cargoHash = "sha256-ugqvdijwIUrvq0gEQSzAxqSnF6Ui3qBmMvk1L2TXWEE=";
 
   nativeBuildInputs = [
     installShellFiles
