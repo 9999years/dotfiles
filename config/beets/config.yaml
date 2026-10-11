@@ -15,6 +15,23 @@
 # - Maybe use 'as tracks' mode if there's only one track in the directory?
 # - `pylast` logs stuff
 
+# Secrets live in an untracked `secrets.yaml` next to this file, alongside
+# `discogs_token.json` and friends. A missing include is skipped with a
+# warning, so a fresh checkout still works before you've written it.
+#
+# Template for the next computer:
+#
+#     # ~/.config/beets/secrets.yaml
+#     lyrics:
+#       # "Client Access Token" from https://genius.com/api-clients.
+#       #
+#       # Required, not optional: beets ships a hardcoded fallback key that
+#       # every beets user shares, so it's permanently rate-limited and every
+#       # lookup dies with `too many 429 error responses`.
+#       genius_api_key: ...
+include:
+  - secrets.yaml
+
 # Hey can someone explain why Apple thinks `~/Music` isn't a good music
 # directory?
 directory: ~/Music/Music
