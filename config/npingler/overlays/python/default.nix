@@ -2,7 +2,6 @@ final: prev: {
   pythonPackagesExtensions = (prev.pythonPackagesExtensions or [ ]) ++ [
     (pyFinal: pyPrev: {
       # keep-sorted start
-      beets-copyartifacts3 = pyFinal.callPackage ./beets-copyartifacts3.nix { };
       # keep-sorted end
 
       gst-python = pyPrev.gst-python.overrideAttrs (prev: {

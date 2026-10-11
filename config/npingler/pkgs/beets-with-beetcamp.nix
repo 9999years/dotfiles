@@ -1,7 +1,6 @@
 {
   python3,
   fetchpatch,
-  beets-with-beetcamp,
 }:
 
 python3.pkgs.callPackage (
@@ -9,60 +8,49 @@ python3.pkgs.callPackage (
     toPythonApplication,
     beets,
     beetcamp,
-    beets-copyartifacts3,
   }:
 
-  (toPythonApplication (
+  toPythonApplication (
     beets.override {
-      # Needed until we have https://github.com/NixOS/nixpkgs/pull/477084
-      # Ughhhhh.
-      beets = beets-with-beetcamp;
-
-      # The `musicbrainzngs` API client was replaced with a custom one in
-      # `beets`.
+      # Required, not just preference: `extraPatches` drops a new file into
+      # `beetsplug/`, and the `preCheck` sanity check diffs that directory
+      # against `passthru.plugins.builtins`, which `pluginOverrides` can't add
+      # to. So the check always fails while we're carrying the patch below.
       #
-      # See: https://github.com/beetbox/beets/blob/13e978ca0e91d68b002257e45b06904976f82936/docs/changelog.rst#L193-L203
-      musicbrainzngs = null;
+      # (`pluginOverrides.<name>.builtin` looks like it should do this, but
+      # nothing in nixpkgs ever reads that field.)
+      doCheck = false;
 
+      extraPatches = [
+        # `missingfiles`, which I wrote.
+        #
+        # See: https://github.com/beetbox/beets/pull/5912
+        #
+        # The PR is closed for now -- the maintainers would rather this became
+        # a `beet remove` flag -- so this is rebased onto upstream `master` on
+        # my own fork.
+        (fetchpatch {
+          url = "https://github.com/9999years/beets/commit/dc76296689bd1d8bd478490ff4d437d586b5381b.patch";
+
+          # Take only the plugin itself. The commit also touches
+          # `docs/changelog.rst` and `docs/plugins/index.rst`, which upstream
+          # rewrites constantly, so keeping those hunks means the patch stops
+          # applying every other release.
+          includes = [ "beetsplug/missingfiles.py" ];
+
+          hash = "sha256-Duqw3aowMV88wRPSOE4tEm2F4kNfVYi+ROgCroWTRko=";
+        })
+      ];
+
+      # NB: `missingfiles` deliberately has no `pluginOverrides` entry. The
+      # patch puts it in `beetsplug/`, which the wheel picks up wholesale, and
+      # it has no dependencies of its own to propagate.
       pluginOverrides = {
         beetcamp = {
           enable = true;
           propagatedBuildInputs = [ beetcamp ];
         };
-
-        copyartifacts = {
-          enable = true;
-          propagatedBuildInputs = [ beets-copyartifacts3 ];
-        };
-
-        # I added this one :)
-        #
-        # Can't put this in `pluginOverrides`.
-        # See: https://github.com/NixOS/nixpkgs/pull/471166
-        detectmissing = {
-          builtin = true;
-        };
       };
-
-      extraPatches = [
-        # NB: Dropped a patch to make logging levels/format configurable here
-        # because it was too hard to rebase.
-        #
-        # See: https://github.com/beetbox/beets/pull/5897
-
-        # detectmissing: init
-        #
-        # See: https://github.com/beetbox/beets/pull/5912
-        (fetchpatch {
-          url = "https://github.com/beetbox/beets/commit/288d5e7dc701aff39ea98dfeefce2a1fbf384842.patch";
-          hash = "sha256-m6578KqQZoTMsLlOTgKOYQoRW0XQ96Gy2JmI7Ufal5g=";
-        })
-      ];
     }
-  )).overridePythonAttrs
-    (prev: {
-      # lol lmao
-      # See: https://github.com/NixOS/nixpkgs/pull/471166
-      doCheck = false;
-    })
+  )
 ) { }

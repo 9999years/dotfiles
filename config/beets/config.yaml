@@ -22,8 +22,7 @@ plugins: >-
   bandcamp
   chroma
   convert
-  copyartifacts
-  detectmissing
+  missingfiles
   discogs
   duplicates
   edit
@@ -100,7 +99,11 @@ bandcamp:
 
 fetchart:
   cautious: true
-  sources: "itunes *"
+  # NB: This has to be a list. Beets 2.14 reads a plain string as a single
+  # source name, so "itunes *" is parsed as one source called `itunes *`.
+  sources:
+    - itunes
+    - "*"
 
 duplicates:
   keys:
