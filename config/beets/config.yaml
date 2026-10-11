@@ -51,7 +51,7 @@ logging:
 
 lyrics:
   auto: true
-  sources: lrclib genius tekstowo
+  sources: lrclib genius
   synced: true
 
 import:
