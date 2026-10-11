@@ -6,6 +6,7 @@
   cacert,
   makeWrapper,
   gh,
+  python3,
 }:
 
 let
@@ -17,10 +18,30 @@ let
     hash = "sha256-AtG+S0HIpUqtH81tPpZ4TxW1kKt4On6Jz9mDo9L5hag=";
   };
 
+  # Drops the `x-typescript-types` headers from the vendor manifest, so that
+  # `deno` doesn't go looking for the type definitions we delete below.
+  dropTypeHeaders = ''
+    import json
+
+    path = "vendor/manifest.json"
+
+    with open(path) as file:
+        manifest = json.load(file)
+
+    for module in manifest["modules"].values():
+        module.get("headers", {}).pop("x-typescript-types", None)
+
+    with open(path, "w") as file:
+        json.dump(manifest, file, indent=2)
+  '';
+
   deps = stdenvNoCC.mkDerivation {
     pname = "crespo-ai-deps";
     inherit version src;
-    nativeBuildInputs = [ deno ];
+    nativeBuildInputs = [
+      deno
+      python3
+    ];
     env.SSL_CERT_FILE = "${cacert}/etc/ssl/certs/ca-bundle.crt";
     dontConfigure = true;
     dontFixup = true;
@@ -31,6 +52,16 @@ let
       deno cache --vendor --frozen main.ts
       # This is a local installation cache, not part of the dependencies.
       rm node_modules/.deno/.setup-cache.bin
+
+      # `esm.sh` advertises type definitions with an `x-typescript-types`
+      # response header, and `deno.lock` records no hashes for them. Some of
+      # them are synthesized by `esm.sh` rather than copied from the npm
+      # tarball, so their contents follow whatever version of `esm.sh` is
+      # deployed and our `outputHash` drifts out from under us. Nothing needs
+      # them at runtime -- `deno run` doesn't typecheck -- so throw them away
+      # and keep this derivation pinned to content `deno.lock` can verify.
+      find vendor/esm.sh -name '*.d.ts' -delete
+      python3 -c ${lib.escapeShellArg dropTypeHeaders}
       runHook postBuild
     '';
 
@@ -43,7 +74,7 @@ let
 
     outputHashMode = "recursive";
     outputHashAlgo = "sha256";
-    outputHash = "sha256-BIz64KOycHeOSDwDHDAfJ2jFkWl9QyBGG0TIB6+IVUM=";
+    outputHash = "sha256-NutFmAY/sLZ2HKtw/yX9MJmjRVGzk+kD+ui/LuT0VRc=";
   };
 in
 stdenvNoCC.mkDerivation {
