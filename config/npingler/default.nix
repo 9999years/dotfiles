@@ -67,7 +67,6 @@ let
         pkgs.gh
         pkgs.git
         pkgs.git-absorb
-        pkgs.git-gr
         pkgs.git-hub
         pkgs.git-lfs
         pkgs.git-prole
