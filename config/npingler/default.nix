@@ -80,6 +80,7 @@ let
         pkgs.hyperfine
         pkgs.imagemagickBig
         pkgs.rbt.jgrep
+        pkgs.rbt.jj-hunk
         pkgs.rbt.jj-pr
         pkgs.jq
         pkgs.rbt.jujutsu
