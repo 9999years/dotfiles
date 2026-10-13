@@ -71,7 +71,6 @@ let
         pkgs.git-lfs
         pkgs.gitleaks
         pkgs.gitoxide # `gix`
-        pkgs.hub
         pkgs.hyperfine
         pkgs.imagemagickBig
         pkgs.rbt.jgrep
