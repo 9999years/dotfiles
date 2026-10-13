@@ -1,6 +1,6 @@
 ---
 name: observability-engineering
-description: Designs and reviews observability (o11y) instrumentation. Use when adding telemetry, choosing spans versus attributes, or designing wide events for BubbleUp and cohort analysis.
+description: Designs and reviews observability (o11y) instrumentation (e.g. OTel). Use when deciding what context telemetry should capture, adding telemetry, choosing spans versus attributes, or designing wide events for BubbleUp and cohort analysis.
 ---
 
 # Observability engineering
