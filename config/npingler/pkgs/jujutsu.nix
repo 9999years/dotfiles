@@ -20,9 +20,11 @@ rustPlatform.buildRustPackage (finalAttrs: {
   src = fetchFromGitHub {
     owner = "jj-vcs";
     repo = "jj";
-    # The rebased interdiff patches require APIs introduced after v0.46.0.
-    rev = "c84cc0afe07a38d78aeeed67cf704b77e242bb05";
-    hash = "sha256-du2Eoan9KR14/Sv7Zo7xjHre/0LbzS1xN/E1Kud7JcA=";
+    # Includes "git: delete many refs in the same transaction".
+    #
+    # See: https://github.com/jj-vcs/jj/pull/10147
+    rev = "531e8da8066271040b4b1e74ce17a8a941544cce";
+    hash = "sha256-iHFqcHSKjj2UimJ9SaWqfUi8wxI+7X2Be1r59tVhC3U=";
   };
 
   patches = [
@@ -44,14 +46,6 @@ rustPlatform.buildRustPackage (finalAttrs: {
         "CHANGELOG.md"
       ];
       hash = "sha256-kCwkSdtPKU8913/Y/6KEgMzN3dfbsQDUuQxU7jmOw7I=";
-    })
-
-    # git: delete many refs in the same transaction
-    #
-    # See: https://github.com/jj-vcs/jj/pull/10147
-    (fetchpatch {
-      url = "https://github.com/jj-vcs/jj/commit/c3aa7c38ea7f15fcf928f17db766447e82902a0e.diff";
-      hash = "sha256-PBY2g6b5maza87v931evjkDeOCDsZzxuWveDyIju7eU=";
     })
   ];
 
