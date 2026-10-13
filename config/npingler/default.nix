@@ -8,6 +8,7 @@ let
       # keep-sorted start
       (import ./overlays/cargo-watch.nix)
       (import ./overlays/direnv.nix)
+      (import ./overlays/fnm.nix)
       (import ./overlays/lix.nix)
       (import ./overlays/npingler-lib.nix)
       (import ./overlays/pkgs.nix)
