@@ -199,6 +199,10 @@ if command -q nix-your-shell
     nix-your-shell fish | source
 end
 
+if status is-interactive; and command -q direnv
+    direnv hook fish | source
+end
+
 if command -q nvim
     set --global --export EDITOR nvim
 end
