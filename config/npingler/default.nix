@@ -91,7 +91,6 @@ let
         pkgs.nix-direnv
         pkgs.nix-index
         pkgs.nix-init
-        pkgs.nix-tree
         # pkgs.nix-update  # `error: attribute 'nix-store' missing`
         pkgs.nix-your-shell
         pkgs.nixfmt
