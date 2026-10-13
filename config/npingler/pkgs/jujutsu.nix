@@ -121,7 +121,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
   meta = {
     description = "Git-compatible DVCS that is both simple and powerful";
     homepage = "https://github.com/jj-vcs/jj";
-    changelog = "https://github.com/jj-vcs/jj/blob/v${finalAttrs.version}/CHANGELOG.md";
+    changelog = "https://github.com/jj-vcs/jj/blob/${finalAttrs.src.rev}/CHANGELOG.md";
     license = lib.licenses.asl20;
     maintainers = with lib.maintainers; [
       _0x4A6F
