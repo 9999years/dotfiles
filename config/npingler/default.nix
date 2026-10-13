@@ -111,7 +111,7 @@ let
         # pkgs.omnisharp-roslyn # Depends on `dotnet-sdk`.
         pkgs.pandoc
         pkgs.pyright
-        pkgs.rbt.python-env
+        pkgs.rbt.python-env # My user-level Python packages.
         pkgs.rbt.pywatchman
         pkgs.rcm
         pkgs.ripgrep
