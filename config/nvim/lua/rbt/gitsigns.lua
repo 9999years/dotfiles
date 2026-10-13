@@ -16,6 +16,10 @@ M.opts = {
   },
 }
 
+-- NB: This is lifted outside of the `on_attach` function so that we can share
+-- the state between every buffer.
+local diff_against_working_copy = true
+
 function M.opts.on_attach(bufnr)
   local gitsigns = require("gitsigns")
   local batteries = require("batteries")
@@ -59,6 +63,23 @@ function M.opts.on_attach(bufnr)
 
     -- Actions
     { prefix = "<Leader>h", group = "hunk" },
+    -- Keep committed work navigable without leaving the live buffer. All
+    -- buffers toggle together; HEAD^ includes the last commit plus staged
+    -- and unstaged edits. For merge commits, it means the first parent.
+    {
+      "<Leader>hc",
+      function()
+        diff_against_working_copy = not diff_against_working_copy
+        if diff_against_working_copy then
+          gitsigns.reset_base(true)
+          vim.notify("gitsigns: working copy")
+        else
+          gitsigns.change_base("HEAD^", true)
+          vim.notify("gitsigns: parent commit + working copy")
+        end
+      end,
+      "Toggle last commit hunks",
+    },
     {
       "<Leader>hs",
       function()
