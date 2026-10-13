@@ -2,6 +2,7 @@
   lib,
   buildPythonPackage,
   fetchFromGitHub,
+  fetchPypi,
   gitMinimal,
   hatchling,
   httpx,
@@ -11,6 +12,20 @@
   unidiff,
 }:
 
+let
+  # unidiff 1.x ignores differing `---` paths after a `diff --git` header,
+  # bypassing jgrep's malformed-path handling.
+  unidiff_0_7 = unidiff.overridePythonAttrs (
+    finalAttrs: _: {
+      version = "0.7.5";
+      src = fetchPypi {
+        pname = "unidiff";
+        inherit (finalAttrs) version;
+        hash = "sha256-Ll8BYgUiSJRrnwlwpA6eEkI2v4bIK3CCEUOm/B3qJXQ=";
+      };
+    }
+  );
+in
 buildPythonPackage (finalAttrs: {
   pname = "jev-grep";
   version = "0.4.1";
@@ -31,19 +46,13 @@ buildPythonPackage (finalAttrs: {
     httpx
     jevkit-runtime
     pathspec
-    unidiff
+    unidiff_0_7
   ];
 
   # Skipping the `code` extra (`tree-sitter{,-c,-go}`), which only adds `--functions`
   # support for Go and C. Python `--functions` uses `ast` and needs no extra.
   #
   # Tests for the Go and C paths `importorskip` the grammars, so they skip cleanly.
-
-  # Nixpkgs ships unidiff 1.x; jgrep pins `<0.8` but only uses `PatchSet` and
-  # `UnidiffParseError`, which are unchanged. The test suite exercises this.
-  pythonRelaxDeps = [
-    "unidiff"
-  ];
 
   nativeCheckInputs = [
     gitMinimal # `jgrep review` shells out to `git`.
