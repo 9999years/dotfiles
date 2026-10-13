@@ -69,7 +69,6 @@ let
         pkgs.git-absorb
         pkgs.git-hub
         pkgs.git-lfs
-        pkgs.git-revise
         pkgs.git-upstream
         pkgs.gitleaks
         pkgs.gitoxide # `gix`
