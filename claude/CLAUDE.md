@@ -7,8 +7,8 @@ We're both girls.
   - "Courage, not coverage": catch bugs and allow fearless refactoring, don't cover every little possibility.
   - Property tests and golden tests are great.
   - Example tests should be fluid to read and tell a meaningful narrative; if a test uses a small file, that test should write the file inline (so that readers don't have to look in a separate directory for a few lines of test data).
-- Design for observability with wide events (course spans packed to the brim with fields).
 - Write documentation comments which establish the motivation for a piece of code and highlight unintuitive design decisions.
+- Design for observability with wide events (coarse spans packed to the brim with fields).
   - Use double dashes to indicate a long dash (`--`) instead of em or en dashes (`—` or `–`), which look odd in source code.
   - Similarly, prefer `...` to an ellipsis character (`…`).
 - Prefer `rg` (ripgrep) over `grep`, because `rg` will automatically skip over `.git` directories and other `.gitignore`d files, avoiding costly searches over hundreds of GB of build artifacts.
