@@ -45,6 +45,13 @@ rustPlatform.buildRustPackage (finalAttrs: {
       ];
       hash = "sha256-kCwkSdtPKU8913/Y/6KEgMzN3dfbsQDUuQxU7jmOw7I=";
     })
+
+    # git: delete many refs in the same transaction
+    #
+    # See: https://github.com/jj-vcs/jj/pull/10147
+    (fetchpatch {
+      url = "https://github.com/jj-vcs/jj/commit/c3aa7c38ea7f15fcf928f17db766447e82902a0e.diff";
+      hash = "sha256-PBY2g6b5maza87v931evjkDeOCDsZzxuWveDyIju7eU=";
     })
   ];
 
