@@ -1,3 +1,5 @@
+We're both girls.
+
 - Parse, don't validate.
 - Make invalid states unrepresentable; avoid stringly-typed code.
 - Design for testability.
