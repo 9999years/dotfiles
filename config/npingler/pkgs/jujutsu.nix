@@ -25,6 +25,34 @@ rustPlatform.buildRustPackage (finalAttrs: {
   };
 
   patches = [
+    # cli: report remotes before fetching
+    #
+    # Prerequisite for https://github.com/jj-vcs/jj/pull/10391
+    (fetchpatch {
+      url = "https://github.com/jj-vcs/jj/commit/8ed0e38561547271c7fe4044ce51602df9ba9b21.diff";
+      excludes = [ "CHANGELOG.md" ];
+      hash = "sha256-9OVGugHuUFMZbSzRE/vRVm+wUks42pVfgFogRHkCZNY=";
+    })
+    # 86b7e2e8 git: use gix to prune refs that couldn't be fetched
+    # 3ba08bde git: add test for fetching renamed refs with path conflicts
+    # 33eb03b4 git: don't respect configured refspecs when fetching
+    # 78dd53c5 revset: drop parsing hints for deprecated range operators
+    #
+    # Prerequisite for https://github.com/jj-vcs/jj/pull/10391
+    (fetchpatch {
+      url = "https://github.com/jj-vcs/jj/compare/78dd53c5b67bcf3cff8cb9a9f15dbb9a4e129398...86b7e2e80b8e541a6aee2972a077428b7d1d4e18.diff";
+      excludes = [ "CHANGELOG.md" ];
+      hash = "sha256-kQvAp0uJHc3GP93a/DYaAANKkcSbmOlBWj1Y+QW9Gm0=";
+    })
+    # git: fetch bookmarks into temporary namespace
+    #
+    # See: https://github.com/jj-vcs/jj/pull/10391
+    (fetchpatch {
+      url = "https://github.com/jj-vcs/jj/compare/3bf1f8f64375d3b7c0e91d63c538c1bcc0bcb97d...c2626de7203d755372a4a00782ecff9f09cff380.diff";
+      excludes = [ "CHANGELOG.md" ];
+      hash = "sha256-A2TqrKenbtAMKn+lgNLapIp7CzNuGjjAXuJtajsLT+Q=";
+    })
+
     # interdiff: Support multiple revisions in args
     #
     # See: https://github.com/jj-vcs/jj/pull/9645
