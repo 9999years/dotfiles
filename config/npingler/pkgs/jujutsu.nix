@@ -20,61 +20,35 @@ rustPlatform.buildRustPackage (finalAttrs: {
   src = fetchFromGitHub {
     owner = "jj-vcs";
     repo = "jj";
-    rev = "v${finalAttrs.version}";
-    hash = "sha256-5A443Cjlbu3+46F1Ynfu8FSOOy1yjZSgFnCbg6dMzzk=";
+    # The rebased interdiff patches require APIs introduced after v0.46.0.
+    rev = "c84cc0afe07a38d78aeeed67cf704b77e242bb05";
+    hash = "sha256-du2Eoan9KR14/Sv7Zo7xjHre/0LbzS1xN/E1Kud7JcA=";
   };
 
   patches = [
-    # cli: report remotes before fetching
-    #
-    # Prerequisite for https://github.com/jj-vcs/jj/pull/10391
-    (fetchpatch {
-      url = "https://github.com/jj-vcs/jj/commit/8ed0e38561547271c7fe4044ce51602df9ba9b21.diff";
-      excludes = [ "CHANGELOG.md" ];
-      hash = "sha256-9OVGugHuUFMZbSzRE/vRVm+wUks42pVfgFogRHkCZNY=";
-    })
-    # 86b7e2e8 git: use gix to prune refs that couldn't be fetched
-    # 3ba08bde git: add test for fetching renamed refs with path conflicts
-    # 33eb03b4 git: don't respect configured refspecs when fetching
-    # 78dd53c5 revset: drop parsing hints for deprecated range operators
-    #
-    # Prerequisite for https://github.com/jj-vcs/jj/pull/10391
-    (fetchpatch {
-      url = "https://github.com/jj-vcs/jj/compare/78dd53c5b67bcf3cff8cb9a9f15dbb9a4e129398...86b7e2e80b8e541a6aee2972a077428b7d1d4e18.diff";
-      excludes = [ "CHANGELOG.md" ];
-      hash = "sha256-kQvAp0uJHc3GP93a/DYaAANKkcSbmOlBWj1Y+QW9Gm0=";
-    })
-    # git: fetch bookmarks into temporary namespace
-    #
-    # See: https://github.com/jj-vcs/jj/pull/10391
-    (fetchpatch {
-      url = "https://github.com/jj-vcs/jj/compare/3bf1f8f64375d3b7c0e91d63c538c1bcc0bcb97d...c2626de7203d755372a4a00782ecff9f09cff380.diff";
-      excludes = [ "CHANGELOG.md" ];
-      hash = "sha256-A2TqrKenbtAMKn+lgNLapIp7CzNuGjjAXuJtajsLT+Q=";
-    })
-
     # interdiff: Support multiple revisions in args
     #
     # See: https://github.com/jj-vcs/jj/pull/9645
     # See: https://github.com/jj-vcs/jj/issues/8281
     (fetchpatch {
-      url = "https://github.com/jj-vcs/jj/commit/eb102785cbc33e5201ad1418d5bcc98ecd881b33.diff";
+      url = "https://github.com/jj-vcs/jj/commit/16dbe5df309996d42a57468dad3c21250b3bc3f9.diff";
       hash = "sha256-ibLa9WHqPRSJosuv4oHCXcbepRo1aFsSm+nPzDWdp0I=";
     })
     (fetchpatch {
-      url = "https://github.com/jj-vcs/jj/commit/b9d92ada3cb623192a3e42ac059b1616c5ac8306.diff";
-      hash = "sha256-dIEB7gAl44blhcjInLbDcvFoJyTiAwEic7KPqMoXvzo=";
+      url = "https://github.com/jj-vcs/jj/commit/c62acf5d64d7fcdab9c9dcac794a4f2aafcf0756.diff";
+      hash = "sha256-wmO0SM1jnJPCPj/lPx1+LQRPHKhA+h/N9gVnYpiWgdI=";
     })
     (fetchpatch {
-      url = "https://github.com/jj-vcs/jj/commit/2e79d34b75e050de1c932b0bee9c0e9caeaa0a64.diff";
+      url = "https://github.com/jj-vcs/jj/commit/e6fe66b94bb60459844f0b6e615d7e9d9d43e264.diff";
       excludes = [
         "CHANGELOG.md"
       ];
-      hash = "sha256-hobKcwzT+FbN2QlKPNy4ojcdoFvjSciHvmU0nMzdm28=";
+      hash = "sha256-kCwkSdtPKU8913/Y/6KEgMzN3dfbsQDUuQxU7jmOw7I=";
+    })
     })
   ];
 
-  cargoHash = "sha256-ugqvdijwIUrvq0gEQSzAxqSnF6Ui3qBmMvk1L2TXWEE=";
+  cargoHash = "sha256-KaPFN559hZbNfPdhHNGd7MTOXLm4ky0ZX9eM+Ckz0xI=";
 
   nativeBuildInputs = [
     installShellFiles
