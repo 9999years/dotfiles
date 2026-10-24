@@ -28,14 +28,14 @@ let
 in
 buildPythonPackage (finalAttrs: {
   pname = "jev-grep";
-  version = "0.4.1";
+  version = "0.6.0";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "keltokhy";
     repo = "jgrep";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-BB6nBTVqpILRJ6JX5on16FV8oIJAKO4h3Lv+ilKkahQ=";
+    hash = "sha256-34Qr28+5VRkchi6riruP6Oz2W3ddtTBcg2GQ2q0r684=";
   };
 
   build-system = [

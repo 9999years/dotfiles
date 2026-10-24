@@ -4,18 +4,19 @@
   buildPythonPackage,
   hatchling,
   httpx,
+  pillow,
   pytestCheckHook,
 }:
 
 buildPythonPackage (finalAttrs: {
   pname = "jevkit-runtime";
-  version = "0.3.1";
+  version = "0.4.3";
   pyproject = true;
 
   src = fetchPypi {
     pname = "jevkit_runtime";
     inherit (finalAttrs) version;
-    hash = "sha256-W2zBWqtUuWReohjxPCUngFhlhUiZr9l7qZHNA9ljR58=";
+    hash = "sha256-ChRSkg+r6ch6SCiMgnzpMXuOS0Vm+QKAsXqWdY2w3oA=";
   };
 
   build-system = [
@@ -30,9 +31,11 @@ buildPythonPackage (finalAttrs: {
     http2 = [
       httpx.optional-dependencies.http2
     ];
+    images = [ pillow ];
   };
 
   nativeCheckInputs = [
+    pillow
     pytestCheckHook
   ];
 
